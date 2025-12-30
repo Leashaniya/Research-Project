@@ -362,8 +362,16 @@
   width: auto;
   height: auto;
   display: block;
-  margin: 30px auto;
+  margin: 6px auto; /* further reduced vertical spacing between images */
   border-radius: 12px;
+}
+
+/* Tighter spacing when multiple images appear consecutively */
+.report-content img + img,
+.markdown-image + .markdown-image,
+.report-content img + .markdown-image,
+.markdown-image + img {
+  margin-top: 6px; /* ensure consecutive images have minimal gap */
 }
 
 /* Code block styling */

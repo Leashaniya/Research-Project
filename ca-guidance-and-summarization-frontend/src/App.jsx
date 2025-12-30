@@ -27,6 +27,7 @@ function App() {
   const [summaryTopic, setSummaryTopic] = useState('');
   const [summary, setSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryAudio, setSummaryAudio] = useState(null);
 
   useEffect(() => {
     // Check if user is logged in by calling the /auth/me endpoint
@@ -139,12 +140,39 @@ function App() {
         const result = await response.json();
         console.log('=== Summary Response ===');
         console.log(JSON.stringify(result, null, 2));
-        
+        // Extract audio link from summary content if present (e.g., "**Audio:** /audio/filename.wav")
+        let audioUrl = null;
+        let cleanedSummary = result.summary || '';
+        try {
+          const audioMatch = cleanedSummary.match(/(\/audio\/[\w%\-\.]+(\.[a-zA-Z0-9]+)?)/);
+          if (audioMatch) {
+            const audioPath = audioMatch[1];
+            // Build absolute URL similar to image handling
+            if (audioPath.startsWith('http://') || audioPath.startsWith('https://')) {
+              audioUrl = audioPath;
+            } else if (audioPath.startsWith('/api/')) {
+              const cleanSrc = API_URL.endsWith('/api') ? API_URL.replace(/\/api$/,'') : API_URL;
+              const cleanPath = audioPath.replace(/^\/api/, '');
+              audioUrl = `${cleanSrc}${cleanPath}`;
+            } else if (audioPath.startsWith('/')) {
+              audioUrl = API_URL.endsWith('/') ? `${API_URL.replace(/\/$/,'')}${audioPath}` : `${API_URL}${audioPath}`;
+            } else {
+              audioUrl = `${API_URL}/${audioPath}`;
+            }
+
+            // Remove the audio line from the displayed markdown
+            cleanedSummary = cleanedSummary.replace(/\*\*Audio:\*\*\s*(?:<http[s]?:\/\/[^\s>]+>|[^\s\n]+)/, '').trim();
+          }
+        } catch (err) {
+          console.error('Error extracting audio from summary:', err);
+        }
+
         setSummary({
-          content: result.summary,
+          content: cleanedSummary,
           images: result.images || [],
           topic: result.topic
         });
+        setSummaryAudio(audioUrl);
       } else {
         const errorData = await response.json().catch(() => ({ detail: 'Failed to create summary' }));
         setSummary({ error: errorData.detail || 'Failed to create summary. Make sure you are logged in.' });
@@ -425,10 +453,19 @@ function App() {
                   {summary.error ? (
                     <div className="error-message">{summary.error}</div>
                   ) : summary.content ? (
-                    <div className="report-content">
-                      <ReactMarkdown components={CodeBlock}>
-                        {summary.content}
-                      </ReactMarkdown>
+                    <div>
+                      {summaryAudio && (
+                        <div style={{ marginBottom: '12px' }}>
+                          <audio controls src={summaryAudio} style={{ width: '100%' }}>
+                            Your browser does not support the audio element.
+                          </audio>
+                        </div>
+                      )}
+                      <div className="report-content">
+                        <ReactMarkdown components={CodeBlock}>
+                          {summary.content}
+                        </ReactMarkdown>
+                      </div>
                     </div>
                   ) : null}
                 </div>
