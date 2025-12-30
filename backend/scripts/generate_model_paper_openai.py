@@ -25,6 +25,7 @@ import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
 from openai import OpenAI
+from app.core.config import OPENAI_API_KEY
 
 
 # -------------------------------
@@ -190,9 +191,9 @@ def main():
     must_exist(SLIDES_CHUNKS_PATH, "slides_chunks.jsonl")
     must_exist(SLIDES_FAISS_PATH, "slides_faiss_index_flatip.index")
 
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = OPENAI_API_KEY
     if not api_key:
-        raise EnvironmentError("OPENAI_API_KEY is not set. Use: $env:OPENAI_API_KEY='...' in PowerShell.")
+        raise EnvironmentError("OPENAI_API_KEY is not set. Please check your .env file.")
 
     print("Loading artifacts...")
     exam_bp = load_json(EXAM_BP_PATH)
