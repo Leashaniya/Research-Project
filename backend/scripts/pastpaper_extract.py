@@ -260,7 +260,7 @@ def ocr_data_to_lines(data_dict, diagrams):
 
 
 # =========================
-# Blueprint parser (main Q only) + marks fix
+# Blueprint parser (main Q only) + marks fix + YEAR-FALSE-POSITIVE FIX ✅
 # =========================
 Q_MAIN_RE = re.compile(r".*\bQuestion\s*([0-9IVXLC]+)\b", re.IGNORECASE)
 NUMERIC_MAIN_RE = re.compile(r"^\s*\(?\s*([0-9]+)\s*(?:[\.\)\-:])\s*", re.IGNORECASE)
@@ -342,7 +342,20 @@ def parse_blueprint_from_text(doc_text: str, pdf_stem: str, min_words=MIN_QUESTI
                 state["q_buffer"].append("")
             continue
 
-        m_main = Q_MAIN_RE.match(ln_strip) or NUMERIC_MAIN_RE.match(ln_strip) or ALT_Q_RE.match(ln_strip)
+        # ✅ FIX: avoid treating years like "2016." as a new main question
+        m_qword = Q_MAIN_RE.match(ln_strip) or ALT_Q_RE.match(ln_strip)
+
+        m_num = NUMERIC_MAIN_RE.match(ln_strip)
+        if m_num:
+            try:
+                n = int(m_num.group(1))
+                if 1900 <= n <= 2100:  # looks like a year
+                    m_num = None
+            except Exception:
+                pass
+
+        m_main = m_qword or m_num
+
         if m_main:
             finalize()
             qid = m_main.group(1)
