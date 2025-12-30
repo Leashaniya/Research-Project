@@ -3,8 +3,8 @@
 import os
 from pathlib import Path
 from typing import Dict, Any
+from scripts.pastpaper_extract import run_single
 
-from backend.scripts.pastpaper_extract import run_single
 
 
 def process_past_paper(file_path: str) -> Dict[str, Any]:

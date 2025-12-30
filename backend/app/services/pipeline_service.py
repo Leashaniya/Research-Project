@@ -1,37 +1,43 @@
 # Service to orchestrate the pipeline
 
-from backend.app.services.pastpaper_service import process_past_paper
-from backend.app.services.slides_service import process_slides
-from backend.app.services.structure_service import generate_structure
-from backend.app.services.generation_service import generate_model_paper
+from app.services.pastpaper_service import process_past_paper
+from app.services.slides_service import process_lecture_slides
+from app.services.structure_service import generate_exam_structure
+from app.services.generation_service import generate_model_paper
 
-def run_pipeline(file_type, file_path):
-    statuses = []
+def run_pipeline(file_type: str, file_path: str) -> Dict[str, Any]:
+    steps: List[str] = []
 
     if file_type == "past_paper":
-        statuses.append("Processing past paper...")
-        process_past_paper(file_path)
-        statuses.append("Past paper processed successfully.")
+        steps.append("Processing past paper...")
+        pp_result = process_past_paper(file_path)
+        steps.append("Past paper processed successfully.")
 
-        statuses.append("Generating structure from past paper...")
-        generate_structure("past_paper")
-        statuses.append("Structure generated successfully.")
+        steps.append("Generating exam structure (from past papers)...")
+        structure_result = generate_exam_structure()
+        steps.append("Structure generated successfully.")
 
     elif file_type == "slides":
-        statuses.append("Processing lecture slides...")
-        process_slides(file_path)
-        statuses.append("Lecture slides processed successfully.")
+        steps.append("Processing lecture slides...")
+        slides_result = process_lecture_slides(file_path)
+        steps.append("Lecture slides processed successfully.")
 
-        statuses.append("Generating structure from slides...")
-        generate_structure("slides")
-        statuses.append("Structure generated successfully.")
+        steps.append("Generating exam structure (from artifacts)...")
+        structure_result = generate_exam_structure()
+        steps.append("Structure generated successfully.")
 
-    statuses.append("Generating model paper...")
-    result = generate_model_paper()
-    statuses.append("Model paper generated successfully.")
+    else:
+        raise ValueError(f"Unsupported file_type: {file_type}")
+
+    steps.append("Generating model paper...")
+    model_result = generate_model_paper()
+    steps.append("Model paper generated successfully.")
 
     return {
         "status": "success",
-        "steps": statuses,
-        "outputs": result
+        "steps": steps,
+        "past_paper": pp_result if file_type == "past_paper" else None,
+        "slides": slides_result if file_type == "slides" else None,
+        "structure": structure_result,
+        "model_paper": model_result,
     }

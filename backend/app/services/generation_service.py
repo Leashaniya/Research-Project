@@ -1,6 +1,6 @@
 # Service for OpenAI-based RAG model paper generation
 
-from backend.scripts.generate_model_paper_openai import main
+from scripts.generate_model_paper_openai import main
 
 def generate_model_paper():
     # Call the main function from the script

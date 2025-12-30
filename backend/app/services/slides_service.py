@@ -1,6 +1,6 @@
 # Service for slide extraction, chunking, embeddings, and FAISS
 
-from backend.scripts.lectureslide_extract import main
+from scripts.lectureslide_extract import main
 import os
 
 def process_lecture_slides(file_path):
