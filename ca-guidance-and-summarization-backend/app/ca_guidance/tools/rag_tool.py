@@ -110,11 +110,11 @@ def query_lecture_materials(query: str) -> str:
 
 
 @tool("Summarize Lecture Materials")
-def summarize_lecture_materials(topic: str) -> str:
+def summarize_lecture_materials(topic: str):
     """
     Create a comprehensive summary of lecture materials on a specific topic using RAG.
     This tool searches through uploaded lecture PDFs and generates a well-structured summary
-    with relevant images and diagrams.
+    with relevant images, diagrams, and audio_url.
     
     Use this tool when you need to:
     - Create summaries of specific topics or concepts from the course
@@ -134,10 +134,15 @@ def summarize_lecture_materials(topic: str) -> str:
         rag_chain = _get_rag_chain()
         
         if rag_chain is None:
-            return "RAG system is not available. The vectorstore needs to be built first by ingesting lecture PDFs."
+            return {
+                "topic": topic,
+                "summary": "RAG system is not available. The vectorstore needs to be built first by ingesting lecture PDFs.",
+                "images": [],
+                "audio_url": None
+            }
         
         # Create a summary-focused query
-        summary_query = f"Provide a comprehensive summary of {topic}. Include key concepts, main ideas, important details, and examples. If there are diagrams or visual aids related to this topic, make sure to reference them."
+        summary_query = (f"Provide a comprehensive summary of {topic}. Include key concepts, main ideas, important details, and examples. If there are diagrams or visual aids related to this topic, make sure to reference them.")
         
         result = rag_chain.invoke({"question": summary_query})
         answer = result.get("answer", str(result)) if isinstance(result, dict) else str(result)
@@ -148,7 +153,7 @@ def summarize_lecture_materials(topic: str) -> str:
             from pathlib import Path
             image_refs = []
             for img_path in images:
-                img_name = Path(img_path).name if not isinstance(img_path, str) or '/' in img_path else img_path
+                img_name = Path(img_path).name if isinstance(img_path, str) else Path(img_path).name
                 image_refs.append(f"[IMAGE:{img_name}]")
             
             if image_refs:
@@ -157,13 +162,22 @@ def summarize_lecture_materials(topic: str) -> str:
         # Generate audio for the summary
         try:
             audio_path = text_to_speech_wav(answer)
-            audio_url = "/audio/" + audio_path.split("/")[-1]
-            answer += f"\n\n**Audio:** {audio_url}"
+            audio_url = f"/audio/{Path(audio_path).name}"
         except Exception as tts_err:
             logger.error(f"TTS generation failed: {tts_err}", exc_info=True)
 
-        return answer
+        return {
+            "topic": topic,
+            "summary": answer,
+            "images": images,
+            "audio_url": audio_url
+        }
     except Exception as e:
         logger.error(f"Error summarizing lecture materials: {e}", exc_info=True)
-        return f"An error occurred while summarizing lecture materials: {str(e)}"
+        return {
+            "topic": topic,
+            "summary": f"An error occurred while summarizing lecture materials: {str(e)}",
+            "images": [],
+            "audio_url": None
+        }
 

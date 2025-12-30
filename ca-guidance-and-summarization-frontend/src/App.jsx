@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { 
-  FaGraduationCap, 
-  FaFileAlt, 
-  FaBook, 
-  FaFilePdf, 
-  FaRocket, 
-  FaClipboard, 
+import {
+  FaGraduationCap,
+  FaFileAlt,
+  FaBook,
+  FaFilePdf,
+  FaRocket,
+  FaClipboard,
   FaBookOpen,
   FaCheck,
   FaCopy
@@ -29,8 +29,25 @@ function App() {
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryAudio, setSummaryAudio] = useState(null);
 
+  // ✅ Helper: make a path absolute using API_URL
+  const toAbsoluteUrl = (maybeRelativeUrl) => {
+    if (!maybeRelativeUrl) return null;
+    const url = String(maybeRelativeUrl).trim();
+    if (!url) return null;
+
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+
+    const base = String(API_URL || '').replace(/\/$/, '');
+    if (!base) return url;
+
+    if (url.startsWith('/')) return `${base}${url}`;
+    return `${base}/${url}`;
+  };
+
+  // ✅ (AUDIO CHANGE) Remove markdown audio parsing - backend now returns audio_url separately
+  // const extractAudioFromMarkdown = ...  ❌ REMOVED
+
   useEffect(() => {
-    // Check if user is logged in by calling the /auth/me endpoint
     const checkUser = async () => {
       try {
         const response = await fetch(`${API_URL}/auth/me`, { credentials: 'include' });
@@ -67,22 +84,15 @@ function App() {
       const response = await fetch(`${API_URL}/protected/run-guidance`, {
         method: 'POST',
         credentials: 'include',
-        body: formData, // Sending file via FormData
+        body: formData,
       });
+
       if (response.ok) {
         const result = await response.json();
+
         console.log('=== Full API Response ===');
         console.log(JSON.stringify(result, null, 2));
-        console.log('=== Report Content ===');
-        console.log(result.report);
-        console.log('=== Images ===');
-        console.log(result.images);
-        console.log('=== Report Type ===');
-        console.log(typeof result.report);
-        console.log('=== Report Length ===');
-        console.log(result.report ? result.report.length : 'null/undefined');
-        
-        // Store both report and images
+
         setReport({
           content: result.report,
           images: result.images || []
@@ -107,9 +117,10 @@ function App() {
       });
       setUser(null);
       setReport(null);
-      setAssignmentFile(null); // Clear selected file on logout
+      setAssignmentFile(null);
       setSummary(null);
       setSummaryTopic('');
+      setSummaryAudio(null);
     } catch (error) {
       console.error('Error logging out:', error);
     }
@@ -119,6 +130,7 @@ function App() {
     e.preventDefault();
     setSummaryLoading(true);
     setSummary(null);
+    setSummaryAudio(null); // ✅ clear old audio immediately
 
     if (!summaryTopic || !summaryTopic.trim()) {
       setSummary({ error: 'Please enter a topic to summarize.' });
@@ -129,49 +141,26 @@ function App() {
     try {
       const response = await fetch(`${API_URL}/protected/summarize`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ topic: summaryTopic.trim() }),
       });
-      
+
       if (response.ok) {
         const result = await response.json();
+
         console.log('=== Summary Response ===');
         console.log(JSON.stringify(result, null, 2));
-        // Extract audio link from summary content if present (e.g., "**Audio:** /audio/filename.wav")
-        let audioUrl = null;
-        let cleanedSummary = result.summary || '';
-        try {
-          const audioMatch = cleanedSummary.match(/(\/audio\/[\w%\-\.]+(\.[a-zA-Z0-9]+)?)/);
-          if (audioMatch) {
-            const audioPath = audioMatch[1];
-            // Build absolute URL similar to image handling
-            if (audioPath.startsWith('http://') || audioPath.startsWith('https://')) {
-              audioUrl = audioPath;
-            } else if (audioPath.startsWith('/api/')) {
-              const cleanSrc = API_URL.endsWith('/api') ? API_URL.replace(/\/api$/,'') : API_URL;
-              const cleanPath = audioPath.replace(/^\/api/, '');
-              audioUrl = `${cleanSrc}${cleanPath}`;
-            } else if (audioPath.startsWith('/')) {
-              audioUrl = API_URL.endsWith('/') ? `${API_URL.replace(/\/$/,'')}${audioPath}` : `${API_URL}${audioPath}`;
-            } else {
-              audioUrl = `${API_URL}/${audioPath}`;
-            }
 
-            // Remove the audio line from the displayed markdown
-            cleanedSummary = cleanedSummary.replace(/\*\*Audio:\*\*\s*(?:<http[s]?:\/\/[^\s>]+>|[^\s\n]+)/, '').trim();
-          }
-        } catch (err) {
-          console.error('Error extracting audio from summary:', err);
-        }
+        // ✅ (AUDIO CHANGE) Use backend-provided audio_url directly
+        const audioUrl = toAbsoluteUrl(result.audio_url);
 
         setSummary({
-          content: cleanedSummary,
+          content: result.summary || '',
           images: result.images || [],
           topic: result.topic
         });
+
         setSummaryAudio(audioUrl);
       } else {
         const errorData = await response.json().catch(() => ({ detail: 'Failed to create summary' }));
@@ -195,7 +184,7 @@ function App() {
         const codeString = String(children).replace(/\n$/, '');
         navigator.clipboard.writeText(codeString);
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+        setTimeout(() => setCopied(false), 2000);
       };
 
       return !inline && match ? (
@@ -242,34 +231,16 @@ function App() {
         </code>
       );
     },
+
     img({ node, src, alt, ...props }) {
-      // Handle image src URLs correctly
-      let imageSrc = src;
-      if (src) {
-        // If src is already a full URL (starts with http:// or https://), use it as-is
-        if (src.startsWith('http://') || src.startsWith('https://')) {
-          imageSrc = src;
-        }
-        // If src starts with /api/, it's a relative path - construct full URL
-        else if (src.startsWith('/api/')) {
-          // Remove leading /api if API_URL already ends with /api
-          const cleanSrc = API_URL.endsWith('/api') ? src.replace(/^\/api/, '') : src;
-          imageSrc = `${API_URL}${cleanSrc}`;
-        }
-        // If src starts with /, it's a relative path from root
-        else if (src.startsWith('/')) {
-          imageSrc = `${API_URL}${src}`;
-        }
-        // Otherwise, assume it's relative to API_URL
-        else {
-          imageSrc = `${API_URL}/${src}`;
-        }
-      }
+      // ✅ Use the same absolute-url function for images too
+      const imageSrc = toAbsoluteUrl(src);
+
       return (
-        <img 
-          {...props} 
-          src={imageSrc} 
-          alt={alt || 'Image'} 
+        <img
+          {...props}
+          src={imageSrc}
+          alt={alt || 'Image'}
           className="markdown-image"
           style={{ maxWidth: '100%', width: 'auto', height: 'auto' }}
           onError={(e) => {
@@ -287,7 +258,7 @@ function App() {
         <div className="app-header">
           <h1><FaGraduationCap style={{ marginRight: '10px', verticalAlign: 'middle' }} />CA Guidance and Summarization</h1>
         </div>
-        
+
         {!user ? (
           <div className="login-screen">
             <h1>Welcome!</h1>
@@ -315,7 +286,7 @@ function App() {
                 Logout
               </button>
             </div>
-          
+
             {/* Tab Navigation */}
             <div className="tab-navigation">
               <button
@@ -332,146 +303,143 @@ function App() {
               </button>
             </div>
 
-          {/* Guidance Tab */}
-          {activeTab === 'guidance' && (
-            <div className="content-area">
-              <form onSubmit={handleRunGuidance} className="form-container">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="assignment-file">
-                    <FaFilePdf style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Upload Assignment PDF
-                  </label>
-                  <input
-                    id="assignment-file"
-                    type="file"
-                    accept="application/pdf"
-                    onChange={(e) => setAssignmentFile(e.target.files[0])}
-                    className="file-input"
-                    required
-                  />
-                  {assignmentFile && (
-                    <div className="info-message" style={{ marginTop: '10px' }}>
-                      Selected: <strong>{assignmentFile.name}</strong>
-                    </div>
-                  )}
-                </div>
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <span className="loading-spinner"></span>
-                      Processing PDF...
-                    </>
-                  ) : (
-                    <>
-                      <FaRocket style={{ marginRight: '8px' }} />
-                      Generate Guidance
-                    </>
-                  )}
-                </button>
-              </form>
-              
-              {report && (
-                <div>
-                  <h2 style={{ marginBottom: '20px', color: '#495057' }}>
-                    <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Guidance Report
-                  </h2>
-                  {/* Display the report - handle both string and object formats */}
-                  {typeof report === 'string' ? (
-                    <div className="report-content">
-                      <ReactMarkdown components={CodeBlock}>
-                        {report}
-                      </ReactMarkdown>
-                    </div>
-                  ) : report.content ? (
-                    <div className="report-content">
-                      <ReactMarkdown components={CodeBlock}>
-                        {report.content}
-                      </ReactMarkdown>
-                    </div>
-                  ) : report.markdown_report ? (
-                    <div className="report-content">
-                      <ReactMarkdown components={CodeBlock}>
-                        {report.markdown_report}
-                      </ReactMarkdown>
-                    </div>
-                  ) : report.error ? (
-                    <div className="error-message">{report.error}</div>
-                  ) : (
-                    <div className="report-content">
-                      <ReactMarkdown components={CodeBlock}>
-                        {JSON.stringify(report, null, 2)}
-                      </ReactMarkdown>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+            {/* Guidance Tab */}
+            {activeTab === 'guidance' && (
+              <div className="content-area">
+                <form onSubmit={handleRunGuidance} className="form-container">
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="assignment-file">
+                      <FaFilePdf style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Upload Assignment PDF
+                    </label>
+                    <input
+                      id="assignment-file"
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(e) => setAssignmentFile(e.target.files[0])}
+                      className="file-input"
+                      required
+                    />
+                    {assignmentFile && (
+                      <div className="info-message" style={{ marginTop: '10px' }}>
+                        Selected: <strong>{assignmentFile.name}</strong>
+                      </div>
+                    )}
+                  </div>
+                  <button type="submit" className="btn btn-primary" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <span className="loading-spinner"></span>
+                        Processing PDF...
+                      </>
+                    ) : (
+                      <>
+                        <FaRocket style={{ marginRight: '8px' }} />
+                        Generate Guidance
+                      </>
+                    )}
+                  </button>
+                </form>
 
-          {/* Summarization Tab */}
-          {activeTab === 'summarize' && (
-            <div className="content-area">
-              <form onSubmit={handleSummarize} className="form-container">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="topic">
-                    <FaBook style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Enter Topic to Summarize
-                  </label>
-                  <input
-                    id="topic"
-                    type="text"
-                    value={summaryTopic}
-                    onChange={(e) => setSummaryTopic(e.target.value)}
-                    placeholder="e.g., Entity-Relationship Diagrams, Normalization, SQL Queries, Database Design..."
-                    className="text-input"
-                    required
-                  />
-                  <p style={{ marginTop: '8px', fontSize: '0.9rem', color: '#6c757d' }}>
-                    Enter a topic from your lecture materials to get a comprehensive summary with relevant diagrams.
-                  </p>
-                </div>
-                <button type="submit" className="btn btn-primary" disabled={summaryLoading}>
-                  {summaryLoading ? (
-                    <>
-                      <span className="loading-spinner"></span>
-                      Creating Summary...
-                    </>
-                  ) : (
-                    <>
-                      <HiMiniSparkles style={{ marginRight: '8px' }} />
-                      Create Summary
-                    </>
-                  )}
-                </button>
-              </form>
-              
-              {summary && (
-                <div style={{ marginTop: '30px' }}>
-                  {summary.topic && (
+                {report && (
+                  <div>
                     <h2 style={{ marginBottom: '20px', color: '#495057' }}>
-                      <FaBookOpen style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Summary: <span style={{ color: '#336db0' }}>{summary.topic}</span>
+                      <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Guidance Report
                     </h2>
-                  )}
-                  {summary.error ? (
-                    <div className="error-message">{summary.error}</div>
-                  ) : summary.content ? (
-                    <div>
-                      {summaryAudio && (
-                        <div style={{ marginBottom: '12px' }}>
-                          <audio controls src={summaryAudio} style={{ width: '100%' }}>
-                            Your browser does not support the audio element.
-                          </audio>
-                        </div>
-                      )}
+
+                    {typeof report === 'string' ? (
+                      <div className="report-content">
+                        <ReactMarkdown components={CodeBlock}>{report}</ReactMarkdown>
+                      </div>
+                    ) : report.content ? (
+                      <div className="report-content">
+                        <ReactMarkdown components={CodeBlock}>{report.content}</ReactMarkdown>
+                      </div>
+                    ) : report.markdown_report ? (
+                      <div className="report-content">
+                        <ReactMarkdown components={CodeBlock}>{report.markdown_report}</ReactMarkdown>
+                      </div>
+                    ) : report.error ? (
+                      <div className="error-message">{report.error}</div>
+                    ) : (
                       <div className="report-content">
                         <ReactMarkdown components={CodeBlock}>
-                          {summary.content}
+                          {JSON.stringify(report, null, 2)}
                         </ReactMarkdown>
                       </div>
-                    </div>
-                  ) : null}
-                </div>
-              )}
-            </div>
-          )}
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Summarization Tab */}
+            {activeTab === 'summarize' && (
+              <div className="content-area">
+                <form onSubmit={handleSummarize} className="form-container">
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="topic">
+                      <FaBook style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Enter Topic to Summarize
+                    </label>
+                    <input
+                      id="topic"
+                      type="text"
+                      value={summaryTopic}
+                      onChange={(e) => setSummaryTopic(e.target.value)}
+                      placeholder="e.g., Entity-Relationship Diagrams, Normalization, SQL Queries, Database Design..."
+                      className="text-input"
+                      required
+                    />
+                    <p style={{ marginTop: '8px', fontSize: '0.9rem', color: '#6c757d' }}>
+                      Enter a topic from your lecture materials to get a comprehensive summary with relevant diagrams.
+                    </p>
+                  </div>
+                  <button type="submit" className="btn btn-primary" disabled={summaryLoading}>
+                    {summaryLoading ? (
+                      <>
+                        <span className="loading-spinner"></span>
+                        Creating Summary...
+                      </>
+                    ) : (
+                      <>
+                        <HiMiniSparkles style={{ marginRight: '8px' }} />
+                        Create Summary
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                {summary && (
+                  <div style={{ marginTop: '30px' }}>
+                    {summary.topic && (
+                      <h2 style={{ marginBottom: '20px', color: '#495057' }}>
+                        <FaBookOpen style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Summary:{' '}
+                        <span style={{ color: '#336db0' }}>{summary.topic}</span>
+                      </h2>
+                    )}
+
+                    {summary.error ? (
+                      <div className="error-message">{summary.error}</div>
+                    ) : summary.content ? (
+                      <div>
+                        {summaryAudio && (
+                          <div style={{ marginBottom: '12px' }}>
+                            <audio controls src={summaryAudio} style={{ width: '100%' }}>
+                              Your browser does not support the audio element.
+                            </audio>
+                          </div>
+                        )}
+
+                        <div className="report-content">
+                          <ReactMarkdown components={CodeBlock}>
+                            {summary.content}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
