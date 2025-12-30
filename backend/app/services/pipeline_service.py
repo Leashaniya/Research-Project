@@ -1,5 +1,6 @@
 # Service to orchestrate the pipeline
 
+from typing import Dict, Any, List
 from app.services.pastpaper_service import process_past_paper
 from app.services.slides_service import process_lecture_slides
 from app.services.structure_service import generate_exam_structure
