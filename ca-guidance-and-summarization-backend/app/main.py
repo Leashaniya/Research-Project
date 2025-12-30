@@ -5,6 +5,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.core.config import settings
 from app.api.routes import auth, public, protected
 from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -20,7 +21,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
-app.mount("/audio", StaticFiles(directory="outputs/audio"), name="audio")
+# Ensure audio directory exists
+AUDIO_DIR = Path("outputs/audio")
+AUDIO_DIR.mkdir(parents=True, exist_ok=True)
+
+#Serve audio files
+app.mount("/audio", StaticFiles(directory=str(AUDIO_DIR)), name="audio")
 
 # Add session middleware for OAuth
 app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
