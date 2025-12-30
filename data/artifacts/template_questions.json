@@ -1,0 +1,252 @@
+[
+  {
+    "pdf_stem": "2017 II",
+    "question_id": "1",
+    "cluster": 0,
+    "cluster_label_keywords": [
+      "number",
+      "int",
+      "frame",
+      "table",
+      "id",
+      "varchar",
+      "stores",
+      "bytes"
+    ],
+    "marks": 20,
+    "full_text": "Question 1\n(20 Marks)\nConsider the following relations in a database created for a taxi service\nVehicle (vehiclelD : char(4), type\n: varchar(10), fielType: varchar(6), mileage: real)\nDriver (driverID : char(4), name\n: varchar(50), phone\n: char(10))\nCustomer (customerID\n: char(4), name: varchar(5), phone :char(10))\nBooking (bookingID:\nint,\nvehicleID:\nchar(4), driverID: char(4), customerID:\nchar(4),\ndate:\ndatetime, from\n: varchar(15), to: varchar(15), distance: real)\nPayment (bookingID: int, fee: real)\nThe database stores information on vehicles owned by the service in the Vehicle table. The table stores a\nunique vehicle ID (vehicleID), type ( Hatchback ,  Sedan  or  Van ), firel type ( Petrol  or  Diesel ) and the\ntotal distance the vehicle have travelled so far (mileage) for each vehicle owned by the service. Information\nof drivers working at the taxi service is stored in the Driver table. The table stores a unique ID (driverID),\nname and the phone number of each driver working at the service. For each customer, the service stores a\ncustomer ID (customerID) in the Customer table in the database along with the name of the customer and\nhis/her phone number. When a customer books a taxi, the service assigns a unique ID (bookingID) for the\nbooking,\nand stores the booking ID along with the ID of the driver assigned (driverID), ID of vehicle\nassigned (vehicleID), customer ID of the customer (customerID), booked date (date), from where the\ncustomer is taking the taxi from (from) and the destination the customer want to reach (o) in the Booking\ntable. Once the customer has completed the journey, the distance of the journey is updated in kilometers in\nthe Booking table. Payment table stores the booking ID and the payment to be made for each booking.\nUse SQL queries to answer following questions.\ni. Find the names of the customers who has booked the vehicle number V001  to reach\nMaharagama\n(2 marks)\nii. For each driver who had driven a  Sedan  for a total distance exceeding 5000km display\nthe name of the driver and the total distance he had driven.\n(4 marks)\niii.Find the ID and type of all vehicles which have been only booked for travelling more\nthan 100 kilometers between 1% January 2016 and 315 December 2016.\n(3 marks)\nb)\nThe charging scheme for the taxis booked with the taxi service is as follows: Initial charge for\nthe taxi is Rs. 300 and the customer can travel for Skms without an additional payment. For\neach km travelled after the first Skm, a payment of Rs.50 per kilometer would be charged.\nCreate a stored procedure to calculate the payment due for a booking, given the distance the\ncustomer has travelled and the booking ID, and store the payment amount to be made along\nwith the booking ID in the Payment table.\n(5 marks)\n)\nCreate a trigger to update the mileage of the vehicle assigned and add a record to the payment\ntable (use the stored procedure created in part b)), assuming that the Booking table is only\nupdated when the distance is assigned at the completion of a booking.\n(6 marks)\nPage2of 7",
+    "diagram_refs": [],
+    "subquestions": [],
+    "pattern_label": "SQL_DDL_DML"
+  },
+  {
+    "pdf_stem": "2018",
+    "question_id": "4",
+    "cluster": 0,
+    "cluster_label_keywords": [
+      "number",
+      "int",
+      "frame",
+      "table",
+      "id",
+      "varchar",
+      "stores",
+      "bytes"
+    ],
+    "marks": 40,
+    "full_text": "Question 4\n(40 Marks)\nConsider the following relations in a database created for an online store\nCustomers (cid: char (4), name: varchar (50), phone: char(10), country: varchar(20))\nEmployees (eid: char (4), ename: varchar (50), phone: char (4), hiredate: date)\nOrders (oid: int, eid: char (4), cid: char (4), orderDate: date, requiredDate: date, shippedDate: date)\nOrderDetails (oid: int, productld: char (4), quantity: int, discount: real\nProducts (productld: int,productName: varchar(15),UnitPrice: real unitsInStock: int, ROL:int)\nThe databasc stored information of their customers in the Customers table. The table contains customer id\n(cid),'name, phone number (phone) and country of each customer of the store. Employee table contains\nemployee id (eid), name (ename), phone number (phone) and the date hired (/iredate) of each employee.\nOrders table stores an unique id (oid), id of the employee responsible for the order (eid), date the order is\nplaced (orderDate), the date the order is required by the customer (requiredDate) and the date the order is\nshipped (shippedDate) for each order. OrderDetails table stores order id (oid), product id (productld),\nquantity of the product ordered (guantity) and any discount obtained for the order (discount). Products\ntable stores the id of product (productld), name of the product (productName), unit price of the product\n(UnitPrice) , number of units available in stock (unitsInStock) and the reorder level(ROL) of each product.\na) Use SQL queries to answer following questions.\ni. Display the name and address of customers who had ordered products which cost over\nRs. 500.\n(4 marks)\nii. Find the names and unit prices of all products which has not been ordered by customers\nfrom  Germany .\n(5 marks)\niii. Find the customer ids and names of the customers who have obtained more than 5%\ndiscount for every product in every order they have placed.\n(6 marks)\nb) Create a view named incompleteOrders that contains customer name, country and number of\ntimes an order is not completed for the orders that cannot be completed. Note that an order\ncannot be fulfilled when the units in stock is lesser than the quantity ordered for any product\nin the order.\n(7 marks)\nc) Create a function named calcCost to calculate and return the total cost of an order given the\norder id and the discount. Note that the cost of the order is the total of costs for each product\nordered where cost for each product ordered is obtained by the multiplication between unit\nprice of the product and quantity.\n(8 marks)\nd) Assume that a column named cost is added to the Orders table where the total cost of the order\nis stored. Create a trigger named updateCost to update the cost coluran when the order details\nare added to the OrderDetails table using the function created in part c) (Hint: there could be\nmore than one rows in order details table relevant to each order).\n(10 marks)\nPage 4 of 4",
+    "diagram_refs": [],
+    "subquestions": [],
+    "pattern_label": "SQL_DDL_DML"
+  },
+  {
+    "pdf_stem": "2018 II",
+    "question_id": "4",
+    "cluster": 0,
+    "cluster_label_keywords": [
+      "number",
+      "int",
+      "frame",
+      "table",
+      "id",
+      "varchar",
+      "stores",
+      "bytes"
+    ],
+    "marks": 40,
+    "full_text": "Question 4\n(40 Marks)\nConsider the following relations in a database created for an online store:\nProducts (pid: int, productName: varchar (15), UnitPrice: real, unitsInStock: int, type: varchar (30))\nSuppliers (sid:int, supplierName:varchar(15), phone:char(10),address:varchar(50))\nSupplies (sid:int, pid:int, suppliedDate:date,amount:int,purchasePrice:real)\nSupplierPayments (sid:int, dateToPay:date ,amount:real)\nThe Products table contains id (pid), name (productName) unit price (UnitPrice), units in stock\n(unitsInStock) and type of product such as  dairy  and  poultry  for each product in the store. Suppliers\ntable stores a unique id (sid), name (supplierName), phone and address of each supplier supplying products\nto the store. Supplies table stores information on supplies made by suppliers. For each supply, the table\nstores id of the supplier (sid), id of the product supplied (pid), supplied date (suppliedDate), amount of\nproduct supplied and the price at which the supplied item is purchased by the store (purchasePrice).\nSupplierPayment table stores information on payments made to suppliers. For supplies made by the\nsuppliers per day, the SupplierPayment table stores the id of the supplier (sid), date on which the supply is\nmade (suppliedDate) and amount of payment to be made for supplies made within that date. Primary keys\nof the tables are underlined.\na) Use SQL queries to answer following questions.\ni. Find the names and phone numbers of the suppliers living in Malabe who supplies at least\none product which are sold at the store with a price more than Rs. 100.\n(4 marks)\nii. Assuming that the Unit Price of products are fixed, find the names of products which are\nalways sold with a profit margin. Note that the items sold with a profit margin have a unit\nprice for a product greater than the price it is purchased at.\n(5 marks)\niii. Find the names and phone numbers of customers who supply dairy products but do not\nsupply Poultry products.\n(7 marks)\nb) Create a function named CalcPayment which calculates and returns the total payment to be\nmade to a suppller for supplies ma.de\nin a particular date, given the id of the supplier and the\ndate the supplies are made\n(9 marks)\nc) Create a trigger named updateSupplyInfo to do the following when a supply is made\ni. Update the units in stock for the relevant product in the product table\nii. If there is no row already in the supplierPayment table related to the supplier id and the\ndate the supply is made, insert a row with supplier id, supplied date and amount to be\npaid to the SupplierPayment Table. If a row is already exist with the relevant supplier\nid and the day the payment should be paid, update only the amount of payment to be\nmade. (Hint : Use the function you have created in b) in order to calculate the payment)\n(15 marks)\nPage 4 of 4",
+    "diagram_refs": [],
+    "subquestions": [],
+    "pattern_label": "SQL_DDL_DML"
+  },
+  {
+    "pdf_stem": "2023",
+    "question_id": "3",
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "tree",
+      "query",
+      "transaction",
+      "explain",
+      "student",
+      "briefly explain",
+      "briefly",
+      "schedule"
+    ],
+    "marks": 25,
+    "full_text": "Question 3\n(25 marks)\na)\nIn Native API Driver, vendor-specific driver must be installed on each client machine . Accept\nor refute the above statement justifying your answer.\n(2 marks)\nb)\nThere are several different statements in the JDBC API to retrieve the result set based on different\nrequirements. Which type of statements is used in the code segment given below? Briefly explain\nwhen this type of statements will be used.\n(2 marks)\n[DIAGRAM: page_003_diagram_1.png]\nc)\nBriefly explain what is meant by\na  BCP Command ?\n(2 marks)\nd)\nBriefly explain how SQL server security framework manages access to securable entities.\n(3 marks)\ne)\nA software company has been tasked with developing a comprehensive healthcare information\ntechnology (IT) system for a large medical facility. The project manager\nis responsible for\noverseeing the project's development, and the following roles and responsibilities are assigned:\nLinda\nis the senior database administrator who\nis tasked with creating and managing the\ndatabases required for the healthcare IT system. This includes patient records, appointment\nscheduling, and medical inventory databases.\nT\n\nRaj and Eva are junior database administrators who work under Linda s supervision. They are\nresponsible for managing and maintaining specific databases within the healthcare IT system.\nRaj takes care of the patient records database, while Eva is responsible for the appointment\nscheduling database.\nCarla is\na database developer who reports to Raj and Eva. Her role involves designing and\nbuilding the database schemas, including creating tables, views, and stored procedures for the\npatient records and appointment scheduling databases. Sophie and John are data entry operators\nresponsible for entering patient information, medical records, and appointment data into the\nsystem. They work closely with the junior database administrators to ensure accurate and timely\ndata entry.\ni.\nWrite a T-SQL statement to create a login to Linda.\n(2 marks)\nii.\nProvide permission using fixed server role to handle all the administrative tasks in the\n~\nserver to Linda.\n(3 marks)\niii.\nAssuming that Eva has the user name eva.e, write a T-SQL statements required to assign\nher with the responsibility of handling the appointmentDB using user defined server role.\n(5 marks)\niv.\nAssuming that Carla has\na login name by the name carla.a, write T-SQL statements\nrequired to allow her to create tables, views and stored procedures.\n(3 marks)\nv.\nAssuming that John has a login name john.k write T-SQL statements required to perform\nthe tasks he is responsible for.\n(3 marks)",
+    "diagram_refs": [
+      "page_003_diagram_1.png"
+    ],
+    "subquestions": [],
+    "pattern_label": "SQL_DDL_DML"
+  },
+  {
+    "pdf_stem": "2024 II",
+    "question_id": "1",
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "tree",
+      "query",
+      "transaction",
+      "explain",
+      "student",
+      "briefly explain",
+      "briefly",
+      "schedule"
+    ],
+    "marks": 20,
+    "full_text": "Question 1\n(20 Marks)\nThe Computer Science Students at SLIIT are planning to design a database to produce music\nalbums. The students have come up with the following requirements.\nThe students who have talent in music (i.e. singing, playing an instrument, etc..) are named as\nstudent musician .\nAll student musicians are capable of singing songs. In addition, some of\nthem play instruments and some of them act as producers when albums are produced. For each\nstudent musician a unique identification number, name and address are recorded. For those who\nplay instruments, their specialization, and the duration that they play should be stored. For each\ninstrument, a unique identification number and the name (e.g., guitar, violin, flute, etc.) are\nrecorded. Each student capable of playing instruments may play several instruments, and a\ngiven instrument is played by one student. A student who plays instruments may supervise\nseveral other such students.\nEach album has a unique identification number, title, copyright date and a format (e.g., CD or\nMC). Each album has one student who acts as its producer. A student may produce several\nalbums. Each album has several songs on it and a song appears on one album. The date that the\nsongs are recorded on the album should be known.\nFor each song a unique identification number, the title and the author are recorded. Each song\nis sung by one or more students, and a student sings several songs. The number of times that a\nsong is sung should be recorded. Each song may have several melody types. For each melody\ntype, the tempo, and the key for that song (e.g. C major, D minor etc.) are recorded. Different\nsongs may have the same key.\na)\nWhat are the entities that could be used for the above requirements?\n(3 Marks)\nb)\nIdentify suitable attributes and the primary key, if any, for each of the entities that you\nhave identified.\n(3 Marks)\n)\ns there a recursive relationship? Justify your answer.\n(2 Marks)\n\nd)\nIs there any weak entity type? Justify your answer.\n(2 Marks)\n)\nIdentify a likely superclass/subclass relationship. Justify your answer.\n(2 Marks)\nf)  Construct a suitable EER diagram for the above given requirements. State any\nassumptions you make. Note: You may avoid showing the attributes on the entity\ntypes, but any attributes on the relationships must be shown.\n(8 Marks)\nPage 2 of 6\n\n00048",
+    "diagram_refs": [],
+    "subquestions": [],
+    "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2014 (1)",
+    "question_id": "5",
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "tree",
+      "query",
+      "transaction",
+      "explain",
+      "student",
+      "briefly explain",
+      "briefly",
+      "schedule"
+    ],
+    "marks": 25,
+    "full_text": "Question 5\n(25 marks)\na)\nBriefly explain the properties of a transaction.\n(4 marks)\nb)\nBriefly explain what an unrepeatable read is.\n(2 marks)\nc)\nBriefly explain the rules in Strict 2 Phase Locking Protocol.\n(2 marks)\nd)\nBriefly explain what the phantom problem is.\n(3 marks)\ne)\nConsider the following sequence of actions, listed in the order they are submitted to\nthe DBMS. The DBMS processes actions in the order shown. The Strict 2PL is used\nfor concurrency control. If a transaction is blocked, assume that all of its actions are\nqueued until it is resumed; the DBMS continues with the next action of an unblocked\ntransaction.\nTER(X), T2:W(X), T2:W(Y), T3:W(Y), T1:W(Y),T3W(X), T1: Commit, T2: Commit, T3: Commit\nAssume that older transaction has higher priority always.\ni.\nDraw a transaction schedule and briefly explain how the above three transactions\n!\nare running till commit those without deadlocks in schedule. Follow Wait-Die\npolicy to deal with deadlock.\n(4 marks)\nji.\nFollow deadlock detection approach to deal with deadlocks. Draw a transaction\nschedule and explain how three transactions are running. Show a waits-for graph\nif a deadlock cycle develops.\n(4 marks)\nf)\nState the Simple Tree Locking Algorithm.\n(3 marks)\ng)\nConsider the tree shown below.\n[DIAGRAM: page_006_diagram_1.png]\nDescribe the steps involved in executing each of the following operations according\nto the Simple Tree Locking algorithm, in terms of the order in which nodes are\nlocked, unlocked, read and written. Be specific about what type of locks are obtained\nand released.\ni.\nSearch 23.\nii.\nDelete 43.\niii.\nInsert 44.\n(3\nmarks)\n-- End of the Question Paper --\nPage 5 of 5",
+    "diagram_refs": [
+      "page_006_diagram_1.png"
+    ],
+    "subquestions": [],
+    "pattern_label": "TRANSACTIONS_CONCURRENCY"
+  },
+  {
+    "pdf_stem": "2024 II",
+    "question_id": "2",
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "bcnf",
+      "set",
+      "reasons conclusion",
+      "conclusion",
+      "3nf",
+      "reasons",
+      "functional",
+      "functional dependencies"
+    ],
+    "marks": 20,
+    "full_text": "Question 2\n(20 Marks)\nConsider the following relation schema  Investment  and the functional dependencies FD1,\nFD2 and FD3.\nInvestment (A, W, O, L, S, D)\nHere:\nA\n-\nAgent\nW\n-\nWork station of Agent\nO\n-\nLand Owner\nL\n- Name of the land\nS\n-\nSize of the land owned by the owner\n\n,\nD\n-\nDividend paid for the land\nFD1I\nL  D\nFD2\nA  W\nFD3\n{O,L}   {A,S}\na)\nDraw the functional dependency diagram.\n(2 Marks)\nb)\nUse the attribute closure and identify the primary key for the given relation.\n(2 Marks)\nc)\nIf we insert a row <  Kamal ,  Colombo , null,  Kurundu Wattha , null, 40> into the\ngiven relation, what is the update anomaly that is violated? Give reasons. '%2 Pl\\ lv a rks)\nd)\nAssume that the relation has a row, <  Gamunu ,  Matara ,  Miris Wattha ,A 5.5, 10>.\nIf we remove the broker  Gamunu , what is the possible update anomaly that can be\nviolated? Give reasons.\n(2 Marks)\n)\nUsing the above functional dependencies, design a set of 3NF relations for the above\n\ngiven relation. Show clearly each stage in deriving the 3NF relations. Also identify the\nnormal form at each of these stages.\n(5 Marks)\nf)\nDo the update anomalies of part (c) and (d) hold in the 3NF relations? Discuss briefly.\n(2 Marks)\ng)\nAssume that an additional functional dependency FD4\nA   O is given.\ni.\nAre the 3NF relations derived in part (e) still in 3NF? Justify your answer.\n(2 Marks)\nii.\nAre the 3NF relations derived in part (e) in BCNF? If not bring the relations to\nBCNF.\n(3 Marks)\nPage 3 of 6",
+    "diagram_refs": [],
+    "subquestions": [],
+    "pattern_label": "NORMALIZATION_FD_KEYS"
+  },
+  {
+    "pdf_stem": "2019 II",
+    "question_id": "2",
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "bcnf",
+      "set",
+      "reasons conclusion",
+      "conclusion",
+      "3nf",
+      "reasons",
+      "functional",
+      "functional dependencies"
+    ],
+    "marks": 15,
+    "full_text": "Question 2\n(15 marks)\nConsider a relation R (A, B, C, D, E, F) with the following set of functional dependencies over R:\nF={A\n> BEF,B> E,C > D,AC > B}\na)\nFind all the keys that follow from the given FDs using attribute closure, showing how you\nobtained them.\n(6 marks)\nb)\nIsRin 3NF? Give reasons for your conclusion.\n(3 marks)\nc)\nIs R in BCNF? Give reasons for your conclusion. If R\nis not in BCNF, convert it to a set of\nBCNF relations.\n(6 marks)",
+    "diagram_refs": [],
+    "subquestions": [],
+    "pattern_label": "NORMALIZATION_FD_KEYS"
+  },
+  {
+    "pdf_stem": "2018",
+    "question_id": "2",
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "bcnf",
+      "set",
+      "reasons conclusion",
+      "conclusion",
+      "3nf",
+      "reasons",
+      "functional",
+      "functional dependencies"
+    ],
+    "marks": 15,
+    "full_text": "Question 2\n(15 marks)\nConsider a relation R (A, B, C, D, E), with the following set of functional dependencies over R:\nF={A BC,BC EE DA }\na) Find all the keys that follow from the given FDs using Amstrong Axioms, showing how you\nfound them.\n(9 marks)\nb) Is R in 3NF? Give reasons for your conclusion.\n(3 marks)\nc) Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of\nBCNF relations.\n:\n(3 marks)",
+    "diagram_refs": [],
+    "subquestions": [],
+    "pattern_label": "NORMALIZATION_FD_KEYS"
+  },
+  {
+    "pdf_stem": "2023",
+    "question_id": "1",
+    "cluster": 3,
+    "cluster_label_keywords": [
+      "model",
+      "keys",
+      "following eer",
+      "eer model",
+      "eer",
+      "relations clearly",
+      "keys resulted",
+      "model indicate"
+    ],
+    "marks": 20,
+    "full_text": "Question 1\n(20 marks)\nConsider the following EER Model.\na)\nConvert the following EER model into the relational model. Indicate the primary keys and the\nforeign keys of the resulted relations clearly.\n(17 marks)\nb)\nWhat is the best option for mapping the ISA hierarchy in the diagram? Justify your answer.\n(3 marks)\nName\n[DIAGRAM: page_002_diagram_1.png]",
+    "diagram_refs": [
+      "page_002_diagram_1.png"
+    ],
+    "subquestions": [],
+    "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2019",
+    "question_id": "1",
+    "cluster": 3,
+    "cluster_label_keywords": [
+      "model",
+      "keys",
+      "following eer",
+      "eer model",
+      "eer",
+      "relations clearly",
+      "keys resulted",
+      "model indicate"
+    ],
+    "marks": 20,
+    "full_text": "Question 1\n(20 marks)\nConvert the following EER model in to the relational model.Indicate the primary keys and the\nforeign keys of the resulted relations clearly.\nISA Constraints: Permanent and Visiting covers Doctor\n[DIAGRAM: page_002_diagram_1.png]\nPage 2 of\n4\n25/09/2019\n\nnnNo\nVU4\n/",
+    "diagram_refs": [
+      "page_002_diagram_1.png"
+    ],
+    "subquestions": [],
+    "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2018 II",
+    "question_id": "1",
+    "cluster": 3,
+    "cluster_label_keywords": [
+      "model",
+      "keys",
+      "following eer",
+      "eer model",
+      "eer",
+      "relations clearly",
+      "keys resulted",
+      "model indicate"
+    ],
+    "marks": 20,
+    "full_text": "Question 1\n(20 marks)\nConvert the following EER model in to the relational model. Indicate the primary keys and the foreign keys\nof the resulted relations clearly.\n[DIAGRAM: page_002_diagram_1.png]\nContinuous Assessment and Final Assessment Covers Assessment\nPage 2 of 4",
+    "diagram_refs": [
+      "page_002_diagram_1.png"
+    ],
+    "subquestions": [],
+    "pattern_label": "ER_EER_MODELING"
+  }
+]

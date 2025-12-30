@@ -39,7 +39,8 @@ import cv2
 import fitz  # PyMuPDF
 import pytesseract
 from pytesseract import Output
-
+from pathlib import Path
+from typing import Dict, Any, Optional
 
 # =========================
 # CONFIG
@@ -764,6 +765,42 @@ def main_full_run(max_passes: int = 2):
 
     print("\nPipeline finished. Outputs in:", OUT_ROOT)
 
+
+
+
+def run_single(pdf_path: Path, dpi_used: int = DPI, run_qc: bool = False) -> Dict[str, Any]:
+
+    pdf_path = Path(pdf_path)
+    if not pdf_path.exists():
+        raise FileNotFoundError(f"PDF not found: {pdf_path}")
+
+    ok = process_one_pdf(pdf_path, dpi_used=dpi_used)
+    if not ok:
+        return {"status": "failed", "pdf": str(pdf_path)}
+
+    qc_flagged: Optional[int] = None
+    if run_qc:
+        _, bad = run_ocr_qc()
+        qc_flagged = len(bad)
+
+    manifest_path = build_diagrams_manifest()
+    build_cleaned_docs_blueprints_and_chunks()
+
+    out_pdf_dir = OUT_ROOT / pdf_path.stem
+
+    return {
+        "status": "ok",
+        "pdf": str(pdf_path),
+        "out_dir": str(out_pdf_dir),
+        "blueprint": str(out_pdf_dir / "blueprint.json"),
+        "blueprint_with_subquestions": str(out_pdf_dir / "blueprint_with_subquestions.json"),
+        "cleaned_document": str(out_pdf_dir / "cleaned_document.txt"),
+        "all_text_with_diagrams": str(out_pdf_dir / "all_text_with_diagrams.txt"),
+        "diagrams_manifest": str(manifest_path),
+        "chunks_jsonl": str(OUT_ROOT / "chunks.jsonl"),
+        "chunks_index_csv": str(OUT_ROOT / "chunks_index.csv"),
+        "qc_flagged_pages": qc_flagged
+    }
 
 if __name__ == "__main__":
     main_full_run(max_passes=2)
