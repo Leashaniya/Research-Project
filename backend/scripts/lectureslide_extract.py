@@ -18,14 +18,6 @@ OUTPUT:
       slides_embeddings.npy
       slides_metadata.jsonl
       slides_faiss_index_flatip.index
-
-NOTES (Windows):
-- No Poppler required (PyMuPDF renders slides)
-- Requires:
-    pip install pymupdf opencv-python pytesseract tqdm sentence-transformers faiss-cpu numpy
-- Tesseract must be installed.
-  If not in PATH, set env var:
-    setx TESSERACT_CMD "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 """
 
 from __future__ import annotations
@@ -57,7 +49,6 @@ EMB_ROOT.mkdir(parents=True, exist_ok=True)
 
 DPI = 220
 
-# Green HSV range (tunable)
 GREEN_LOW  = np.array([35, 40, 40])
 GREEN_HIGH = np.array([90, 255, 255])
 
@@ -70,7 +61,6 @@ TESS_CONFIG = "--oem 3 --psm 6"
 CHUNK_WORDS = 350
 OVERLAP_WORDS = 70
 
-# Tesseract path override (optional)
 TESSERACT_CMD = os.environ.get("TESSERACT_CMD", "").strip()
 if TESSERACT_CMD:
     pytesseract.pytesseract.tesseract_cmd = TESSERACT_CMD
@@ -216,7 +206,6 @@ def process_slides_pdf(pdf_path: Path, dpi=DPI):
                 "img_rect": ri
             })
 
-        # text layer
         blocks = page.get_text("blocks")
         lines = []
         if blocks:
@@ -239,11 +228,9 @@ def process_slides_pdf(pdf_path: Path, dpi=DPI):
         else:
             page_text = ""
 
-        # OCR fallback
         if len(page_text) < OCR_TEXT_MIN_CHARS:
             page_text = ocr_masked_text(img, [r["img_rect"] for r in rects_pdf])
 
-        # extract figures + placeholders
         placeholders = []
         for i, rp in enumerate(rects_pdf, start=1):
             ri = rp["img_rect"]
@@ -255,7 +242,6 @@ def process_slides_pdf(pdf_path: Path, dpi=DPI):
 
             placeholders.append((rp["y_mid_pdf"], f"[FIGURE: {fig_name}]"))
 
-        # interleave placeholders
         if lines:
             merged = []
             ph_i = 0
@@ -286,9 +272,6 @@ def process_slides_pdf(pdf_path: Path, dpi=DPI):
     return True
 
 
-# =========================
-# Build chunks
-# =========================
 def build_slides_chunks(chunk_words=CHUNK_WORDS, overlap_words=OVERLAP_WORDS):
     chunks_jsonl = OUT_ROOT / "slides_chunks.jsonl"
     chunks_csv   = OUT_ROOT / "slides_chunks_index.csv"
@@ -357,9 +340,6 @@ def build_slides_chunks(chunk_words=CHUNK_WORDS, overlap_words=OVERLAP_WORDS):
     return chunks_jsonl
 
 
-# =========================
-# Embeddings + FAISS
-# =========================
 def build_slides_embeddings_and_faiss(chunks_jsonl: Path):
     chunks = []
     with open(chunks_jsonl, "r", encoding="utf-8") as f:
@@ -405,7 +385,34 @@ def build_slides_embeddings_and_faiss(chunks_jsonl: Path):
 
 
 # =========================
-# MAIN
+# NEW: run_single for API usage
+# =========================
+def run_single(pdf_path: Path):
+    """
+    API-friendly: process exactly ONE PDF, then rebuild chunks+embeddings.
+    """
+    if not pdf_path.exists():
+        raise FileNotFoundError(f"File not found: {pdf_path}")
+
+    process_slides_pdf(pdf_path)
+
+    # rebuild global chunks + embeddings (includes this new pdf)
+    chunks_path = build_slides_chunks()
+    build_slides_embeddings_and_faiss(chunks_path)
+
+    return {
+        "pdf": str(pdf_path),
+        "status": "success",
+        "outputs": {
+            "chunks": str(OUT_ROOT / "slides_chunks.jsonl"),
+            "index": str(EMB_ROOT / "slides_faiss_index_flatip.index"),
+            "metadata": str(EMB_ROOT / "slides_metadata.jsonl"),
+        }
+    }
+
+
+# =========================
+# Batch MAIN
 # =========================
 def main():
     if not SLIDES_DIR.exists():

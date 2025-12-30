@@ -1,0 +1,44 @@
+MODEL EXAM PAPER (OpenAI RAG)
+Model: gpt-4o-mini
+Total Marks: 100
+======================================================================
+
+Q1 (20 marks) — ER_EER_MODELING
+Design an EER diagram for a university database system that includes entities for Students, Courses, Instructors, and Departments. Each Student can enroll in multiple Courses, and each Course can have multiple Students. Instructors can teach multiple Courses, and each Course is associated with one Department. Include attributes for each entity and specify any necessary ISA relationships. After creating the diagram, convert it into a relational model, clearly indicating primary keys and foreign keys.
+
+Q2 (17 marks) — SQL_DDL_DML
+Consider the following relations in a database for a library system: Books (bookID: int, title: varchar(100), author: varchar(100), price: real, availableCopies: int) and Borrowers (borrowerID: int, name: varchar(50), email: varchar(100)). The BorrowedBooks relation stores information about the books borrowed by users, containing (borrowerID: int, bookID: int, borrowDate: date, returnDate: date). 
+
+a) Use SQL queries to answer the following questions: 
+   i. List the names of borrowers who have borrowed books priced over $20. (4 marks) 
+   ii. Find the titles of books that have never been borrowed. (5 marks) 
+   iii. Retrieve the borrower IDs and names of borrowers who have borrowed more than 3 books in total. (6 marks) 
+
+b) Create a view named OverdueBooks that includes the title of the book, borrower's name, and the borrow date for all books that have not been returned after 30 days from the borrow date. (7 marks) 
+
+c) Write a function named calculateTotalFees that calculates and returns the total fees for a borrower based on the number of overdue days and a daily fee rate of $0.50. The function should take the borrower ID as an input. (8 marks) 
+
+d) Assume a column named totalFees is added to the Borrowers table. Create a trigger named updateFees that updates the totalFees column whenever a new record is added to the BorrowedBooks table using the function created in part c). (10 marks)
+
+Q3 (23 marks) — SQL_DDL_DML
+Consider the following relations in a university database:
+Student (studentID : char(5), name : varchar(50), major : varchar(30), gpa : real)
+Course (courseID : char(5), title : varchar(100), credits : int)
+Enrollment (enrollmentID : int, studentID : char(5), courseID : char(5), semester : varchar(10), grade : varchar(2))
+
+The database maintains records of students, courses, and enrollments. The Student table contains unique student IDs, names, majors, and GPAs. The Course table contains unique course IDs, titles, and credit values. The Enrollment table tracks which students are enrolled in which courses during specific semesters, along with their grades.
+
+Use SQL queries to answer the following questions:
+
+i. Retrieve the names of students who have a GPA higher than 3.5 and are majoring in 'Computer Science'. (3 marks)
+
+ii. For each course that has been taken by more than 10 students, display the course title and the number of students enrolled. (5 marks)
+
+iii. Find the student IDs and majors of all students who have received a grade of 'A' in any course during the 'Fall 2022' semester. (4 marks)
+
+b) Write a stored procedure to calculate the average GPA of students enrolled in a specific course, given the course ID, and return the result. (5 marks)
+
+c) Create a trigger that updates the GPA of a student in the Student table whenever a new grade is added for that student in the Enrollment table. The GPA should be recalculated as the average of all grades (assuming 'A' = 4.0, 'B' = 3.0, 'C' = 2.0, 'D' = 1.0, 'F' = 0.0). (6 marks)
+
+Q4 (40 marks) — SQL_DDL_DML
+Consider the following relations in a database for a library system: Books (bookId: int, title: varchar(100), author: varchar(50), price: real, stock: int) Members (memberId: int, name: varchar(50), phone: char(10), email: varchar(50)) Loans (loanId: int, memberId: int, bookId: int, loanDate: date, returnDate: date) Payments (paymentId: int, memberId: int, paymentDate: date, amount: real) The Books table contains a unique id (bookId), title (title), author (author), price of the book (price), and the number of copies available (stock). The Members table stores a unique id (memberId), name (name), phone number (phone), and email (email) of each member in the library. The Loans table records the loans made by members, including the loan id (loanId), member id (memberId), book id (bookId), the date the book was loaned (loanDate), and the return date (returnDate). The Payments table records payments made by members, including the payment id (paymentId), member id (memberId), the date of payment (paymentDate), and the amount paid (amount). Primary keys of the tables are underlined. a) Use SQL queries to answer the following questions. i. Find the titles of books that are currently available for loan (i.e., stock > 0). (4 marks) ii. List the names and phone numbers of members who have not borrowed any books. (5 marks) iii. Retrieve the titles of books that have been borrowed by a member with a specific email address, along with the loan date. (7 marks) b) Create a function named CalculateTotalPayments that returns the total payments made by a member, given the member's id. (9 marks) c) Create a trigger named UpdateBookStock that performs the following actions when a book is loaned: i. Decrease the stock of the relevant book in the Books table by 1. ii. If the loan is recorded, check if there is an existing payment record for the member and update the payment amount if found; otherwise, insert a new payment record. (15 marks)

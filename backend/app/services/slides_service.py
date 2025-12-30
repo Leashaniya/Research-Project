@@ -1,17 +1,9 @@
-# Service for slide extraction, chunking, embeddings, and FAISS
+from pathlib import Path
+from typing import Dict, Any
+from scripts.lectureslide_extract import run_single
 
-from scripts.lectureslide_extract import main
-import os
-
-def process_lecture_slides(file_path):
-    # Ensure the file exists
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"File not found: {file_path}")
-
-    # Call the main function from the script
-    main()
-
-    return {
-        "status": "success",
-        "message": "Lecture slides processed successfully. Outputs generated."
-    }
+def process_lecture_slides(file_path: str) -> Dict[str, Any]:
+    pdf_path = Path(file_path)
+    if not pdf_path.exists():
+        raise FileNotFoundError(f"File not found: {pdf_path}")
+    return run_single(pdf_path)
