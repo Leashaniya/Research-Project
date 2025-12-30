@@ -1,0 +1,80 @@
+[
+  {
+    "question_id": "1",
+    "pdf_stem": "2015",
+    "page_no": 2,
+    "marks": 20,
+    "text": "Question 1\n(20 marks)\nConsider a database schema consisting of the following relations for recording\ninformation on the clients of a stock broking firm:\nClients (cIno, name, phone)\nStocks (scode, sname, price, dividend, eps)\nBuySell (clno. trdate, trtype, scode, qty, price)\nStocksOwned (clno, scode, totalgty, totalcost, currval)\nA tuple in the Clients table consists of\na unique client number, name and phone number.\nEach tuple of Stocks table contains unique stock code, stock name, the current price of\na\nshare, dividend per share, and earning per share (eps). Each transaction of a client which\nmay be a buy or a sell of a stock is recorded a tuple in the BuySell table. It contains the\nclient number, transaction date and time, type of transaction (B for buy or S for sell),\nstock code, number of shares (qty) and price per share for the transaction. The\nStocksOwned table contains a tuple for each stock a client currently owns, along with the\ntotal quantity of the stock, the total cost of purchasing the stock, and its current value.\nThe primary key of each table is underlined.\na) Express the following queries in SQL.\ni. Find the name and price of each stock that is owned by five or more clients.\n(4 marks)\nii. Find the name and phone number of clients who have not bought any stock since\n1* January 2014.\n(5 marks)\nb) Write T-SQL procedure named insertasell to insert a row into the BuySell table for a\nsell transaction given the input parameters of client number, stock code, and quantity.\nThe transaction date and time should be the current date and time; the price is the\ncurrent price of the stock in the Stocks table.\n(5 marks)\nc) Assume that a procedure named updstockowned is already available to update the\nStocksOwned table. It takes clients number, stock code, quantity, price, and\ntransaction type as a parameters. When the transaction type is  B, the procedure\nincrease the total quantity and cost of the given stock for the client (or inserts a new\nrow for client and stock if that client did not own the previously).\nWrite a trigger named buytrigger on the BuySell table that will update the\nStocksOwned table by calling this procedure, whenever a new row of a Buy\ntransaction is inserted into the BuySell table. [Only write the trigger, don t write the\nupdstockowned procedure]\n(6 marks)\nPage 1 of 6\n08/04/2015\n\n00846",
+    "diagram_refs": [],
+    "subquestions_full": [],
+    "subquestions": []
+  },
+  {
+    "question_id": "2",
+    "pdf_stem": "2015",
+    "page_no": 3,
+    "marks": 20,
+    "text": "Question 2\n(20 marks)\na)\nThe time spent in accessing a data block in a disk,\nAccess time = Seek time + Rotational delay + Data transfer time\nBriefly explain two solutions to minimize the access time.\n(5 marks)\nb)\nConsider a disk with a sector size of 512 bytes, a block size of 1024 bytes, 2000\ntracks per surface, 50 sectors per track, 5 double-sided platters, average seek time of\n10msec.\ni. . What is the capacity of a track in blocks?\n(1 mark)\nii.\nWhat is the capacity of\na cylinder in blocks?\n(1 mark)\niii.\nWhat is the capacity of the disk in blocks?\n(1 mark)\niv.\nIf disk platter rotates at 5400 rpm (revolutions per minute), what is the\naverage rotational delay?\n(2 marks)\nv.\nWhat is the access time to read two consecutive disk blocks?\n(2 marks)\nDescribe the sequential flooding of the buffer pool?\n(3 marks)\nConsider the following buffer pool with 5 frames.\n)\nd)\n[DIAGRAM: page_003_diagram_1.png]\nEach frame has a frame number (Frame No), page id (PagelD), pin count\n(PinCount) and a dirty bit (Dirty).\nAssume that the following times states the last time the particular frame was\naccessed (on the same day):\nFrame number\n0 at 11:15 am\nFrame number 1 at 11:35 am\nFrame number 2 at 10:57 am\nFrame number 3 at 11:12 am\nFrame number 4 at 11:26 am\nDescribe the steps involved when a page request for the page with PagelD 32 occurs\nif MRU (most-recently-used) policy is used as the replacement policy.\n(5 marks)\nPage 2 of 6\n08/04/2015\n\n00846",
+    "diagram_refs": [
+      "page_003_diagram_1.png"
+    ],
+    "subquestions_full": [],
+    "subquestions": []
+  },
+  {
+    "question_id": "3",
+    "pdf_stem": "2015",
+    "page_no": 4,
+    "marks": 18,
+    "text": "Question 3\n(18 marks)\na) Compare heap file against the sorted file organization.\n(3 marks)\nb) Consider an employee relation containing records with employee id, employee\nname, age and salary. Assume that the records are stored in a hash file where the\nhash function is based on the employee s salary.\n.  Retrieving records with age of 20 is inefficient with the above file\nState whether the above statement is true or false. Give reasons.\n-\n(3 marks)\nc)\nConsider the B+ tree index given below.\n[DIAGRAM: page_004_diagram_1.png]\ni. Illustrate the tree after inserting 31.\n(2 marks)\nii. Illustrate the tree after deleting 20, 24, 29 from the original tree.\n(2 marks)\niii. Construct an order 2 B+ tree index when the following index entries are inserted\nin the given order.\n3,5,15,12,7,2,20, 22,25\n(4 marks)\nd) Consider the Hash index below;\n[DIAGRAM: page_004_diagram_2.png]\n(4 marks)\nPage 3 of\n6\n08/04/2015\n\n00846",
+    "diagram_refs": [
+      "page_004_diagram_1.png",
+      "page_004_diagram_2.png"
+    ],
+    "subquestions_full": [],
+    "subquestions": []
+  },
+  {
+    "question_id": "4",
+    "pdf_stem": "2015",
+    "page_no": 5,
+    "marks": 18,
+    "text": "Question 4\n(18 marks)\na)\nConsider the following statement;\nIndexes speed up selections but may slow down updates.\nBriefly explain how indexes can  slow down  update operations.\n(2 marks)\nJustify why a table contains only one clustered index whereas more unclustered\nindexes are allowed.\n(3 marks)\nConsider the following schema:\nEmployee(eid:integer, ename:string, address:string, salary:float, dno:int)\nb)\n)\nThere are 10000 pages in Employee file. Each page contains 100 tuples.\nAssume that the following indexes exists:\nIndex I: An unclustered B+ Tree index on Employee<eid> with height 3.\nIndex 2: A clustered hash index using Alt. 1 on Employee<eid> (Assume a cost of",
+    "diagram_refs": [],
+    "subquestions_full": [],
+    "subquestions": []
+  },
+  {
+    "question_id": "1",
+    "pdf_stem": "2015",
+    "page_no": 5,
+    "marks": null,
+    "text": "1.2 Disk I/Os to access a hash page).\nConsider the following queries:\nQuery 1:\nSELECT\nsalary\nFROM\nEmployee\nWHERE\neid =  E100200762\nQuery 2:\nSELECT\nsalary\nFROM\nEmployee\nWHERE\neid <  E00001000\ni. What is the best index (from the indexes given above) that you would select to\nevaluate query 1? Give reasons? Estimate the cost of the query in disk I/Os using\nthe selected index. Note that eid is primary key in the Employee table.\n(4 marks)\nii. What is the best index (from the indexes given above) that you would select to\nevaluate query 2? Give reasons?\n(2 marks)\nd)\nConsider the following relational schema:\nStudent (sno, sname, gpa)\nRegistration (sno. cno, marks)\nCourse (cno, cname, credits)\nAssume that Student relation consists of 300 pages with 100 tuples per page,\nRegistration relation contains 900 pages with 100 tuples per page, and Course relation\ncontains 300 pages with 100 tuples per page.\nPage 4 of\n6\n08/04/2015\n\n00846\nConsider the following query:\nSelect\ncount (s.sno)\nFrom\nStudent s, Registration r\nWhere",
+    "diagram_refs": [],
+    "subquestions_full": [],
+    "subquestions": []
+  },
+  {
+    "question_id": "5",
+    "pdf_stem": "2015",
+    "page_no": 6,
+    "marks": null,
+    "text": "5.SN0 = I.SNO\nThere exists a B+ tree on Registration<sno> with height 3 using Alt. 1 (record and\nindex key together). Join tables using index nested loop join algorithm.\ni.\nDraw query tree for the above query.\n(2 marks)\nii.\nEstimate the cost for the above query.\nE\n(5 marks)",
+    "diagram_refs": [],
+    "subquestions_full": [],
+    "subquestions": []
+  },
+  {
+    "question_id": "5",
+    "pdf_stem": "2015",
+    "page_no": 6,
+    "marks": 24,
+    "text": "Question 5\n(24 marks)\na)\nBriefly explain the properties of a transaction.\n(4 marks)\nb)\nCompare serial and serializable schedules.\n(3 marks)\nc)\nGive an example for a schedule that is unrecoverable. Briefly explain the schedule.\n(3 marks)\nd)\nBriefly explain the deadlock detection algorithm.\n(3 marks)\ne)\nConsider the following part of the schedule.\n[DIAGRAM: page_006_diagram_1.png]\nAssume that Transaction T; is higher priority than transaction T, (i.e. transaction\nTy has higher priority than T,; T, has higher priority than Ts; and T has higher\npriority than Tj).\ni.\nDraw a Wait-For-Graph for the above given schedule.\n(3 marks)\nii.\nWhat should be done next for deadlock detection approach to break the\ndeadlock after identifying it?\n(2 marks)\nPage 5 of 6\n08/04/2015\n\n00846\nf)\nBriefly explain Simple Tree Locking algorithm.\n(3 marks)\ng)\nConsider the following scenario:\n[DIAGRAM: page_007_diagram_1.png]\nDatabase D contains a relation R. Relation R contains a page P. Page P contains a\ntuple #,.\nAssuming that multiple granularity locking scheme is used, describe the locks\nacquired when writes all tuples of page P.\n(3 marks)\n-- End of the Question Paper\nPage 6 of\n6\n08/04/2015",
+    "diagram_refs": [
+      "page_006_diagram_1.png",
+      "page_007_diagram_1.png"
+    ],
+    "subquestions_full": [],
+    "subquestions": []
+  }
+]

@@ -1,0 +1,7 @@
+RUNNING JOBS IN SQL SERVER
+Jobs can run in several ways:
+According to one or more schedules.
+In response to one or more alerts.
+By executing the sp_start_job stored procedure.
+Jobs can be created by users in several roles including sysadmin user role
+A created job can be edited by only its owners or members of sysadmin role.

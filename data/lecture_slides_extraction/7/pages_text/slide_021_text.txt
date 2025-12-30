@@ -1,0 +1,7 @@
+JOBS IN SQL SERVER
+A job is a specified series of operations performed sequentially
+Use jobs to define an administrative task that can be run one or more times and 
+monitored for success or failure. A job can run on one local server or on multiple 
+remote servers.
+A job can perform a wide range of activities and can run repetitive or schedulable tasks
+Automatically notify users of job status

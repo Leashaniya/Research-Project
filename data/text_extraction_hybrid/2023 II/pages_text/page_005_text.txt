@@ -1,0 +1,37 @@
+marks (CAMarks), final exam marks (finalMarks) and grade the student has obtained (‘A’,’B’ & *C”). 
+GradePoints table stores the grades and their associated grade points (e.g. A —4.0., C- 2.0 
+& etc). 
+Enrollment table stores the information on student enrollment for courses including student ID 
+(studentld), course 1D (courseld), calendar year(calYear) and the semester the student enrolled for
+the course and the basis on which the student enrolled (‘Regular’, ‘Repeat’ and ‘Prorata’). Primary 
+keys of the tables are underlined.
+a) 
+Write SQL Queries to perform the following:
+i. 
+Display the course id, name, and credits of courses offered in semester 
+1 
+in year 2023 for 
+students following ‘Data Science’ Specialization. 
+(4 marks)
+ii. 
+Find the course IDs and names of modules offered in year 2 semester 
+1 to more than one
+specializations. 
+(6 marks)
+iii. 
+Find the ID, name, specialization and gpa of students in the Dean's list for year 2022 
+semester 2. Note that a student is in a Dean's List if for a particular semester in a year he has 
+completed all modules and has an overall GPA over 3.7. 
+(7 marks)
+b) 
+Create a function to calculate the GPA of a given student for a given semester and year.
+(11 marks)
+GPA= Y grade point of a grade obtained for a module x credit point for the module
+. credit points of modules taken
+¢) 
+Create a trigger to set the grade of basis pro-rata or repeat students to ‘C” if he/she passes the 
+module 
+(12 marks)
+Assume that CA marks and Final Marks are given by 100 and a student passes the module if the 
+overall mark is above 45. 
+Overall Mark = (CA + Final Marks)/2

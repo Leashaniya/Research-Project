@@ -1,0 +1,6 @@
+CREATING AND REMOVING PERMISSIONS
+Creating and removing permissions could be done using GRANT, DENY 
+and REVOKE
+GRANT – Grants permissions on a securable to a principal.
+DENY – Denies a permission to a principal.
+REVOKE – Removes a previously granted or denied permission.

@@ -1,0 +1,3 @@
+FUNCTIONS
+Ex : Create a function that returns the number of employees in a given department.
+[FIGURE: slide_021_fig_1.png]

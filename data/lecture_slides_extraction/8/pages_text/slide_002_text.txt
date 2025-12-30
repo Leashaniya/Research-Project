@@ -1,0 +1,7 @@
+LEARNING OUTCOMES
+At the end of the lecture, the students should be able to:
+Explain the three important aspects of security
+Identify different roles and permissions in SQL server at server and 
+database level
+Implement a security policy of a given database using access control 
+mechanisms in SQL server

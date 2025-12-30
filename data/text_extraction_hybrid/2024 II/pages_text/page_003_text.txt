@@ -1,0 +1,66 @@
+00048
+Question 2 
+(20 Marks)
+Consider the following relation schema ‘Investment’ and the functional dependencies FD1, 
+FD2 and FD3.
+Investment (A, W, O, L, S, D)
+Here:
+A 
+- 
+Agent 
+W 
+- 
+Work station of Agent
+O 
+- 
+Land Owner
+L 
+- Name of the land
+S 
+- 
+Size of the land owned by the owner 
+— 
+, 
+D 
+- 
+Dividend paid for the land
+FD1I 
+L— D
+FD2 
+A— W
+FD3 
+{O,L} — {A,S}
+a) 
+Draw the functional dependency diagram. 
+(2 Marks)
+b) 
+Use the attribute closure and identify the primary key for the given relation.
+(2 Marks)
+c) 
+If we insert a row < ‘Kamal’, ‘Colombo’, null, ‘Kurundu Wattha’, null, 40> into the
+given relation, what is the update anomaly that is violated? Give reasons. '%2 Pl\élv‘a‘rks)
+d) 
+Assume that the relation has a row, < ‘Gamunu’, ‘Matara’, ‘Miris Wattha’,A 5.5, 10>.
+If we remove the broker ‘Gamunu’, what is the possible update anomaly that can be
+violated? Give reasons. 
+(2 Marks)
+€) 
+Using the above functional dependencies, design a set of 3NF relations for the above 
+— 
+given relation. Show clearly each stage in deriving the 3NF relations. Also identify the
+normal form at each of these stages. 
+(5 Marks)
+f) 
+Do the update anomalies of part (c) and (d) hold in the 3NF relations? Discuss briefly.
+(2 Marks)
+g) 
+Assume that an additional functional dependency FD4 
+A — O is given.
+i. 
+ Are the 3NF relations derived in part (e) still in 3NF? Justify your answer.
+(2 Marks)
+ii. 
+ Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to 
+BCNF. 
+(3 Marks)
+Page 3 of 6

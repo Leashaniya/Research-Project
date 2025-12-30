@@ -1,0 +1,6 @@
+WHY SCHEMA REFINEMENT? (CONTD.)
+Random decompositions however, may introduce new problems.
+Two properties that could be looked up to ensure that the relations resulted from 
+decomposition are good are as follows:
+Loss-less join property
+Dependency preserving property

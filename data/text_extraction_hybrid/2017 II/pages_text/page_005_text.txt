@@ -1,0 +1,36 @@
+Question 4 
+(15 marks)
+a) 
+Briefly explain how the query evaluation engine performs query optimization. 
+(3 marks)
+b) 
+Briefly explain why it is often advantageous to do selections before joins in a query plan.
+(2 marks)
+¢) 
+Consider the following relations
+Student (sid, sname, birthdate, gpa) 
+Grades (sid, cid, year, semester, grade)
+Student table contains 200 pages, each page containing 100 tuples. Grades table contains 1000 
+pages, each page containing 200 tuples. Both Student and Grades tables have clustered B+ tree 
+indexes on sid. Assume that the indexes on Student and Grades have 100 and 1000 leaf pages 
+respectively and the heights of their B+ trees are 2 and 3 respectively. Each student follows 40 
+courses during his enrollment period. There are 20 buffer frames available to run the query. 
+Assume that the student name is unique.
+Following query is written on the relations above
+Query: 
+ Select g.grade 
+From Student s, Grades g 
+Where s.sid=g.sid and s.name="Amila’
+i, 
+Draw query tree for the best query plan? 
+(2 marks)
+ii. 
+ Estimate the cost of the selection s.sname = ‘Amila’ in page /Os. 
+(3 marks)
+iil. 
+ Estimate the cost of the join s.sid=g.sid for index nested loop join. 
+(4 marks)
+iv. 
+ Estimate the total cost for the above query. 
+(1 mark)
+Page 50f 7

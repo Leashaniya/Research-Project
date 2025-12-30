@@ -1,0 +1,38 @@
+[
+  {
+    "question_id": "1",
+    "pdf_stem": "2018",
+    "page_no": 2,
+    "marks": 20,
+    "text": "Question 1\n(20 marks)\nConvert the following EER model in to the relational model. Indicate the primary keys and the foreign\nkeys of the resulted relations clearly.\n<>\n[DIAGRAM: page_002_diagram_1.png]\nPage 2 of 4",
+    "diagram_refs": [
+      "page_002_diagram_1.png"
+    ]
+  },
+  {
+    "question_id": "2",
+    "pdf_stem": "2018",
+    "page_no": 3,
+    "marks": 15,
+    "text": "Question 2\n(15 marks)\nConsider a relation R (A, B, C, D, E), with the following set of functional dependencies over R:\nF={A BC,BC EE DA }\na) Find all the keys that follow from the given FDs using Amstrong Axioms, showing how you\nfound them.\n(9 marks)\nb) Is R in 3NF? Give reasons for your conclusion.\n(3 marks)\nc) Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of\nBCNF relations.\n:\n(3 marks)",
+    "diagram_refs": []
+  },
+  {
+    "question_id": "3",
+    "pdf_stem": "2018",
+    "page_no": 3,
+    "marks": 25,
+    "text": "Question 3\n(25 marks)\nConsider the database of a department store that includes the following tables:\n[DIAGRAM: page_003_diagram_1.png]\nITEM table stores details of all items in the store. EMP table stores details of all employees\nworking in the store. DEPT table stores details of all departments. SALES table stores details of\nall items sold.\nWrite relational algebra statements to answer the following queries\na) Display the name and salary  f all managers.\n(2 marks)\nb) Display the names, prices and quantities available of items that are not sold.\n(4 marks)\nc) Display the names of employees who had sold both computers and cameras.\n(5 marks)\nd) Display the names of items which has more than 1000 pieces sold.\n(6 marks)\ne) Display the name of the items which are sold the most.\n(8 marks)\nPage 3 of 4",
+    "diagram_refs": [
+      "page_003_diagram_1.png"
+    ]
+  },
+  {
+    "question_id": "4",
+    "pdf_stem": "2018",
+    "page_no": 4,
+    "marks": 40,
+    "text": "Question 4\n(40 Marks)\nConsider the following relations in a database created for an online store\nCustomers (cid: char (4), name: varchar (50), phone: char(10), country: varchar(20))\nEmployees (eid: char (4), ename: varchar (50), phone: char (4), hiredate: date)\nOrders (oid: int, eid: char (4), cid: char (4), orderDate: date, requiredDate: date, shippedDate: date)\nOrderDetails (oid: int, productld: char (4), quantity: int, discount: real\nProducts (productld: int,productName: varchar(15),UnitPrice: real unitsInStock: int, ROL:int)\nThe databasc stored information of their customers in the Customers table. The table contains customer id\n(cid),'name, phone number (phone) and country of each customer of the store. Employee table contains\nemployee id (eid), name (ename), phone number (phone) and the date hired (/iredate) of each employee.\nOrders table stores an unique id (oid), id of the employee responsible for the order (eid), date the order is\nplaced (orderDate), the date the order is required by the customer (requiredDate) and the date the order is\nshipped (shippedDate) for each order. OrderDetails table stores order id (oid), product id (productld),\nquantity of the product ordered (guantity) and any discount obtained for the order (discount). Products\ntable stores the id of product (productld), name of the product (productName), unit price of the product\n(UnitPrice) , number of units available in stock (unitsInStock) and the reorder level(ROL) of each product.\na) Use SQL queries to answer following questions.\ni. Display the name and address of customers who had ordered products which cost over\nRs. 500.\n(4 marks)\nii. Find the names and unit prices of all products which has not been ordered by customers\nfrom  Germany .\n(5 marks)\niii. Find the customer ids and names of the customers who have obtained more than 5%\ndiscount for every product in every order they have placed.\n(6 marks)\nb) Create a view named incompleteOrders that contains customer name, country and number of\ntimes an order is not completed for the orders that cannot be completed. Note that an order\ncannot be fulfilled when the units in stock is lesser than the quantity ordered for any product\nin the order.\n(7 marks)\nc) Create a function named calcCost to calculate and return the total cost of an order given the\norder id and the discount. Note that the cost of the order is the total of costs for each product\nordered where cost for each product ordered is obtained by the multiplication between unit\nprice of the product and quantity.\n(8 marks)\nd) Assume that a column named cost is added to the Orders table where the total cost of the order\nis stored. Create a trigger named updateCost to update the cost coluran when the order details\nare added to the OrderDetails table using the function created in part c) (Hint: there could be\nmore than one rows in order details table relevant to each order).\n(10 marks)\nPage 4 of 4",
+    "diagram_refs": []
+  }
+]

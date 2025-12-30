@@ -1,0 +1,5 @@
+THE RELATIONAL MODEL
+The major advantage of relational model is its simplicity in data representation.
+A relational database is a collection of relations with distinct relation names.
+The main construct representing data in the relational model is the relation.
+A relation consists of a relational schema and a relational instance.

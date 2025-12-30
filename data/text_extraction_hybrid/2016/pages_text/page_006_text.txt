@@ -1,0 +1,49 @@
+00340
+Question 5 
+(25 marks)
+a) 
+Explain the four properties of a transaction. 
+(4 marks)
+b) 
+Briefly explain what is meant by a Schedule and a Serializable Schedule? 
+(2 mark)
+c) 
+Briefly explain what an unrepeatable read 
+in transaction scheduling 
+is using an 
+example. 
+(2 marks)
+d) 
+Briefly explain what a deadlock is. 
+(2 marks)
+e) 
+‘Briefly explain the wound-wait and wait-die approaches used for deadlock prevention.
+i 
+(4 marks)
+f) 
+.Consider the transaction schedule below.
+[DIAGRAM: page_006_diagram_1.png]
+Assume that Transaction T; is higher priority than transaction Ti+ (i.e. transaction T; 
+has higher priority than T>; and T2 has higher priority than Ts).
+i. 
+ Draw a Wait-For-Graph for the schedule given above. 
+(2 marks)
+ii. 
+Draw the above schedule considering deadlock prevention algorithm: Wound- 
+wait approach. 
+(3 marks)
+g) 
+Consider the tree shown below. Describe the steps involved in exccuting each of the 
+following operations according to the Simple Tree Locking Algorithm, in term of the
+order 
+in which 
+nodes 
+are locked, 
+unlocked, 
+read and 
+write. 
+Answer each 
+part 
+independently of others.
+Page 6 of 7
+29/03/2016

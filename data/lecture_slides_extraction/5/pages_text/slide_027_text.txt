@@ -1,0 +1,6 @@
+STORED PROCEDURES (CONTD.)
+Calling the procedure
+declare @max int,@min int
+exec get_stats 'Admin', @max output,@min output
+print @max
+print @min

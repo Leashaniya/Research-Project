@@ -1,0 +1,38 @@
+00333
+information for guest stays. 
+It connects to a particular booking (via bookingld) and stores the bill 
+number, the total amount to be paid, the payment method, and the payment status. The "Receptionist"
+table contains details about hotel receptionist, with each staff member having a unique 1D, name, 
+phone number, and address. This allows the system to keep track of receptionists or other staff 
+members involved in hotel operations.
+a) 
+Write SQL Queries to perform the following:
+i. 
+Find the guest’s name and phone number who booked a ‘Deluxe’ room for 2 days.
+(4 marks)
+ii. 
+Find the total amount spend by guest with last name ‘Smith’ on Bookings. 
+(6 marks)
+iii. 
+Find the room numbers, room types, and guest names of currently occupied rooms.
+(7 marks)
+b) 
+Create a function to calculates the total bill amount for a given guest's booking.
+(11 marks)
+c) 
+Assume 
+that 
+the 
+guests 
+table 
+consists 
+of 
+column 
+named 
+“TotalBillAmount”. 
+The 
+"TotalBillAmount" column contains the total bill amount for each guest. Create a trigger that
+automatically updates the "TotalBillAmount" column whenever a new bill is added, or an existing
+bill is updated. 
+(12 marks)
+_END OF QUESTION PAPER--------remremecemrmecmececrmees

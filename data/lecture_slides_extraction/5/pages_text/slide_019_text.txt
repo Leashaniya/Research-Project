@@ -1,0 +1,6 @@
+STORED FUNCTIONS/PROCEDURES
+Business logic is maintained in database tier for data intensive operations
+E.g. Calculating all interest earned in bank accounts
+In SQL Server 2005, Stored Procedure/ Functions can be written in
+T-SQL (we will study only this)
+Any .NET Language

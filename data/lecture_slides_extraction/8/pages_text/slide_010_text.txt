@@ -1,0 +1,12 @@
+PRINCIPALS, SECURABLE AND PERMISSIONS
+Principals : Individuals, groups, or processes granted access to the SQL Server instance, 
+either at the server level or database level.
+Server-level principals include logins and server roles.
+Database-level principals include users and database roles.
+Securable: Objects that make up the server and database environment. The objects can be 
+broken into three hierarchical levels:
+Server-level securables include such objects as databases and availability groups.
+Database-level securables include such objects as schemas and full-text catalogs.
+Schema-level securables include such objects as tables, views, functions, and stored procedures.
+Permissions: The types of access permitted to principals on specific securables. You can 
+grant or deny permissions to securables at the server, database, or schema level.

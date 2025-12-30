@@ -1,0 +1,7 @@
+T-SQL: WHILE STATEMENT(CONTD.)
+Ex :
+WHILE @count<=100
+BEGIN
+INSERT INTO Employees VALUES(@count,CONCAT('Employee',@count))
+SET @count=@count+1
+END

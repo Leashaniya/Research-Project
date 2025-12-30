@@ -1,0 +1,12 @@
+SQL: REVIEW (CONTD.)
+Summary of SQL Queries…
+ 
+ SELECT <attribute-list>
+ FROM <table-list>
+ [WHERE 
+<condition>]
+ [GROUP BY 
+<group attribute(s)>]
+ [HAVING <group condition>]
+ [ORDER 
+BY <attribute list>];

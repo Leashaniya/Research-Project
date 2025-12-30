@@ -1,0 +1,12 @@
+NATIVE API DRIVER
+In a Type 2 driver, JDBC API calls are 
+converted into native C/C++ API calls, 
+which are unique to the database a 
+specific database, such as IBM, Informix, 
+Oracle or Sybase.
+[FIGURE: slide_009_fig_1.png]
+ These drivers are typically provided by 
+the database vendors and used in the 
+same manner as the JDBC-ODBC Bridge.
+The vendor-specific driver must be 
+installed on each client machine.

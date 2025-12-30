@@ -1,0 +1,7 @@
+DATA MANIPULATION LANGUAGE (DML)(CONTD.)
+Deleting a row
+DELETE student WHERE studentId=1000
+Updating a row
+UPDATE student
+SET gpa=2.8
+WHERE studentId=1001

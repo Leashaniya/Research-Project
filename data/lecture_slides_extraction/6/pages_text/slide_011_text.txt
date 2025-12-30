@@ -1,0 +1,6 @@
+THIN DRIVER(100% PURE JAVA DRIVER)
+Written entirely in Java
+Converts JDBC calls into packets that are sent over the network in the proprietary format
+used by the specific database.
+This is the highest performance driver available for the database and is usually provided by 
+the vendor itself.

@@ -1,0 +1,11 @@
+COMPUTING KEYS USING AMSTRONG AXIOMS (CONTD.)
+Consider a relation R (A, B, C, D), with the following set of functional 
+dependencies over R:
+F = { A → B, B → C, B → D}
+A → A (reflexivity rule)
+A → B (given)
+A → B and B → C then A → C (transitivity)
+A → B and B →  D then  A → D (transitivity)
+A → ABCD (Union rule) , [A]+={ABCD}
+B+= {BCD} , C+ = {C} , D+={D}
+Therefore A is the key

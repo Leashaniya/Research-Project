@@ -1,0 +1,3 @@
+STORED PROCEDURES (CONTD.)
+Calling the procedure
+exec increaseSalary 10

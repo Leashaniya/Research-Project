@@ -1,0 +1,8 @@
+COMPARISON OPERATORS WITH SOME, ANY & ALL
+Comparison operators such as =, <>, > ,>= ,< and <= could be modified using 
+operators SOME, ANY and ALL.
+SOME and ANY : used to compare a value to a list or subquery. Return true if at 
+least one of the comparison evaluates as true.
+ALL :  used to compare a value to a list or subquery. If all of the comparisons 
+evaluate to true then the result of the ALL expression will be true. Otherwise the 
+result will be false

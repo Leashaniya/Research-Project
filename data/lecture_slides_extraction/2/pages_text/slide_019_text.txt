@@ -1,0 +1,6 @@
+ISA MAPPING – OPTION 2
+[FIGURE: slide_019_fig_1.png]
+The ISA relationship 
+must be total (i.e. 
+subclasses must cover 
+the super class)

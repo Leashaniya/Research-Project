@@ -1,0 +1,15 @@
+ADDING LOGINS TO FIXED SEVER ROLES
+Assigning logins to sever roles
+Syntax : ALTER SERVER ROLE server_role_name ADD MEMBER login
+Server role names :
+Role
+Description
+Sysadmin
+Members of the sysadmin fixed server role can perform any activity in the server.
+dbcreator
+Members of the dbcreator fixed server role can create, alter, drop, and restore any 
+database.
+securityadmin
+Members of the securityadmin fixed server role manage logins and their properties. 
+They can GRANT, DENY, and REVOKE server-level permissions.
+Ex : ALTER SERVER ROLE diskadmin ADD MEMBER Ted

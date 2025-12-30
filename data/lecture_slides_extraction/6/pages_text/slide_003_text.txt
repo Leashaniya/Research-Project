@@ -1,0 +1,3 @@
+LEARNING OUTCOMES
+At the end of this lecture students would be able to
+Write a command line program in java to access different databases

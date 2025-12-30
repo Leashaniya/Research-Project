@@ -1,0 +1,6 @@
+CORE MAINTENANCE PLAN TASKS
+Backup Databases
+Verify the Integrity of Database
+Maintain a Database’s Indexes
+Remove Older Data from msdb
+Remove Old Backups

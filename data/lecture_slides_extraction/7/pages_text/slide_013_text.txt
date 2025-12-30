@@ -1,0 +1,12 @@
+BCP COMMAND (CONTD.)
+Format of the BCP command is as follows
+bcp {table|view|"query"} {out|queryout|in|format}
+{data_file|nul}
+{[optional_a
+rgument]...}
+Table|view|query represents the source of the data
+out|queryout|in|format determines the command’s mode (direction)
+Ex: out option exports data from a table or view into a data file.
+Ex: queriyout option exports data retrieved through a query into a data file.
+data_file|nul is the full path of the data file or, when a data file should not be specifi
+ed, the nul value.

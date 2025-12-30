@@ -1,0 +1,60 @@
+[
+  {
+    "question_id": "1",
+    "pdf_stem": "2015 II",
+    "page_no": 2,
+    "marks": 20,
+    "text": "Question 1\n(20 marks)\nConsider the following schema of a database used in a vehicle rental system.\nCustomers\n(custld: integer, name: varchar (50), address: varachar (60), phone: char (10))\nVehicles (vehicleld: interger, mileage: double, fuel Type: varchar (10), transmission: varchar (15))\nReservations (cld:\ninteger,\nvId:\ninteger, startDate: datetime, endDate: datetime, returnDate:\ndatetime)\nPayments (pld: integer, cId: integer, vId: integer, type: varchar (10), amount: real, date: datetime)\nCustomers table contains attributes to store the id (custld), name, address and the phone\nnumber of customers. Vehicles table contains the id (vehicleld), milage, type of fuel and\nthe type of transmission (transmission) for each vehicle. Fuel type attribute stores  Petrol ,\nDiesel  or  Hybrid . The transmission attribute stores either  automatic  or  manual .\nReservation table stores information about reservations of vehicles. The table contains\ninformation about the vehicles which have been rented (vId), the customers who have\nreserved vehicles (cId), start dates of the reservations (startDate), the\nend dates of the\nreservations (endDate) and the dates the vehicles have been returned by the customer\n(returnDate). For vehicles that are not returned yet, a null value is stored in the return date\nfield. Payment table stores the payment details of the reservations. The table contains\npayment id (pId), customer id (cId), vehicle id (vId), type of the payment (type), amount\npaid and the and the paid date. When customers reserve vehicles they have to make the full\npayment or a partial payment. If the vehicle is returned late a fine has to be paid for the\nvehicle. The type attribute of the payment table stores  Full ,  Partial  or  Fine  to show the\ntype of the payment as above. The primary keys of all relations are under!ined.\na)\nUse SQL queries to answer following questions.\ni.\nFind the names of the customers who are late to return the vehicles they have\nrented.\n(2 marks)\nii.\nFind the vehicle ids of vehicles with mileage over 80000km which have not been\nrented since 1% May 2015.\n(4 marks)\niii.\nFind the ids and the names of customers who have paid the most amount of fines.\n(5 marks)\nb)\nCreate a view which contains customer id, name and phone number of customers who\nhave outstanding fines.\n(3 marks)\nc)\nCreate a trigger to insert an entry to the payment table to indicate\nthat a fine is to be\npaid when a vehicle is returned late. A fine of Rs. 3000 is to be paid for each day late.\n(Assume that the pid is set using the identity property and that the Reservation table is\nupdated only to enter the return date of a vehicle. DATEDIFF(dd, daiel,date2) function\nreturns the number of days between datel and date 2).\n(6 marks)\nPage 2 of 6\n25/09/2015\n\n00269",
+    "diagram_refs": [],
+    "subquestions_full": [],
+    "subquestions": []
+  },
+  {
+    "question_id": "2",
+    "pdf_stem": "2015 II",
+    "page_no": 3,
+    "marks": 20,
+    "text": "Question 2\n(20 marks)\na)\nExplain two methods that could be used to improve the reliability of data stored in\ndisks.\n(3 marks)\nb)\nConsider a disk with a sector size of 512 bytes, 400 tracks per surface, 20 sectors per\ntrack, 5 single-sided platters and an average seek time of 10 msec. Suppose that a block\nsize of 1,024 bytes is chosen. The disk spins at 2400 revolutions per minute. Assume\nthat the average rotational delay is % revolution. The Disk Space Manager is requested\nto read blocks A, B and C stored as follows.\nBlock A is in platter\n1\ntrack 20\nBlock B is in platter\n1   track 25\nBlock C is in platter\n1  track 30\ni.\nFind the total time taken to read blocks A, B, and C stored as above.\n(6 marks)\nii.\nFind the total cost for reading blocks A, B and C, if they are placed next to each\nother on the same track.\n(5 marks)\nc)\nConsider the following buffer pool with 5 frames.\n[DIAGRAM: page_003_diagram_1.png]\nEach frame has a frame number (Frame No), page id (PageID) of page in buffer pool, pin\ncount (PinCount) and a dirty bit (Dirty).\nAssume that the following times states the last time the particular frame was accessed (on\nthe same day):\nFrame number 0 at 11:15 am\nFrame number\n1 at 11:35 am\nFrame number 2 at 10:57 am\nFrame number 3 at 11:12 am\nFrame number 4 at 11:26 am\nDescribe the steps involved when a page request for the page with PageID 50 occurs if LRU\n(least-recently-used) policy is used as the replacement policy.\n(3 marks)\nd)\nWhat happens if there is a page request when all pages in the buffer pool are dirty?\n(3 marks)\nPage 3 of 6\n25/09/2015\n\n00269",
+    "diagram_refs": [
+      "page_003_diagram_1.png"
+    ],
+    "subquestions_full": [],
+    "subquestions": []
+  },
+  {
+    "question_id": "3",
+    "pdf_stem": "2015 II",
+    "page_no": 4,
+    "marks": 20,
+    "text": "Question 3\n(20 marks)\na)\nBriefly explain the three main file organizations.\n(3 marks)\nb)\nUpdating a record in sorted file organization is always efficient than the heap file\naccept or refute the above statement providing reasons.\n(3 marks)\nc)\nBriefly explain the two alternatives used\nin DBMS for managing the fixed length\nrecords. Provide one limitation of each alternative.\n(4 marks)\nd)\nConsider the following B+ tree of order 2.\n[DIAGRAM: page_004_diagram_1.png]\ni.\nIllustrate B+ tree after inserting 13 to the tree above.\n(3 marks)\nii.\nIllustrate the B+ tree after deleting 21 from the original tree\n(3 marks)\ne)\nShow the extendible hashed file after inserting 6.\n(4 marks)\n[DIAGRAM: page_004_diagram_2.png]\n25/09/2015\n\n00269",
+    "diagram_refs": [
+      "page_004_diagram_1.png",
+      "page_004_diagram_2.png"
+    ],
+    "subquestions_full": [],
+    "subquestions": []
+  },
+  {
+    "question_id": "4",
+    "pdf_stem": "2015 II",
+    "page_no": 5,
+    "marks": 15,
+    "text": "Question 4\n(15 marks)\na)\nBriefly explain the major steps in Query Processing?\n(3 marks)\nb)\nBriefly explain why it is often advantageous to do selections before joins in a query\nplan. How do early projections help during the query execution?\n(3 marks)\nc)\nWhat is a clustered index?\n(2 marks)\nd)\nConsider the following relational schema:\nDept (dno, dname, location, budget)\nWorks (eno, dno, pct_time)\nAssume that Dept relation consists of 80 pages with 50 tuples per page, Works relation\ncontains 200 pages with 100 tuples per page. Assume equal-size ficlds in each relation\nand uniform distribution for Works relation. Assume that 52 buffer pages are available.\nThere exists a Hash index on Works<dno> using Altl.\nConsider the following query:\nSelect w.eno\nFrom\nDept d, Works w\nWhere d.dno=w.dno\ni.\nDraw query tree for the above query.\n(1 mark)\nii.\nEstimate the cost for the best plan if Block-nested loops join algorithm is used to\nperform joining of tables.\n(2 marks)\niii.\nEstimate the cost for the best plan if Index-nested loops join algorithm is used to\nperform joining of tables.\n(2 marks)\niv.\nConsider the query given below.\nSelect dname, budget\nFrom Dept\nWhere budget>5000000\nAssume that only 5 % of the tuples satisfy the selection condition. What will be\nthe cost for evaluating the above query?\n(2 marks)\nPage 5 of 6\n25/09/2015\n\n00269",
+    "diagram_refs": [],
+    "subquestions_full": [],
+    "subquestions": []
+  },
+  {
+    "question_id": "5",
+    "pdf_stem": "2015 II",
+    "page_no": 6,
+    "marks": 25,
+    "text": "Question 5\n(25 marks)\na)\nExplain the four properties of a transaction,\n(4 marks)\nb)\nWhy do DBMSs interleave actions of multiple transactions?\n(2 marks)\nc)\nWhat is a dirty read?\n(2 marks)\nd)\nExplain what\nis\nan unrecoverable schedule? What\nare\nthe\nroot causes\nfor the\nunrecoverable schedule?\n(4 marks)\ne)\nBriefly explain the wound-wait and wait-die approaches used for deadlock prevention\nusing suitable transaction schedules.\n(4 marks)\nf)\nConsider the transaction schedule below.\n[DIAGRAM: page_006_diagram_1.png]\nAssume that Transaction Ti is higher priority than transaction Ti+i(i.e. transaction Ty\nhas higher priority than T2; and T2 has higher priority than Ts).\ni.\nDraw a Wait-For-Graph for the schedule given above.\n(2 marks)\nii.\nDraw the above schedule considering deadlock prevention algorithm: Wound-\nwait approach.\n(3 marks)\ng)\nConsider the following scenario:\n[DIAGRAM: page_006_diagram_2.png]\nDatabase D contains a relation R. Relation R contains 1000 pages. Assume that\nmultiple granularity locking scheme is used.\nDescribe the locks acquired when updating a tuple t in page P of relation R.\n(4 marks)\n-- End of the Question Paper --\nPage 6 of 6\n25/09/2015",
+    "diagram_refs": [
+      "page_006_diagram_1.png",
+      "page_006_diagram_2.png"
+    ],
+    "subquestions_full": [],
+    "subquestions": []
+  }
+]

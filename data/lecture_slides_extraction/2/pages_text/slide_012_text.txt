@@ -1,0 +1,4 @@
+MAPPING ENTITIES AND ATTRIBUTES
+Go through page 1 of the handout 2.
+Map the entity below to relational model.
+[FIGURE: slide_012_fig_1.png]

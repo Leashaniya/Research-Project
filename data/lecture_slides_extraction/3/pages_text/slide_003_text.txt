@@ -1,0 +1,5 @@
+LEARNING OUTCOMES
+Explain the pitfalls of incorrect grouping of attributes in relations.
+Explain the properties of a good decomposition.
+Compute keys from a given set of FDs in a relation
+Normalize a given schema to BCNF.

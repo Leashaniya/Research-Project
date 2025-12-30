@@ -1,0 +1,4 @@
+ACTIVITY
+What normal form the relation in the slide is?
+If the relation is not in 3NF normalize the relation to 3NF.
+[FIGURE: slide_024_fig_1.png]

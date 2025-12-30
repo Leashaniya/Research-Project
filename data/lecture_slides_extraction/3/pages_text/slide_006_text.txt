@@ -1,0 +1,12 @@
+WHY SCHEMA REFINEMENT? (CONTD.)
+Insertion Anomaly
+Inserting a new employee to the emp table
+Department information is repeated (ensure that correct department information is inserted).
+Inserting a department with no employees
+Impossible since eid cannot be null
+Deletion Anomaly
+Deleting the last employee from the department will lead to loosing information about 
+the department
+Update Anomaly
+Updating the department’s location needs to be done for all employees working for 
+that department

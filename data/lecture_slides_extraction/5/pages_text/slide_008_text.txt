@@ -1,0 +1,8 @@
+UPDATING VIEWS (CONTD.)
+Updating a view can be ambiguous…
+Views containing aggregate functions are not updateable
+Ex :
+UPDATE emp_info
+SET  tot_pct= 90
+WHERE eid = 1000
+**This is not possible
