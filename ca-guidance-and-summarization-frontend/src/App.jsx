@@ -28,6 +28,9 @@ function App() {
   const [summary, setSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryAudio, setSummaryAudio] = useState(null);
+  const [flashcardTopic, setFlashcardTopic] = useState('');
+  const [flashcards, setFlashcards] = useState(null);
+  const [flashLoading, setFlashLoading] = useState(false);
 
   // ✅ Helper: make a path absolute using API_URL
   const toAbsoluteUrl = (maybeRelativeUrl) => {
@@ -172,6 +175,28 @@ function App() {
     } finally {
       setSummaryLoading(false);
     }
+  };
+
+  const handleGenerateFlashcards = async (e) => {
+    e.preventDefault();
+    setFlashLoading(true);
+    setFlashcards(null);
+
+    if (!flashcardTopic || !flashcardTopic.trim()) {
+      setFlashcards({ error: 'Please enter a topic to generate flashcards.' });
+      setFlashLoading(false);
+      return;
+    }
+
+    // Temporary client-side flashcard generation (placeholder)
+    const t = flashcardTopic.trim();
+    const cards = Array.from({ length: 5 }).map((_, i) => ({
+      q: `Q${i + 1}: What is ${t}?`,
+      a: `A${i + 1}: A short explanation of ${t} (concept ${i + 1}).`,
+    }));
+
+    setFlashcards({ topic: t, cards });
+    setFlashLoading(false);
   };
 
   // Custom component for rendering code blocks and images
@@ -452,18 +477,70 @@ function App() {
                   </div>
                 )}
 
-                  {/* Flashcards Tab */}
-                  {activeTab === 'flashcards' && (
-                    <div className="content-area">
-                      <h2 style={{ marginBottom: '20px', color: '#495057' }}>
-                        <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Flashcards
-                      </h2>
+                
+              </div>
+            )}
 
-                      <div className="report-content">
-                        <p>Flashcards coming soon — study key concepts here.</p>
+            {/* Flashcards Tab */}
+            {activeTab === 'flashcards' && (
+              <div className="content-area">
+                <form onSubmit={handleGenerateFlashcards} className="form-container">
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="flashcard-topic">
+                      <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Enter Topic for Flashcards
+                    </label>
+                    <input
+                      id="flashcard-topic"
+                      type="text"
+                      value={flashcardTopic}
+                      onChange={(e) => setFlashcardTopic(e.target.value)}
+                      placeholder="e.g., Normalization, ER Diagrams, Transactions..."
+                      className="text-input"
+                      required
+                    />
+                    <p style={{ marginTop: '8px', fontSize: '0.9rem', color: '#6c757d' }}>
+                      Enter a topic to generate short Q&A flashcards.
+                    </p>
+                  </div>
+                  <button type="submit" className="btn btn-primary" disabled={flashLoading}>
+                    {flashLoading ? (
+                      <>
+                        <span className="loading-spinner"></span>
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <FaClipboard style={{ marginRight: '8px' }} />
+                        Generate Flashcards
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                {flashcards && (
+                  <div style={{ marginTop: '24px' }}>
+                    {flashcards.error ? (
+                      <div className="error-message">{flashcards.error}</div>
+                    ) : (
+                      <div>
+                        {flashcards.topic && (
+                          <h2 style={{ marginBottom: '12px', color: '#495057' }}>
+                            <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Flashcards: <span style={{ color: '#336db0' }}>{flashcards.topic}</span>
+                          </h2>
+                        )}
+
+                        <div className="report-content">
+                          {flashcards.cards.map((c, i) => (
+                            <div key={i} style={{ marginBottom: '12px' }}>
+                              <div><strong>Q:</strong> {c.q}</div>
+                              <div><strong>A:</strong> {c.a}</div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
