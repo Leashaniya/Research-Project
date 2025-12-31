@@ -301,6 +301,12 @@ function App() {
               >
                 <FaBook style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Lecture Summaries
               </button>
+              <button
+                onClick={() => setActiveTab('flashcards')}
+                className={`tab-button ${activeTab === 'flashcards' ? 'active' : ''}`}
+              >
+                <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Flashcard Generator
+              </button>
             </div>
 
             {/* Guidance Tab */}
@@ -438,6 +444,19 @@ function App() {
                     ) : null}
                   </div>
                 )}
+
+                  {/* Flashcards Tab */}
+                  {activeTab === 'flashcards' && (
+                    <div className="content-area">
+                      <h2 style={{ marginBottom: '20px', color: '#495057' }}>
+                        <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Flashcards
+                      </h2>
+
+                      <div className="report-content">
+                        <p>Flashcards coming soon — study key concepts here.</p>
+                      </div>
+                    </div>
+                  )}
               </div>
             )}
           </div>
