@@ -1,3 +1,0 @@
-EXERCISE 3
-Create a procedure that outputs the name of the manager and his salary 
-in a given department.

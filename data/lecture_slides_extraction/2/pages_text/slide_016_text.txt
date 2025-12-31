@@ -1,5 +1,0 @@
-MAPPING ISA-RELATIONSHIPS
-There are four different options for mapping ISA relationships.
-Multi-relation options : option 1 & option 2
-Single-relation options : option 3 & option 4
-Each option is suitable for specific situations.

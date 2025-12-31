@@ -1,4 +1,0 @@
-MAPPING BINARY RELATIONSHIPS
-Go through page 1 of the handout 2.
-Now lets map the following ER diagram to relational model
-[FIGURE: slide_013_fig_1.png]

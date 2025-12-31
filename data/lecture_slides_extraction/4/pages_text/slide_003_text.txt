@@ -1,6 +1,0 @@
-LECTURE CONTENT
-At the end of this lecture students should be able to
-Write syntactically correct SQL statements to create and modify relations 
-in a RDBMS
-Write syntactically correct SQL statements to answer user defined queries 
-in a RDBMS

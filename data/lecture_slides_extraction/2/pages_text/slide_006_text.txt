@@ -1,7 +1,0 @@
-THE RELATIONAL MODEL (CONTD.)
-The relational schema describes the columns for a relation.
-Ex:  Students(sid: string, name: string, login: string, age: integer, gpa: real)
-The schema species the relation's name, the name of each field and the domain of each field.
-An instance of a relation is a set of tuples, also called records, in which each tuple 
-has the same number of fields as the relation schema.
-[FIGURE: slide_006_fig_1.png]

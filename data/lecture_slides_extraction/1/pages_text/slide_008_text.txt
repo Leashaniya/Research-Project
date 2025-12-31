@@ -1,8 +1,0 @@
-DATABASE DESIGN PROCESS
-There are six main phases of the process to develop a database
-Requirement collection and analysis
-Conceptual database design
-Logical database design
-Schema refinement
-Physical database design
-Security design

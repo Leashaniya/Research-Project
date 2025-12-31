@@ -1,6 +1,0 @@
-EXERCISE 4
-Consider the following table
-Transaction(tid, accountNo, type,amount,date)
-Type may contain ‘credit’ or ‘debit’
-Assuming that the bank’s maximum withdrawal limit per day is 40000, write 
-a trigger to ensure that no customer withdraws more than the given limit.

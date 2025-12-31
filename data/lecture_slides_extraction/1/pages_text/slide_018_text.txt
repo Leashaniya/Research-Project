@@ -1,7 +1,0 @@
-EER MODEL - ISA RELATIONSHIPS
-In many cases an entity type has numerous subgroupings or subtypes of its entities 
-that are meaningful and need to be represented explicitly because of their 
-significance to the database application.
-Ex: the entities that are members of the EMPLOYEE entity type may be distinguished 
-further into contract employees and permanent employees
-Such subtypes could be represented in EER diagrams using ‘ISA’ relationships

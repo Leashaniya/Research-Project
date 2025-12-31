@@ -1,6 +1,0 @@
-T-SQL: TRIGGERS
-A trigger is a special type of stored procedure that automatically takes 
-effect when the data in a specified table is modified.
-A trigger is invoked in response to a
-DDL statement (CREATE, ALTER etc.) or
-DML statement (INSERT, UPDATE, or DELETE statement). ‘

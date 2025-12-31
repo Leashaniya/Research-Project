@@ -1,8 +1,0 @@
-CHASM TRAP
-A chasm trap occurs when a model suggests that a relationship between 
-entity types should be present, but the relationship does not actually exist. 
-(missing relationship)
-May occur when there is a path of optional relationships between entities.
-Example: A department has multiple employees, a department has multiple 
-projects, and each project has multiple employees.
-[FIGURE: slide_031_fig_1.png]

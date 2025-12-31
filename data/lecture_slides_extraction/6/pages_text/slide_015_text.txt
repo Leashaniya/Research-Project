@@ -1,9 +1,0 @@
-STEP 3 : OPEN A CONNECTION
-After the driver is loaded to the memory a connection to the database could be 
-established using the DriverManager.getConnection() method.
-▪There are three parameters to the method which are URL of the database, user 
-name and the password.
-▪Ex:
-▪String url = “jdbc:odbc:dbConn”
-▪Connection c = DriverManager.getConnection(url, “user", “password");
-▪This connection should be closed later using Connection.close()

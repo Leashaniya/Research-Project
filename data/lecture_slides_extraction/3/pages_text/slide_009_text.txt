@@ -1,8 +1,0 @@
-WHY SCHEMA REFINEMENT? (CONTD.)
-Loss-less join property : the property enables recovery of original 
-relation from a set of smaller relations resulted through decomposition.
-For example, suppose S is decomposed in to R1and R2. When we join R1 and R2 do we get S? if 
-so, we say the decomposition is loss-less.
-[FIGURE: slide_009_fig_1.png]
-Dependency preserving property :  enables to enforce any constraint on the original 
-relation simply enforcing some constraints on each of the smaller relation.

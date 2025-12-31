@@ -1,7 +1,0 @@
-ER MODEL - BINARY RELATIONSHIPS
-You already know these too !
-Check the handout for the definitions and examples for different 
-cardinalities in binary relationships such as 1:1, 1:N and M:N
-Now draw examples for each cardinality ratio above associated with binary 
-relationships.
-Exchange what you have drawn with your peer. What has he/she drawn?

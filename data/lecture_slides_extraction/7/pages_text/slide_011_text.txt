@@ -1,7 +1,0 @@
-STEP 5 – EXPORTING DATA FROM AN EXCEL FILE
-Click finish to complete the migration 
-on the next screen.
-Outcome of the data migration process 
-would be displayed as shown on the 
-screen.
-[FIGURE: slide_011_fig_1.png]

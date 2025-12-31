@@ -1,6 +1,0 @@
-ISA MAPPING – OPTION 1
-[FIGURE: slide_017_fig_1.png]
-
-Option 1 works for all 
-constraints disjoint, 
-overlapping, total and partial

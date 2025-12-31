@@ -1,7 +1,0 @@
-ER MODEL - TERNARY RELATIONSHIPS
-A ternary relationship is when three entities participate in the relationship.
-[FIGURE: slide_015_fig_1.png]
-Ternary relationships could be used when there is a common attribute that needs all three 
-entities together,  (ex: quantity)
-Include the ternary relationship plus one or more of the binary relationships, if they 
-represent different meanings and if all are needed

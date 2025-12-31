@@ -1,9 +1,0 @@
-GROUPING (GROUP BY CLAUSE)
-Groups the data in tables and produces a single summary row for each group.
-Grouping is done based on a values in a given field
-When using group by
-Each item in the SELECT list must be single valued per group.
-SELECT clause may only contain Columns names, aggregate function, constants or an 
-expression involving combinations of the above.
-All column names in SELECT list must appear in the GROUP BY clause unless the name is 
-used only in the aggregate function.

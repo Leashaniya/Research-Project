@@ -1,5 +1,0 @@
-REQUIREMENT ANALYSIS (CONTD.)
-Aspects to consider include
-What data is to be stored in the database?
-What applications are to be built?
-What operations have to be performed?

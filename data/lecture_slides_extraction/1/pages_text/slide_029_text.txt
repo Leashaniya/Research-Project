@@ -1,8 +1,0 @@
-FAN TRAP
-A fan trap is when a model represents a relationship between entity 
-types, but the pathway between certain entity instances is ambiguous.
-Often occurs when two or more one-to-many relationships fan out (come from) 
-the same entity type.
-Example: A department has multiple employees, a department has 
-multiple projects, and each project has multiple employees.
-[FIGURE: slide_029_fig_1.png]

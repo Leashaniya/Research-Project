@@ -1,9 +1,0 @@
-GRANTING PERMISSIONS
-Granting permissions to a role/user
-Ex: GRANT SELECT TO GrantSelectRole
-Ex: GRANT SELECT, INSERT, UPDATE, DELETE, REFERENCES, EXECUTE ON 
-Northwind TO sqluser01;
-Denying permissions to a role/user
-Ex: DENY SELECT TO DenyTest
-Revoking permissions assigned to a user
-Ex: REVOKE SELECT TO GrantSelectRole;

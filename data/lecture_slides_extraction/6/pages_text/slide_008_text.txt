@@ -1,4 +1,0 @@
-JDBC-ODBC BRIDGE DRIVER
-The JDBC-ODBC bridge driver uses ODBC driver installed in a client machine to connect 
-to the database.
-[FIGURE: slide_008_fig_1.png]

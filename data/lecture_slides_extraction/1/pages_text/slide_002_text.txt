@@ -1,6 +1,0 @@
-LECTURE CONTENT
-Introduction to databases, DBMS and their benefits
-Database design process
-Requirement analysis
-Conceptual modelling using EER diagrams
-Design traps

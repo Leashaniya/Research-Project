@@ -1,8 +1,0 @@
-CREATING DATABASE ROLES
-A database role is a group of users that share a common set of database-
-level permissions.
-As with server roles, SQL Server supports both fixed and user-defined 
-database roles.
-To set up a user-defined database role, you must create the role, grant 
-permissions to the role, and add members to the role (or add members 
-and then grant permissions).

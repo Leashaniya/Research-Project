@@ -1,7 +1,0 @@
-INTRODUCTION
-SQL is the standard common language used for storing in and obtaining 
-information from relational databases.
-Even though SQL was standardized, still different applications was 
-needed to be developed to access different DBMSs.
-A common way for an application to access a relational database was 
-highly desirable.

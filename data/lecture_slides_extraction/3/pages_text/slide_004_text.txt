@@ -1,6 +1,0 @@
-WHY SCHEMA REFINEMENT?
-The relations resulted through the logical database design may not be very good if 
-your conceptual database design is not good.
-For example, what is wrong with the following schema resulted through mapping of 
-an ER diagram
-[FIGURE: slide_004_fig_1.png]

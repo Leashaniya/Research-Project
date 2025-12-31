@@ -1,6 +1,0 @@
-DESIGN TRAPS
-There are several different "modeling traps" (called connection traps) that 
-you can fall into when designing your ER model.
-Two connection traps that we will look at are:
-Fan traps
-Chasm traps

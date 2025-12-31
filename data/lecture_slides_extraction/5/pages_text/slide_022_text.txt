@@ -1,5 +1,0 @@
-FUNCTIONS (CONTD.)
-Calling the function created previously
-declare @result int
-exec @result=get_empCount 'Admin'
-print @result

@@ -1,6 +1,0 @@
-DATABASE SECURITY
-The data stored in a DBMS is often vital to the business interests of the 
-organization and is regarded as a corporate asset.
-In addition to protecting the intrinsic value of the data, corporations 
-must consider ways to ensure privacy and to control access to data that 
-must not be revealed to certain groups of users for various reason.

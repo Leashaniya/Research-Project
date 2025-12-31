@@ -1,6 +1,0 @@
-EER MODEL - ISA RELATIONSHIPS (CONTD.)
-[FIGURE: slide_019_fig_1.png]
-Thus attributes of the permanent 
-employee include all attributes of 
-employee entity and those of 
-permanent employee.

@@ -1,5 +1,0 @@
-ISA MAPPING – OPTION 4
-[FIGURE: slide_023_fig_1.png]
-Primary key of the superclass 
-becomes primary key of the 
-relation.

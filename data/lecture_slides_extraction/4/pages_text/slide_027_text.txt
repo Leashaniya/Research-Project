@@ -1,5 +1,0 @@
-AGGREGATION
-An aggregate function summarizes the results of an expression over a 
-number of rows, returning a single value.
-Some of the commonly used aggregate functions are SUM, COUNT, AVG, 
-MIN and MAX

@@ -1,9 +1,0 @@
-T-SQL: VARIABLES (CONTD.)
-The DECLARE statement initializes a Transact-SQL variable.
-Syntax: DECLARE @<variable name> <data type>
-Ex: DECLARE @DNameVARCHAR(20)
-The created variable will be holding a null value
-
-To assign a value to a variable, use the SET statement.
-Syntax : SET @<variable name> =<value>
-SET @DName = ‘SESD’

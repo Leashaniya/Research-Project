@@ -1,9 +1,0 @@
-REVISIT TO SCENARIO
-Senior DBA, Junior DBA, Database Developer and Data entry operator should have 
-logins.
-According to the scenario, Senior dba also should be able to create databases and 
-logins.
-Therefore two methods could be used to create logins
-All logins could be created by the project manager
-Project manager could create the login of Senior DBA and Senior DBA could create the 
-other logins. (we will use this approach)

@@ -1,7 +1,0 @@
-Question 1 
-(20 marks)
-Convert the following EER model in to the relational model. Indicate the primary keys and the foreign 
-keys of the resulted relations clearly.
-<>
-[DIAGRAM: page_002_diagram_1.png]
-Page 2 of 4

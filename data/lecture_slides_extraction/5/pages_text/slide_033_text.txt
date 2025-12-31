@@ -1,4 +1,0 @@
-T-SQL: TRIGGER SYNTAX (CONTD.)
-[DELETE] [,] [INSERT] [,] [UPDATE]
-Are keywords that specify which data modification statements, when attempted 
-against this table or view, activate the trigger. At least one option must be specified.

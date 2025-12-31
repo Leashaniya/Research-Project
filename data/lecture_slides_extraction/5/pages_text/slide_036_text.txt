@@ -1,7 +1,0 @@
-T-SQL: TRIGGERS(CONTD.)
-Example 1:
-Consider tables below
-Account (accountNo, custId, branch, balance)
-AccountAudit (accountNo, balance, date)
-Create a trigger to track all inserts/updates done to the balance field of an Account 
-table at a bank in the AccountAudit table

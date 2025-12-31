@@ -1,7 +1,0 @@
-SQL SEVER IMPORT AND EXPORT WIZARD
-The SQL sever import and export wizard provides a quick way to move data and 
-perform very light transformations of data.
-The wizard is available in all editions of SQL Server except the Local Database 
-edition and Express.
-Next few slides of the lecture shows how data in an Excel file could be exported to a 
-SQL server table in 5 steps.

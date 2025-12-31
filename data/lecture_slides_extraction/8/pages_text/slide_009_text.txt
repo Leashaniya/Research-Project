@@ -1,7 +1,0 @@
-SECURITY IN SQL SERVER (CONTD.)
-Authentication and authorization are achieved in SQL Server through a 
-combination of security principals, securable, and permissions.
-Together, these three component types provide a structure for 
-authenticating and authorizing SQL Server users.
-You must grant each principal the appropriate permissions it needs on 
-specific securables to enable users to access SQL Server resources.

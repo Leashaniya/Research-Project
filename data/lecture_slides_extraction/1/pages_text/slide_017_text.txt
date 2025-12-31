@@ -1,9 +1,0 @@
-EER MODEL
-ER model we discussed so far has been enhanced by adding several new concepts 
-leading to the development of the EER model.
-An important extension included in the EER model is the specialization and 
-generalization concepts.
-Specialization is the process of defining a set of subclasses of an entity type.
-Employee & permanent employee
-Generalization is the process of identifying commonalities between entity types and 
-grouping them as super-classes.

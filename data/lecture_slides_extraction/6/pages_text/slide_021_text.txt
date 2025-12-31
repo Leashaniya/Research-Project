@@ -1,9 +1,0 @@
-SQL EXCEPTIONS
-JDBC Exception handling is very similar to the Java Excpetion handling but for 
-JDBC, the most common exception you'll deal with is java.sql.SQLException.
-When an exception occurs, an object of type SQLException will be passed to the 
-catch clause.
-The passed SQLException object has the following methods available for retrieving 
-additional information about the exception:
-A string describing the error: getMessage()
-An integer error code that is specific to each vendor: getErrorCode()

@@ -1,4 +1,0 @@
-ACTIVITY
-Can you think of an aggregation relationship in a domain familiar to you?
-Exchange what you have drawn with your peer. What have they drawn?
-Have you understood the concepts properly?

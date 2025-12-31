@@ -1,8 +1,0 @@
-CREATING AND ASSIGNING SERVER ROLES
-With sever roles logins could be grouped together in order to more 
-easily manage server-level permissions.
-SQL Server supports fixed server roles and user-defined server roles.
-With fixed server roles logins could be assigned, but permissions cannot 
-be changed.
-For user-defined roles logins can be assigned and permission can be 
-changed

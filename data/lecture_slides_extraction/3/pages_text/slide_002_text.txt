@@ -1,6 +1,0 @@
-LECTURE CONTENT
-Why schema refinement?
-Properties of good decomposition
-Functional dependencies
-Computing keys of relations
-Normalization and normal forms

@@ -1,7 +1,0 @@
-T-SQL: WHILE STATEMENT (CONTD.)
-BREAK
-Causes an exit from the innermost WHILE loop. Any statements appearing 
-after the END keyword, marking the end of the loop, are executed.
-CONTINUE
-Causes the WHILE loop to restart, ignoring any statements after the 
-CONTINUE keyword.

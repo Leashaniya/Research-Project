@@ -1,7 +1,0 @@
-BCP COMMAND
-BCP is a powerful command line utility that enables us to transfer large number of 
-records between a SQL instance and a data file using a special file format.
-This tool is installed by default with SQL Server.
-With BCP the data migrated can be a table or a SQL query result.
-Type BCP command on the command line to obtain the options that could be used 
-with the command.

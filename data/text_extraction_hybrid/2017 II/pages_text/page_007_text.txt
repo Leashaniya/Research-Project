@@ -1,7 +1,0 @@
-h) Consider the following scenario:
-[DIAGRAM: page_007_diagram_1.png]
-Database D contains a relation R. Relation R contains 1000 pages. Assume that multiple 
-granularity locking scheme is used.
-Describe the locks acquired when all rows in page P are modified. 
-(3 marks)
-Page 7of 7

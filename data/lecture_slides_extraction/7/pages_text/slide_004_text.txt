@@ -1,9 +1,0 @@
-DATABASE UTILITIES
-Once the database is developed,  you may need to perform several tasks on 
-the created tables and stored data.
-SQL server provides many types of utilities for performing commonly used 
-tasks.
-These include,
-Data Transferring
-Creating and managing jobs
-Backup tools & etc.

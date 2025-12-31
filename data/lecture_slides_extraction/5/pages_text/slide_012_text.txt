@@ -1,8 +1,0 @@
-T-SQL: VARIABLES
-A Transact-SQL local variable is an object that can hold a single data value of a 
-specific type.
-Variables in scripts are typically used:
-As a counter either to count the number of times a loop is performed or to 
-control how many times the loop is performed
-To hold a data value to be tested by a control-of-flow statement
-To save a data value to be returned by a stored procedure return code.

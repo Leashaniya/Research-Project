@@ -1,8 +1,0 @@
-REQUIREMENT COLLECTION AND ANALYSIS
-The purpose of the phase is to collect and analyze the expectations of 
-the users & the intended uses of the database.
-The process would include interviewing clients and analyzing documents 
-such as files used to record data and reports to be generated.
-At the end of the requirement collection, the database developer should 
-identify any unclear or incomplete requirements, redundant information 
-and eliminate them.

@@ -1,7 +1,0 @@
-ASSIGNING USERS TO USER DEFINED DATABASE ROLES
-Creating a user defined role
-Syntax : CREATE ROLE <role_name>
-Example : CREATE ROLE student
-Assigning login to the role
-Syntax : ALTER ROLE <role_name> ADD MEMBER <username>
-Example : ALTER ROLE student ADD MEMBER Brady

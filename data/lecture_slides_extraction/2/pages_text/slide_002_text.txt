@@ -1,4 +1,0 @@
-LECTURE CONTENT
-Logical database design
-Relational model and its components
-ER to relational mapping

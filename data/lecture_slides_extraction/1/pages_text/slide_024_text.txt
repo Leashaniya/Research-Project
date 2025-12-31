@@ -1,5 +1,0 @@
-ACTIVITY
-In a blank paper draw two ISA relationships, one which is having a covering constraint 
-and another which is having a overlapping constraint.
-Exchange what you have drawn with your peer. What have they drawn?
-Have you understood the concepts properly?

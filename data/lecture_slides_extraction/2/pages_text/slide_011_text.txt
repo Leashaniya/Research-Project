@@ -1,5 +1,0 @@
-ACTIVITY
-In two minutes summarize the integrity constraints discussed in today’s lecture on a 
-blank paper.
-Exchange what you have written with your peer and correct the answer.
-Have you understood each constraint well?

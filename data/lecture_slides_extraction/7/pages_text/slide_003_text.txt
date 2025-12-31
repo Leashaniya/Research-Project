@@ -1,5 +1,0 @@
-LEARNING OUTCOMES
-At the end of this week, students should be able to
-Transfer data between a data source and a database
-Create jobs in SQL server
-Develop a simple database maintenance plan
