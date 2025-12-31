@@ -1,0 +1,5 @@
+LEARNING OUTCOMES
+Explain what is a database and a DBMS.
+Identify situations where using a database would be beneficial.
+Explain the database design process.
+Draw a EER diagram for a given scenario.

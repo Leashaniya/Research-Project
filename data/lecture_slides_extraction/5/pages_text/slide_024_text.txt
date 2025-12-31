@@ -1,0 +1,9 @@
+STORED PROCEDURES
+Ex : Create a procedure to give a salary increment to all the employee by a given 
+percentage from their existing salary
+CREATE PROCEDURE increaseSalary (@pct float) 
+as
+begin
+ Update emp
+ Set salary=salary+salary * (pct/100)
+end;

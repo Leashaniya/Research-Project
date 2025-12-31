@@ -1,0 +1,36 @@
+BETWEEN OPERATOR
+Student
+Used to check whether attribute value is 
+within a range
+StudentID
+Name
+gpa
+progId
+1000
+Amal
+3.2
+BM
+Ex :Find the students who will be 
+obtaining a first class (3.7<=gpa<=4.0)
+1001
+Nimali
+Null
+IT
+1002
+Aruni
+3.8
+SE
+1003
+Surani
+2.5
+IT
+1004
+Imali
+4.0
+BM
+Select studentID
+From student
+StudentID
+Where gpa between 3.7 and 4.00
+1002
+1004

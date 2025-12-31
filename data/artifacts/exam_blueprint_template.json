@@ -1,0 +1,47 @@
+{
+  "component": "model_exam_paper",
+  "canonical_total_marks": 100,
+  "canonical_num_questions": 5,
+  "note": {
+    "good_papers_used": 11,
+    "skipped_papers": 4,
+    "rule": "Only papers with total=100 and missing_marks=0 were used for structure + topics"
+  },
+  "question_slots": [
+    {
+      "slot_id": "Q1",
+      "position": 1,
+      "target_marks": 20,
+      "typical_num_subquestions": 0,
+      "num_samples": 11
+    },
+    {
+      "slot_id": "Q2",
+      "position": 2,
+      "target_marks": 20,
+      "typical_num_subquestions": 0,
+      "num_samples": 11
+    },
+    {
+      "slot_id": "Q3",
+      "position": 3,
+      "target_marks": 22,
+      "typical_num_subquestions": 0,
+      "num_samples": 11
+    },
+    {
+      "slot_id": "Q4",
+      "position": 4,
+      "target_marks": 20,
+      "typical_num_subquestions": 0,
+      "num_samples": 11
+    },
+    {
+      "slot_id": "Q5",
+      "position": 5,
+      "target_marks": 18,
+      "typical_num_subquestions": 0,
+      "num_samples": 6
+    }
+  ]
+}

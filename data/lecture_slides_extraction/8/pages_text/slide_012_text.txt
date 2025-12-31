@@ -1,0 +1,10 @@
+STEPS TO PROVIDE USERS WITH ACCESS TO SQL SERVER RESOURCES 
+(CONTD.)
+5.
+At the database level, create a database user for each login.
+▪A database user can be associated with only one server login.
+6. Create user-defined database roles if the fixed database roles do not meet your 
+configuration requirements.
+7. Assign users to the appropriate database roles (either fixed or user-defined).
+8. For each applicable database-level or schema-level securable, grant or deny 
+permissions to the database users and roles.

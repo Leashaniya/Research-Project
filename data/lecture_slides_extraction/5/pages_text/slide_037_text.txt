@@ -1,0 +1,11 @@
+T-SQL: TRIGGERS (CONTD.)
+Create trigger account_audit_trigg
+On Account
+For Insert, update
+As
+Begin
+Declare @ano int
+Declare @balance float
+Select @ano=accountNo,@balance=balance from inserted
+Insert into accountAudit(@ano,@balance,getdate())
+end

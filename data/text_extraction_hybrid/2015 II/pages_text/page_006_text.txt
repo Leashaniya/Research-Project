@@ -1,0 +1,48 @@
+00269
+Question 5 
+(25 marks)
+a) 
+Explain the four properties of a transaction, 
+(4 marks)
+b) 
+Why do DBMSs interleave actions of multiple transactions? 
+(2 marks)
+c) 
+What is a dirty read? 
+(2 marks)
+d) 
+Explain what 
+is 
+an unrecoverable schedule? What 
+are 
+the 
+root causes 
+for the 
+unrecoverable schedule? 
+(4 marks)
+e) 
+Briefly explain the wound-wait and wait-die approaches used for deadlock prevention 
+using suitable transaction schedules. 
+(4 marks)
+f) 
+Consider the transaction schedule below.
+[DIAGRAM: page_006_diagram_1.png]
+Assume that Transaction Ti is higher priority than transaction Ti+i(i.e. transaction Ty
+has higher priority than T2; and T2 has higher priority than Ts).
+i. 
+ Draw a Wait-For-Graph for the schedule given above. 
+(2 marks)
+ii. 
+Draw the above schedule considering deadlock prevention algorithm: Wound- 
+wait approach. 
+(3 marks)
+g) 
+Consider the following scenario:
+[DIAGRAM: page_006_diagram_2.png]
+Database D contains a relation R. Relation R contains 1000 pages. Assume that 
+multiple granularity locking scheme is used. 
+Describe the locks acquired when updating a tuple t in page P of relation R.
+(4 marks)
+-- End of the Question Paper --
+Page 6 of 6
+25/09/2015

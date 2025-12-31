@@ -1,0 +1,8 @@
+STEP 1 – EXPORTING DATA FROM AN EXCEL FILE
+Log in to the SQL sever
+Right click on a database name 
+and select export data sub 
+menu from the task menu.
+[FIGURE: slide_007_fig_1.png]
+Click Next in the welcome 
+screen which appears.

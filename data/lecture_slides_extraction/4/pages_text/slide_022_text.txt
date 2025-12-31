@@ -1,0 +1,46 @@
+IN OPERATOR
+Student
+Grades
+Used to check whether attribute 
+value matches any value within a 
+value list
+SID
+cid
+Grade
+SID
+Name
+gpa
+1000
+IT102
+A
+1000
+Amal
+3.2
+1000
+IT100
+B
+1001
+Nimali
+2.8
+Ex : Find the students who has 
+obtained a ‘A’.
+1001
+IT102
+A
+1002
+Aruni
+3.8
+1002
+IT102
+C
+Select s.Name
+1002
+IT200
+C
+From Student s
+Name
+Amal
+Where s.SID IN ( Select SID
+Nimali
+from Grades
+Where Grade=‘A’)

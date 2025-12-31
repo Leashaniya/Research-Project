@@ -1,0 +1,242 @@
+--- SLIDE 1 ---
+DATABASE MANAGEMENT SYSTEMS (IT 2040)
+LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING
+
+--- SLIDE 2 ---
+LECTURE CONTENT
+Logical database design
+Relational model and its components
+ER to relational mapping
+
+--- SLIDE 3 ---
+LEARNING OUTCOMES
+Explain the process of logical database design
+Explain relational model and its components
+Convert a complex ER model to the relational model
+
+--- SLIDE 4 ---
+LOGICAL DATABASE DESIGN
+Once we finished the step of conceptual database design we next select a DBMS to 
+implement our database design.
+We then convert the conceptual database design into a database schema in the data 
+model of the chosen DBMS.
+Before 1970 most database systems were based on two older data models namely, 
+hierarchical model and network model.
+Leading DBMS products nowadays are based on the relational model which 
+introduced by Codd in 1970.
+
+--- SLIDE 5 ---
+THE RELATIONAL MODEL
+The major advantage of relational model is its simplicity in data representation.
+A relational database is a collection of relations with distinct relation names.
+The main construct representing data in the relational model is the relation.
+A relation consists of a relational schema and a relational instance.
+
+--- SLIDE 6 ---
+THE RELATIONAL MODEL (CONTD.)
+The relational schema describes the columns for a relation.
+Ex:  Students(sid: string, name: string, login: string, age: integer, gpa: real)
+The schema species the relation's name, the name of each field and the domain of each field.
+An instance of a relation is a set of tuples, also called records, in which each tuple 
+has the same number of fields as the relation schema.
+[FIGURE: slide_006_fig_1.png]
+
+--- SLIDE 7 ---
+INTEGRITY CONSTRAINTS
+An integrity constraints (IC) is a condition specified on a database schema and 
+restricts the data that could be stored in an instance of the database.
+If a database instance satisfies all the integrity constraints specified on the database 
+schema, it is a legal instance.
+There are several types of integrity constraints
+Domain constraints
+Referential integrity constraints
+Key constraints
+Other constraints
+
+--- SLIDE 8 ---
+INTEGRITY CONSTRAINTS (CONTD.)
+Domain Constraint
+Domain constraint specifies that the values that appear in a column must be drawn from 
+the domain associated with that column.
+Relational database provides data types to specify valid domains.
+Key Constraint
+The minimal set of attributes that uniquely identify a tuple is called the key of a relation
+A set of fields that uniquely identifies a tuple according to a key constraint is called a 
+candidate key for the relation; we often abbreviate this to just key.
+One of the candidate keys is designated as the primary key.
+
+--- SLIDE 9 ---
+INTEGRITY CONSTRAINTS (CONTD.)
+Referential integrity Constraint
+The referential integrity constraint is specified between two relations and is used to maintain the 
+consistency among tuples in the two relations.
+Informally, the referential integrity constraint states that a tuple in one relation that refers to 
+another relation must refer to an existing tuple in that relation.
+Foreign keys enforce referential integrity constraints
+Foreign key attributes in R1 referring to R2 have the following rules:
+The FK attributes in R1 have the same domain(s) as the primary key attributes if R2
+The value of FK in tuple t1 in R1 must reference an existing PK value in tuple t2 of R2
+We can diagrammatically display the foreign keys by drawing an arrow from the foreign key to the 
+primary key
+
+--- SLIDE 10 ---
+INTEGRITY CONSTRAINTS (CONTD.)
+Other constraints
+Table Constraints (constraints within tables)
+Example : Balance of the account should be greater than 0
+In SQL, CHECK constraint can be used
+Assertions (constraints between multiple tables)
+For example: consider the following schema
+[FIGURE: slide_010_fig_1.png]
+Such constraints can be using specific language features such as triggers and assertions
+
+--- SLIDE 11 ---
+ACTIVITY
+In two minutes summarize the integrity constraints discussed in today’s lecture on a 
+blank paper.
+Exchange what you have written with your peer and correct the answer.
+Have you understood each constraint well?
+
+--- SLIDE 12 ---
+MAPPING ENTITIES AND ATTRIBUTES
+Go through page 1 of the handout 2.
+Map the entity below to relational model.
+[FIGURE: slide_012_fig_1.png]
+
+--- SLIDE 13 ---
+MAPPING BINARY RELATIONSHIPS
+Go through page 1 of the handout 2.
+Now lets map the following ER diagram to relational model
+[FIGURE: slide_013_fig_1.png]
+
+--- SLIDE 14 ---
+ACTIVITY
+[FIGURE: slide_014_fig_1.png]
+
+--- SLIDE 15 ---
+MAPPING N-ARY RELATIONSHIPS
+N-ary relationship is mapped in to a “Relationship” relation and foreign keys
+[FIGURE: slide_015_fig_1.png]
+
+--- SLIDE 16 ---
+MAPPING ISA-RELATIONSHIPS
+There are four different options for mapping ISA relationships.
+Multi-relation options : option 1 & option 2
+Single-relation options : option 3 & option 4
+Each option is suitable for specific situations.
+
+--- SLIDE 17 ---
+ISA MAPPING – OPTION 1
+[FIGURE: slide_017_fig_1.png]
+
+Option 1 works for all 
+constraints disjoint, 
+overlapping, total and partial
+
+--- SLIDE 18 ---
+ISA MAPPING – OPTION 1 (CONTD.)
+Now think how you would  store information of following 
+people
+A person who is not a student or a faculty member(i.e when 
+the ISA relationship is parial)
+[FIGURE: slide_018_fig_1.png]
+A person who is a student but not a faculty member (i.e 
+disjoint)
+A person who is both a student and a faculty member (i.e: 
+overlapping classes)
+
+--- SLIDE 19 ---
+ISA MAPPING – OPTION 2
+[FIGURE: slide_019_fig_1.png]
+The ISA relationship 
+must be total (i.e. 
+subclasses must cover 
+the super class)
+
+--- SLIDE 20 ---
+ISA MAPPING – OPTION 2 (CONTD.)
+Now think how you would  store information of following 
+people
+A person who is not a student or a faculty member(i.e 
+when the ISA relationship is parial)
+A person who is a student but not a faculty member (i.e 
+disjoint)
+[FIGURE: slide_020_fig_1.png]
+A person who is both a student and a faculty member 
+(i.e: overlapping classes)
+
+--- SLIDE 21 ---
+ISA MAPPING – OPTION 3
+Create a single relation including 
+attributes of the superclass as 
+well as attributes of all sub 
+classes.
+Include an attribute named type 
+for specifying which subclass the 
+entity belongs if any.
+[FIGURE: slide_021_fig_1.png]
+Primary key of the superclass 
+becomes primary key of the 
+relation.
+The specialization/generalization 
+relationship must be disjoint
+Good if subclasses have few 
+attributes
+
+--- SLIDE 22 ---
+ISA MAPPING – OPTION 3 (CONTD.)
+[FIGURE: slide_022_fig_1.png]
+Now think how you would  store information of following people
+A person who is not a student or a faculty member(i.e when the ISA relationship is parial)
+A person who is a student but not a faculty member (i.e disjoint)
+A person who is both a student and a faculty member (i.e: overlapping classes)
+
+--- SLIDE 23 ---
+ISA MAPPING – OPTION 4
+[FIGURE: slide_023_fig_1.png]
+Primary key of the superclass 
+becomes primary key of the 
+relation.
+
+--- SLIDE 24 ---
+ISA MAPPING – OPTION 4 (CONTD.)
+[FIGURE: slide_024_fig_1.png]
+Now think how you would  store information of following people
+A person who is not a student or a faculty member(i.e when the ISA relationship is parial)
+A person who is a student but not a faculty member (i.e disjoint)
+A person who is both a student and a faculty member (i.e: overlapping classes)
+
+--- SLIDE 25 ---
+ACTIVITY
+Fill the table below indicating the which constraints work with which option.
+[FIGURE: slide_025_fig_1.png]
+
+--- SLIDE 26 ---
+MAPPING AGGREGATION RELATIONSHIPS
+Aggregation mapping could be performed in two steps.
+Step 1: First map the aggregation relationship R.
+Step 2 :To map relationship set involving aggregation of R, treat the aggregation like an entity 
+set whose primary key is the primary key of the table for R
+
+--- SLIDE 27 ---
+MAPPING AGGREGATION RELATIONSHIPS (CONTD.)
+Step 1: First map the aggregation relationship R.
+[FIGURE: slide_027_fig_2.png]
+[FIGURE: slide_027_fig_1.png]
+Step 2 :To map relationship set involving aggregation 
+of R, treat the aggregation like an entity set whose 
+primary key is the primary key of the table for R.
+Table for aggregation is ‘Play’. Thus, the relationship win 
+should be mapped considering 1:N relationship between 
+play (primary key : pId,matchId) and award,
+Award (awardName, pId, matchId)
+
+--- SLIDE 28 ---
+MAPPING AGGREGATION RELATIONSHIPS (CONTD.)
+[FIGURE: slide_028_fig_1.png]
+
+--- SLIDE 29 ---
+WHAT YOU HAVE TO DO BY NEXT WEEK
+Try out the self-test questions on the course web.
+Complete the tutorial.
+Complete the lab sheet

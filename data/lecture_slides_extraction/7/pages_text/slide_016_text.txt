@@ -1,0 +1,8 @@
+SELECT INTO COMMAND
+SELECT INTO statement copies data from one table to another
+Tables can be on the same SQL Server or linked SQL servers or on different types of 
+servers using distributed queries
+SELECT INTO operates just like Bulk Insert except it can’t read from an external file
+SELECT INTO can also create the destination table automatically before copying the data
+Example :
+select * into emps from emp2

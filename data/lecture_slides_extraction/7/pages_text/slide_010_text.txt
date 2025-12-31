@@ -1,0 +1,11 @@
+STEP 4 – EXPORTING DATA FROM AN EXCEL FILE
+In this screen mapping between the source and 
+destination could be done.
+Change the destination name (i.e. target table 
+name) if it is required.
+Select edit mapping to provide more information 
+on the mapping between the source and the 
+destination
+[FIGURE: slide_010_fig_1.png]
+Ex: data types of the source table
+Click Next

@@ -1,0 +1,7 @@
+VIEWS AND SECURITY
+Views can be used to present necessary information (or a summary), 
+while hiding details in underlying relation(s).
+Creator of view has a privilege on the view if (s)he has the privilege on 
+all underlying tables.
+Together with GRANT/REVOKE commands, views are a very powerful 
+access control tool

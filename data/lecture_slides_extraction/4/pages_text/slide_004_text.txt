@@ -1,0 +1,8 @@
+SQL
+SQL Initially called SEQUEL (for Structured English QUEry Language)
+It was developed for an experimental relational database system called System R
+A joint effort between ANSI (American National Standard Institute) and ISO 
+(International Standards Organization) led to a standard version of SQL in 1986 
+(SQL1, SQL-86, etc.)
+Major revisions have been proposed and SQL2 (also called SQL-92)  has 
+subsequently been developed

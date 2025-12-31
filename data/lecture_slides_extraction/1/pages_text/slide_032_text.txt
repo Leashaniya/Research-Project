@@ -1,0 +1,4 @@
+CHASM TRAP (CONTD.)
+Which department is employee E8 in?
+What are the employees of department D4?
+[FIGURE: slide_032_fig_1.png]

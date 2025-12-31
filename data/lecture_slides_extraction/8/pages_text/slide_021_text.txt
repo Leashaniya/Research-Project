@@ -1,0 +1,10 @@
+REVISIT TO SCENARIO (CONTD.)
+Now let’s give permission to the senior DBA to create databases and logins.
+This could be done using pre-defined sever roles or user defined server roles as follows
+Using pre-defined server roles
+alter server role dbcreator add member kamal
+alter server role securityadmin add member kamal
+Using user-defined server role
+create server role seniordba
+grant create any database,alter any login to seniordba
+alter server role seniordba add member kamal

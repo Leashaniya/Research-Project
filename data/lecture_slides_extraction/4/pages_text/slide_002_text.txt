@@ -1,0 +1,4 @@
+LECTURE CONTENT
+Introduction to SQL
+Data definition language
+Data manipulation language

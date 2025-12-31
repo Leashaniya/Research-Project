@@ -1,0 +1,8 @@
+T-SQL: TRIGGERS (CONTD.)
+Example 2:
+Consider following tables :
+Emp( eid ,ename, age, salary)
+Works (eid, did, pct-time)
+Dept( did, budget, managerid)
+Create a trigger to ensure that an employee doesn’t work in more than 2 
+departments

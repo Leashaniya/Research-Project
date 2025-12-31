@@ -1,0 +1,9 @@
+REVISIT TO SCENARIO
+The database developers need to create tables which would probably 
+have foreign keys
+Lets create a role names database developer for this
+create role databaseDev
+grant create table,  alter, references on inventoryDB to databaseDev
+alter role databaseDev add member Sahan
+Similarly create another role with select and insert for the data Entry 
+operators

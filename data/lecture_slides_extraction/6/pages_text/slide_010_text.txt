@@ -1,0 +1,3 @@
+NETWORK PURE JAVA DRIVER
+In a Type 3 driver, a three-tier approach is used to access databases.
+[FIGURE: slide_010_fig_1.png]

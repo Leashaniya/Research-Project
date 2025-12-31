@@ -1,0 +1,60 @@
+{
+  "top_clusters": [
+    {
+      "cluster_id": 3,
+      "count": 17,
+      "label_keywords": [
+        "int",
+        "table",
+        "number",
+        "varchar",
+        "id",
+        "stores",
+        "account",
+        "char"
+      ]
+    },
+    {
+      "cluster_id": 2,
+      "count": 12,
+      "label_keywords": [
+        "tree",
+        "explain",
+        "transaction",
+        "file",
+        "briefly explain",
+        "schedule",
+        "briefly",
+        "marks briefly"
+      ]
+    },
+    {
+      "cluster_id": 1,
+      "count": 11,
+      "label_keywords": [
+        "bcnf",
+        "model",
+        "keys",
+        "convert",
+        "relations",
+        "reasons conclusion",
+        "conclusion",
+        "set"
+      ]
+    },
+    {
+      "cluster_id": 0,
+      "count": 10,
+      "label_keywords": [
+        "frame",
+        "query",
+        "frame number",
+        "disk",
+        "number",
+        "student",
+        "buffer",
+        "page"
+      ]
+    }
+  ]
+}

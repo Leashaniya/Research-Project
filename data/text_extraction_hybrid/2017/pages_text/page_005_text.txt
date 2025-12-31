@@ -1,0 +1,28 @@
+e) 
+Consider the following extendible hashing index. The hashing function considers the last 2 
+digits of the binary representation.
+[DIAGRAM: page_005_diagram_1.png]
+Show the extendible hashed file after inserting 16 and 35. 
+(4 marks)
+Question 4 
+(15 marks)
+a) 
+Briefly explain the parsing and translation phase in query processing. 
+(3 marks)
+b) 
+Briefly explain the two techniques the Query optimizer uses to select the most efficient query 
+plan during query optimization. 
+(2 marks)
+¢) 
+What is meant by reduction factor in cost estimation? 
+(2 marks)
+d) 
+Consider the following relation:
+Physician (pid 
+: char(5), pname 
+: varchar(50), address 
+: varchar(100), specialty 
+: varchar(50))
+The relation has 20000 pages with 100 tuples per page. Assume that 20 buffer fames available
+in buffer pool.
+Page 5of 7

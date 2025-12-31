@@ -1,0 +1,9 @@
+ER MODEL - WEAK ENTITIES
+Weak entities are entities that cannot be uniquely identified alone in a domain.
+Following restrictions must hold with relevance to weak entities
+The owner entity set and the weak entity set must participate in a one-to-many 
+relationship set (one owner entity is associated with one or more weak entities, 
+but each weak entity has a single owner). This relationship set is called the 
+identifying relationship set of the weak entity set.
+The weak entity set must have total participation in the identifying relationship set.
+Can you think of an weak entity in a domain you know?

@@ -1,0 +1,6 @@
+1ST NORMAL FORM
+A relation R is in first normal form (1NF) if domains of all attributes in the 
+relation are atomic (simple & indivisible).
+1NF is now considered to be part of the formal definition of a relation in the 
+relational model since it allows only atomic values and disallows multivalued 
+attributes and composite attributes.

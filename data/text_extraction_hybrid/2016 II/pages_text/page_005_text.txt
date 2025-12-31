@@ -1,0 +1,40 @@
+Question 4 
+(15 marks)
+a) Briefly explain the query optimization phase of the query processing. 
+(3 marks)
+b) From where does the optimizer obtain the required information for query processing? 
+Name three different types of information available for the optimizer to use. 
+(2 marks)
+c) What is an index only plan? 
+(1 mark)
+d) Consider the following relation: 
+Employee (eid:char(5), ename: varchar(50), job: varchar(30), salary: float)
+The relation has 8000 pages with 100 tuples per page. Assume that 20 buffer fames 
+ayailable in buffer pool.
+Consider the following query:
+» 
+Query I: SELECT * FROM Employee WHERE eid = ‘£0001°
+Estimate the cost (in Disk 1/Os) of executing Query I with the following Hash indexes. 
+The data entries in the indexes have <k, rid> format. Hash indexes require 1.2 Disk 1/Os 
+on average to retrieve a data entry.
+i. Unclustered hash index on Employee<eid> 
+(2 marks)
+ii. Clustered hash index on Employee<eid> 
+(2 marks)
+e) Consider the following query
+Query 2: SELECT ename FROM doctor WHERE specialization = ‘Surgeon’
+You are given following information: 
+The doctor relation has four attributes namely, name, designation and specialization and 
+address; all are string fields of the same length. The ename attribute is a candidate key. 
+The relation contains 3000 pages. There are 10 buffer pages. Only 0.02 percent of tuples 
+qualify the where clause condition. DBMS support only B+ tree indexes and require 3 disk 
+1/Os to retrieve leaf page.
+i. 
+Suppose this query is one of the most frequently running queries. Therefore, 
+recommend the most suitable index to get the best performance of the query. Briefly 
+explain the query plan you have considered. 
+(3 marks)
+ii. Estimate the cost of executing the query using the plan and the index proposed above. 
+(2 marks)
+Page 5 of 7 
+30/09/2016

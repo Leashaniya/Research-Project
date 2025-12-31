@@ -1,0 +1,13 @@
+CREATING USER-DEFINED SERVER ROLES AND PERMISSIONS
+Creating a user defined sever role and assigning permissions
+Syntax for creating a server role: CREATE SERVER ROLE role_name
+
+Ex: CREATE SERVER ROLE devops;
+Syntax for granting permissions : GRANT permission TO grantee_principal [WITH GRANT 
+OPTION]
+Permission Examples :
+CREATE ANY DATABASE — Create a database on the server.
+ALTER ANY DATABASE — Create, alter, or drop any login in the instance.
+ALTER ANY LOGIN — Modify any login.
+SHUTDOWN — Shut down the server.
+Ex: GRANT ALTER ANY DATABASE TO devops;

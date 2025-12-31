@@ -1,0 +1,7 @@
+MAINTENANCE PLANS
+A database maintenance plan is a set of specific, proactive tasks that need 
+to be performed regularly on databases to ensure their adequate 
+performance and availability.
+Maintenance Plan Wizard and Designer is to cover those critical 
+database maintenance tasks that, as a bare minimum, should be applied to 
+all databases, to ensure adequate performance and availability.

@@ -1,0 +1,11 @@
+T-SQL: TRIGGER SYNTAX (CONTD.)
+FOR|AFTER
+AFTER specifies that the DML trigger is fired only when all operations specified in the triggering 
+SQL statement have executed successfully.
+AFTER is the default when FOR is the only keyword specified.
+AFTER triggers cannot be defined on views.
+INSTEAD OF
+Specifies that the trigger is executed instead of the triggering SQL statement, thus overriding the 
+actions of the triggering statements.
+Specifies At most, one INSTEAD OF trigger per INSERT, UPDATE, or DELETE statement can be 
+defined on a table or view.

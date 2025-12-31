@@ -1,0 +1,46 @@
+EXISTS OPERATOR
+Student
+Grades
+Used to check if subquery returns 
+any rows
+SID
+cid
+Grade
+SID
+Name
+gpa
+1000
+IT102
+A
+1000
+Amal
+3.2
+ Ex : Find the students who has 
+obtained a ‘A’.
+1000
+IT100
+B
+1001
+Nimali
+2.8
+1001
+IT102
+A
+1002
+Aruni
+3.8
+Select s.Name
+1002
+IT102
+C
+1002
+IT200
+C
+From Student s
+Name
+Where EXISTS ( Select *
+Amal
+from grades g
+Nimali
+Where g.SID=s.SID and 
+g.Grade=‘A’)

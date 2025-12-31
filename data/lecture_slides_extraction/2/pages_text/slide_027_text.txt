@@ -1,0 +1,11 @@
+MAPPING AGGREGATION RELATIONSHIPS (CONTD.)
+Step 1: First map the aggregation relationship R.
+[FIGURE: slide_027_fig_2.png]
+[FIGURE: slide_027_fig_1.png]
+Step 2 :To map relationship set involving aggregation 
+of R, treat the aggregation like an entity set whose 
+primary key is the primary key of the table for R.
+Table for aggregation is ‘Play’. Thus, the relationship win 
+should be mapped considering 1:N relationship between 
+play (primary key : pId,matchId) and award,
+Award (awardName, pId, matchId)

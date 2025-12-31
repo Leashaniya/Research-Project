@@ -1,0 +1,36 @@
+AGGREGATION (CONTD.)
+Student
+Ex : Find the average, minimum, 
+maximum gpa of students
+StudentID
+Name
+gpa
+progId
+1000
+Amal
+3.2
+BM
+1001
+Nimali
+2.8
+IT
+1002
+Aruni
+3.8
+SE
+1003
+Surani
+2.5
+BM
+1004
+Imali
+4.0
+IT
+Select  AVG(gpa), MIN(gpa), MAX(gpa)
+AVG(gpa)
+MIN(gpa)
+MAX(gpa)
+From student
+3.26
+2.5
+4.0

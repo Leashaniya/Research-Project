@@ -1,0 +1,10 @@
+ADVANTAGES OF DATABASE APPROACH
+Data independence – application programs are independent of the way the data is 
+structured and stored
+Efficient data access – make the data retrieval efficient using sophisticated techniques 
+to store and access data
+Enforcing integrity – provide capabilities to define and enforce constraints
+Ex: Data type for a name should be string
+Restricting unauthorized access – allows only authorized users to access data
+Providing backup and recovery – protects users from the effect of system failures
+Concurrent access – simultaneous access of data by different users

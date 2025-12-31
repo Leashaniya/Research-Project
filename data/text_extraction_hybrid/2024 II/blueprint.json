@@ -1,0 +1,47 @@
+[
+  {
+    "question_id": "1",
+    "pdf_stem": "2024 II",
+    "page_no": 2,
+    "marks": 20,
+    "text": "Question 1\n(20 Marks)\nThe Computer Science Students at SLIIT are planning to design a database to produce music\nalbums. The students have come up with the following requirements.\nThe students who have talent in music (i.e. singing, playing an instrument, etc..) are named as\nstudent musician .\nAll student musicians are capable of singing songs. In addition, some of\nthem play instruments and some of them act as producers when albums are produced. For each\nstudent musician a unique identification number, name and address are recorded. For those who\nplay instruments, their specialization, and the duration that they play should be stored. For each\ninstrument, a unique identification number and the name (e.g., guitar, violin, flute, etc.) are\nrecorded. Each student capable of playing instruments may play several instruments, and a\ngiven instrument is played by one student. A student who plays instruments may supervise\nseveral other such students.\nEach album has a unique identification number, title, copyright date and a format (e.g., CD or\nMC). Each album has one student who acts as its producer. A student may produce several\nalbums. Each album has several songs on it and a song appears on one album. The date that the\nsongs are recorded on the album should be known.\nFor each song a unique identification number, the title and the author are recorded. Each song\nis sung by one or more students, and a student sings several songs. The number of times that a\nsong is sung should be recorded. Each song may have several melody types. For each melody\ntype, the tempo, and the key for that song (e.g. C major, D minor etc.) are recorded. Different\nsongs may have the same key.\na)\nWhat are the entities that could be used for the above requirements?\n(3 Marks)\nb)\nIdentify suitable attributes and the primary key, if any, for each of the entities that you\nhave identified.\n(3 Marks)\n)\ns there a recursive relationship? Justify your answer.\n(2 Marks)\n\nd)\nIs there any weak entity type? Justify your answer.\n(2 Marks)\n)\nIdentify a likely superclass/subclass relationship. Justify your answer.\n(2 Marks)\nf)  Construct a suitable EER diagram for the above given requirements. State any\nassumptions you make. Note: You may avoid showing the attributes on the entity\ntypes, but any attributes on the relationships must be shown.\n(8 Marks)\nPage 2 of 6\n\n00048",
+    "diagram_refs": []
+  },
+  {
+    "question_id": "2",
+    "pdf_stem": "2024 II",
+    "page_no": 3,
+    "marks": 20,
+    "text": "Question 2\n(20 Marks)\nConsider the following relation schema  Investment  and the functional dependencies FD1,\nFD2 and FD3.\nInvestment (A, W, O, L, S, D)\nHere:\nA\n-\nAgent\nW\n-\nWork station of Agent\nO\n-\nLand Owner\nL\n- Name of the land\nS\n-\nSize of the land owned by the owner\n\n,\nD\n-\nDividend paid for the land\nFD1I\nL  D\nFD2\nA  W\nFD3\n{O,L}   {A,S}\na)\nDraw the functional dependency diagram.\n(2 Marks)\nb)\nUse the attribute closure and identify the primary key for the given relation.\n(2 Marks)\nc)\nIf we insert a row <  Kamal ,  Colombo , null,  Kurundu Wattha , null, 40> into the\ngiven relation, what is the update anomaly that is violated? Give reasons. '%2 Pl\\ lv a rks)\nd)\nAssume that the relation has a row, <  Gamunu ,  Matara ,  Miris Wattha ,A 5.5, 10>.\nIf we remove the broker  Gamunu , what is the possible update anomaly that can be\nviolated? Give reasons.\n(2 Marks)\n)\nUsing the above functional dependencies, design a set of 3NF relations for the above\n\ngiven relation. Show clearly each stage in deriving the 3NF relations. Also identify the\nnormal form at each of these stages.\n(5 Marks)\nf)\nDo the update anomalies of part (c) and (d) hold in the 3NF relations? Discuss briefly.\n(2 Marks)\ng)\nAssume that an additional functional dependency FD4\nA   O is given.\ni.\nAre the 3NF relations derived in part (e) still in 3NF? Justify your answer.\n(2 Marks)\nii.\nAre the 3NF relations derived in part (e) in BCNF? If not bring the relations to\nBCNF.\n(3 Marks)\nPage 3 of 6",
+    "diagram_refs": []
+  },
+  {
+    "question_id": "3",
+    "pdf_stem": "2024 II",
+    "page_no": 4,
+    "marks": 20,
+    "text": "Question 3\n(20 Marks)\na)\nList the transaction properties that are required for the database system to ensure\nintegrity of the data?\n(2 Marks)\nb)\nConsider the following schedules S1 and S2:\nS1=RI1(X), W20, WI(X)\n$2 = W1(X), R2(X), W2(X), W3(X)\nHere Ri(X) means, read the item X of transaction Ti, Wi(X) means write item X of\ntransaction Ti.\ni. List all conflict operations of the schedules S1 and S2 separately.\n(2 Marks)\nii. Schedule S1 is not serializable and schedule 2 is conflict serializable. Justify this\nstatement and give the equivalent serial schedule for the serializable schedule S2.\n(4 Marks)\nS\n) LetXandY betwo accounts that are accessed by transactions T1 and T2. Transaction\nne\nT1 updates the balance of account X and transaction T2 gives a bonus for accounts X\nand Y.\n[DIAGRAM: page_004_diagram_1.png]\ni.\nUsing the 2PL protocol, add the lock and unlock operations to T1 and T2 and\nrewrite the transactions T1 and T2.\n(2 Marks)\nii.\nConstruct a concurrent execution for the transactions T1 and T2 given in (i)\nabove, such that it prevents the lost update problem.\n(3 Marks)\niii.\nA concurrent execution for the transactions T1 and T2 given in (i) above will not\nresult in a dead lock. Justify this statement.\n(3 Marks)\niv.\nConsider the following schedule. Apply the timestamp ordering algorithm for the\ntransactions T1 and T2 and show the transaction that should be aborted and rolled\nback. Assume that TS(T1) < TS(T2) and the initial timestamps of read_TS(X) = 0,\nread_TS(Y) =0, write TS(X)=0 and write_TS(Y) = 0.\n(4 Marks)\nPage 4 of 6\n\n00048\n[DIAGRAM: page_005_diagram_1.png]",
+    "diagram_refs": [
+      "page_004_diagram_1.png",
+      "page_005_diagram_1.png"
+    ]
+  },
+  {
+    "question_id": "4",
+    "pdf_stem": "2024 II",
+    "page_no": 5,
+    "marks": 20,
+    "text": "Question 4 .\n(20 Marks)\nConsider the following relational database schema containing airline flight information.\nHere the passenger relation gives the details of the passengers who book flights. The agency\nrelation keeps the details of agent who books a flight for a passenger. The flight relation stores\nthe details of each available flight. The booking relation stores required booking details.\npassenger (pid, pname, pgender, pcity)\nagency (aid, aname, acity)\nflight (fid, fdate, time, departs, arrives)\nbooking (pid, aid, fid, fdate)\na)\nExpress each of the following queries as expressions in relational algebra.\ni.\nFind the name of the agencies, such that they are located in the same city as\npassenger with passenger id 123.\n(2 Marks)\nii.\nFind the passenger names for those who do not have any bookings in any\nflights.\n(2 Marks)\niii.\nGet the details of flights that are scheduled on both dates 01/12/2024 and\n02/12/2024 at 16:00 hours.\n(3 Marks)\niv.\nRetrieve the names of the passengers who have booked all available flights.\n(3 Marks)\nv.\nHow many passengers have booked the flight  f001 ?\n(2 Marks)\nb)\nExpress the above queries (i) to (iv) in tuple calculus:\n(8 Marks)\nPage 5 of 6\n\n0004\n(20 Marks)",
+    "diagram_refs": []
+  },
+  {
+    "question_id": "5",
+    "pdf_stem": "2024 II",
+    "page_no": 6,
+    "marks": 20,
+    "text": "Question 5\na)\nAfileh\nas r = 20,000 STUDENT records of fixed length. Each record has the following\nfields:\nName (30 bytes), Stno (9 bytes), Address (40 bytes), Phone (10 bytes), Birth date (8\nbytes),\nGender\n(1\nbyte),\nMajor_dept code\n(4\nbytes),\nMinor_dept code\n(4\nbytes),\nClass_code (4 bytes), and Degree program (3 bytes). An additional byte\nis used as a\ndeletion marker.\nAssume that this file is stored on a disk with block size 512 bytes using an unspanned\norganization\nCalculate the record size R in bytes.\n(2 Marks)\ni.\nCalculate the blocking factor bfr and the number of file blocks b.\n(2 Marks)\niii.\nCalculate the average time it takes to find a record by doing a linear search on\nthe file if\nA.\nthe file blocks are stored contiguously, and double buffering is used;\nB.\nthe file blocks are not stored contiguously.\n(4 Marks)\niv.\nAssume that the file is ordered by Stno; by doing a binary search, calculate the\ntime it takes to search for a record given its Stno value.\n(2 Marks)\nNote: Consider that 10g.5000 = 13\nb)\ni.\nList three properties of NoSQL databases.\n(2 Marks)\nii.\nKey-value stores, Column family databases, Document databases, Graph databases\nare the four types of NoSQL databases. Give two example databases for each of\nthem.\n(2 Marks)\niii. Consider the following ER diagram\n[DIAGRAM: page_006_diagram_1.png]\nMap the above ER Model to\nA. Relational database schema\nB. Document database\nC.\nGraph database\n(6 Marks)\nPage 6 of 6",
+    "diagram_refs": [
+      "page_006_diagram_1.png"
+    ]
+  }
+]

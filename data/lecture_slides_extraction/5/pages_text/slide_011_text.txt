@@ -1,0 +1,9 @@
+PROGRAMMING IN T-SQL
+Similar to a programming language, certain extensions have been made in 
+SQL to program simple server-side logic.
+Some of the statements include:
+Variables
+Selection conditions
+IF (…)… ELSE …
+Looping
+WHILE (…)

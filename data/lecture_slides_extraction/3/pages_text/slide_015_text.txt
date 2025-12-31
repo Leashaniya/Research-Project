@@ -1,0 +1,9 @@
+COMPUTING KEYS USING AMSTRONG AXIOMS
+Attribute closure could be computed using Armstrong Axioms.
+X, Y, Z are sets of attributes:
+Reflexivity:  If  X  Y,  then   Y → X 
+Augmentation:  If  X → Y,  then   XZ → YZ   for any Z
+Transitivity:  If  X → Y  and  Y → Z,  then   X → Z
+Couple of additional rules (that follow from Armstrong Axioms):
+Union:   If X →Y  and  X → Z,   then  X → YZ
+Decomposition:   If X → YZ,   then  X → Y  and  X → Z

@@ -1,0 +1,12 @@
+CREATING A JDBC APPLICATION
+Import the packages: Import the packages containing the JDBC classes needed for database 
+programming. Most often, using import java.sql.* will suffice.
+Load the driverRegister the JDBC driver: Initialize a driver in order to open a communication 
+channel with the database.
+Open a connection: Create a Connection object, which represents a physical connection with the 
+database.
+Execute a query: Using an object of type Statement for building and submitting an SQL statement to 
+the database.
+Extract data from result set: retrieve the data from the result set.
+Clean up the environment: Closing all database resources versus relying on the JVM's garbage 
+collection.

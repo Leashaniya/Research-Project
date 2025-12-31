@@ -1,0 +1,48 @@
+HAVING CLAUSE
+Used to apply conditions on the 
+groupings
+SID
+CID
+Grade
+Student
+SID
+CID
+Grade
+1000
+DBII
+A
+1000
+DBII
+A
+1000
+SEI
+B
+1001
+DBII
+A
+Ex: Find courses which is followed by 
+more than two students
+1001
+DBII
+A
+1002
+DBII
+C
+1002
+DBII
+C
+[FIGURE: slide_031_fig_1.png]
+1002
+SPD
+C
+1002
+SPD
+C
+Select CID, Count(SID)
+From course
+CID
+Count (SID)
+Group by CID
+DBII
+3
+Having count(SID)>2

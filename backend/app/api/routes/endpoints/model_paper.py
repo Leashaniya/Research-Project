@@ -1,14 +1,11 @@
-from fastapi import APIRouter
-from app.services import generation_service
+from fastapi import APIRouter, HTTPException
+from app.services import pipeline_service
 
 router = APIRouter()
 
 @router.get("/generate")
 async def generate_model_paper():
-    # Call the generation service
-    output_paths = generation_service.generate_model_paper()
-
-    return {
-        "status": "success",
-        "output_paths": output_paths
-    }
+    try:
+        return pipeline_service.run_full_pipeline()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

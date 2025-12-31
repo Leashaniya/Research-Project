@@ -1,0 +1,4 @@
+LEARNING OUTCOMES
+Explain the process of logical database design
+Explain relational model and its components
+Convert a complex ER model to the relational model

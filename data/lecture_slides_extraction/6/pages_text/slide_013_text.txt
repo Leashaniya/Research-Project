@@ -1,0 +1,11 @@
+STEP 1 : IMPORT THE PACKAGES
+In this step the packages containing the JDBC classes needed for database 
+programming are imported.
+▪The Java.sql package contains the entire JDBC API that sends SQL  statements to
+relational databases and retrieves the results of executing those SQL statements.
+▪Some commonly used interfaces in the package are as follows.
+▪The Driver interface represents a specific JDBC implementation for a particular database system.
+▪Connection represents a connection to a database.
+▪The Statement, PreparedStatement, and CallableStatement interfaces support the execution of 
+various kinds of SQL statements.
+▪ ResultSet is a set of results returned by the database in response to a SQL query.

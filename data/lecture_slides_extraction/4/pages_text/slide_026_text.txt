@@ -1,0 +1,38 @@
+ALL OPERATOR
+Student
+Ex : Find IT students who has 
+gpa greater than all the BM 
+students.
+StudentID
+Name
+gpa
+progId
+1000
+Amal
+3.2
+BM
+1001
+Nimali
+2.8
+IT
+1002
+Aruni
+3.8
+SE
+Select s.Name
+1003
+Surani
+2.5
+BM
+From student s
+1004
+Imali
+4.0
+IT
+Where s.progID=‘IT’ and
+s.gpa > ALL (
+Name
+select s1.gpa
+Imali
+from student s1 where 
+s1.progId=‘BM’)

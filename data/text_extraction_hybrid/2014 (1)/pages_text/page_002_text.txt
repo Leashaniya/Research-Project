@@ -1,0 +1,55 @@
+Question 1 
+(20 marks)
+Consider the following relations in a bank database:
+Branch (bName:char(15), city:varchar(12), phone:varchar(10)) 
+Customer (custno:integer, cName:char(15), gender:char(1), birthday:date) 
+Account (accno:integer, branchname:char(15), acctype:char(1), balance:real)
+AC (accno:integer, custno:integer)
+The attributes of the Branch relation are name of the branch (bName), city, and phone.
+The Customer relation has attributes to record the customer number (custno), name
+(cName), gender (‘M’ or ‘F”), and birthdate of customers. The Account relations consists
+of account number (accno), branch name (branchname), account type (acctype) which 
+may be individual (acctype=‘T’) or joint (acctype=‘J’), and account balance (balance).
+The 
+attribute branchname 
+in Account 
+is 
+a foreign key 
+that references 
+Branch; 
+an
+individual account belongs to a single customer, while a joint account is held by two or
+more customers. The attribute accro and custno in AC reference the relations Account
+and Customer respectively. The primary keys of all relations are underlined.
+a) 'Express the following queries in SQL.
+i. 
+For each customer with 
+a total balance exceeding 50000LKR for 
+all his/her 
+accounts together, display the customer number and total balance.
+(3 marks)
+ii. For each branch, display the branch name, account number and balance of each 
+account that has a balance greater than twice the average balance of all accounts at
+that branch. 
+In the resulting report, order the accounts of each branch 
+in the 
+descending sequence of account balance.
+(5 marks)
+b) 
+It is required to record the number of account holders for each account by adding an 
+attribute named holders. The value of this attribute will be 
+1 for individual accounts 
+and greater than 
+1 for joint accounts.
+i. 
+In the Account table, add a new attribute named holders of integer type with a 
+default value of 1.
+(1 marks)
+ii. Write a T-SQL procedure to update the holders attribute (that has just been added)
+only for joint accounts.
+(5 marks)
+iii. Write a trigger to decrease the holders attribute value when a row is deleted from
+the table AC only if it is for a joint account. If the updated value of holders is one
+for the joint account, then change the acctype to ‘I’.
+(6 marks)
+Page 1 of 5

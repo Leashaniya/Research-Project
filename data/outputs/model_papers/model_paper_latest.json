@@ -1,0 +1,37 @@
+{
+  "generated_at": "2026-01-01 00:02:28",
+  "model": "gpt-4o-mini",
+  "total_marks": 100,
+  "questions": [
+    {
+      "question_no": "Q1",
+      "marks": 20,
+      "pattern_label": "GENERAL_THEORY",
+      "question_text": "Discuss the importance of normalization in database design. Explain the different normal forms up to BCNF, and provide examples of how normalization can help in reducing redundancy and improving data integrity. Additionally, describe the potential drawbacks of over-normalization."
+    },
+    {
+      "question_no": "Q2",
+      "marks": 20,
+      "pattern_label": "SQL_DDL_DML",
+      "question_text": "Consider the following relations in a library management system: \n\nBook (bookID: char(5), title: varchar(100), author: varchar(50), genre: varchar(30)) \nMember (memberID: char(5), name: varchar(50), phone: char(10), address: varchar(100)) \nLoan (loanID: int, bookID: char(5), memberID: char(5), loanDate: datetime, returnDate: datetime, status: varchar(10)) \nFine (fineID: int, loanID: int, amount: real, paymentStatus: varchar(10)) \n\nThe database stores information about books available in the library in the Book table, which includes a unique book ID, title, author, and genre. The Member table keeps track of library members, including their unique ID, name, phone number, and address. The Loan table records details of book loans, including a unique loan ID, the ID of the book borrowed, the ID of the member who borrowed it, the date of the loan, the return date, and the status of the loan. The Fine table records any fines associated with loans, including a unique fine ID, the loan ID, the fine amount, and the payment status.\n\nUse SQL queries to answer the following questions:\n\ni. List the names and phone numbers of members who have borrowed the book titled 'The Great Gatsby'. (4 marks)\n\nii. Identify the member who has incurred the highest total fine amount and display their member ID and address. (4 marks)\n\niii. Retrieve the titles of books currently on loan along with the names of the members who have borrowed them. (4 marks)\n\nb) Create a function that calculates the total fine amount for a given member, considering a late penalty of 10% for overdue fines. (4 marks)\n\nc) Develop a trigger that updates the total fine amount in the Member table whenever a new fine is added or an existing fine is updated, ensuring accurate reflection of any partial payments made by members. (4 marks)"
+    },
+    {
+      "question_no": "Q3",
+      "marks": 22,
+      "pattern_label": "SQL_DDL_DML",
+      "question_text": "Consider the following relations in a database designed for a library system: \nBook (bookID: char(5), title: varchar(100), author: varchar(50), genre: varchar(30)) \nMember (memberID: char(5), name: varchar(50), email: varchar(50), phone: char(10)) \nLoan (loanID: int, bookID: char(5), memberID: char(5), loanDate: datetime, returnDate: datetime, status: varchar(15)) \nFine (fineID: int, loanID: int, amount: real, paymentStatus: varchar(15)) \n\nThe database records details about books available in the library, members who can borrow them, and the loans that track which member has borrowed which book. The Fine table records any fines associated with overdue books. \n\nUse SQL queries to answer the following questions:\n\ni. Retrieve the names and phone numbers of members who have borrowed a book titled 'The Great Gatsby'. (3 marks)\n\nii. Identify the member who has incurred the highest total fines and provide their memberID and email. (5 marks)\n\niii. List the titles and authors of books that are currently on loan, along with the names of the members who borrowed them. (6 marks)\n\nb) Create a stored procedure to calculate the total fine amount for a given member based on their overdue loans. The fine should be set at Rs. 20 per day after the return date. Store the calculated amount in the Fine table along with the loanID. (4 marks)\n\nc) Develop a trigger that automatically updates the total fines for a member in the Member table whenever a new fine is added or an existing fine is updated. Ensure that it accurately reflects any payments made by the member. (4 marks)"
+    },
+    {
+      "question_no": "Q4",
+      "marks": 20,
+      "pattern_label": "GENERAL_THEORY",
+      "question_text": "Discuss the significance of normalization in database design. Explain the different normal forms up to Boyce-Codd Normal Form (BCNF), providing examples for each. Additionally, illustrate how normalization can help in eliminating data redundancy and improving data integrity."
+    },
+    {
+      "question_no": "Q5",
+      "marks": 18,
+      "pattern_label": "TRANSACTIONS_CONCURRENCY",
+      "question_text": "a) Define the concept of transaction isolation in database systems and explain its importance in maintaining data integrity. (5 marks) b) What are the potential issues that can arise from concurrent transactions? Describe at least three with examples. (6 marks) c) Given the following sequence of transaction operations using a non-locking concurrency control protocol: T1: R(A), T2: R(A), T1: W(A), T2: W(A), T1: Commit, T2: Commit. Discuss the possible outcomes regarding the final value of A and the implications of using such a protocol. (7 marks)"
+    }
+  ]
+}

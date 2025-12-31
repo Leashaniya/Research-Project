@@ -1,0 +1,7 @@
+DATABASE APPROACH VS FILE PROCESSING SYSTEM
+Database system is of self-describing nature
+Database enables insulation between programs and data, and data 
+abstraction
+Databases support of multiple views of the data
+Sharing of data and multiuser transaction processing
+Security and access levels

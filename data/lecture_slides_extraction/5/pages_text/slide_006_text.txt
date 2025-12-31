@@ -1,0 +1,6 @@
+EXERCISE 1
+Create a view named emp_info which contains eid, name, salary and total percentage 
+of time.
+emp (eid, ename, age, salary)
+dept (did, dname, budget,mangerId)
+works (eid, did, pct_time)

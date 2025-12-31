@@ -1,0 +1,38 @@
+[
+  {
+    "question_id": "1",
+    "pdf_stem": "2024",
+    "page_no": 2,
+    "marks": 20,
+    "text": "Question 1\n(20 marks)\nConsider the following EER Model.\na) Convert the following EER model into the relational model. Indicate the primary keys and the\nforeign keys of the resulting relations clearly.\n(17 marks)\nb) What is the best option for mapping the ISA hierarchies in the diagram? Justify your answer.\n3 marks)\n[DIAGRAM: page_002_diagram_1.png]",
+    "diagram_refs": [
+      "page_002_diagram_1.png"
+    ]
+  },
+  {
+    "question_id": "2",
+    "pdf_stem": "2024",
+    "page_no": 3,
+    "marks": 15,
+    "text": "Question 2\n(15 marks)\nConsider a relation R (ProjectNo, ProjectName, EmpNo, EmpName, DeptNo, DeptName, HrsWork) with\nthe following set of functional dependencies F over R:\nF={ ProjecNo->ProjectName\nDeptNo->DeptName\nEmpNo->EmpName, DeptNo, DeptName, HrsWork}\na) Find all the keys in relation R using the attribute closure method.\n(4 marks)\n~\n\nb) Is R in 3NF? Give reasons for your conclusion.\n(3 marks)\n) Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF\nrelations.\n\n(8 marks)",
+    "diagram_refs": []
+  },
+  {
+    "question_id": "3",
+    "pdf_stem": "2024",
+    "page_no": 3,
+    "marks": 25,
+    "text": "Question 3\n(25 marks)\na)  In Type 2 Driver, JDBC API calls are converted to native Java API calls . Accept or refute the\nabove statement justifying your answer.\n(2 marks)\nb) There are several different statements in the JDBC API to retrieve result sets based on different\nrequirements. Which type of statements is used in the code segment given below? Briefly explain\nwhen this type of statement will be used.\n(2 marks)\n[DIAGRAM: page_003_diagram_1.png]\n) Briefly explain the options available for transferring data between two sources such as between\ntables and servers.\n(2 marks)\nProe 2 nf\n5\n\nd) Briefly explain how authentication and authorization are achieved in SQL Server.\n(3 marks)\ne) A financial institution is developing a robust database system to manage its clients' sensitive\nfinancial data. Different roles are assigned to various team members for database administration\nand management.\nSarah is the senior database administrator tasked with overseeing the entire database system's\ncreation and maintenance.\nTom and Emily are junior database administrators under Sarah's supervision. Tom manages the\nclient accounts database, while Emily handles the transactions database.\nNathan is a database developer reporting to Tom and Emily. His responsibilities include\ndesigning and implementing database schemas for client accounts and transactions.\n\\__/\nGrace and Michael are data entry operators responsible for inputting client information and\ntransaction records into the system.\nWrite a T-SQL statement to create a login to Sarah with windows authentication.\n(2 marks)\nProvide Sarah with the necessary permissions to handle all administrative tasks within the\nserver using a fixed server role.\n(3 marks)\nAssuming Emily's username is 'emily.e', write T-SQL statements to assign her the\niii.\nresponsibility of managing the transactions database using a user-defined server role.\n(5 marks)\nAssuming Nathan's login name is 'nathan.n , write T-SQL statements to grant him\npermission to create tables and VM}EWmmm\ndatabases.\niv.\n(3 marks)\nAssuming Michael's login name is 'michael.m', write T-SQL statements to allow him to\nperform data ent\nsks on the client accounts and transactions databases.\n(3 marks)\nB\nS\n\n30573",
+    "diagram_refs": [
+      "page_003_diagram_1.png"
+    ]
+  },
+  {
+    "question_id": "4",
+    "pdf_stem": "2024",
+    "page_no": 5,
+    "marks": 76,
+    "text": "Question 4\no (40\nMarksy\nConsider the following schema of a database designed for a Library:\nBook (bookld:\nint,\nftitle:\nvarchar(100), author:\nvarchar(100),\nisbn:\nvarchar(20),\npublicationYear: int, genre: varchar(50), availableCopies: int)\nMember (memberld: int, firstName: varchar(50), lastName: varchar(50), email: varchar(50),\nphone: int, address: varchar(100))\nLoan (loanld: int, bookId: int, memberId: int, loanDate: date, dueDate: date, returnDate: date)\nFine (fineld: int, memberld: int, amount: real, paymentStatus: varchar(50))\nLibrarian (librarianld: int, name: varchar(50), email: varchar(50), phone: int, address:\nvarchar(100))\nThe 'Book' table stores information about books available in the library, including unique book ID,\ntitle, author, ISBN, publication year, genre, and the number of available copies. The 'Member' table\nholds details about library members, such as their unique member ID, first name, last name, email,\nphone number, and address. The 'Loan' table manages book loans, with cach loan having a unique\nID and being associated with a specific book and member. It records the loan date, due date, and\nreturn date. The 'Fine' table stores information about fines incurred by members for late returns or\nother penalties. It includes a fine ID, member ID, fine amount, and payment status. The 'Librarian\ntable contains details about library staff, with each librarian having a unique ID, name, email, phone\nnumber, and address.\na) Write SQL Queries to perform the following:\ni. Find the member s name and phone number who borrowed a book with the title \"The Great\n-\nii. Find the  membgr, who has the highest total amount of fines than all the other total fine\namounts. Find the member s id and address.\n(6 marks)\niii. Find the book titles, authors, and member names of books currently on loan.\n(7 marks)\nb) Create a function to calculate the total fine amount for a given member. This function should\naccount for fines with a late penalty of 10% applied to those marked as 'overdue' payment status.\n(11 marks)\n) Create a trigger that automatically updates the 'TotalFineAmount' column in the 'Members' table\nwhenever a new fine is added, or an existing fine is updated. The 'TotalFineAmount' column\nshould contain the total fine amount for each member. Ensure the trigger adjusts the\n\"TotalFineAmount' column accurately to reflect any partial payments made by members. The\nmember pays only 50% of the total fine amount as an initial payment when the payment status is\nmarked as  Partial .\n(12 marks)\nProe & nf &",
+    "diagram_refs": []
+  }
+]

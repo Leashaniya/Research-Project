@@ -1,0 +1,87 @@
+--- PAGE 2 ---
+Question 1 
+(20 marks)
+Convert the following EER model in to the relational model. Indicate the primary keys and the foreign 
+keys of the resulted relations clearly.
+<>
+[DIAGRAM: page_002_diagram_1.png]
+Page 2 of 4
+
+--- PAGE 3 ---
+Question 2 
+(15 marks)
+Consider a relation R (A, B, C, D, E), with the following set of functional dependencies over R:
+F={A BC,BC EE DA }
+a) Find all the keys that follow from the given FDs using Amstrong Axioms, showing how you 
+found them. 
+(9 marks)
+b) Is R in 3NF? Give reasons for your conclusion. 
+(3 marks)
+c) Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of 
+BCNF relations. 
+: 
+(3 marks)
+Question 3 
+(25 marks)
+Consider the database of a department store that includes the following tables:
+[DIAGRAM: page_003_diagram_1.png]
+ITEM table stores details of all items in the store. EMP table stores details of all employees 
+working in the store. DEPT table stores details of all departments. SALES table stores details of
+all items sold.
+Write relational algebra statements to answer the following queries
+a) Display the name and salary  f all managers. 
+(2 marks)
+b) Display the names, prices and quantities available of items that are not sold. 
+(4 marks)
+c) Display the names of employees who had sold both computers and cameras. 
+(5 marks)
+d) Display the names of items which has more than 1000 pieces sold. 
+(6 marks)
+e) Display the name of the items which are sold the most. 
+(8 marks)
+Page 3 of 4
+
+--- PAGE 4 ---
+Question 4 
+(40 Marks)
+Consider the following relations in a database created for an online store
+Customers (cid: char (4), name: varchar (50), phone: char(10), country: varchar(20))
+Employees (eid: char (4), ename: varchar (50), phone: char (4), hiredate: date)
+Orders (oid: int, eid: char (4), cid: char (4), orderDate: date, requiredDate: date, shippedDate: date)
+OrderDetails (oid: int, productld: char (4), quantity: int, discount: real
+Products (productld: int,productName: varchar(15),UnitPrice: real unitsInStock: int, ROL:int)
+The databasc stored information of their customers in the Customers table. The table contains customer id
+(cid),'name, phone number (phone) and country of each customer of the store. Employee table contains 
+employee id (eid), name (ename), phone number (phone) and the date hired (/iredate) of each employee. 
+Orders table stores an unique id (oid), id of the employee responsible for the order (eid), date the order is 
+placed (orderDate), the date the order is required by the customer (requiredDate) and the date the order is 
+shipped (shippedDate) for each order. OrderDetails table stores order id (oid), product id (productld),
+quantity of the product ordered (guantity) and any discount obtained for the order (discount). Products
+table stores the id of product (productld), name of the product (productName), unit price of the product
+(UnitPrice) , number of units available in stock (unitsInStock) and the reorder level(ROL) of each product.
+a) Use SQL queries to answer following questions.
+i. Display the name and address of customers who had ordered products which cost over
+Rs. 500. 
+(4 marks)
+ii. Find the names and unit prices of all products which has not been ordered by customers 
+from  Germany . 
+(5 marks)
+iii. Find the customer ids and names of the customers who have obtained more than 5%
+discount for every product in every order they have placed. 
+(6 marks)
+b) Create a view named incompleteOrders that contains customer name, country and number of 
+times an order is not completed for the orders that cannot be completed. Note that an order 
+cannot be fulfilled when the units in stock is lesser than the quantity ordered for any product
+in the order. 
+(7 marks)
+c) Create a function named calcCost to calculate and return the total cost of an order given the
+order id and the discount. Note that the cost of the order is the total of costs for each product 
+ordered where cost for each product ordered is obtained by the multiplication between unit 
+price of the product and quantity. 
+(8 marks)
+d) Assume that a column named cost is added to the Orders table where the total cost of the order
+is stored. Create a trigger named updateCost to update the cost coluran when the order details
+are added to the OrderDetails table using the function created in part c) (Hint: there could be 
+more than one rows in order details table relevant to each order). 
+(10 marks)
+Page 4 of 4
