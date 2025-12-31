@@ -427,18 +427,25 @@ function App() {
                       <div className="error-message">{summary.error}</div>
                     ) : summary.content ? (
                       <div>
-                        {summaryAudio && (
-                          <div style={{ marginBottom: '12px' }}>
-                            <audio controls src={summaryAudio} style={{ width: '100%' }}>
-                              Your browser does not support the audio element.
-                            </audio>
-                          </div>
-                        )}
-
                         <div className="report-content">
                           <ReactMarkdown components={CodeBlock}>
                             {summary.content}
                           </ReactMarkdown>
+                        </div>
+
+                        <div style={{ marginTop: '14px' }}>
+                          <strong>Listen to the Audio of the summarization: </strong>
+                          {summaryAudio ? (
+                            <div style={{ marginTop: '8px' }}>
+                              <audio controls src={summaryAudio} style={{ width: '100%' }}>
+                                Your browser does not support the audio element.
+                              </audio>
+                            </div>
+                          ) : (
+                            <div className="info-message" style={{ marginTop: '8px' }}>
+                              No audio available.
+                            </div>
+                          )}
                         </div>
                       </div>
                     ) : null}
