@@ -13,8 +13,17 @@ class QuestionWriter(BaseAgent):
         super().__init__(name="Question Writer", config=config)
         self.api_key = OPENAI_API_KEY
         self.client = None
+        
+        # Local LLM Support
+        from app.core.config import settings
+        base_url = settings.OPENAI_BASE_URL
+        
         if self.api_key:
-            self.client = OpenAI(api_key=self.api_key)
+            if base_url:
+                self.client = OpenAI(api_key=self.api_key, base_url=base_url)
+                self.log(f"Using Local LLM at: {base_url}")
+            else:
+                self.client = OpenAI(api_key=self.api_key)
 
     async def run(self, input_data: dict) -> dict:
         """
@@ -38,14 +47,17 @@ class QuestionWriter(BaseAgent):
         
         self.log(f"Drafting question for {slot.get('question_no')} ({slot.get('target_marks')} marks)...")
         
+        from app.core.config import settings
+        model_name = settings.OPENAI_MODEL or self.config.get("model", "gpt-4o-mini")
+        
         try:
             response = self.client.chat.completions.create(
-                model=self.config.get("model", "gpt-4o-mini"),
+                model=model_name,
                 messages=[
                     {"role": "system", "content": "You are an expert University Exam Question Setter."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.7,
+                temperature=0.4, # Lower for local models
                 response_format={"type": "json_object"}
             )
             content = response.choices[0].message.content

@@ -24,7 +24,13 @@ def gpt_structure_exam(cleaned_text: str, model="gpt-4") -> dict:
         raise EnvironmentError("OPENAI_API_KEY is not set. Please check your .env file.")
 
     print("Initializing OpenAI client...")
-    client = openai.OpenAI()
+    from app.core.config import settings
+    
+    if settings.OPENAI_BASE_URL:
+        client = openai.OpenAI(base_url=settings.OPENAI_BASE_URL, api_key=OPENAI_API_KEY)
+        print(f"Using Local LLM: {settings.OPENAI_BASE_URL}")
+    else:
+        client = openai.OpenAI()
 
     print("Calling GPT for structuring exam...")  # Debug statement
 
@@ -63,16 +69,21 @@ def gpt_structure_exam(cleaned_text: str, model="gpt-4") -> dict:
     {cleaned_text}
     """
 
+    model_name = settings.OPENAI_MODEL or model
+    
     try:
-        response = client.responses.create(
-        model=model,
-        input=user_prompt,
-        temperature=0,
-        max_output_tokens=3000
+        # Use simple completions if beta responses is not supported by Ollama
+        response = client.chat.completions.create(
+            model=model_name,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0,
+            response_format={"type": "json_object"}
         )
 
-
-        structured_text = response.output_text.strip()
+        structured_text = response.choices[0].message.content.strip()
         return json.loads(structured_text)
 
     except Exception as e:

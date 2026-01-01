@@ -5,10 +5,13 @@ import os
 load_dotenv()
 
 # Retrieve the OpenAI API key from environment variables
+# Retrieve the OpenAI API key from environment variables
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL") # Optional: For Local LLM (e.g. http://localhost:11434/v1)
 
 class Settings:
     OPENAI_API_KEY = OPENAI_API_KEY
+    OPENAI_BASE_URL = OPENAI_BASE_URL
     OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4")
 
     def validate_openai_key(self):
