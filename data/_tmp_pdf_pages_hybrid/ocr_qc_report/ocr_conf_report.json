@@ -502,11 +502,5 @@
     "mean_conf": 88.60765550239235,
     "n_words": 418,
     "max_single_box_frac": 0.0
-  },
-  {
-    "page": "C:\\Users\\DELL\\Downloads\\Research Project\\data\\_tmp_pdf_pages_hybrid\\Receipt-2769-1203-2972_boxed\\page_001.png",
-    "mean_conf": 92.78947368421052,
-    "n_words": 95,
-    "max_single_box_frac": 0.0
   }
 ]

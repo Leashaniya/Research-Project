@@ -2,8 +2,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from app.api.routes import router
+from app.core.paths import PAST_PAPERS_DIR, SLIDES_DIR, OUTPUTS_DIR
+import os
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    os.makedirs(PAST_PAPERS_DIR, exist_ok=True)
+    os.makedirs(SLIDES_DIR, exist_ok=True)
+    os.makedirs(OUTPUTS_DIR, exist_ok=True)
 
 app.add_middleware(
     CORSMiddleware,

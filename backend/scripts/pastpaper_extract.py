@@ -29,9 +29,18 @@ NOTES (Windows):
 - Tesseract OCR must be installed (and in PATH) OR set env var TESSERACT_CMD
 """
 
-from __future__ import annotations
 
+from __future__ import annotations
+import sys
 from pathlib import Path
+
+# Add the project root to sys.path
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
 import os, re, json, csv, time, shutil
 
 import numpy as np
@@ -39,8 +48,8 @@ import cv2
 import fitz  # PyMuPDF
 import pytesseract
 from pytesseract import Output
-from pathlib import Path
 from typing import Dict, Any, Optional
+from backend.app.services.gpt_structure_service import gpt_structure_exam
 
 # =========================
 # CONFIG
@@ -57,6 +66,8 @@ FALLBACK_DPI = 600
 
 TESS_CONFIG = "--oem 3 --psm 6"
 DO_DESKEW = True
+
+USE_GPT = True  # Flag to toggle GPT usage
 
 # If tesseract is not on PATH, set TESSERACT_CMD env var
 # Example: setx TESSERACT_CMD "C:\Program Files\Tesseract-OCR\tesseract.exe"
@@ -268,7 +279,9 @@ NUMERIC_MAIN_RE = re.compile(r"^\s*\(?\s*([0-9]+)\s*(?:[\.\)\-:])\s*", re.IGNORE
 ALT_Q_RE = re.compile(r".*\bQ\s*[:\.]?\s*([0-9]+)\b", re.IGNORECASE)
 
 MARKS_RE = re.compile(r"\(?\s*([0-9]{1,3})\s*marks?\s*\)?", re.IGNORECASE)
-TOTAL_MARKS_PAREN_RE = re.compile(r"\(\s*(\d{1,3})\s*Marks?\s*\)", re.IGNORECASE)
+# FIX: Allow newlines and OCR noise (e.g. 'Marksy') and optional closing paren
+# This fixes 2024 Q4 where header was "o (40\nMarksy"
+TOTAL_MARKS_PAREN_RE = re.compile(r"\(\s*(\d{1,3})\s*[\r\n]*\s*Marks?[a-z]*\s*\)?", re.IGNORECASE)
 
 def _looks_like_question_total(n: int) -> bool:
     return 10 <= n <= 100
@@ -292,7 +305,54 @@ def extract_total_marks_for_question(q_lines, prev_page_tail_lines):
     s = sum(all_marks)
     if _looks_like_question_total(s):
         return s
+    if _looks_like_question_total(s):
+        return s
     return None
+
+
+def extract_subquestions(lines, total_marks_for_q=None):
+    """
+    Parse lines to find sub-questions starting with a), b), i., etc.
+    Returns list of specific sub-question dicts.
+    """
+    SUB_Q_RE = re.compile(r"^\s*(\(?\s*[a-z]\s*\)|[ivx]+\.)\s*", re.IGNORECASE)
+    # Regex to find marks at the end of a line or block: "(5 marks)"
+    MARKS_SUB_RE = re.compile(r"\(?\s*(\d{1,3})\s*marks?\s*\)?", re.IGNORECASE)
+
+    subs = []
+    current_sub_label = None # Reverted from "intro"
+    buffer = []
+
+    def flush():
+        nonlocal current_sub_label, buffer
+        if current_sub_label:
+            txt = "\n".join(buffer).strip()
+            # Try to find marks in this sub-question block
+            found_marks = MARKS_SUB_RE.findall(txt)
+            m = 0
+            if found_marks:
+                m = sum(int(x) for x in found_marks)
+            
+            subs.append({
+                "sub_id": current_sub_label,
+                "marks": m,
+                "text": txt
+            })
+        buffer = []
+        buffer = []
+
+    for ln in lines:
+        m = SUB_Q_RE.match(ln)
+        if m:
+            flush()
+            current_sub_label = m.group(1).strip()
+            buffer.append(ln)
+        else:
+            if current_sub_label:
+                buffer.append(ln)
+    
+    flush()
+    return subs
 
 
 def parse_blueprint_from_text(doc_text: str, pdf_stem: str, min_words=MIN_QUESTION_WORDS):
@@ -312,6 +372,8 @@ def parse_blueprint_from_text(doc_text: str, pdf_stem: str, min_words=MIN_QUESTI
                 return
 
             total_marks = extract_total_marks_for_question(state["q_buffer"], prev_page_tail)
+            sub_qs = extract_subquestions(state["q_buffer"], total_marks)
+            
             diag_refs = [d.strip() for d in re.findall(r"\[DIAGRAM:([^\]]+)\]", q_text)]
 
             blueprint.append({
@@ -320,7 +382,8 @@ def parse_blueprint_from_text(doc_text: str, pdf_stem: str, min_words=MIN_QUESTI
                 "page_no": state["q_page"],
                 "marks": int(total_marks) if total_marks is not None else None,
                 "text": q_text,
-                "diagram_refs": diag_refs
+                "diagram_refs": diag_refs,
+                "subquestions": sub_qs
             })
 
         state["current_q"] = None
@@ -343,15 +406,42 @@ def parse_blueprint_from_text(doc_text: str, pdf_stem: str, min_words=MIN_QUESTI
                 state["q_buffer"].append("")
             continue
 
-        # ✅ FIX: avoid treating years like "2016." as a new main question
         m_qword = Q_MAIN_RE.match(ln_strip) or ALT_Q_RE.match(ln_strip)
-
         m_num = NUMERIC_MAIN_RE.match(ln_strip)
+        
+        # FIX for 2024 II: "Question 5" on line N, but "(20 Marks)" was on line N-1.
+        # Or sometimes "Question 5" is on line N, marks on line N+1.
+        # Current logic handles marks on N+1. We need to check if we missed marks on N-1.
+        
+        if m_qword:
+             finalize()
+             state["current_q"] = m_qword.group(1)
+             state["q_page"] = page_no
+             state["q_buffer"] = [ln] # Start buffer with this line
+             
+        # Lookback removed to restore stability.
+             continue
         if m_num:
             try:
                 n = int(m_num.group(1))
                 if 1900 <= n <= 2100:  # looks like a year
                     m_num = None
+                else:
+                    # FIX: False positive check for schema lines like "(10), CAMarks:int"
+                    # If the match is followed immediately by a comma, it's likely a list/schema, not a question.
+                    end_idx = m_num.end()
+                    rest_of_line = ln_strip[end_idx:].strip()
+                    
+                    if rest_of_line.startswith(","):
+                        m_num = None
+                    # Also check for SQL type keywords if it looks like a schema definition
+                    elif re.search(r"\b(int|varchar|char|float|date)\b", rest_of_line, re.IGNORECASE):
+                         m_num = None
+                    # FIX for 2016 II: "3.0. The student table contains..."
+                    # If the rest of the line is long (e.g., > 5 words), it's likely a sentence, not a header.
+                    elif len(rest_of_line.split()) > 5:
+                         m_num = None
+
             except Exception:
                 pass
 
@@ -623,7 +713,8 @@ def build_diagrams_manifest(out_root=OUT_ROOT):
     return manifest_path
 
 
-def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT):
+# def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT):
+def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT, only_pdf_stems=None):
     PAGE_TEXT_GLOB = "*/pages_text/page_*_text.txt"
     chunks_jsonl = out_root / "chunks.jsonl"
     chunks_csv = out_root / "chunks_index.csv"
@@ -642,6 +733,9 @@ def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT):
     csv_rows = []
 
     for pdf_stem, page_list in pages_by_pdf.items():
+        if only_pdf_stems is not None and pdf_stem not in only_pdf_stems:
+            continue
+
         page_list = sorted(page_list, key=lambda x: x[0])
 
         doc_lines = []
@@ -657,25 +751,43 @@ def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT):
         cleaned_path = out_pdf_dir / "cleaned_document.txt"
         cleaned_path.write_text(doc_text, encoding="utf-8")
 
+        blueprint_path = out_pdf_dir / "blueprint.json"
+        blueprint_with_sub_path = out_pdf_dir / "blueprint_with_subquestions.json"
+
+        if USE_GPT:
+            try:
+                gpt_output = gpt_structure_exam(doc_text)
+                questions = gpt_output.get("questions", [])
+
+                # Write blueprint_with_subquestions.json
+                with open(blueprint_with_sub_path, "w", encoding="utf-8") as f:
+                    json.dump(questions, f, indent=2)
+
+                # Write blueprint.json (main questions only)
+                main_questions = [
+                    {k: q[k] for k in q if k != "subquestions"} for q in questions
+                ]
+                with open(blueprint_path, "w", encoding="utf-8") as f:
+                    json.dump(main_questions, f, indent=2)
+
+                print(f"GPT structuring succeeded: {len(questions)} questions")
+                continue
+
+            except Exception as e:
+                print(f"GPT structuring failed: {e}. Falling back to regex logic.")
+
+        # Fallback to regex-based blueprint parsing
         blueprint = parse_blueprint_from_text(doc_text, pdf_stem)
+        with open(blueprint_path, "w", encoding="utf-8") as f:
+            json.dump(blueprint, f, indent=2)
 
-        for b in blueprint:
-            b["subquestions_full"] = []
-            b["subquestions"] = []
+        # Write empty subquestions for fallback
+        for q in blueprint:
+            q["subquestions"] = []
+        with open(blueprint_with_sub_path, "w", encoding="utf-8") as f:
+            json.dump(blueprint, f, indent=2)
 
-        blueprint_main = []
-        for b in blueprint:
-            b2 = dict(b)
-            b2.pop("subquestions", None)
-            b2.pop("subquestions_full", None)
-            blueprint_main.append(b2)
-
-        (out_pdf_dir / "blueprint.json").write_text(
-            json.dumps(blueprint_main, indent=2, ensure_ascii=False), encoding="utf-8"
-        )
-        (out_pdf_dir / "blueprint_with_subquestions.json").write_text(
-            json.dumps(blueprint, indent=2, ensure_ascii=False), encoding="utf-8"
-        )
+        print(f"Regex structuring succeeded: {len(blueprint)} questions")
 
         words = re.sub(r"\n", " \n ", doc_text).split()
         n = len(words)
@@ -746,7 +858,10 @@ def main_full_run(max_passes: int = 2):
 
     run_ocr_qc()
     build_diagrams_manifest()
-    build_cleaned_docs_blueprints_and_chunks()
+    # build_cleaned_docs_blueprints_and_chunks()
+    only_stems = {p.stem for p in pdfs}
+    build_cleaned_docs_blueprints_and_chunks(only_pdf_stems=only_stems)
+
 
     for i in range(max_passes):
         print(f"\n=== AUTO QC PASS {i+1}/{max_passes} ===")
@@ -761,7 +876,9 @@ def main_full_run(max_passes: int = 2):
 
         time.sleep(1)
         build_diagrams_manifest()
-        build_cleaned_docs_blueprints_and_chunks()
+        # build_cleaned_docs_blueprints_and_chunks()
+        only_stems = {p.stem for p in pdfs}
+        build_cleaned_docs_blueprints_and_chunks(only_pdf_stems=only_stems)
 
     print("\nPipeline finished. Outputs in:", OUT_ROOT)
 
@@ -784,7 +901,9 @@ def run_single(pdf_path: Path, dpi_used: int = DPI, run_qc: bool = False) -> Dic
         qc_flagged = len(bad)
 
     manifest_path = build_diagrams_manifest()
-    build_cleaned_docs_blueprints_and_chunks()
+    # build_cleaned_docs_blueprints_and_chunks()
+    build_cleaned_docs_blueprints_and_chunks(only_pdf_stems={pdf_path.stem})
+
 
     out_pdf_dir = OUT_ROOT / pdf_path.stem
 

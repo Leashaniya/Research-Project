@@ -4,17 +4,86 @@
     "pdf_stem": "2016 II",
     "page_no": 2,
     "marks": 20,
-    "text": "Question 1\n(20 marks)\nConsider the following schema of\na database developed for a university.\nLecturer (lecturerld: integer, Iname: varchar (30), grade: varchar (20), salary: real,\ntype: varchar (10), department: varchar (30))\nQualifications (lecturerld: integer, qualification: varchar (30))\nCourse (cid: integer, cname; varchar (25), credits: integer, program: varchar (30))\nTeach (lecturerld: integer, cid: integer, year: integer, semester: integer)\nLecturer table stores the id (lecturerld), name (Iname), grade (  Assistant Lecturer ,  Lecturer\nor  Senior Lecturer ), salary, type of the lecturer ( Permanent  or  Visiting ) and the attached\ndepartment (such as  IT  and  IS ) for each lecturer in the university. Qualifications table\nstores information related to the qualifications of lecturers. The table stores the IDs of the\nlecturers (lecturerld) and the qualifications they have received (such as  BSc in IT ,  MSc in\nGIS ,  MBA  and  Phd in Computer Science ). Course table stores the ID of the course (cid),\nname (cname), number of credits (credits) and the program the course belongs to (such as  BSc\nin IT , and  BEng in Mechanical Engineering ) for each course offered. The Teach table stores\ninformation on teaching. For each lecturer teaching a course, the Teach table stores the ID of\nthe lecturer (lecturerld), ID of the course he/she has taught (cid), the year and the semester\nhe/she has taught the course. Lecturerld attribute in Qualifications and Teach tables are foreign\nkeys that references the Lecturer table. Cid attribute in Teach table is a foreign key that\nreferences the Course table. All primary keys of the tables are underlined.\na) Use SQL queries to answer following questions.\ni.\nFind the names of the courses in the  MBA  program which are taught by the lecturers\nattached to the  IT  department.\n(3 marks)\nii.\nFind the names of the courses that are not offered in semester 2 0of 2016. (3 marks)\niii.\nFind the names and the IDs of the lecturers who teach a course for the same\nqualification he has obtained.\nHint: When a student completes a program he obtains that qualification\n(4 marks)\nb) Create a function that calculates and returns the workload for a given lecturer in a given\nyear and a semester. Workload indicate the number of hours'a teacher teach weekly.\nAssume that a teacher spend 2 hours weekly in teaching every course he teach (5 marks)\n) Suppose that the university pays 5000 rupees for visiting lecturers for one hour of lectures.\nWith the assumption that a lecturer teach 20 hours in each course he teach in one semester,\nwrite a procedure that calculate the payment to be made for all visiting lecturers for a given\nyear and a semester and store it in the salary column.\n(5 marks)\n30/09/2016\nPage\n2 of 7",
-    "diagram_refs": []
+    "text": "Question 1 \n(20 marks)\nConsider the following schema of\na database developed for a university.\nLecturer (lecturerld: integer, Iname: varchar (30), grade: varchar (20), salary: real,\ntype: varchar (10), department: varchar (30))\nQualifications (lecturerld: integer, qualification: varchar (30))\nCourse (cid: integer, cname; varchar (25), credits: integer, program: varchar (30))\nTeach (lecturerld: integer, cid: integer, year: integer, semester: integer)\nLecturer table stores the id (lecturerld), name (Iname), grade (  Assistant Lecturer ,  Lecturer\nor  Senior Lecturer ), salary, type of the lecturer ( Permanent  or  Visiting ) and the attached\ndepartment (such as  IT  and  IS ) for each lecturer in the university. Qualifications table\nstores information related to the qualifications of lecturers. The table stores the IDs of the\nlecturers (lecturerld) and the qualifications they have received (such as  BSc in IT ,  MSc in\nGIS ,  MBA  and  Phd in Computer Science ). Course table stores the ID of the course (cid),\nname (cname), number of credits (credits) and the program the course belongs to (such as  BSc\nin IT , and  BEng in Mechanical Engineering ) for each course offered. The Teach table stores\ninformation on teaching. For each lecturer teaching a course, the Teach table stores the ID of\nthe lecturer (lecturerld), ID of the course he/she has taught (cid), the year and the semester\nhe/she has taught the course. Lecturerld attribute in Qualifications and Teach tables are foreign\nkeys that references the Lecturer table. Cid attribute in Teach table is a foreign key that\nreferences the Course table. All primary keys of the tables are underlined.\na) Use SQL queries to answer following questions.\ni.\nFind the names of the courses in the  MBA  program which are taught by the lecturers\nattached to the  IT  department.\n(3 marks)\nii.\nFind the names of the courses that are not offered in semester 2 0of 2016. (3 marks)\niii.\nFind the names and the IDs of the lecturers who teach a course for the same\nqualification he has obtained.\nHint: When a student completes a program he obtains that qualification\n(4 marks)\nb) Create a function that calculates and returns the workload for a given lecturer in a given\nyear and a semester. Workload indicate the number of hours'a teacher teach weekly.\nAssume that a teacher spend 2 hours weekly in teaching every course he teach (5 marks)\n) Suppose that the university pays 5000 rupees for visiting lecturers for one hour of lectures.\nWith the assumption that a lecturer teach 20 hours in each course he teach in one semester,\nwrite a procedure that calculate the payment to be made for all visiting lecturers for a given\nyear and a semester and store it in the salary column.\n(5 marks)\n30/09/2016\nPage\n2 of 7",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "sub_id": "a)",
+        "marks": 0,
+        "text": "a) Use SQL queries to answer following questions."
+      },
+      {
+        "sub_id": "i.",
+        "marks": 3,
+        "text": "i.\nFind the names of the courses in the  MBA  program which are taught by the lecturers\nattached to the  IT  department.\n(3 marks)"
+      },
+      {
+        "sub_id": "ii.",
+        "marks": 3,
+        "text": "ii.\nFind the names of the courses that are not offered in semester 2 0of 2016. (3 marks)"
+      },
+      {
+        "sub_id": "iii.",
+        "marks": 4,
+        "text": "iii.\nFind the names and the IDs of the lecturers who teach a course for the same\nqualification he has obtained.\nHint: When a student completes a program he obtains that qualification\n(4 marks)"
+      },
+      {
+        "sub_id": "b)",
+        "marks": 10,
+        "text": "b) Create a function that calculates and returns the workload for a given lecturer in a given\nyear and a semester. Workload indicate the number of hours'a teacher teach weekly.\nAssume that a teacher spend 2 hours weekly in teaching every course he teach (5 marks)\n) Suppose that the university pays 5000 rupees for visiting lecturers for one hour of lectures.\nWith the assumption that a lecturer teach 20 hours in each course he teach in one semester,\nwrite a procedure that calculate the payment to be made for all visiting lecturers for a given\nyear and a semester and store it in the salary column.\n(5 marks)\n30/09/2016\nPage\n2 of 7"
+      }
+    ]
   },
   {
     "question_id": "2",
     "pdf_stem": "2016 II",
     "page_no": 3,
     "marks": 20,
-    "text": "Question 2\n(20 marks)\na)\nBriefly describe two main techniques that could be used to improve the reliability of the\ndisk.\n(3 marks)\nb)\nWhat is meant by  data striping ? What is the purpose of striping data?\n(2 marks)\n)\nConsider a disk with a sector size of 512 bytes, block size of 512 bytes, 1000 tracks per\nsurface, 100 sectors per track and 5 single-sided platters. Seek time is 10 msec. The disk is\nspinning at a speed of 2400 rpm. You need to store a student file which contains 10000\nrecords of 100 bytes which are in fixed-length format. No record spans multiple blocks.\ni. How many student records can be stored in a block in the above disk?\n(1 mark)\nii. How many student records can be stored in a single track?\n(1 mark)\niii. How many cylinders are needed to store the entire student file?\n(2 marks)\niv. What is the time required to transfer a track of data from the above disk? (2 marks)\nv. Assuming that the data in the above disk are stored using the Next Block concept and\nwhat would be the time taken to read the entire student file from the disk.\n(3 marks)\nd)\nExplain with an aid of\na diagram, the alternatives available for storing variable length\nfields in a record?\n(2 marks)\nConsider the following buffer pool with 5 frames. Each frame has @ frame number (Frame\nNo), page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty).\n)\n[DIAGRAM: page_003_diagram_1.png]\nAssume that the following times states the last time the particular frame was accessed (on the\nsame day):\nFrame number 0 at 12:15 pm\nFrame number 1 at 12:07 pm\nFrame number 2 at 2:05 pm\nFrame number 3 at 12:02 pm\nFrame number 4 at 1:26 pm\nDescribe the steps followed by the buffer manager when a request for the page with PagelD 50\noccurs if MRU (Most-recently-used) replacement policy is used.\n(4 marks)\nPage 3 of\n7\n30/09/2016",
+    "text": "Question 2 \n(20 marks)\na)\nBriefly describe two main techniques that could be used to improve the reliability of the\ndisk.\n(3 marks)\nb)\nWhat is meant by  data striping ? What is the purpose of striping data?\n(2 marks)\n)\nConsider a disk with a sector size of 512 bytes, block size of 512 bytes, 1000 tracks per\nsurface, 100 sectors per track and 5 single-sided platters. Seek time is 10 msec. The disk is\nspinning at a speed of 2400 rpm. You need to store a student file which contains 10000\nrecords of 100 bytes which are in fixed-length format. No record spans multiple blocks.\ni. How many student records can be stored in a block in the above disk?\n(1 mark)\nii. How many student records can be stored in a single track?\n(1 mark)\niii. How many cylinders are needed to store the entire student file?\n(2 marks)\niv. What is the time required to transfer a track of data from the above disk? (2 marks)\nv. Assuming that the data in the above disk are stored using the Next Block concept and\nwhat would be the time taken to read the entire student file from the disk.\n(3 marks)\nd)\nExplain with an aid of\na diagram, the alternatives available for storing variable length\nfields in a record?\n(2 marks)\nConsider the following buffer pool with 5 frames. Each frame has @ frame number (Frame\nNo), page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty).\n)\n[DIAGRAM: page_003_diagram_1.png]\nAssume that the following times states the last time the particular frame was accessed (on the\nsame day):\nFrame number 0 at 12:15 pm\nFrame number 1 at 12:07 pm\nFrame number 2 at 2:05 pm\nFrame number 3 at 12:02 pm\nFrame number 4 at 1:26 pm\nDescribe the steps followed by the buffer manager when a request for the page with PagelD 50\noccurs if MRU (Most-recently-used) replacement policy is used.\n(4 marks)\nPage 3 of\n7\n30/09/2016",
     "diagram_refs": [
       "page_003_diagram_1.png"
+    ],
+    "subquestions": [
+      {
+        "sub_id": "a)",
+        "marks": 3,
+        "text": "a)\nBriefly describe two main techniques that could be used to improve the reliability of the\ndisk.\n(3 marks)"
+      },
+      {
+        "sub_id": "b)",
+        "marks": 2,
+        "text": "b)\nWhat is meant by  data striping ? What is the purpose of striping data?\n(2 marks)\n)\nConsider a disk with a sector size of 512 bytes, block size of 512 bytes, 1000 tracks per\nsurface, 100 sectors per track and 5 single-sided platters. Seek time is 10 msec. The disk is\nspinning at a speed of 2400 rpm. You need to store a student file which contains 10000\nrecords of 100 bytes which are in fixed-length format. No record spans multiple blocks."
+      },
+      {
+        "sub_id": "i.",
+        "marks": 1,
+        "text": "i. How many student records can be stored in a block in the above disk?\n(1 mark)"
+      },
+      {
+        "sub_id": "ii.",
+        "marks": 1,
+        "text": "ii. How many student records can be stored in a single track?\n(1 mark)"
+      },
+      {
+        "sub_id": "iii.",
+        "marks": 2,
+        "text": "iii. How many cylinders are needed to store the entire student file?\n(2 marks)"
+      },
+      {
+        "sub_id": "iv.",
+        "marks": 2,
+        "text": "iv. What is the time required to transfer a track of data from the above disk? (2 marks)"
+      },
+      {
+        "sub_id": "v.",
+        "marks": 3,
+        "text": "v. Assuming that the data in the above disk are stored using the Next Block concept and\nwhat would be the time taken to read the entire student file from the disk.\n(3 marks)"
+      },
+      {
+        "sub_id": "d)",
+        "marks": 6,
+        "text": "d)\nExplain with an aid of\na diagram, the alternatives available for storing variable length\nfields in a record?\n(2 marks)\nConsider the following buffer pool with 5 frames. Each frame has @ frame number (Frame\nNo), page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty).\n)\n[DIAGRAM: page_003_diagram_1.png]\nAssume that the following times states the last time the particular frame was accessed (on the\nsame day):\nFrame number 0 at 12:15 pm\nFrame number 1 at 12:07 pm\nFrame number 2 at 2:05 pm\nFrame number 3 at 12:02 pm\nFrame number 4 at 1:26 pm\nDescribe the steps followed by the buffer manager when a request for the page with PagelD 50\noccurs if MRU (Most-recently-used) replacement policy is used.\n(4 marks)\nPage 3 of\n7\n30/09/2016"
+      }
     ]
   },
   {
@@ -22,18 +91,42 @@
     "pdf_stem": "2016 II",
     "page_no": 4,
     "marks": 20,
-    "text": "Question 3\n(20 marks)\na) Briefly explain the Sequential file organization. What are the advantages of this file\norganization compared to the Heap file organization?\n(3 marks)\nb)  Range search in sequential file organization is not always efficient than in heap file\norganization . Accept or refute the above statement giving reasons\n(3 marks)\n) Suppose you have a student table with following fields\nStudent (studentld, name, address, gender, phone, birthdate, NIC, GPA)\nAssume that you want to retrieve the IDs and the names of students with GPA higher than",
-    "diagram_refs": []
-  },
-  {
-    "question_id": "3",
-    "pdf_stem": "2016 II",
-    "page_no": 4,
-    "marks": 14,
-    "text": "3.0. The student table contains a clustered index on the GPA colunn of the table.\nExplain the approach you will be using to retrieve the records you require. Why would you\nuse the selected approach?\n(3 marks)\nd) Consider the following B+ tree of order 2.\n[DIAGRAM: page_004_diagram_1.png]\ni.\nIlustrate the B+ tree after inserting 4 and 7 to the tree above.\n(3 marks)\nii.\nIllustrate the B+ tree after deleting 17 from the original tree.\n(3 marks)\ne)\nConsider the following extendible hash index. The hashing function considers the last 2\ndigits of the binary representation.\n[DIAGRAM: page_004_diagram_2.png]\nShow the extendible hash index after inserting 12 and 22.\n(5 marks)\nPage 4 of\n7\n30/09/2016",
+    "text": "Question 3 \n(20 marks)\na) Briefly explain the Sequential file organization. What are the advantages of this file\norganization compared to the Heap file organization?\n(3 marks)\nb)  Range search in sequential file organization is not always efficient than in heap file\norganization . Accept or refute the above statement giving reasons\n(3 marks)\n) Suppose you have a student table with following fields\nStudent (studentld, name, address, gender, phone, birthdate, NIC, GPA)\nAssume that you want to retrieve the IDs and the names of students with GPA higher than\n3.0. The student table contains a clustered index on the GPA colunn of the table.\nExplain the approach you will be using to retrieve the records you require. Why would you\nuse the selected approach?\n(3 marks)\nd) Consider the following B+ tree of order 2.\n[DIAGRAM: page_004_diagram_1.png]\ni.\nIlustrate the B+ tree after inserting 4 and 7 to the tree above.\n(3 marks)\nii.\nIllustrate the B+ tree after deleting 17 from the original tree.\n(3 marks)\ne)\nConsider the following extendible hash index. The hashing function considers the last 2\ndigits of the binary representation.\n[DIAGRAM: page_004_diagram_2.png]\nShow the extendible hash index after inserting 12 and 22.\n(5 marks)\nPage 4 of\n7\n30/09/2016",
     "diagram_refs": [
       "page_004_diagram_1.png",
       "page_004_diagram_2.png"
+    ],
+    "subquestions": [
+      {
+        "sub_id": "a)",
+        "marks": 3,
+        "text": "a) Briefly explain the Sequential file organization. What are the advantages of this file\norganization compared to the Heap file organization?\n(3 marks)"
+      },
+      {
+        "sub_id": "b)",
+        "marks": 6,
+        "text": "b)  Range search in sequential file organization is not always efficient than in heap file\norganization . Accept or refute the above statement giving reasons\n(3 marks)\n) Suppose you have a student table with following fields\nStudent (studentld, name, address, gender, phone, birthdate, NIC, GPA)\nAssume that you want to retrieve the IDs and the names of students with GPA higher than\n3.0. The student table contains a clustered index on the GPA colunn of the table.\nExplain the approach you will be using to retrieve the records you require. Why would you\nuse the selected approach?\n(3 marks)"
+      },
+      {
+        "sub_id": "d)",
+        "marks": 0,
+        "text": "d) Consider the following B+ tree of order 2.\n[DIAGRAM: page_004_diagram_1.png]"
+      },
+      {
+        "sub_id": "i.",
+        "marks": 3,
+        "text": "i.\nIlustrate the B+ tree after inserting 4 and 7 to the tree above.\n(3 marks)"
+      },
+      {
+        "sub_id": "ii.",
+        "marks": 3,
+        "text": "ii.\nIllustrate the B+ tree after deleting 17 from the original tree.\n(3 marks)"
+      },
+      {
+        "sub_id": "e)",
+        "marks": 5,
+        "text": "e)\nConsider the following extendible hash index. The hashing function considers the last 2\ndigits of the binary representation.\n[DIAGRAM: page_004_diagram_2.png]\nShow the extendible hash index after inserting 12 and 22.\n(5 marks)\nPage 4 of\n7\n30/09/2016"
+      }
     ]
   },
   {
@@ -41,18 +134,122 @@
     "pdf_stem": "2016 II",
     "page_no": 5,
     "marks": 15,
-    "text": "Question 4\n(15 marks)\na) Briefly explain the query optimization phase of the query processing.\n(3 marks)\nb) From where does the optimizer obtain the required information for query processing?\nName three different types of information available for the optimizer to use.\n(2 marks)\nc) What is an index only plan?\n(1 mark)\nd) Consider the following relation:\nEmployee (eid:char(5), ename: varchar(50), job: varchar(30), salary: float)\nThe relation has 8000 pages with 100 tuples per page. Assume that 20 buffer fames\nayailable in buffer pool.\nConsider the following query:\n\nQuery I: SELECT * FROM Employee WHERE eid =  0001\nEstimate the cost (in Disk 1/Os) of executing Query I with the following Hash indexes.\nThe data entries in the indexes have <k, rid> format. Hash indexes require 1.2 Disk 1/Os\non average to retrieve a data entry.\ni. Unclustered hash index on Employee<eid>\n(2 marks)\nii. Clustered hash index on Employee<eid>\n(2 marks)\ne) Consider the following query\nQuery 2: SELECT ename FROM doctor WHERE specialization =  Surgeon\nYou are given following information:\nThe doctor relation has four attributes namely, name, designation and specialization and\naddress; all are string fields of the same length. The ename attribute is a candidate key.\nThe relation contains 3000 pages. There are 10 buffer pages. Only 0.02 percent of tuples\nqualify the where clause condition. DBMS support only B+ tree indexes and require 3 disk\n1/Os to retrieve leaf page.\ni.\nSuppose this query is one of the most frequently running queries. Therefore,\nrecommend the most suitable index to get the best performance of the query. Briefly\nexplain the query plan you have considered.\n(3 marks)\nii. Estimate the cost of executing the query using the plan and the index proposed above.\n(2 marks)\nPage 5 of 7\n30/09/2016",
-    "diagram_refs": []
+    "text": "Question 4 \n(15 marks)\na) Briefly explain the query optimization phase of the query processing.\n(3 marks)\nb) From where does the optimizer obtain the required information for query processing?\nName three different types of information available for the optimizer to use.\n(2 marks)\nc) What is an index only plan?\n(1 mark)\nd) Consider the following relation:\nEmployee (eid:char(5), ename: varchar(50), job: varchar(30), salary: float)\nThe relation has 8000 pages with 100 tuples per page. Assume that 20 buffer fames\nayailable in buffer pool.\nConsider the following query:\n\nQuery I: SELECT * FROM Employee WHERE eid =  0001\nEstimate the cost (in Disk 1/Os) of executing Query I with the following Hash indexes.\nThe data entries in the indexes have <k, rid> format. Hash indexes require 1.2 Disk 1/Os\non average to retrieve a data entry.\ni. Unclustered hash index on Employee<eid>\n(2 marks)\nii. Clustered hash index on Employee<eid>\n(2 marks)\ne) Consider the following query\nQuery 2: SELECT ename FROM doctor WHERE specialization =  Surgeon\nYou are given following information:\nThe doctor relation has four attributes namely, name, designation and specialization and\naddress; all are string fields of the same length. The ename attribute is a candidate key.\nThe relation contains 3000 pages. There are 10 buffer pages. Only 0.02 percent of tuples\nqualify the where clause condition. DBMS support only B+ tree indexes and require 3 disk\n1/Os to retrieve leaf page.\ni.\nSuppose this query is one of the most frequently running queries. Therefore,\nrecommend the most suitable index to get the best performance of the query. Briefly\nexplain the query plan you have considered.\n(3 marks)\nii. Estimate the cost of executing the query using the plan and the index proposed above.\n(2 marks)\nPage 5 of 7\n30/09/2016",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "sub_id": "a)",
+        "marks": 3,
+        "text": "a) Briefly explain the query optimization phase of the query processing.\n(3 marks)"
+      },
+      {
+        "sub_id": "b)",
+        "marks": 2,
+        "text": "b) From where does the optimizer obtain the required information for query processing?\nName three different types of information available for the optimizer to use.\n(2 marks)"
+      },
+      {
+        "sub_id": "c)",
+        "marks": 1,
+        "text": "c) What is an index only plan?\n(1 mark)"
+      },
+      {
+        "sub_id": "d)",
+        "marks": 0,
+        "text": "d) Consider the following relation:\nEmployee (eid:char(5), ename: varchar(50), job: varchar(30), salary: float)\nThe relation has 8000 pages with 100 tuples per page. Assume that 20 buffer fames\nayailable in buffer pool.\nConsider the following query:\n\nQuery I: SELECT * FROM Employee WHERE eid =  0001\nEstimate the cost (in Disk 1/Os) of executing Query I with the following Hash indexes.\nThe data entries in the indexes have <k, rid> format. Hash indexes require 1.2 Disk 1/Os\non average to retrieve a data entry."
+      },
+      {
+        "sub_id": "i.",
+        "marks": 2,
+        "text": "i. Unclustered hash index on Employee<eid>\n(2 marks)"
+      },
+      {
+        "sub_id": "ii.",
+        "marks": 2,
+        "text": "ii. Clustered hash index on Employee<eid>\n(2 marks)"
+      },
+      {
+        "sub_id": "e)",
+        "marks": 0,
+        "text": "e) Consider the following query\nQuery 2: SELECT ename FROM doctor WHERE specialization =  Surgeon\nYou are given following information:\nThe doctor relation has four attributes namely, name, designation and specialization and\naddress; all are string fields of the same length. The ename attribute is a candidate key.\nThe relation contains 3000 pages. There are 10 buffer pages. Only 0.02 percent of tuples\nqualify the where clause condition. DBMS support only B+ tree indexes and require 3 disk\n1/Os to retrieve leaf page."
+      },
+      {
+        "sub_id": "i.",
+        "marks": 3,
+        "text": "i.\nSuppose this query is one of the most frequently running queries. Therefore,\nrecommend the most suitable index to get the best performance of the query. Briefly\nexplain the query plan you have considered.\n(3 marks)"
+      },
+      {
+        "sub_id": "ii.",
+        "marks": 2,
+        "text": "ii. Estimate the cost of executing the query using the plan and the index proposed above.\n(2 marks)\nPage 5 of 7\n30/09/2016"
+      }
+    ]
   },
   {
     "question_id": "5",
     "pdf_stem": "2016 II",
     "page_no": 6,
     "marks": 25,
-    "text": "Question 5\n(25 marks)\na) Explain the four properties of a transaction.\n(4 marks)\nb) Briefly explain why the database executes Serializable Schedules rather than Serial\nSchedules?\n(3 marks)\nc) Briefly explain the rules in Strict 2 Phase Locking Protocol.\n(3 marks)\nd) Briefly explain what a Cascading Abort is using a sample schedule. What are the causes\nfora Cascading Abort?\n(4 marks)\ne) Consider the transaction schedule below.\n[DIAGRAM: page_006_diagram_1.png]\nAssume that Transaction Ti is higher priority than transaction Ti.i(i.e. transaction T1 has\nhigher priority than T2; and Tz has higher priority than Ts).\ni.\nDraw a Wait-For-Graph for the schedule given above.\n(2 marks)\nii.\nDraw the above schedule considering deadlock prevention algorithm: Wait-die\napproach.\n(3 marks)\nf) Consider the tree shown below. Describe the steps involved in executing each of the\nfollowing operations according to the Simple Tree Locking Algorithm, in term of the order\nin which nodes are locked, unlocked, read and write.\ni.\nSearch 26\n(2 marks)\nii.\nInsert2\n(2 marks)\niii. Delete 44\n(2 marks)\nPage 6 of 7\n30/09/2016\n\n[DIAGRAM: page_007_diagram_1.png]\n-- End of the Question Paper --\n7\nof7\nRaEcict\n30/09/2016",
+    "text": "Question 5 \n(25 marks)\na) Explain the four properties of a transaction.\n(4 marks)\nb) Briefly explain why the database executes Serializable Schedules rather than Serial\nSchedules?\n(3 marks)\nc) Briefly explain the rules in Strict 2 Phase Locking Protocol.\n(3 marks)\nd) Briefly explain what a Cascading Abort is using a sample schedule. What are the causes\nfora Cascading Abort?\n(4 marks)\ne) Consider the transaction schedule below.\n[DIAGRAM: page_006_diagram_1.png]\nAssume that Transaction Ti is higher priority than transaction Ti.i(i.e. transaction T1 has\nhigher priority than T2; and Tz has higher priority than Ts).\ni.\nDraw a Wait-For-Graph for the schedule given above.\n(2 marks)\nii.\nDraw the above schedule considering deadlock prevention algorithm: Wait-die\napproach.\n(3 marks)\nf) Consider the tree shown below. Describe the steps involved in executing each of the\nfollowing operations according to the Simple Tree Locking Algorithm, in term of the order\nin which nodes are locked, unlocked, read and write.\ni.\nSearch 26\n(2 marks)\nii.\nInsert2\n(2 marks)\niii. Delete 44\n(2 marks)\nPage 6 of 7\n30/09/2016\n\n[DIAGRAM: page_007_diagram_1.png]\n-- End of the Question Paper --\n7\nof7\nRaEcict\n30/09/2016",
     "diagram_refs": [
       "page_006_diagram_1.png",
       "page_007_diagram_1.png"
+    ],
+    "subquestions": [
+      {
+        "sub_id": "a)",
+        "marks": 4,
+        "text": "a) Explain the four properties of a transaction.\n(4 marks)"
+      },
+      {
+        "sub_id": "b)",
+        "marks": 3,
+        "text": "b) Briefly explain why the database executes Serializable Schedules rather than Serial\nSchedules?\n(3 marks)"
+      },
+      {
+        "sub_id": "c)",
+        "marks": 3,
+        "text": "c) Briefly explain the rules in Strict 2 Phase Locking Protocol.\n(3 marks)"
+      },
+      {
+        "sub_id": "d)",
+        "marks": 4,
+        "text": "d) Briefly explain what a Cascading Abort is using a sample schedule. What are the causes\nfora Cascading Abort?\n(4 marks)"
+      },
+      {
+        "sub_id": "e)",
+        "marks": 0,
+        "text": "e) Consider the transaction schedule below.\n[DIAGRAM: page_006_diagram_1.png]\nAssume that Transaction Ti is higher priority than transaction Ti.i(i.e. transaction T1 has\nhigher priority than T2; and Tz has higher priority than Ts)."
+      },
+      {
+        "sub_id": "i.",
+        "marks": 2,
+        "text": "i.\nDraw a Wait-For-Graph for the schedule given above.\n(2 marks)"
+      },
+      {
+        "sub_id": "ii.",
+        "marks": 3,
+        "text": "ii.\nDraw the above schedule considering deadlock prevention algorithm: Wait-die\napproach.\n(3 marks)"
+      },
+      {
+        "sub_id": "f)",
+        "marks": 0,
+        "text": "f) Consider the tree shown below. Describe the steps involved in executing each of the\nfollowing operations according to the Simple Tree Locking Algorithm, in term of the order\nin which nodes are locked, unlocked, read and write."
+      },
+      {
+        "sub_id": "i.",
+        "marks": 2,
+        "text": "i.\nSearch 26\n(2 marks)"
+      },
+      {
+        "sub_id": "ii.",
+        "marks": 2,
+        "text": "ii.\nInsert2\n(2 marks)"
+      },
+      {
+        "sub_id": "iii.",
+        "marks": 2,
+        "text": "iii. Delete 44\n(2 marks)\nPage 6 of 7\n30/09/2016\n\n[DIAGRAM: page_007_diagram_1.png]\n-- End of the Question Paper --\n7\nof7\nRaEcict\n30/09/2016"
+      }
     ]
   }
 ]

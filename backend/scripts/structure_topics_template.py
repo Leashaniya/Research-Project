@@ -158,6 +158,14 @@ def main():
         if not data:
             continue
 
+        # FIX: Sanitize question_id and ensure it exists
+        for idx, q in enumerate(data, start=1):
+            qid = q.get("question_id")
+            if qid is None or str(qid).lower() == "none" or str(qid).strip() == "":
+                q["question_id"] = str(idx)
+            else:
+                q["question_id"] = str(qid)
+
         pdf_stem = data[0].get("pdf_stem", d.name)
         papers.append({"pdf_stem": pdf_stem, "questions": data, "path": str(fp)})
 
