@@ -2,44 +2,44 @@
   "2014 (1)_Q1": {
     "cluster": 2,
     "cluster_label_keywords": [
-      "integer",
-      "table",
-      "stores",
-      "table stores",
-      "varchar",
       "account",
-      "id",
-      "char"
+      "number",
+      "customer",
+      "char",
+      "stock",
+      "integer",
+      "branch",
+      "table"
     ],
     "marks": 20,
     "text": "Consider the following relations in a bank database: Branch (bName:char(15), city:varchar(12), phone:varchar(10)) Customer (custno:integer, cName:char(15), gender:char(1), birthday:date) Account (accno:integer, branchname:char(15), acctype:char(1), balance:real) AC (accno:integer, custno:integer) The attributes of the Branch relation are name of the branch (bName), city, and phone. The Customer relation has attributes to record the customer number (custno), name (cName), gender ( M or F ), and birthdate of customers. The Account relations consists of account number (accno), branch name (branchname), account type (acctype) which may be individual (acctype= T ) or joint (acctype= J ), and account balance (balance). The attribute branchname in Account is a foreign key that references Branch; an individual account belongs to a single customer, while a joint account is held by two or more customers. The attribute accro and custno in AC reference the relations Account and Customer respectively. The primary keys of all relations are underlined."
   },
   "2015_Q1": {
-    "cluster": 0,
+    "cluster": 2,
     "cluster_label_keywords": [
-      "int",
-      "varchar",
-      "table",
-      "date",
+      "account",
       "number",
-      "id",
-      "phone",
-      "briefly explain"
+      "customer",
+      "char",
+      "stock",
+      "integer",
+      "branch",
+      "table"
     ],
     "marks": 20,
     "text": "Consider a database schema consisting of the following relations for recording information on the clients of a stock broking firm: Clients (cIno, name, phone) Stocks (scode, sname, price, dividend, eps) BuySell (clno. trdate, trtype, scode, qty, price) StocksOwned (clno, scode, totalgty, totalcost, currval) A tuple in the Clients table consists of a unique client number, name and phone number. Each tuple of Stocks table contains unique stock code, stock name, the current price of a share, dividend per share, and earning per share (eps). Each transaction of a client which may be a buy or a sell of a stock is recorded a tuple in the BuySell table. It contains the client number, transaction date and time, type of transaction (B for buy or S for sell), stock code, number of shares (qty) and price per share for the transaction. The StocksOwned table contains a tuple for each stock a client currently owns, along with the total quantity of the stock, the total cost of purchasing the stock, and its current value. The primary key of each table is underlined."
   },
   "2015 II_Q1": {
-    "cluster": 2,
+    "cluster": 1,
     "cluster_label_keywords": [
-      "integer",
+      "int",
+      "varchar",
       "table",
       "stores",
-      "table stores",
-      "varchar",
-      "account",
       "id",
-      "char"
+      "date",
+      "table stores",
+      "details"
     ],
     "marks": 20,
     "text": "Consider the following schema of a database used in a vehicle rental system. Customers (custld: integer, name: varchar (50), address: varachar (60), phone: char (10)) Vehicles (vehicleld: interger, mileage: double, fuel Type: varchar (10), transmission: varchar (15)) Reservations (cld: integer, vId: integer, startDate: datetime, endDate: datetime, returnDate: datetime) Payments (pld: integer, cId: integer, vId: integer, type: varchar (10), amount: real, date: datetime) Customers table contains attributes to store the id (custld), name, address and the phone number of customers. Vehicles table contains the id (vehicleld), milage, type of fuel and the type of transmission (transmission) for each vehicle. Fuel type attribute stores Petrol, Diesel or Hybrid. The transmission attribute stores either automatic or manual. Reservation table stores information about reservations of vehicles. The table contains information about the vehicles which have been rented (vId), the customers who have reserved vehicles (cId), start dates of the reservations (startDate), the end dates of the reservations (endDate) and the dates the vehicles have been returned by the customer (returnDate). For vehicles that are not returned yet, a null value is stored in the return date field. Payment table stores the payment details of the reservations. The table contains payment id (pId), customer id (cId), vehicle id (vId), type of the payment (type), amount paid and the and the paid date. When customers reserve vehicles they have to make the full payment or a partial payment. If the vehicle is returned late a fine has to be paid for the vehicle. The type attribute of the payment table stores Full, Partial or Fine to show the type of the payment as above. The primary keys of all relations are underlined."
@@ -47,89 +47,89 @@
   "2016_Q1": {
     "cluster": 2,
     "cluster_label_keywords": [
-      "integer",
-      "table",
-      "stores",
-      "table stores",
-      "varchar",
       "account",
-      "id",
-      "char"
+      "number",
+      "customer",
+      "char",
+      "stock",
+      "integer",
+      "branch",
+      "table"
     ],
     "marks": 20,
     "text": "Consider the following schema of a database developed for an airport. Customer (customerId: integer, name: varchar (30), age: int, phone: char (10)) Reservations (flno: char (6), custId: integer) Flights (flno: char (6), from: varchar (30), to: varchar (30), departs: datetime, arrives: datetime, regNo: char (8), pilotId: integer) Aircraft (regNo: char (8), model: varchar (15), capacity: integer, Pilots (id: integer, name: varchar (30), salary: float, flyingHours: integer) The Aircraft table stores the registration number (regNo), model (model) and the number of passengers who can travel in the aircraft (capacity) for each aircraft type. The Flights table stores the flight number (flno), the departing airport (from), destination airport (to), departing time (departs), arrival time (arrives), the registration number of the aircraft (regNo) and the id of the pilot (pilot) related to all flights. Reservations table stores the flight number (flno) and the customer number (custId) for each customer who has reserved a flight. Pilots table stores the id (id), name (name), salary (salary) and the number of hours the pilot have flown (flyingHours) for each pilot. Primary keys of the tables are underlined."
   },
   "2016 II_Q1": {
-    "cluster": 2,
+    "cluster": 1,
     "cluster_label_keywords": [
-      "integer",
+      "int",
+      "varchar",
       "table",
       "stores",
-      "table stores",
-      "varchar",
-      "account",
       "id",
-      "char"
+      "date",
+      "table stores",
+      "details"
     ],
     "marks": 20,
     "text": "Consider the following schema of a database developed for a university. Lecturer (lecturerld: integer, Iname: varchar (30), grade: varchar (20), salary: real, type: varchar (10), department: varchar (30)) Qualifications (lecturerld: integer, qualification: varchar (30)) Course (cid: integer, cname; varchar (25), credits: integer, program: varchar (30)) Teach (lecturerld: integer, cid: integer, year: integer, semester: integer) Lecturer table stores the id (lecturerld), name (Iname), grade ( Assistant Lecturer , Lecturer or Senior Lecturer ), salary, type of the lecturer ( Permanent or Visiting ) and the attached department (such as IT and IS ) for each lecturer in the university. Qualifications table stores information related to the qualifications of lecturers. The table stores the IDs of the lecturers (lecturerld) and the qualifications they have received (such as BSc in IT , MSc in GIS , MBA and Phd in Computer Science ). Course table stores the ID of the course (cid), name (cname), number of credits (credits) and the program the course belongs to (such as BSc in IT , and BEng in Mechanical Engineering ) for each course offered. The Teach table stores information on teaching. For each lecturer teaching a course, the Teach table stores the ID of the lecturer (lecturerld), ID of the course he/she has taught (cid), the year and the semester he/she has taught the course. Lecturerld attribute in Qualifications and Teach tables are foreign keys that references the Lecturer table. Cid attribute in Teach table is a foreign key that references the Course table. All primary keys of the tables are underlined."
   },
   "2017_Q1": {
-    "cluster": 0,
+    "cluster": 2,
     "cluster_label_keywords": [
-      "int",
-      "varchar",
-      "table",
-      "date",
+      "account",
       "number",
-      "id",
-      "phone",
-      "briefly explain"
+      "customer",
+      "char",
+      "stock",
+      "integer",
+      "branch",
+      "table"
     ],
     "marks": 20,
     "text": "Consider the database of a bank that includes the following tables: BRANCH (branchNo: int, address: varchar (50), phone : char (10), manager: varchar(30)) ACCOUNT (aceNo: char (15), type : varchar (10), balance : real, branchNo: int) CUSTOMER (custNo: char (10), name: varchar(25); phone: char (10), address : varchar (50)) OWNS (accNo: char (15), custNo: char (10)) TRANSACTION (accNo: char (15), datetime: datetime, type: varchar (15), amount: real) The table BRANCH contains the branch number (branchNo), address of the branch, phone number (phone), and name of the manager (manager) of all branches of the bank. The ACCOUNT table contains account number (accNo), type of the account ( Savings or Current ), current balance of the account and the branch number of the branch the account is created in (branchNo) for all accounts in the bank. CUSTOMER table contains customer number (custNo), name of the customer, phone number of the customer and the address of each customer of the bank. For each customer owning an account the OWNS table stores the account number (accNo) and the customer number of the customer owning the account (custNo). TRANSACTION table stores the account number (accNo), date and time of the transaction (datetime), type of the transaction ( Credit or Debit ) and the amount of the credit or debit associated with the transaction. The primary keys of the relations are underlined."
   },
   "2017_Q2": {
-    "cluster": 0,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
       "varchar",
       "table",
-      "date",
-      "number",
+      "stores",
       "id",
-      "phone",
-      "briefly explain"
+      "date",
+      "table stores",
+      "details"
     ],
     "marks": 20,
     "text": "Briefly explain a software solution and a hardware solution to improve the performance of a database."
   },
   "2017 II_Q1": {
-    "cluster": 0,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
       "varchar",
       "table",
-      "date",
-      "number",
+      "stores",
       "id",
-      "phone",
-      "briefly explain"
+      "date",
+      "table stores",
+      "details"
     ],
     "marks": 20,
     "text": "Consider the following relations in a database created for a taxi service Vehicle (vehiclelD : char(4), type : varchar(10), fielType: varchar(6), mileage: real) Driver (driverID : char(4), name : varchar(50), phone : char(10)) Customer (customerID : char(4), name: varchar(5), phone :char(10)) Booking (bookingID: int, vehicleID: char(4), driverID: char(4), customerID: char(4), date: datetime, from : varchar(15), to: varchar(15), distance: real) Payment (bookingID: int, fee: real) The database stores information on vehicles owned by the service in the Vehicle table. The table stores a unique vehicle ID (vehicleID), type ( Hatchback , Sedan or Van ), firel type ( Petrol or Diesel ) and the total distance the vehicle have travelled so far (mileage) for each vehicle owned by the service. Information of drivers working at the taxi service is stored in the Driver table. The table stores a unique ID (driverID), name and the phone number of each driver working at the service. For each customer, the service stores a customer ID (customerID) in the Customer table in the database along with the name of the customer and his/her phone number. When a customer books a taxi, the service assigns a unique ID (bookingID) for the booking, and stores the booking ID along with the ID of the driver assigned (driverID), ID of vehicle assigned (vehicleID), customer ID of the customer (customerID), booked date (date), from where the customer is taking the taxi from (from) and the destination the customer want to reach (o) in the Booking table. Once the customer has completed the journey, the distance of the journey is updated in kilometers in the Booking table. Payment table stores the booking ID and the payment to be made for each booking. Use SQL queries to answer following questions."
   },
   "2017 II_Q2": {
-    "cluster": 0,
+    "cluster": 2,
     "cluster_label_keywords": [
-      "int",
-      "varchar",
-      "table",
-      "date",
+      "account",
       "number",
-      "id",
-      "phone",
-      "briefly explain"
+      "customer",
+      "char",
+      "stock",
+      "integer",
+      "branch",
+      "table"
     ],
     "marks": 20,
     "text": "Briefly explain an approach that could be used to minimize seek time and rotational delay in accessing a data file stored in a disk."
@@ -139,8 +139,8 @@
     "cluster_label_keywords": [
       "model",
       "following eer",
-      "eer",
       "eer model",
+      "eer",
       "consider following",
       "relations",
       "consider",
@@ -150,46 +150,46 @@
     "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly."
   },
   "2018_Q2": {
-    "cluster": 1,
+    "cluster": 0,
     "cluster_label_keywords": [
-      "consider relation",
-      "set functional",
-      "set",
       "functional dependencies",
       "functional",
-      "following set",
       "dependencies",
+      "set functional",
+      "set",
+      "following set",
+      "consider relation",
       "relation"
     ],
     "marks": 15,
     "text": "Consider a relation R (A, B, C, D, E), with the following set of functional dependencies over R: F={A BC,BC EE DA }"
   },
   "2018_Q3": {
-    "cluster": 2,
+    "cluster": 1,
     "cluster_label_keywords": [
-      "integer",
+      "int",
+      "varchar",
       "table",
       "stores",
-      "table stores",
-      "varchar",
-      "account",
       "id",
-      "char"
+      "date",
+      "table stores",
+      "details"
     ],
     "marks": 25,
     "text": "Consider the database of a department store that includes the following tables: ITEM table stores details of all items in the store. EMP table stores details of all employees working in the store. DEPT table stores details of all departments. SALES table stores details of all items sold. Write relational algebra statements to answer the following queries"
   },
   "2018_Q4": {
-    "cluster": 0,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
       "varchar",
       "table",
-      "date",
-      "number",
+      "stores",
       "id",
-      "phone",
-      "briefly explain"
+      "date",
+      "table stores",
+      "details"
     ],
     "marks": 40,
     "text": "Consider the following relations in a database created for an online store Customers (cid: char (4), name: varchar (50), phone: char(10), country: varchar(20)) Employees (eid: char (4), ename: varchar (50), phone: char (4), hiredate: date) Orders (oid: int, eid: char (4), cid: char (4), orderDate: date, requiredDate: date, shippedDate: date) OrderDetails (oid: int, productld: char (4), quantity: int, discount: real Products (productld: int,productName: varchar(15),UnitPrice: real unitsInStock: int, ROL:int) The database stored information of their customers in the Customers table. The table contains customer id (cid), name, phone number (phone) and country of each customer of the store. Employee table contains employee id (eid), name (ename), phone number (phone) and the date hired (hiredate) of each employee. Orders table stores a unique id (oid), id of the employee responsible for the order (eid), date the order is placed (orderDate), the date the order is required by the customer (requiredDate) and the date the order is shipped (shippedDate) for each order. OrderDetails table stores order id (oid), product id (productld), quantity of the product ordered (quantity) and any discount obtained for the order (discount). Products table stores the id of product (productld), name of the product (productName), unit price of the product (UnitPrice), number of units available in stock (unitsInStock) and the reorder level (ROL) of each product."
@@ -199,8 +199,8 @@
     "cluster_label_keywords": [
       "model",
       "following eer",
-      "eer",
       "eer model",
+      "eer",
       "consider following",
       "relations",
       "consider",
@@ -210,46 +210,46 @@
     "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly."
   },
   "2018 II_Q2": {
-    "cluster": 1,
+    "cluster": 0,
     "cluster_label_keywords": [
-      "consider relation",
-      "set functional",
-      "set",
       "functional dependencies",
       "functional",
-      "following set",
       "dependencies",
+      "set functional",
+      "set",
+      "following set",
+      "consider relation",
       "relation"
     ],
     "marks": 15,
     "text": "Consider a relation R (A, B, C, D, E, F) with the following set of functional dependencies: F={AB C,A D,B EF,F->B }"
   },
   "2018 II_Q3": {
-    "cluster": 0,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
       "varchar",
       "table",
-      "date",
-      "number",
+      "stores",
       "id",
-      "phone",
-      "briefly explain"
+      "date",
+      "table stores",
+      "details"
     ],
     "marks": 25,
     "text": "Consider the database of a library which rents books and CDs with the following schema: Books (accessNo: int, title: varchar(40), author: varchar(20), publisher: varchar(30)) CDs (accessNo: int, title: varchar(40), publisher: varchar(30)) Member (memNo: int, name: varchar(40), phone: char(10)) Rental (accessNo: int, memNo: int, dateRented: date, dueDate: date, dateReturned: date) Books table stores access number(accessNo), title, author and the publisher of the each Book. CDs table stores the access number (accessNo), title and the publisher of each CD. Member table stores member number (memNo), name and phone number (phone) of each member of the library. Rental table stores the rental details including access number of book/CD (accessNo), member number of the member who had borrowed the book/CD (memNo), the date he/she has rented the book/CD (dateRented), the date on which the book/CD should be returned (dueDate) and the date on which the book is actually returned (dateReturned). Write relational algebra statements to answer the following queries."
   },
   "2018 II_Q4": {
-    "cluster": 0,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
       "varchar",
       "table",
-      "date",
-      "number",
+      "stores",
       "id",
-      "phone",
-      "briefly explain"
+      "date",
+      "table stores",
+      "details"
     ],
     "marks": 40,
     "text": "Consider the following relations in a database created for an online store: Products (pid: int, productName: varchar (15), UnitPrice: real, unitsInStock: int, type: varchar (30)) Suppliers (sid:int, supplierName:varchar(15), phone:char(10),address:varchar(50)) Supplies (sid:int, pid:int, suppliedDate:date,amount:int,purchasePrice:real) SupplierPayments (sid:int, dateToPay:date ,amount:real) The Products table contains id (pid), name (productName) unit price (UnitPrice), units in stock (unitsInStock) and type of product such as dairy and poultry for each product in the store. Suppliers table stores a unique id (sid), name (supplierName), phone and address of each supplier supplying products to the store. Supplies table stores information on supplies made by suppliers. For each supply, the table stores id of the supplier (sid), id of the product supplied (pid), supplied date (suppliedDate), amount of product supplied and the price at which the supplied item is purchased by the store (purchasePrice). SupplierPayment table stores information on payments made to suppliers. For supplies made by the suppliers per day, the SupplierPayment table stores the id of the supplier (sid), date on which the supply is made (suppliedDate) and amount of payment to be made for supplies made within that date. Primary keys of the tables are underlined."
@@ -259,8 +259,8 @@
     "cluster_label_keywords": [
       "model",
       "following eer",
-      "eer",
       "eer model",
+      "eer",
       "consider following",
       "relations",
       "consider",
@@ -270,15 +270,15 @@
     "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly."
   },
   "2019_Q2": {
-    "cluster": 1,
+    "cluster": 0,
     "cluster_label_keywords": [
-      "consider relation",
-      "set functional",
-      "set",
       "functional dependencies",
       "functional",
-      "following set",
       "dependencies",
+      "set functional",
+      "set",
+      "following set",
+      "consider relation",
       "relation"
     ],
     "marks": 15,
@@ -289,8 +289,8 @@
     "cluster_label_keywords": [
       "model",
       "following eer",
-      "eer",
       "eer model",
+      "eer",
       "consider following",
       "relations",
       "consider",
@@ -304,8 +304,8 @@
     "cluster_label_keywords": [
       "model",
       "following eer",
-      "eer",
       "eer model",
+      "eer",
       "consider following",
       "relations",
       "consider",
@@ -319,8 +319,8 @@
     "cluster_label_keywords": [
       "model",
       "following eer",
-      "eer",
       "eer model",
+      "eer",
       "consider following",
       "relations",
       "consider",
@@ -330,15 +330,15 @@
     "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly."
   },
   "2019 II_Q2": {
-    "cluster": 1,
+    "cluster": 0,
     "cluster_label_keywords": [
-      "consider relation",
-      "set functional",
-      "set",
       "functional dependencies",
       "functional",
-      "following set",
       "dependencies",
+      "set functional",
+      "set",
+      "following set",
+      "consider relation",
       "relation"
     ],
     "marks": 15,
@@ -349,8 +349,8 @@
     "cluster_label_keywords": [
       "model",
       "following eer",
-      "eer",
       "eer model",
+      "eer",
       "consider following",
       "relations",
       "consider",
@@ -364,8 +364,8 @@
     "cluster_label_keywords": [
       "model",
       "following eer",
-      "eer",
       "eer model",
+      "eer",
       "consider following",
       "relations",
       "consider",
@@ -379,8 +379,8 @@
     "cluster_label_keywords": [
       "model",
       "following eer",
-      "eer",
       "eer model",
+      "eer",
       "consider following",
       "relations",
       "consider",
@@ -390,31 +390,31 @@
     "text": "Consider the following EER Model."
   },
   "2023_Q2": {
-    "cluster": 1,
+    "cluster": 0,
     "cluster_label_keywords": [
-      "consider relation",
-      "set functional",
-      "set",
       "functional dependencies",
       "functional",
-      "following set",
       "dependencies",
+      "set functional",
+      "set",
+      "following set",
+      "consider relation",
       "relation"
     ],
     "marks": 15,
     "text": "Consider a relation R (P, Q, R, S, T) with the following set of functional dependencies over R: F = {PR->Q, R->S, P->T}"
   },
   "2023_Q4": {
-    "cluster": 0,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
       "varchar",
       "table",
-      "date",
-      "number",
+      "stores",
       "id",
-      "phone",
-      "briefly explain"
+      "date",
+      "table stores",
+      "details"
     ],
     "marks": 40,
     "text": "Consider the following schema of a database designed for a hotel: Guest (guestId: int, fname: varchar(50), lastName: varchar(50), phone: int, email: varchar(50), address: varchar(100)) Room (roomNum: int, roomType: varchar(20), bedType: varchar(50), price: real, isOccupied: boolean) Booking (bookingId: int, guestId: int, roomNum: int, checkInDate: date, checkOutDate: date, totalAmount: real) Bill (billNum: int, bookingId: int, totalAmount: real, paymentMethod: varchar(50), paymentStatus: varchar(50)) Receptionist (repId: int, name: varchar(20), phone: int, address: varchar(30)) The 'Guest' table is designed to store information about the hotel's guests, including their unique guest ID, first name, last name, phone number, email address, and physical address. The 'Room' table tracks details about the hotel's rooms. It includes information such as the room number, room type, bed type, price per night, and a flag (boolean) indicating whether the room is currently occupied. The 'Booking' table manages guest reservations. Each booking is assigned a unique ID and is associated with a specific guest (via guestId) and a room (via roomNum). It also records the check-in and check-out dates, as well as the total booking amount. The 'Bill' table handles billing information for guest stays. It connects to a particular booking (via bookingId) and stores the bill number, the total amount to be paid, the payment method, and the payment status. The 'Receptionist' table contains details about hotel receptionist, with each staff member having a unique ID, name, phone number, and address. This allows the system to keep track of receptionists or other staff members involved in hotel operations."
@@ -424,8 +424,8 @@
     "cluster_label_keywords": [
       "model",
       "following eer",
-      "eer",
       "eer model",
+      "eer",
       "consider following",
       "relations",
       "consider",
@@ -435,31 +435,31 @@
     "text": "Consider the following EER Model."
   },
   "2023 II_Q2": {
-    "cluster": 1,
+    "cluster": 0,
     "cluster_label_keywords": [
-      "consider relation",
-      "set functional",
-      "set",
       "functional dependencies",
       "functional",
-      "following set",
       "dependencies",
+      "set functional",
+      "set",
+      "following set",
+      "consider relation",
       "relation"
     ],
     "marks": 15,
     "text": "Consider a relation R (A, B, C, D, E, F, G) with the following set of functional dependencies over R: F = {A->BC, B->D, C->EF, AC->G}"
   },
   "2023 II_Q4": {
-    "cluster": 0,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
       "varchar",
       "table",
-      "date",
-      "number",
+      "stores",
       "id",
-      "phone",
-      "briefly explain"
+      "date",
+      "table stores",
+      "details"
     ],
     "marks": 40,
     "text": "Consider the following schema of a database designed for a university: Students (studentId: int, name: varchar(40), email: varchar(30), dob: date, specialization: int, GPA: real) Courses (courseId: int, name: varchar(40), credits: int) Offer (specialization: int, courseId: int, acYear: int, semester: int) Grades (studentId: int, courseId: int, acYear: int, calYear: int, semester: int, status: varchar(10), CAMarks: int, finalMark: int, grade: char(1)) GradePoints (grade: char(1), gradePoint: real) Enrollment (studentId: int, courseId: int, calYear: int, semester: int, basis: varchar(30))"
@@ -469,8 +469,8 @@
     "cluster_label_keywords": [
       "model",
       "following eer",
-      "eer",
       "eer model",
+      "eer",
       "consider following",
       "relations",
       "consider",
@@ -480,33 +480,93 @@
     "text": "Consider the following EER Model."
   },
   "2024_Q2": {
-    "cluster": 1,
+    "cluster": 0,
     "cluster_label_keywords": [
-      "consider relation",
-      "set functional",
-      "set",
       "functional dependencies",
       "functional",
-      "following set",
       "dependencies",
+      "set functional",
+      "set",
+      "following set",
+      "consider relation",
       "relation"
     ],
     "marks": 15,
     "text": "Consider a relation R (ProjectNo, ProjectName, EmpNo, EmpName, DeptNo, DeptName, HrsWork) with the following set of functional dependencies F over R: F={ ProjecNo->ProjectName DeptNo->DeptName EmpNo->EmpName, DeptNo, DeptName, HrsWork}"
   },
   "2024_Q4": {
-    "cluster": 0,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
       "varchar",
       "table",
-      "date",
-      "number",
+      "stores",
       "id",
-      "phone",
-      "briefly explain"
+      "date",
+      "table stores",
+      "details"
     ],
     "marks": 40,
     "text": "Consider the following schema of a database designed for a Library: Book (bookId: int, title: varchar(100), author: varchar(100), isbn: varchar(20), publicationYear: int, genre: varchar(50), availableCopies: int) Member (memberId: int, firstName: varchar(50), lastName: varchar(50), email: varchar(50), phone: int, address: varchar(100)) Loan (loanId: int, bookId: int, memberId: int, loanDate: date, dueDate: date, returnDate: date) Fine (fineId: int, memberId: int, amount: real, paymentStatus: varchar(50)) Librarian (librarianId: int, name: varchar(50), email: varchar(50), phone: int, address: varchar(100))"
+  },
+  "2024 II_Q1": {
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "int",
+      "varchar",
+      "table",
+      "stores",
+      "id",
+      "date",
+      "table stores",
+      "details"
+    ],
+    "marks": 20,
+    "text": "The Computer Science Students at SLIIT are planning to design a database to produce music albums. The students have come up with the following requirements. The students who have talent in music (i.e. singing, playing an instrument, etc..) are named as student musician. All student musicians are capable of singing songs. In addition, some of them play instruments and some of them act as producers when albums are produced. For each student musician a unique identification number, name and address are recorded. For those who play instruments, their specialization, and the duration that they play should be stored. For each instrument, a unique identification number and the name (e.g., guitar, violin, flute, etc.) are recorded. Each student capable of playing instruments may play several instruments, and a given instrument is played by one student. A student who plays instruments may supervise several other such students. Each album has a unique identification number, title, copyright date and a format (e.g., CD or MC). Each album has one student who acts as its producer. A student may produce several albums. Each album has several songs on it and a song appears on one album. The date that the songs are recorded on the album should be known. For each song a unique identification number, the title and the author are recorded. Each song is sung by one or more students, and a student sings several songs. The number of times that a song is sung should be recorded. Each song may have several melody types. For each melody type, the tempo, and the key for that song (e.g. C major, D minor etc.) are recorded. Different songs may have the same key."
+  },
+  "2024 II_Q2": {
+    "cluster": 0,
+    "cluster_label_keywords": [
+      "functional dependencies",
+      "functional",
+      "dependencies",
+      "set functional",
+      "set",
+      "following set",
+      "consider relation",
+      "relation"
+    ],
+    "marks": 20,
+    "text": "Consider the following relation schema Investment and the functional dependencies FD1, FD2 and FD3. Investment (A, W, O, L, S, D) Here: A - Agent W - Work station of Agent O - Land Owner L - Name of the land S - Size of the land owned by the owner, D - Dividend paid for the land FD1: L → D FD2: A → W FD3: {O,L} → {A,S}"
+  },
+  "2024 II_Q4": {
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "int",
+      "varchar",
+      "table",
+      "stores",
+      "id",
+      "date",
+      "table stores",
+      "details"
+    ],
+    "marks": 20,
+    "text": "Consider the following relational database schema containing airline flight information. Here the passenger relation gives the details of the passengers who book flights. The agency relation keeps the details of agent who books a flight for a passenger. The flight relation stores the details of each available flight. The booking relation stores required booking details. passenger (pid, pname, pgender, pcity) agency (aid, aname, acity) flight (fid, fdate, time, departs, arrives) booking (pid, aid, fid, fdate)"
+  },
+  "2024 II_Q5": {
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "int",
+      "varchar",
+      "table",
+      "stores",
+      "id",
+      "date",
+      "table stores",
+      "details"
+    ],
+    "marks": 20,
+    "text": "A file has r = 20,000 STUDENT records of fixed length. Each record has the following fields: Name (30 bytes), Stno (9 bytes), Address (40 bytes), Phone (10 bytes), Birth date (8 bytes), Gender (1 byte), Major_dept code (4 bytes), Minor_dept code (4 bytes), Class_code (4 bytes), and Degree program (3 bytes). An additional byte is used as a deletion marker. Assume that this file is stored on a disk with block size 512 bytes using an unspanned organization."
   }
 }

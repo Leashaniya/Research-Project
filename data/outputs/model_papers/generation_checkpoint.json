@@ -1,14 +1,21 @@
 {
   "questions": [
     {
-      "question_no": "None",
+      "question_no": "Q1",
       "marks": 20,
-      "text": "Convert the given EER model to a relational model. Indicate the primary keys and foreign keys of the resulted relations clearly.\n\n[Diagram: page_002_diagram_1.png]\n\nOutput JSON:\n{\n    \"question_no\": \"None\",\n    \"marks\": 20,\n    \"text\": \"...\n}"
-    },
-    {
-      "question_no": "None",
-      "marks": 17,
-      "text": "Normalization process analyzes schemas based on keys and on the functional dependencies among their attributes. A key constraint is a special case of a FD where the attributes in the key play the role of X and the set of all attributes play the role of Y. Consider a relation R (A, B, C, D), with the following set of functional dependencies over R: \n{A \u2192B, B \u2192C, CD \u2192E} \n\n(a) Compute the keys for relation R. (5 marks)\n\n(b) What is the primary key of relation R? (4 marks)\n\n(c) Explain why normalization is based on functional dependencies. (4 marks)\n\n(d) Consider a person entity. Write three functional dependencies that can exist in a person table. (4 marks)"
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "List the three types of relationships that can be represented in an ER diagram for the vehicle rental system scenario.",
+          "marks": 5
+        },
+        {
+          "label": "b",
+          "text": "Design an EER model for the vehicle rental system scenario, including the ternary relationship between customers, vehicles, and payments. Ensure that all relationships are necessary and represent different meanings. Also, include the binary relationships as required.",
+          "marks": 15
+        }
+      ],
+      "text": "a) List the three types of relationships that can be represented in an ER diagram for the vehicle rental system scenario. (5 marks)\nb) Design an EER model for the vehicle rental system scenario, including the ternary relationship between customers, vehicles, and payments. Ensure that all relationships are necessary and represent different meanings. Also, include the binary relationships as required. (15 marks)"
     }
   ]
 }

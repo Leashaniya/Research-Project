@@ -55,9 +55,9 @@ class QualityCritic(BaseAgent):
         {context}
         
         Checklist:
-        1. MATHEMATICS: If there are sub-questions (a, b, c...), do their individual marks sum up EXACTLY to {draft.get('marks')}? This is the most important rule.
-        2. CONTENT: Is the answer findable in the Reference Material? (No Hallucinations).
-        3. STRUCTURE: If it is a main question with no sub-questions, it is acceptable if it justifies the total marks of {draft.get('marks')}.
+        1. MATHEMATICS: Iterate through the 'subquestions' list. Do their individual 'marks' sum up EXACTLY to {draft.get('marks')}? This is the most important rule.
+        2. CONTENT: Is the answer for each sub-question findable in the Reference Material? (No Hallucinations).
+        3. STRUCTURE: Ensure sub-questions are labeled (a, b, c...) and have clear text.
         4. MARK DISTRIBUTION: Be lenient on "fairness". As long as the harder parts have more marks and it sums to {draft.get('marks')}, APPROVE it.
         
         If REJECTED, provide specific feedback on how to fix it.

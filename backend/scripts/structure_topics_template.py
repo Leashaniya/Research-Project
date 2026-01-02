@@ -262,6 +262,7 @@ def main():
                 "target_marks": slot_stats[pos]["target_marks"],
                 "typical_num_subquestions": slot_stats[pos]["typical_num_subquestions"],
                 "num_samples": slot_stats[pos]["num_samples"],
+                "topics": ["General"] # Placeholder to be updated after Step 4
             }
             for pos in sorted(slot_stats)
         ]
@@ -283,7 +284,7 @@ def main():
     question_meta = []
 
     for p in papers_good:
-        for q in p["questions"]:
+        for pos, q in enumerate(p["questions"], start=1):
             txt = clean_for_vector(q.get("text", ""))
             if len(txt.split()) < MIN_WORDS_QUESTION_TEXT:
                 continue
@@ -291,6 +292,7 @@ def main():
             question_meta.append({
                 "pdf_stem": p["pdf_stem"],
                 "question_id": str(q.get("question_id")),
+                "question_pos": pos,
                 "marks": compute_main_marks(q),
             })
 
@@ -326,6 +328,29 @@ def main():
         encoding="utf-8"
     )
     print("✅ Saved topic_assignments.json")
+
+    # UPDATE BLUEPRINT WITH TOPICS
+    # Find most common cluster for each position
+    pos_clusters = {}
+    for meta, label in zip(question_meta, labels):
+        pos = meta["question_pos"]
+        if pos not in pos_clusters: pos_clusters[pos] = []
+        pos_clusters[pos].append(int(label))
+    
+    for slot in exam_blueprint["question_slots"]:
+        pos = slot["position"]
+        if pos in pos_clusters:
+            most_common_cluster = Counter(pos_clusters[pos]).most_common(1)[0][0]
+            # Map cluster ID to its top keywords for better research
+            keywords = cluster_terms[most_common_cluster][:3]
+            slot["topics"] = keywords if keywords else ["General"]
+    
+    # Re-save blueprint with topics
+    (OUT_ROOT / "exam_blueprint_template.json").write_text(
+        json.dumps(exam_blueprint, indent=2, ensure_ascii=False),
+        encoding="utf-8"
+    )
+    print("✅ Updated exam_blueprint_template.json with discovered topics")
 
 
     # ==========================================================

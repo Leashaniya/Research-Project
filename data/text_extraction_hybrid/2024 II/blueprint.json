@@ -23,10 +23,5 @@
     "qno": 5,
     "marks": 20,
     "text": "A file has r = 20,000 STUDENT records of fixed length. Each record has the following fields: Name (30 bytes), Stno (9 bytes), Address (40 bytes), Phone (10 bytes), Birth date (8 bytes), Gender (1 byte), Major_dept code (4 bytes), Minor_dept code (4 bytes), Class_code (4 bytes), and Degree program (3 bytes). An additional byte is used as a deletion marker. Assume that this file is stored on a disk with block size 512 bytes using an unspanned organization."
-  },
-  {
-    "qno": 5,
-    "marks": 20,
-    "text": ""
   }
 ]

@@ -1,10 +1,10 @@
 {
   "component": "model_exam_paper",
   "canonical_total_marks": 100,
-  "canonical_num_questions": 4,
+  "canonical_num_questions": 5,
   "note": {
-    "good_papers_used": 14,
-    "skipped_papers": 1,
+    "good_papers_used": 15,
+    "skipped_papers": 0,
     "rule": "Only papers with total=100 and missing_marks=0 were used for structure + topics"
   },
   "question_slots": [
@@ -13,28 +13,60 @@
       "position": 1,
       "target_marks": 20,
       "typical_num_subquestions": 2,
-      "num_samples": 14
+      "num_samples": 15,
+      "topics": [
+        "model",
+        "following eer",
+        "eer model"
+      ]
     },
     {
       "slot_id": "Q2",
       "position": 2,
-      "target_marks": 17,
+      "target_marks": 20,
       "typical_num_subquestions": 3,
-      "num_samples": 14
+      "num_samples": 15,
+      "topics": [
+        "functional dependencies",
+        "functional",
+        "dependencies"
+      ]
     },
     {
       "slot_id": "Q3",
       "position": 3,
-      "target_marks": 23,
+      "target_marks": 22,
       "typical_num_subquestions": 5,
-      "num_samples": 14
+      "num_samples": 15,
+      "topics": [
+        "int",
+        "varchar",
+        "table"
+      ]
     },
     {
       "slot_id": "Q4",
       "position": 4,
-      "target_marks": 40,
+      "target_marks": 20,
       "typical_num_subquestions": 4,
-      "num_samples": 14
+      "num_samples": 15,
+      "topics": [
+        "int",
+        "varchar",
+        "table"
+      ]
+    },
+    {
+      "slot_id": "Q5",
+      "position": 5,
+      "target_marks": 18,
+      "typical_num_subquestions": 7,
+      "num_samples": 8,
+      "topics": [
+        "int",
+        "varchar",
+        "table"
+      ]
     }
   ]
 }

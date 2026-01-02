@@ -245,14 +245,7 @@
         "marks": 2,
         "text": "Assume that the file is ordered by Stno; by doing a binary search, calculate the time it takes to search for a record given its Stno value.",
         "subquestions": []
-      }
-    ]
-  },
-  {
-    "qno": 5,
-    "marks": 20,
-    "text": "",
-    "subquestions": [
+      },
       {
         "label": "b)",
         "marks": 2,

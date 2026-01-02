@@ -72,10 +72,16 @@ class QuestionWriter(BaseAgent):
         Generate ONE university exam question.
         
         Specifications:
-        - Question Number: {slot.get('question_no')}
+        - Question Number: {slot.get('question_no') or slot.get('slot_id') or "Q?"}
         - Marks: {slot.get('target_marks')}
         - Type: {template.get('pattern_label', 'General')}
         - Topic Context: {context}
+        
+        CRITICAL AUTHENTICITY RULE:
+        SLIIT papers usually follow a "50/50" split for sub-questions:
+        1. RECALL: (e.g. List 3 properties, Define X, Identify entities). 
+        2. APPLY/DESIGN: (e.g. Construct EER, Calculate blocks, Map to relational).
+        Ensure this specific question includes at least one sub-question that asks for a definition or listing to match historical standards.
         
         CRITICAL RULE:
         - If you create sub-questions (e.g. a, b, c), their marks MUST sum up exactly to {slot.get('target_marks')}.
@@ -91,7 +97,18 @@ class QuestionWriter(BaseAgent):
         {{
             "question_no": "{slot.get('question_no')}",
             "marks": {slot.get('target_marks')},
-            "text": "..."
+            "subquestions": [
+                {{
+                    "label": "a",
+                    "text": "...",
+                    "marks": 5
+                }},
+                {{
+                    "label": "b",
+                    "text": "...",
+                    "marks": 15
+                }}
+            ]
         }}
         """
         

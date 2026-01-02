@@ -2,6 +2,7 @@ import time
 import json
 from pathlib import Path
 from app.agents import BlueprintAnalyst, ContentResearcher, QuestionWriter, QualityCritic
+from app.services.pdf_service import PDFService
 import random
 from app.core.paths import OUTPUTS_DIR, ARTIFACTS_DIR
 
@@ -65,6 +66,23 @@ class AgentOrchestrator:
         selected = random.choice(matches)
         return selected
 
+    def _render_question(self, draft):
+        """Convert structured subquestions into a beautiful string."""
+        main_q_no = draft.get("question_no", "?")
+        sub_qs = draft.get("subquestions", [])
+        
+        if not sub_qs:
+            return draft.get("text", "...")
+            
+        lines = []
+        for sq in sub_qs:
+            label = sq.get("label", "?")
+            text = sq.get("text", "...")
+            marks = sq.get("marks", 0)
+            lines.append(f"{label}) {text} ({marks} marks)")
+            
+        return "\n".join(lines)
+
     async def run_pipeline(self):
         print("\n--- AGENTIC PIPELINE STARTED ---\n")
         
@@ -91,7 +109,16 @@ class AgentOrchestrator:
             target_marks = slot.get("target_marks")
 
             # Check if already in checkpoint
-            if any(str(q.get("question_no")) == str(q_no) for q in final_questions):
+            # Robust check: handle "Q1" vs "1" or "None"
+            checkpoint_match = False
+            for q in final_questions:
+                saved_no = str(q.get("question_no", "")).replace("Q", "")
+                current_no = str(q_no).replace("Q", "")
+                if saved_no == current_no:
+                    checkpoint_match = True
+                    break
+            
+            if checkpoint_match:
                 print(f"⏩ Skipping {q_no} (Already in checkpoint)")
                 continue
 
@@ -143,6 +170,10 @@ class AgentOrchestrator:
             if not approved:
                 print(f"⚠️ {q_no} forced approval after max retries.")
             
+            # 2c. RENDER the question for final display
+            draft["question_no"] = q_no
+            draft["text"] = self._render_question(draft)
+            
             final_questions.append(draft)
             total_marks += int(draft.get("marks", 0))
 
@@ -162,7 +193,15 @@ class AgentOrchestrator:
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(paper, f, indent=2)
             
-        print(f"\n✅ Paper generated: {out_path}")
+        print(f"\n✅ JSON Paper generated: {out_path}")
+
+        # 4. PDF EXPORT
+        pdf_path = str(out_path).replace(".json", ".pdf")
+        try:
+            PDFService.generate_pdf(paper, pdf_path)
+            print(f"✅ PDF Paper generated: {pdf_path}")
+        except Exception as e:
+            print(f"⚠️ PDF Export failed: {e}")
 
         # CLEANUP: Delete checkpoint
         if self.checkpoint_path.exists():

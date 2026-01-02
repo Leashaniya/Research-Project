@@ -1,17 +1,17 @@
 {
   "top_clusters": [
     {
-      "cluster_id": 0,
-      "count": 11,
+      "cluster_id": 1,
+      "count": 14,
       "label_keywords": [
         "int",
         "varchar",
         "table",
-        "date",
-        "number",
+        "stores",
         "id",
-        "phone",
-        "briefly explain"
+        "date",
+        "table stores",
+        "details"
       ]
     },
     {
@@ -20,8 +20,8 @@
       "label_keywords": [
         "model",
         "following eer",
-        "eer",
         "eer model",
+        "eer",
         "consider following",
         "relations",
         "consider",
@@ -29,16 +29,16 @@
       ]
     },
     {
-      "cluster_id": 1,
-      "count": 7,
+      "cluster_id": 0,
+      "count": 8,
       "label_keywords": [
-        "consider relation",
-        "set functional",
-        "set",
         "functional dependencies",
         "functional",
-        "following set",
         "dependencies",
+        "set functional",
+        "set",
+        "following set",
+        "consider relation",
         "relation"
       ]
     },
@@ -46,14 +46,14 @@
       "cluster_id": 2,
       "count": 5,
       "label_keywords": [
-        "integer",
-        "table",
-        "stores",
-        "table stores",
-        "varchar",
         "account",
-        "id",
-        "char"
+        "number",
+        "customer",
+        "char",
+        "stock",
+        "integer",
+        "branch",
+        "table"
       ]
     }
   ]
