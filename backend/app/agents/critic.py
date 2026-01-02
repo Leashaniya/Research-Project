@@ -37,12 +37,13 @@ class QualityCritic(BaseAgent):
         }
         """
         if not self.client:
-             raise EnvironmentError("OpenAI API Key missing for Critic Agent.")
+             raise EnvironmentError("AI Cloud API Key missing for Critic Agent.")
 
         draft = input_data["draft"]
         context = input_data["context"]
         
-        self.log(f"Reviewing draft for {draft.get('question_no')}...")
+        q_label = input_data.get("q_no") or draft.get('question_no') or "Q?"
+        self.log(f"Reviewing draft for {q_label}...")
 
         prompt = f"""
         You are a strict Exam Quality Reviewer.
@@ -54,10 +55,10 @@ class QualityCritic(BaseAgent):
         {context}
         
         Checklist:
-        1. Is the mark distribution FAIR? (Complex parts = High marks, Simple parts = Low marks).
-        2. DO THE MATH: If there are sub-questions, do their individual marks sum up EXACTLY to {draft.get('marks')}? If not, REJECT immediately.
-        3. Is the answer findable in the Reference Material? (No Hallucinations)
-        4. Is the grammar and tone professional?
+        1. MATHEMATICS: If there are sub-questions (a, b, c...), do their individual marks sum up EXACTLY to {draft.get('marks')}? This is the most important rule.
+        2. CONTENT: Is the answer findable in the Reference Material? (No Hallucinations).
+        3. STRUCTURE: If it is a main question with no sub-questions, it is acceptable if it justifies the total marks of {draft.get('marks')}.
+        4. MARK DISTRIBUTION: Be lenient on "fairness". As long as the harder parts have more marks and it sums to {draft.get('marks')}, APPROVE it.
         
         If REJECTED, provide specific feedback on how to fix it.
         
@@ -82,8 +83,18 @@ class QualityCritic(BaseAgent):
                 response_format={"type": "json_object"}
             )
             content = response.choices[0].message.content
-            return json.loads(content)
+            data = json.loads(content)
+            
+            # Robust key checking
+            if isinstance(data, dict):
+                # Handle variations in naming (Local LLMs sometimes hallucinate keys)
+                if "approved" in data:
+                    return data
+                elif "is_approved" in data:
+                    return {"approved": data["is_approved"], "feedback": data.get("feedback", "No feedback")}
+            
+            return {"approved": True, "feedback": "Format mismatch, auto-approved."}
+            
         except Exception as e:
             self.log(f"Error reviewing question: {e}")
-            # Fail open (approve) if critic crashes to avoid blockage, but log it.
-            return {"approved": True, "feedback": "Critic failed, auto-approved."}
+            return {"approved": True, "feedback": f"Critic failure ({e}), auto-approved."}

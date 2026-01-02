@@ -1,10 +1,10 @@
 {
   "component": "model_exam_paper",
   "canonical_total_marks": 100,
-  "canonical_num_questions": 5,
+  "canonical_num_questions": 4,
   "note": {
-    "good_papers_used": 11,
-    "skipped_papers": 4,
+    "good_papers_used": 14,
+    "skipped_papers": 1,
     "rule": "Only papers with total=100 and missing_marks=0 were used for structure + topics"
   },
   "question_slots": [
@@ -12,36 +12,29 @@
       "slot_id": "Q1",
       "position": 1,
       "target_marks": 20,
-      "typical_num_subquestions": 0,
-      "num_samples": 11
+      "typical_num_subquestions": 2,
+      "num_samples": 14
     },
     {
       "slot_id": "Q2",
       "position": 2,
-      "target_marks": 20,
-      "typical_num_subquestions": 0,
-      "num_samples": 11
+      "target_marks": 17,
+      "typical_num_subquestions": 3,
+      "num_samples": 14
     },
     {
       "slot_id": "Q3",
       "position": 3,
-      "target_marks": 22,
-      "typical_num_subquestions": 0,
-      "num_samples": 11
+      "target_marks": 23,
+      "typical_num_subquestions": 5,
+      "num_samples": 14
     },
     {
       "slot_id": "Q4",
       "position": 4,
-      "target_marks": 20,
-      "typical_num_subquestions": 0,
-      "num_samples": 11
-    },
-    {
-      "slot_id": "Q5",
-      "position": 5,
-      "target_marks": 18,
-      "typical_num_subquestions": 0,
-      "num_samples": 6
+      "target_marks": 40,
+      "typical_num_subquestions": 4,
+      "num_samples": 14
     }
   ]
 }

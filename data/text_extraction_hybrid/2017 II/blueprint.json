@@ -1,175 +1,27 @@
 [
   {
-    "question_id": "1",
-    "pdf_stem": "2017 II",
-    "page_no": 2,
+    "qno": 1,
     "marks": 20,
-    "text": "Question 1 \n(20 Marks)\nConsider the following relations in a database created for a taxi service\nVehicle (vehiclelD : char(4), type\n: varchar(10), fielType: varchar(6), mileage: real)\nDriver (driverID : char(4), name\n: varchar(50), phone\n: char(10))\nCustomer (customerID\n: char(4), name: varchar(5), phone :char(10))\nBooking (bookingID:\nint,\nvehicleID:\nchar(4), driverID: char(4), customerID:\nchar(4),\ndate:\ndatetime, from\n: varchar(15), to: varchar(15), distance: real)\nPayment (bookingID: int, fee: real)\nThe database stores information on vehicles owned by the service in the Vehicle table. The table stores a\nunique vehicle ID (vehicleID), type ( Hatchback ,  Sedan  or  Van ), firel type ( Petrol  or  Diesel ) and the\ntotal distance the vehicle have travelled so far (mileage) for each vehicle owned by the service. Information\nof drivers working at the taxi service is stored in the Driver table. The table stores a unique ID (driverID),\nname and the phone number of each driver working at the service. For each customer, the service stores a\ncustomer ID (customerID) in the Customer table in the database along with the name of the customer and\nhis/her phone number. When a customer books a taxi, the service assigns a unique ID (bookingID) for the\nbooking,\nand stores the booking ID along with the ID of the driver assigned (driverID), ID of vehicle\nassigned (vehicleID), customer ID of the customer (customerID), booked date (date), from where the\ncustomer is taking the taxi from (from) and the destination the customer want to reach (o) in the Booking\ntable. Once the customer has completed the journey, the distance of the journey is updated in kilometers in\nthe Booking table. Payment table stores the booking ID and the payment to be made for each booking.\nUse SQL queries to answer following questions.\ni. Find the names of the customers who has booked the vehicle number V001  to reach\nMaharagama\n(2 marks)\nii. For each driver who had driven a  Sedan  for a total distance exceeding 5000km display\nthe name of the driver and the total distance he had driven.\n(4 marks)\niii.Find the ID and type of all vehicles which have been only booked for travelling more\nthan 100 kilometers between 1% January 2016 and 315 December 2016.\n(3 marks)\nb)\nThe charging scheme for the taxis booked with the taxi service is as follows: Initial charge for\nthe taxi is Rs. 300 and the customer can travel for Skms without an additional payment. For\neach km travelled after the first Skm, a payment of Rs.50 per kilometer would be charged.\nCreate a stored procedure to calculate the payment due for a booking, given the distance the\ncustomer has travelled and the booking ID, and store the payment amount to be made along\nwith the booking ID in the Payment table.\n(5 marks)\n)\nCreate a trigger to update the mileage of the vehicle assigned and add a record to the payment\ntable (use the stored procedure created in part b)), assuming that the Booking table is only\nupdated when the distance is assigned at the completion of a booking.\n(6 marks)\nPage2of 7",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "sub_id": "i.",
-        "marks": 2,
-        "text": "i. Find the names of the customers who has booked the vehicle number V001  to reach\nMaharagama\n(2 marks)"
-      },
-      {
-        "sub_id": "ii.",
-        "marks": 4,
-        "text": "ii. For each driver who had driven a  Sedan  for a total distance exceeding 5000km display\nthe name of the driver and the total distance he had driven.\n(4 marks)"
-      },
-      {
-        "sub_id": "iii.",
-        "marks": 3,
-        "text": "iii.Find the ID and type of all vehicles which have been only booked for travelling more\nthan 100 kilometers between 1% January 2016 and 315 December 2016.\n(3 marks)"
-      },
-      {
-        "sub_id": "b)",
-        "marks": 11,
-        "text": "b)\nThe charging scheme for the taxis booked with the taxi service is as follows: Initial charge for\nthe taxi is Rs. 300 and the customer can travel for Skms without an additional payment. For\neach km travelled after the first Skm, a payment of Rs.50 per kilometer would be charged.\nCreate a stored procedure to calculate the payment due for a booking, given the distance the\ncustomer has travelled and the booking ID, and store the payment amount to be made along\nwith the booking ID in the Payment table.\n(5 marks)\n)\nCreate a trigger to update the mileage of the vehicle assigned and add a record to the payment\ntable (use the stored procedure created in part b)), assuming that the Booking table is only\nupdated when the distance is assigned at the completion of a booking.\n(6 marks)\nPage2of 7"
-      }
-    ]
+    "text": "Consider the following relations in a database created for a taxi service Vehicle (vehiclelD : char(4), type : varchar(10), fielType: varchar(6), mileage: real) Driver (driverID : char(4), name : varchar(50), phone : char(10)) Customer (customerID : char(4), name: varchar(5), phone :char(10)) Booking (bookingID: int, vehicleID: char(4), driverID: char(4), customerID: char(4), date: datetime, from : varchar(15), to: varchar(15), distance: real) Payment (bookingID: int, fee: real) The database stores information on vehicles owned by the service in the Vehicle table. The table stores a unique vehicle ID (vehicleID), type ( Hatchback ,  Sedan  or  Van ), firel type ( Petrol  or  Diesel ) and the total distance the vehicle have travelled so far (mileage) for each vehicle owned by the service. Information of drivers working at the taxi service is stored in the Driver table. The table stores a unique ID (driverID), name and the phone number of each driver working at the service. For each customer, the service stores a customer ID (customerID) in the Customer table in the database along with the name of the customer and his/her phone number. When a customer books a taxi, the service assigns a unique ID (bookingID) for the booking, and stores the booking ID along with the ID of the driver assigned (driverID), ID of vehicle assigned (vehicleID), customer ID of the customer (customerID), booked date (date), from where the customer is taking the taxi from (from) and the destination the customer want to reach (o) in the Booking table. Once the customer has completed the journey, the distance of the journey is updated in kilometers in the Booking table. Payment table stores the booking ID and the payment to be made for each booking. Use SQL queries to answer following questions."
   },
   {
-    "question_id": "2",
-    "pdf_stem": "2017 II",
-    "page_no": 3,
+    "qno": 2,
     "marks": 20,
-    "text": "Question 2 \n(20 marks)\nBriefly explain an approach that could be used to minimize seek time and rotational delay in\naccessing a data file stored in a disk.\n(3 marks)\na)\nb)\nData striping is a techniques used in RAID to improve the reliability  Do you agree with this\nstatement? Justify your answer.\n(2 marks)\n)\nConsider a disk with a block size of 512 bytes, 400 tracks per surface, 20 sectors per track and\n15 double-sided platters. Seek time is 30 msec. Suppose that the sector size is 256 bytes is\nchosen. Suppose the disk drive rotates the disk head at a speed of 2400rpm (revolutions per\nminute). The Disk Space Manager is requested to read blocks P, Q and R respectively.\nBlock P is in platter 1   track 100\nBlock Q is in platter 1   track 200\nBlock R is in platter 1   track 300\ni.\nAssume Y revolution for average rotational delay, how much of time does it take (on\naverage) in seconds to read blocks P, Q and R?\n(6 marks)\nii.\nHow much time does it take if the blocks (P, Q and R) are placed next to each other on\nthe same track?\n(3 marks)\nd)\nExplain with an aid of a diagram, the alternatives available for storing variable length fields\nin a record?\n(2 marks)\ne)\nConsider the following buffer pool with 5 frames. Each frame has a frame number (Frame No),\npage id (PagelD) of page, pin count (PinCount) and a dirty bit (Dirty).\n[DIAGRAM: page_003_diagram_1.png]\nAssume that the following times states the last time the particular frame was accessed (on the\nsame day):\nFrame number 0 at 8:15 am\nFrame number 1 at 8:17 am\nFrame number 2 at 7:25 am\nFrame number 3 at 7:12 am\nFrame number 4 at 7:05 am\nDescribe the steps followed by the buffer manager when a request for the page with PageID\n32 occurs if MRU (Most-recently-used) replacement policy is used.\n(4 marks)\nPage 3 0of 7",
-    "diagram_refs": [
-      "page_003_diagram_1.png"
-    ],
-    "subquestions": [
-      {
-        "sub_id": "a)",
-        "marks": 0,
-        "text": "a)"
-      },
-      {
-        "sub_id": "b)",
-        "marks": 2,
-        "text": "b)\nData striping is a techniques used in RAID to improve the reliability  Do you agree with this\nstatement? Justify your answer.\n(2 marks)\n)\nConsider a disk with a block size of 512 bytes, 400 tracks per surface, 20 sectors per track and\n15 double-sided platters. Seek time is 30 msec. Suppose that the sector size is 256 bytes is\nchosen. Suppose the disk drive rotates the disk head at a speed of 2400rpm (revolutions per\nminute). The Disk Space Manager is requested to read blocks P, Q and R respectively.\nBlock P is in platter 1   track 100\nBlock Q is in platter 1   track 200\nBlock R is in platter 1   track 300"
-      },
-      {
-        "sub_id": "i.",
-        "marks": 6,
-        "text": "i.\nAssume Y revolution for average rotational delay, how much of time does it take (on\naverage) in seconds to read blocks P, Q and R?\n(6 marks)"
-      },
-      {
-        "sub_id": "ii.",
-        "marks": 3,
-        "text": "ii.\nHow much time does it take if the blocks (P, Q and R) are placed next to each other on\nthe same track?\n(3 marks)"
-      },
-      {
-        "sub_id": "d)",
-        "marks": 2,
-        "text": "d)\nExplain with an aid of a diagram, the alternatives available for storing variable length fields\nin a record?\n(2 marks)"
-      },
-      {
-        "sub_id": "e)",
-        "marks": 4,
-        "text": "e)\nConsider the following buffer pool with 5 frames. Each frame has a frame number (Frame No),\npage id (PagelD) of page, pin count (PinCount) and a dirty bit (Dirty).\n[DIAGRAM: page_003_diagram_1.png]\nAssume that the following times states the last time the particular frame was accessed (on the\nsame day):\nFrame number 0 at 8:15 am\nFrame number 1 at 8:17 am\nFrame number 2 at 7:25 am\nFrame number 3 at 7:12 am\nFrame number 4 at 7:05 am\nDescribe the steps followed by the buffer manager when a request for the page with PageID\n32 occurs if MRU (Most-recently-used) replacement policy is used.\n(4 marks)\nPage 3 0of 7"
-      }
-    ]
+    "text": "Briefly explain an approach that could be used to minimize seek time and rotational delay in accessing a data file stored in a disk."
   },
   {
-    "question_id": "3",
-    "pdf_stem": "2017 II",
-    "page_no": 4,
+    "qno": 3,
     "marks": 20,
-    "text": "Question 3 \n(20 marks)\na)\nBriefly explain the three main file organizations\n(3 marks)\nb)\nEquality search in Hash file organization\nis always easy . Accept or refute the above\nstatement providing reasons.\n(3 marks)\nc)\nBriefly explain the two alternatives used in DBMS for managing the fixed length records. Provide one\nlimitation of each alternative.\n(4 marks)\nd)\nConsider the following B+ tree of order 2.\n[DIAGRAM: page_004_diagram_1.png]\ni,\nIllustrate B+ tree after inserting 10 to the tree above.\n(3 marks)\nii.\nIllustrate the B+ tree after deleting 5 and 7 from the original tree.\n(3 marks)\ne)\nConsider the following extendible hashing index. The hashing function considers the last 2 digits of the\nbinary representation.\n>\n[DIAGRAM: page_004_diagram_2.png]\nShow the extendible hashed file after inserting 11 and 14.\n(4 marks)\nPage 4 of 7",
-    "diagram_refs": [
-      "page_004_diagram_1.png",
-      "page_004_diagram_2.png"
-    ],
-    "subquestions": [
-      {
-        "sub_id": "a)",
-        "marks": 3,
-        "text": "a)\nBriefly explain the three main file organizations\n(3 marks)"
-      },
-      {
-        "sub_id": "b)",
-        "marks": 3,
-        "text": "b)\nEquality search in Hash file organization\nis always easy . Accept or refute the above\nstatement providing reasons.\n(3 marks)"
-      },
-      {
-        "sub_id": "c)",
-        "marks": 4,
-        "text": "c)\nBriefly explain the two alternatives used in DBMS for managing the fixed length records. Provide one\nlimitation of each alternative.\n(4 marks)"
-      },
-      {
-        "sub_id": "d)",
-        "marks": 3,
-        "text": "d)\nConsider the following B+ tree of order 2.\n[DIAGRAM: page_004_diagram_1.png]\ni,\nIllustrate B+ tree after inserting 10 to the tree above.\n(3 marks)"
-      },
-      {
-        "sub_id": "ii.",
-        "marks": 3,
-        "text": "ii.\nIllustrate the B+ tree after deleting 5 and 7 from the original tree.\n(3 marks)"
-      },
-      {
-        "sub_id": "e)",
-        "marks": 4,
-        "text": "e)\nConsider the following extendible hashing index. The hashing function considers the last 2 digits of the\nbinary representation.\n>\n[DIAGRAM: page_004_diagram_2.png]\nShow the extendible hashed file after inserting 11 and 14.\n(4 marks)\nPage 4 of 7"
-      }
-    ]
+    "text": ""
   },
   {
-    "question_id": "4",
-    "pdf_stem": "2017 II",
-    "page_no": 5,
+    "qno": 4,
     "marks": 15,
-    "text": "Question 4 \n(15 marks)\na)\nBriefly explain how the query evaluation engine performs query optimization.\n(3 marks)\nb)\nBriefly explain why it is often advantageous to do selections before joins in a query plan.\n(2 marks)\n)\nConsider the following relations\nStudent (sid, sname, birthdate, gpa)\nGrades (sid, cid, year, semester, grade)\nStudent table contains 200 pages, each page containing 100 tuples. Grades table contains 1000\npages, each page containing 200 tuples. Both Student and Grades tables have clustered B+ tree\nindexes on sid. Assume that the indexes on Student and Grades have 100 and 1000 leaf pages\nrespectively and the heights of their B+ trees are 2 and 3 respectively. Each student follows 40\ncourses during his enrollment period. There are 20 buffer frames available to run the query.\nAssume that the student name is unique.\nFollowing query is written on the relations above\nQuery:\nSelect g.grade\nFrom Student s, Grades g\nWhere s.sid=g.sid and s.name=\"Amila\ni,\nDraw query tree for the best query plan?\n(2 marks)\nii.\nEstimate the cost of the selection s.sname =  Amila  in page /Os.\n(3 marks)\niil.\nEstimate the cost of the join s.sid=g.sid for index nested loop join.\n(4 marks)\niv.\nEstimate the total cost for the above query.\n(1 mark)\nPage 50f 7",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "sub_id": "a)",
-        "marks": 3,
-        "text": "a)\nBriefly explain how the query evaluation engine performs query optimization.\n(3 marks)"
-      },
-      {
-        "sub_id": "b)",
-        "marks": 4,
-        "text": "b)\nBriefly explain why it is often advantageous to do selections before joins in a query plan.\n(2 marks)\n)\nConsider the following relations\nStudent (sid, sname, birthdate, gpa)\nGrades (sid, cid, year, semester, grade)\nStudent table contains 200 pages, each page containing 100 tuples. Grades table contains 1000\npages, each page containing 200 tuples. Both Student and Grades tables have clustered B+ tree\nindexes on sid. Assume that the indexes on Student and Grades have 100 and 1000 leaf pages\nrespectively and the heights of their B+ trees are 2 and 3 respectively. Each student follows 40\ncourses during his enrollment period. There are 20 buffer frames available to run the query.\nAssume that the student name is unique.\nFollowing query is written on the relations above\nQuery:\nSelect g.grade\nFrom Student s, Grades g\nWhere s.sid=g.sid and s.name=\"Amila\ni,\nDraw query tree for the best query plan?\n(2 marks)"
-      },
-      {
-        "sub_id": "ii.",
-        "marks": 7,
-        "text": "ii.\nEstimate the cost of the selection s.sname =  Amila  in page /Os.\n(3 marks)\niil.\nEstimate the cost of the join s.sid=g.sid for index nested loop join.\n(4 marks)"
-      },
-      {
-        "sub_id": "iv.",
-        "marks": 1,
-        "text": "iv.\nEstimate the total cost for the above query.\n(1 mark)\nPage 50f 7"
-      }
-    ]
+    "text": ""
   },
   {
-    "question_id": "5",
-    "pdf_stem": "2017 II",
-    "page_no": 6,
+    "qno": 5,
     "marks": 25,
-    "text": "Question 5 \n(25 marks)\nBriefly explain the properties of a transaction\n(4 marks)\nWhy do DBMSs interleave actions of multiple transactions? Why is interleaving actions in the\nschedules desirable in serializable fashion?\n(3 marks)\nBriefly explain the rules in Strict 2 Phase Locking Protocol.\n(3 marks)\nExplain with an example how  WR conflict  could be avoided using the Strict 2PL Protocol.\n(3 marks)\nBriefly explain the term  Deadlock  associates with schedules in DBMS.\n(2 marks)\nBriefly explain the wound-wait algorithm used for deadlock prevention.\n(2 marks)\n2\nConsider the following part of the schedule.\n[DIAGRAM: page_006_diagram_1.png]\nAssume that Transaction T; is higher priority than transaction Ti+1(i.e. transaction T has\nhigher priority than T2; T2 has higher priority than Ts; and T3 has higher priority than Ts).\ni.\nDraw a Wait-For-Graph for the schedule given above.\n(2 marks)\nii.\nDraw the schedule again considering deadlock prevention using Wound-wait\napproach\n(3 marks)\nPage 6 of 7\n\nh) Consider the following scenario:\n[DIAGRAM: page_007_diagram_1.png]\nDatabase D contains a relation R. Relation R contains 1000 pages. Assume that multiple\ngranularity locking scheme is used.\nDescribe the locks acquired when all rows in page P are modified.\n(3 marks)\nPage 7of 7",
-    "diagram_refs": [
-      "page_006_diagram_1.png",
-      "page_007_diagram_1.png"
-    ],
-    "subquestions": [
-      {
-        "sub_id": "i.",
-        "marks": 2,
-        "text": "i.\nDraw a Wait-For-Graph for the schedule given above.\n(2 marks)"
-      },
-      {
-        "sub_id": "ii.",
-        "marks": 3,
-        "text": "ii.\nDraw the schedule again considering deadlock prevention using Wound-wait\napproach\n(3 marks)\nPage 6 of 7"
-      },
-      {
-        "sub_id": "h)",
-        "marks": 3,
-        "text": "h) Consider the following scenario:\n[DIAGRAM: page_007_diagram_1.png]\nDatabase D contains a relation R. Relation R contains 1000 pages. Assume that multiple\ngranularity locking scheme is used.\nDescribe the locks acquired when all rows in page P are modified.\n(3 marks)\nPage 7of 7"
-      }
-    ]
+    "text": ""
   }
 ]

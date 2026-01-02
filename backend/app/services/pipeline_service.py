@@ -14,7 +14,7 @@ def _pdfs_in(folder: Path):
     return list(folder.glob("*.pdf")) + list(folder.glob("*.PDF"))
 
 
-def run_full_pipeline() -> Dict[str, Any]:
+async def run_full_pipeline() -> Dict[str, Any]:
     steps: List[str] = []
 
     pp_dir = Path(PAST_PAPERS_DIR)
@@ -30,10 +30,10 @@ def run_full_pipeline() -> Dict[str, Any]:
     print("PIPELINE: slides PDFs      =", [p.name for p in sl_pdfs])
 
     try:
-        # Step 1
+        # Step 1: Force synchronous script to run in a separate thread to avoid blocking loop
         if pp_pdfs:
             steps.append("Processing past papers...")
-            main_full_run()
+            await asyncio.to_thread(main_full_run)
             steps.append("Past papers processed.")
         else:
             steps.append("No past papers found. Skipping past paper processing.")
@@ -41,25 +41,19 @@ def run_full_pipeline() -> Dict[str, Any]:
         # Step 2
         if sl_pdfs:
             steps.append("Processing lecture slides...")
-            slides_main()
+            await asyncio.to_thread(slides_main)
             steps.append("Lecture slides processed.")
         else:
             steps.append("No lecture slides found. Skipping lecture slide processing.")
 
         # Step 3
         steps.append("Generating exam structure & templates...")
-        structure_main()
+        await asyncio.to_thread(structure_main)
         steps.append("Exam structure & templates generated.")
 
-        # Step 4
+        # Step 4: Call agentic_main directly as it is async
         steps.append("Generating model paper (Agentic Mode)...")
-        # generate_main() # OLD SCRIPT
-        loop = asyncio.get_event_loop()
-        # Since run_full_pipeline is not async defined in the original file, we might need a wrapper or run_until_complete
-        # However, FastAPI handles async. Let's assume we can run it synchronously if needed or update the service sig.
-        # Ideally, `run_full_pipeline` should be `async def`. But checking file... it is `def`.
-        # So we use a runner.
-        loop.run_until_complete(agentic_main())
+        await agentic_main()
         
         steps.append("Model paper generated (Agentic).")
         

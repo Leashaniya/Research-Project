@@ -34,8 +34,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-# Add the project root to sys.path
-sys.path.append(str(Path(__file__).resolve().parents[2]))
+# Add the backend root to sys.path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 # Load environment variables from .env file
 from dotenv import load_dotenv
@@ -49,7 +49,7 @@ import fitz  # PyMuPDF
 import pytesseract
 from pytesseract import Output
 from typing import Dict, Any, Optional
-from backend.app.services.gpt_structure_service import gpt_structure_exam
+from app.services.structure_service import analyze_document_structure
 
 # =========================
 # CONFIG
@@ -67,7 +67,7 @@ FALLBACK_DPI = 600
 TESS_CONFIG = "--oem 3 --psm 6"
 DO_DESKEW = True
 
-USE_GPT = True  # Flag to toggle GPT usage
+USE_CLOUD_AI = True  # Flag to toggle Cloud AI usage
 
 # If tesseract is not on PATH, set TESSERACT_CMD env var
 # Example: setx TESSERACT_CMD "C:\Program Files\Tesseract-OCR\tesseract.exe"
@@ -473,6 +473,14 @@ def process_one_pdf(pdf_path: Path, dpi_used=DPI):
     out_pdf_dir = OUT_ROOT / stem
     pages_out = out_pdf_dir / "pages_text"
     diagrams_out = out_pdf_dir / "diagrams"
+    
+    # Cache Check
+    combined_file = out_pdf_dir / "all_text_with_diagrams.txt"
+    if combined_file.exists() and (out_pdf_dir / "pages_text").exists():
+        if list((out_pdf_dir / "pages_text").glob("*.txt")):
+            print(f" -> Skipping OCR: {stem} (Cache hit)")
+            return True
+
     pages_out.mkdir(parents=True, exist_ok=True)
     diagrams_out.mkdir(parents=True, exist_ok=True)
 
@@ -720,6 +728,7 @@ def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT, only_pdf_stems=N
     chunks_csv = out_root / "chunks_index.csv"
 
     files = sorted(out_root.glob(PAGE_TEXT_GLOB))
+    print(f"DEBUG: Found {len(files)} page text files total.")
     pages_by_pdf = {}
 
     for f in files:
@@ -754,10 +763,21 @@ def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT, only_pdf_stems=N
         blueprint_path = out_pdf_dir / "blueprint.json"
         blueprint_with_sub_path = out_pdf_dir / "blueprint_with_subquestions.json"
 
-        if USE_GPT:
+        if USE_CLOUD_AI and blueprint_with_sub_path.exists():
+            print(f" -> Skipping AI extraction for {pdf_stem} (Cache hit)")
+            blueprint_created = True
+        elif USE_CLOUD_AI:
             try:
-                gpt_output = gpt_structure_exam(doc_text)
-                questions = gpt_output.get("questions", [])
+                struct_output = analyze_document_structure(doc_text)
+                questions = struct_output.get("questions", [])
+
+                # Map qno to question_id if AI used old key, and inject pdf_stem
+                for idx, q in enumerate(questions, start=1):
+                    q["pdf_stem"] = pdf_stem
+                    if "qno" in q and "question_id" not in q:
+                        q["question_id"] = str(q["qno"])
+                    if not q.get("question_id"):
+                        q["question_id"] = str(idx)
 
                 # Write blueprint_with_subquestions.json
                 with open(blueprint_with_sub_path, "w", encoding="utf-8") as f:
@@ -770,24 +790,28 @@ def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT, only_pdf_stems=N
                 with open(blueprint_path, "w", encoding="utf-8") as f:
                     json.dump(main_questions, f, indent=2)
 
-                print(f"GPT structuring succeeded: {len(questions)} questions")
-                continue
+                print(f"Cloud AI structuring succeeded: {len(questions)} questions")
+                blueprint_created = True
 
             except Exception as e:
-                print(f"GPT structuring failed: {e}. Falling back to regex logic.")
+                print(f"Cloud AI structuring failed: {e}. Falling back to regex logic.")
+                blueprint_created = False
+        else:
+            blueprint_created = False
 
-        # Fallback to regex-based blueprint parsing
-        blueprint = parse_blueprint_from_text(doc_text, pdf_stem)
-        with open(blueprint_path, "w", encoding="utf-8") as f:
-            json.dump(blueprint, f, indent=2)
+        if not blueprint_created:
+            # Fallback to regex-based blueprint parsing
+            blueprint = parse_blueprint_from_text(doc_text, pdf_stem)
+            with open(blueprint_path, "w", encoding="utf-8") as f:
+                json.dump(blueprint, f, indent=2)
 
-        # Write empty subquestions for fallback
-        for q in blueprint:
-            q["subquestions"] = []
-        with open(blueprint_with_sub_path, "w", encoding="utf-8") as f:
-            json.dump(blueprint, f, indent=2)
+            # Write empty subquestions for fallback
+            for q in blueprint:
+                q["subquestions"] = []
+            with open(blueprint_with_sub_path, "w", encoding="utf-8") as f:
+                json.dump(blueprint, f, indent=2)
 
-        print(f"Regex structuring succeeded: {len(blueprint)} questions")
+            print(f"Regex structuring succeeded: {len(blueprint)} questions")
 
         words = re.sub(r"\n", " \n ", doc_text).split()
         n = len(words)

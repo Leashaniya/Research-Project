@@ -1,54 +1,274 @@
 [
   {
-    "question_id": "1",
-    "pdf_stem": "2014 (1)",
-    "page_no": 2,
+    "qno": 1,
     "marks": 20,
-    "text": "Question 1 \n(20 marks)\nConsider the following relations in a bank database:\nBranch (bName:char(15), city:varchar(12), phone:varchar(10))\nCustomer (custno:integer, cName:char(15), gender:char(1), birthday:date)\nAccount (accno:integer, branchname:char(15), acctype:char(1), balance:real)\nAC (accno:integer, custno:integer)\nThe attributes of the Branch relation are name of the branch (bName), city, and phone.\nThe Customer relation has attributes to record the customer number (custno), name\n(cName), gender ( M  or  F ), and birthdate of customers. The Account relations consists\nof account number (accno), branch name (branchname), account type (acctype) which\nmay be individual (acctype= T ) or joint (acctype= J ), and account balance (balance).\nThe\nattribute branchname\nin Account\nis\na foreign key\nthat references\nBranch;\nan\nindividual account belongs to a single customer, while a joint account is held by two or\nmore customers. The attribute accro and custno in AC reference the relations Account\nand Customer respectively. The primary keys of all relations are underlined.\na) 'Express the following queries in SQL.\ni.\nFor each customer with\na total balance exceeding 50000LKR for\nall his/her\naccounts together, display the customer number and total balance.\n(3 marks)\nii. For each branch, display the branch name, account number and balance of each\naccount that has a balance greater than twice the average balance of all accounts at\nthat branch.\nIn the resulting report, order the accounts of each branch\nin the\ndescending sequence of account balance.\n(5 marks)\nb)\nIt is required to record the number of account holders for each account by adding an\nattribute named holders. The value of this attribute will be\n1 for individual accounts\nand greater than\n1 for joint accounts.\ni.\nIn the Account table, add a new attribute named holders of integer type with a\ndefault value of 1.\n(1 marks)\nii. Write a T-SQL procedure to update the holders attribute (that has just been added)\nonly for joint accounts.\n(5 marks)\niii. Write a trigger to decrease the holders attribute value when a row is deleted from\nthe table AC only if it is for a joint account. If the updated value of holders is one\nfor the joint account, then change the acctype to  I .\n(6 marks)\nPage 1 of 5",
-    "diagram_refs": [],
-    "subquestions": []
+    "text": "Consider the following relations in a bank database: Branch (bName:char(15), city:varchar(12), phone:varchar(10)) Customer (custno:integer, cName:char(15), gender:char(1), birthday:date) Account (accno:integer, branchname:char(15), acctype:char(1), balance:real) AC (accno:integer, custno:integer) The attributes of the Branch relation are name of the branch (bName), city, and phone. The Customer relation has attributes to record the customer number (custno), name (cName), gender ( M  or  F ), and birthdate of customers. The Account relations consists of account number (accno), branch name (branchname), account type (acctype) which may be individual (acctype= T ) or joint (acctype= J ), and account balance (balance). The attribute branchname in Account is a foreign key that references Branch; an individual account belongs to a single customer, while a joint account is held by two or more customers. The attribute accro and custno in AC reference the relations Account and Customer respectively. The primary keys of all relations are underlined.",
+    "subquestions": [
+      {
+        "label": "a",
+        "marks": null,
+        "text": "'Express the following queries in SQL.",
+        "subquestions": [
+          {
+            "label": "i",
+            "marks": 3,
+            "text": "For each customer with a total balance exceeding 50000LKR for all his/her accounts together, display the customer number and total balance."
+          },
+          {
+            "label": "ii",
+            "marks": 5,
+            "text": "For each branch, display the branch name, account number and balance of each account that has a balance greater than twice the average balance of all accounts at that branch. In the resulting report, order the accounts of each branch in the descending sequence of account balance."
+          }
+        ]
+      },
+      {
+        "label": "b",
+        "marks": null,
+        "text": "It is required to record the number of account holders for each account by adding an attribute named holders. The value of this attribute will be 1 for individual accounts and greater than 1 for joint accounts.",
+        "subquestions": [
+          {
+            "label": "i",
+            "marks": 1,
+            "text": "In the Account table, add a new attribute named holders of integer type with a default value of 1."
+          },
+          {
+            "label": "ii",
+            "marks": 5,
+            "text": "Write a T-SQL procedure to update the holders attribute (that has just been added) only for joint accounts."
+          },
+          {
+            "label": "iii",
+            "marks": 6,
+            "text": "Write a trigger to decrease the holders attribute value when a row is deleted from the table AC only if it is for a joint account. If the updated value of holders is one for the joint account, then change the acctype to I."
+          }
+        ]
+      }
+    ]
   },
   {
-    "question_id": "2",
-    "pdf_stem": "2014 (1)",
-    "page_no": 3,
+    "qno": 2,
     "marks": 20,
-    "text": "Question 2 \n(20 marks)\na)\nExplain the time spent in accessing a block in a disk.\n(3 marks)\nb)\nConsider a disk with the following characteristics: block size 512 bytes, number of\nblocks per track 50, number of tracks per surface 100, average seck time 10 msec.\nThe disk consists of 4 double-sided platters. Suppose that a file containing 1000\nrecords of 100 bytes each is to be stored on such a disk and that no record is allowed\nto span two blocks:\ni.\nHow many records of 100 bytes could be stored in a track?\n(1 mark)\nii.\nHow many tracks are needed to store the entire file?\n(2 marks)\niii.\nIf disk platter rotates at 5400 rpm (revolutions per minute), calculate transfer\ntime of one track of data.\n!\n(2 marks)\niv.\nAssuming that the blocks in the file are stored sequentially and has only this file\ndata in the disk, what is the time taken to read the file content?\n!\n(2 marks)\n)\nBriefly explain one technique used\nin RAID\nto improve performance and one\ntechnique used to improve reliability.\n(2 marks)\nd)\nIllustrate the two alternatives available for storing fixed length records in a page. List\none advantage of each alternative over the other.\n(3 marks)\nConsider the following buffer pool with 5 frames.\nFrame\nNo:\n0 | Frame No:\n1 | Frame\nNo:\n2 | Frame\nNo:\n3 | Frame\nNo:\n4\n)\n[DIAGRAM: page_003_diagram_1.png]\nEach frame has a frame number (Frame No), page id (PagelD) of page in buffer\npool, pin count (PinCount) and a dirty bit (Dirty).\nAssume that the following times states the last time the particular frame was\naccessed (on the same day):\nFrame number 0 at 11:15 am\nFrame number 1 at 11:35 am\nFrame number 2 at 10:57 am\nFrame number 3 at 11:12 am\nFrame number 4 at 11:26 am\nDescribe the steps involved when a page request for the page with PageID 50\noccurs if LRU (least-recently-used) policy is used as the replacement policy.\n(5 marks)\nPage 2 of 5",
-    "diagram_refs": [
-      "page_003_diagram_1.png"
-    ],
-    "subquestions": []
+    "text": "",
+    "subquestions": [
+      {
+        "label": "a",
+        "marks": 3,
+        "text": "Explain the time spent in accessing a block in a disk."
+      },
+      {
+        "label": "b",
+        "marks": null,
+        "text": "Consider a disk with the following characteristics: block size 512 bytes, number of blocks per track 50, number of tracks per surface 100, average seck time 10 msec. The disk consists of 4 double-sided platters. Suppose that a file containing 1000 records of 100 bytes each is to be stored on such a disk and that no record is allowed to span two blocks:",
+        "subquestions": [
+          {
+            "label": "i",
+            "marks": 1,
+            "text": "How many records of 100 bytes could be stored in a track?"
+          },
+          {
+            "label": "ii",
+            "marks": 2,
+            "text": "How many tracks are needed to store the entire file?"
+          },
+          {
+            "label": "iii",
+            "marks": 2,
+            "text": "If disk platter rotates at 5400 rpm (revolutions per minute), calculate transfer time of one track of data."
+          },
+          {
+            "label": "iv",
+            "marks": 2,
+            "text": "Assuming that the blocks in the file are stored sequentially and has only this file data in the disk, what is the time taken to read the file content?"
+          }
+        ]
+      },
+      {
+        "label": "c",
+        "marks": 2,
+        "text": "Briefly explain one technique used in RAID to improve performance and one technique used to improve reliability."
+      },
+      {
+        "label": "d",
+        "marks": 3,
+        "text": "Illustrate the two alternatives available for storing fixed length records in a page. List one advantage of each alternative over the other."
+      },
+      {
+        "label": "e",
+        "marks": null,
+        "text": "Consider the following buffer pool with 5 frames. Frame No: 0 | Frame No: 1 | Frame No: 2 | Frame No: 3 | Frame No: 4 [DIAGRAM: page_003_diagram_1.png] Each frame has a frame number (Frame No), page id (PagelD) of page in buffer pool, pin count (PinCount) and a dirty bit (Dirty). Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 11:15 am Frame number 1 at 11:35 am Frame number 2 at 10:57 am Frame number 3 at 11:12 am Frame number 4 at 11:26 am Describe the steps involved when a page request for the page with PageID 50 occurs if LRU (least-recently-used) policy is used as the replacement policy.",
+        "subquestions": []
+      }
+    ]
   },
   {
-    "question_id": "3",
-    "pdf_stem": "2014 (1)",
-    "page_no": 4,
+    "qno": 3,
     "marks": 20,
-    "text": "Question 3 \n(20 marks)\na)\nBriefly explain the three main file organizations.\n(3 marks)\nb)\nConsider a student relation containing records with student id, name, age and gpa.\nAssume that the records are stored in a hash file where the hash function is based on\nthe student s age.\nRetrieving records with gpa of 3.0 is inefficient with the above file\nState whether the statement above is true or false with reasons.\n(3 marks)\nc)\nBriefly explain two disadvantages that exist in static hashing.\n(3 marks)\nd)\nExplain the terms dense and sparse index.\n(2 marks)\n)\nConsider the B+ tree index below.\n[DIAGRAM: page_004_diagram_1.png]\ni.\nIlustrate the tree after inserting 12.\n(3 marks)\nii.\nIlustrate the tree after deleting 22 from the original tree.\n(2 marks)\nf)\nConsider the Hash index below.\n[DIAGRAM: page_004_diagram_2.png]\nIllustrate the hash index after inserting 55.\n(4 marks)\nPage 3 of 5",
-    "diagram_refs": [
-      "page_004_diagram_1.png",
-      "page_004_diagram_2.png"
-    ],
-    "subquestions": []
+    "text": "",
+    "subquestions": [
+      {
+        "label": "a",
+        "marks": 3,
+        "text": "Briefly explain the three main file organizations."
+      },
+      {
+        "label": "b",
+        "marks": 3,
+        "text": "Consider a student relation containing records with student id, name, age and gpa. Assume that the records are stored in a hash file where the hash function is based on the student s age. Retrieving records with gpa of 3.0 is inefficient with the above file. State whether the statement above is true or false with reasons."
+      },
+      {
+        "label": "c",
+        "marks": 3,
+        "text": "Briefly explain two disadvantages that exist in static hashing."
+      },
+      {
+        "label": "d",
+        "marks": 2,
+        "text": "Explain the terms dense and sparse index."
+      },
+      {
+        "label": "e",
+        "marks": null,
+        "text": "Consider the B+ tree index below. [DIAGRAM: page_004_diagram_1.png]",
+        "subquestions": [
+          {
+            "label": "i",
+            "marks": 3,
+            "text": "Illustrate the tree after inserting 12."
+          },
+          {
+            "label": "ii",
+            "marks": 2,
+            "text": "Illustrate the tree after deleting 22 from the original tree."
+          }
+        ]
+      },
+      {
+        "label": "f",
+        "marks": 4,
+        "text": "Consider the Hash index below. [DIAGRAM: page_004_diagram_2.png] Illustrate the hash index after inserting 55."
+      }
+    ]
   },
   {
-    "question_id": "4",
-    "pdf_stem": "2014 (1)",
-    "page_no": 5,
+    "qno": 4,
     "marks": 15,
-    "text": "Question 4 \n(15 marks)\na)\nConsider the following statement:\nIndexes speed up selections but may slow down updates.\nBriefly explain how indexes can  slow down  update operations.\n(3 marks)\nb)\nWhat is index only plan?\n(2 marks)\n)\nConsider the following relation:\nCustomer (custid:char(10), cname:varchar(100), city:varchar(200), email:varchar(50))\nThe relation has 5000 pages with 80 tuples per page. Assume that 20 buffer frames\nare available in buffer pool.\nConsic!er the following query:\nQuery I:\nSELECT *\nFROM Customer\nWHERE custid =  SLCOL012B\nThe data entries in the indexes have <k,rid> format. Hash indexes require 1.2 Disk\n1/Os on average to retrieve a data entry.\nEstimate the cost (in Disk 1/Os) of executing Query\n1 with the following indexes.\ni.\nUnclustered hash index on Customer<custid>\nii.\nClustered hash index on Customer<custid>\n(4\nmarks)\nConsider the following query:\nQuery 2:\nSELECT count(city)\nFROM Customer\nWHERE city =  Anuradhapura\nd)\nAssume that 10% of tuples meet the selection criteria (city =*Anuradhapura ). The\ndata entries in the index have <k, rid> format and 20% the size of the actual record.\nDBMS support only the B+ tree indexes and require 3 disk I/Os to retrieve a leaf\npage.\ni.\nWhat index would you suggest to speed up the query? Justify your suggestion.\n(3 marks)\nii.\nEstimate the cost (in Disk 1/Os) of executing Query 2 with the suggested index.\n(3 marks)\nPage 4 of 5",
-    "diagram_refs": [],
-    "subquestions": []
+    "text": "",
+    "subquestions": [
+      {
+        "label": "a",
+        "marks": 3,
+        "text": "Consider the following statement: Indexes speed up selections but may slow down updates. Briefly explain how indexes can slow down update operations."
+      },
+      {
+        "label": "b",
+        "marks": 2,
+        "text": "What is index only plan?"
+      },
+      {
+        "label": "c",
+        "marks": null,
+        "text": "Consider the following relation: Customer (custid:char(10), cname:varchar(100), city:varchar(200), email:varchar(50)) The relation has 5000 pages with 80 tuples per page. Assume that 20 buffer frames are available in buffer pool. Consider the following query: Query I: SELECT * FROM Customer WHERE custid = SLCOL012B The data entries in the indexes have <k,rid> format. Hash indexes require 1.2 Disk I/Os on average to retrieve a data entry. Estimate the cost (in Disk I/Os) of executing Query I with the following indexes.",
+        "subquestions": [
+          {
+            "label": "i",
+            "marks": 4,
+            "text": "Unclustered hash index on Customer<custid>"
+          },
+          {
+            "label": "ii",
+            "marks": 4,
+            "text": "Clustered hash index on Customer<custid>"
+          }
+        ]
+      },
+      {
+        "label": "d",
+        "marks": null,
+        "text": "Consider the following query: Query 2: SELECT count(city) FROM Customer WHERE city = Anuradhapura Assume that 10% of tuples meet the selection criteria (city =*Anuradhapura ). The data entries in the index have <k, rid> format and 20% the size of the actual record. DBMS support only the B+ tree indexes and require 3 disk I/Os to retrieve a leaf page.",
+        "subquestions": [
+          {
+            "label": "i",
+            "marks": 3,
+            "text": "What index would you suggest to speed up the query? Justify your suggestion."
+          },
+          {
+            "label": "ii",
+            "marks": 3,
+            "text": "Estimate the cost (in Disk I/Os) of executing Query 2 with the suggested index."
+          }
+        ]
+      }
+    ]
   },
   {
-    "question_id": "5",
-    "pdf_stem": "2014 (1)",
-    "page_no": 6,
+    "qno": 5,
     "marks": 25,
-    "text": "Question 5 \n(25 marks)\na)\nBriefly explain the properties of a transaction.\n(4 marks)\nb)\nBriefly explain what an unrepeatable read is.\n(2 marks)\nc)\nBriefly explain the rules in Strict 2 Phase Locking Protocol.\n(2 marks)\nd)\nBriefly explain what the phantom problem is.\n(3 marks)\ne)\nConsider the following sequence of actions, listed in the order they are submitted to\nthe DBMS. The DBMS processes actions in the order shown. The Strict 2PL is used\nfor concurrency control. If a transaction is blocked, assume that all of its actions are\nqueued until it is resumed; the DBMS continues with the next action of an unblocked\ntransaction.\nTER(X), T2:W(X), T2:W(Y), T3:W(Y), T1:W(Y),T3W(X), T1: Commit, T2: Commit, T3: Commit\nAssume that older transaction has higher priority always.\ni.\nDraw a transaction schedule and briefly explain how the above three transactions\n!\nare running till commit those without deadlocks in schedule. Follow Wait-Die\npolicy to deal with deadlock.\n(4 marks)\nji.\nFollow deadlock detection approach to deal with deadlocks. Draw a transaction\nschedule and explain how three transactions are running. Show a waits-for graph\nif a deadlock cycle develops.\n(4 marks)\nf)\nState the Simple Tree Locking Algorithm.\n(3 marks)\ng)\nConsider the tree shown below.\n[DIAGRAM: page_006_diagram_1.png]\nDescribe the steps involved in executing each of the following operations according\nto the Simple Tree Locking algorithm, in terms of the order in which nodes are\nlocked, unlocked, read and written. Be specific about what type of locks are obtained\nand released.\ni.\nSearch 23.\nii.\nDelete 43.\niii.\nInsert 44.\n(3\nmarks)\n-- End of the Question Paper --\nPage 5 of 5",
-    "diagram_refs": [
-      "page_006_diagram_1.png"
-    ],
-    "subquestions": []
+    "text": "",
+    "subquestions": [
+      {
+        "label": "a",
+        "marks": 4,
+        "text": "Briefly explain the properties of a transaction."
+      },
+      {
+        "label": "b",
+        "marks": 2,
+        "text": "Briefly explain what an unrepeatable read is."
+      },
+      {
+        "label": "c",
+        "marks": 2,
+        "text": "Briefly explain the rules in Strict 2 Phase Locking Protocol."
+      },
+      {
+        "label": "d",
+        "marks": 3,
+        "text": "Briefly explain what the phantom problem is."
+      },
+      {
+        "label": "e",
+        "marks": null,
+        "text": "Consider the following sequence of actions, listed in the order they are submitted to the DBMS. The DBMS processes actions in the order shown. The Strict 2PL is used for concurrency control. If a transaction is blocked, assume that all of its actions are queued until it is resumed; the DBMS continues with the next action of an unblocked transaction. TER(X), T2:W(X), T2:W(Y), T3:W(Y), T1:W(Y),T3W(X), T1: Commit, T2: Commit, T3: Commit Assume that older transaction has higher priority always.",
+        "subquestions": [
+          {
+            "label": "i",
+            "marks": 4,
+            "text": "Draw a transaction schedule and briefly explain how the above three transactions are running till commit those without deadlocks in schedule. Follow Wait-Die policy to deal with deadlock."
+          },
+          {
+            "label": "ii",
+            "marks": 4,
+            "text": "Follow deadlock detection approach to deal with deadlocks. Draw a transaction schedule and explain how three transactions are running. Show a waits-for graph if a deadlock cycle develops."
+          }
+        ]
+      },
+      {
+        "label": "f",
+        "marks": 3,
+        "text": "State the Simple Tree Locking Algorithm."
+      },
+      {
+        "label": "g",
+        "marks": 3,
+        "text": "Consider the tree shown below. [DIAGRAM: page_006_diagram_1.png] Describe the steps involved in executing each of the following operations according to the Simple Tree Locking algorithm, in terms of the order in which nodes are locked, unlocked, read and written. Be specific about what type of locks are obtained and released.",
+        "subquestions": [
+          {
+            "label": "i",
+            "marks": null,
+            "text": "Search 23."
+          },
+          {
+            "label": "ii",
+            "marks": null,
+            "text": "Delete 43."
+          },
+          {
+            "label": "iii",
+            "marks": null,
+            "text": "Insert 44."
+          }
+        ]
+      }
+    ]
   }
 ]

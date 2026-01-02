@@ -1,42 +1,158 @@
 [
   {
-    "question_id": "1",
-    "pdf_stem": "2023 II",
-    "page_no": 2,
+    "qno": 1,
     "marks": 20,
-    "text": "Question 1 \n(20 marks)\nConsider the following EER Model.\na)\nConvert the following EER model in to the relational model. Indicate the primary keys and the\n(16 marks)\nforeign keys of the resulted relations clearly.\nb)\nWhat is the best option for mapping the ISA hierarchy in the diagram? Justify your answer.\n(4 marks)\n[DIAGRAM: page_002_diagram_1.png]",
-    "diagram_refs": [
-      "page_002_diagram_1.png"
-    ],
-    "subquestions": []
+    "text": "Consider the following EER Model.",
+    "subquestions": [
+      {
+        "label": "a)",
+        "marks": 16,
+        "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
+        "subquestions": []
+      },
+      {
+        "label": "b)",
+        "marks": 4,
+        "text": "What is the best option for mapping the ISA hierarchy in the diagram? Justify your answer.",
+        "subquestions": []
+      }
+    ]
   },
   {
-    "question_id": "2",
-    "pdf_stem": "2023 II",
-    "page_no": 3,
+    "qno": 2,
     "marks": 15,
-    "text": "Question 2 \n(15 marks)\nConsider a relation R (A, B, C, D, E, F, G) with the following set of functional dependencies over\nR:\nF = {A->BC, B->D, C->EF, AC->G}\na)\nFind all the keys in relation R using attribute closure method.\n(4 marks)\nb)\nIs R in 3NF? Give reasons for your conclusion.\n(3 marks)\n)\nIsRin BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF\nrelations.\n(8 marks)",
-    "diagram_refs": [],
-    "subquestions": []
+    "text": "Consider a relation R (A, B, C, D, E, F, G) with the following set of functional dependencies over R: F = {A->BC, B->D, C->EF, AC->G}",
+    "subquestions": [
+      {
+        "label": "a)",
+        "marks": 4,
+        "text": "Find all the keys in relation R using attribute closure method.",
+        "subquestions": []
+      },
+      {
+        "label": "b)",
+        "marks": 3,
+        "text": "Is R in 3NF? Give reasons for your conclusion.",
+        "subquestions": []
+      },
+      {
+        "label": "c)",
+        "marks": 8,
+        "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+        "subquestions": []
+      }
+    ]
   },
   {
-    "question_id": "3",
-    "pdf_stem": "2023 II",
-    "page_no": 3,
+    "qno": 3,
     "marks": 25,
-    "text": "Question 3 \n(25 marks)\na)\nNative API Driver is faster than Java Thin Driver . Accept or refute the above statement\njustifying your answer.\n(2 marks)\nb)\nThere are several different statements in the JDBC API to retrieve the result set based on different\nrequirements. Which type of statements is used in the code segment given below? Briefly explain\nwhen this type of statements will be used.\n(2 marks)\n[DIAGRAM: page_003_diagram_1.png]\nc)\nBriefly explain what is meant by a  Full Backup ?\n(2 marks)\nd)\nBriefly explain the three main aspects to focus on when a database is secured?\n(3 marks)\ne)\nA software company has been assigned the responsibility of automating the tasks of a digital\nmarketing company.\nThis includes designing and developing a database for the company to maintain the records of\nvarious functions. It also maintains records of digital channels to market products and services\nin order to reach consumers.\nMenaka, a senior DBA is assigned to the project to handle all the administrative tasks related to\nthe databases by the database architect. Menaka creates the required database and assign Nipun\n\nthe responsibility of managing the CompanyDB. Since there will be lot of users for the project,\nAmali is assigned with the responsibility of handling logins to the system.\nNipun assigns Kasuni with the responsibility of creating tables. In addition, Kasuni should be\nable to create views, stored procedures and triggers required. Dinethi, who is data entry operator\nis given\nthe responsibility\nof inserting the data\nto\nthe table. Amal\nis assigned with the\nresponsibility of generating reports from the table in the data. For the above purpose, Amal could\ndirectly query the data or call functions and procedures.\ni.\nWrite a T-SQL statement to create a login to Menaka\n(2 marks)\nii.\nProvide permission using fixed server role to handle all the administrative tasks in the\nserver to Menaka.\n(3 marks)\niii.\nAssuming that Nipun has the user name nipun.b, write a T-SQL statements required to\nassign him with the responsibility of handling the companyDB using user defined server\nrole.\n(5 marks)\niv.\nAssuming that Kasuni has a login name by the name kasuni.a write T-SQL statements\nrequired to allow her to create tables, functions, procedures and triggers.\n(3 marks)\nv.\nAssuming that Amal has a login name amal\nk. write T-SQL statements required to perform\nthe tasks she is responsible for.\n(3 marks)",
-    "diagram_refs": [
-      "page_003_diagram_1.png"
-    ],
-    "subquestions": []
+    "text": "",
+    "subquestions": [
+      {
+        "label": "a)",
+        "marks": 2,
+        "text": "Native API Driver is faster than Java Thin Driver. Accept or refute the above statement justifying your answer.",
+        "subquestions": []
+      },
+      {
+        "label": "b)",
+        "marks": 2,
+        "text": "There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used.",
+        "subquestions": []
+      },
+      {
+        "label": "c)",
+        "marks": 2,
+        "text": "Briefly explain what is meant by a Full Backup?",
+        "subquestions": []
+      },
+      {
+        "label": "d)",
+        "marks": 3,
+        "text": "Briefly explain the three main aspects to focus on when a database is secured?",
+        "subquestions": []
+      },
+      {
+        "label": "e)",
+        "marks": 16,
+        "text": "A software company has been assigned the responsibility of automating the tasks of a digital marketing company. This includes designing and developing a database for the company to maintain the records of various functions. It also maintains records of digital channels to market products and services in order to reach consumers. Menaka, a senior DBA is assigned to the project to handle all the administrative tasks related to the databases by the database architect. Menaka creates the required database and assign Nipun the responsibility of managing the CompanyDB. Since there will be lot of users for the project, Amali is assigned with the responsibility of handling logins to the system. Nipun assigns Kasuni with the responsibility of creating tables. In addition, Kasuni should be able to create views, stored procedures and triggers required. Dinethi, who is data entry operator is given the responsibility of inserting the data to the table. Amal is assigned with the responsibility of generating reports from the table in the data. For the above purpose, Amal could directly query the data or call functions and procedures.",
+        "subquestions": [
+          {
+            "label": "i)",
+            "marks": 2,
+            "text": "Write a T-SQL statement to create a login to Menaka.",
+            "subquestions": []
+          },
+          {
+            "label": "ii)",
+            "marks": 3,
+            "text": "Provide permission using fixed server role to handle all the administrative tasks in the server to Menaka.",
+            "subquestions": []
+          },
+          {
+            "label": "iii)",
+            "marks": 5,
+            "text": "Assuming that Nipun has the user name nipun.b, write a T-SQL statements required to assign him with the responsibility of handling the companyDB using user defined server role.",
+            "subquestions": []
+          },
+          {
+            "label": "iv)",
+            "marks": 3,
+            "text": "Assuming that Kasuni has a login name by the name kasuni.a write T-SQL statements required to allow her to create tables, functions, procedures and triggers.",
+            "subquestions": []
+          },
+          {
+            "label": "v)",
+            "marks": 3,
+            "text": "Assuming that Amal has a login name amal k. write T-SQL statements required to perform the tasks she is responsible for.",
+            "subquestions": []
+          }
+        ]
+      }
+    ]
   },
   {
-    "question_id": "4",
-    "pdf_stem": "2023 II",
-    "page_no": 4,
+    "qno": 4,
     "marks": 40,
-    "text": "Question 4 \n(40 Marks)\nConsider the following schema of a database designed for a university:\nStudents (studentld: int, name: varchar(40), email: varchar(30), dob: date, specialization\n: int,\nGPA: real)\nCourses (courseld: int, name: varchar(40), credits: int)\nOffer (specialization: int, courseld: int, acYear: int, semester: int)\nGrades (studentld: int, courseld: int, acYear: int, calYear: int, semester: int, status: varchar\n(10), CAMarks:int, finalMark: int, grade: char(1))\nGradePoints (grade: char(1), gradePoint: real)\nEnrollment (studentld: int, courseld: int, calYear: int, semester: int, basis: varchar (30))\nStudents table stores information about each student, including their ID (studentId), name, email,\ndate of birth (dob), specialization and GPA. The Courses table stores information about each course\noffered by the university, including the course ID (courseld) name, and credits. The offer table stores\ninformation on courses offered in a semester including the specialization, course 1D (courseld),\nacademic year (acYear) such as year] & year2 and semester the course is offered. The grades table\nstores the grades of the students including their IDs (studentld), course ID (courseld), academic year\n(acYear) such as year\n1 and year2\n, calendar year(calYear) such as 2021 & 2022 and semester the\ncourse was offered, status of the course ( Pass ,  Fail ,  IC -incomplete), continuous assessment\n\nmarks (CAMarks), final exam marks (finalMarks) and grade the student has obtained ( A , B  & *C ).\nGradePoints table stores the grades and their associated grade points (e.g. A  4.0., C- 2.0\n& etc).\nEnrollment table stores the information on student enrollment for courses including student ID\n(studentld), course 1D (courseld), calendar year(calYear) and the semester the student enrolled for\nthe course and the basis on which the student enrolled ( Regular ,  Repeat  and  Prorata ). Primary\nkeys of the tables are underlined.\na)\nWrite SQL Queries to perform the following:\ni.\nDisplay the course id, name, and credits of courses offered in semester\n1\nin year 2023 for\nstudents following  Data Science  Specialization.\n(4 marks)\nii.\nFind the course IDs and names of modules offered in year 2 semester\n1 to more than one\nspecializations.\n(6 marks)\niii.\nFind the ID, name, specialization and gpa of students in the Dean's list for year 2022\nsemester 2. Note that a student is in a Dean's List if for a particular semester in a year he has\ncompleted all modules and has an overall GPA over 3.7.\n(7 marks)\nb)\nCreate a function to calculate the GPA of a given student for a given semester and year.\n(11 marks)\nGPA= Y grade point of a grade obtained for a module x credit point for the module\n. credit points of modules taken\n)\nCreate a trigger to set the grade of basis pro-rata or repeat students to  C  if he/she passes the\nmodule\n(12 marks)\nAssume that CA marks and Final Marks are given by 100 and a student passes the module if the\noverall mark is above 45.\nOverall Mark = (CA + Final Marks)/2",
-    "diagram_refs": [],
-    "subquestions": []
+    "text": "Consider the following schema of a database designed for a university: Students (studentId: int, name: varchar(40), email: varchar(30), dob: date, specialization: int, GPA: real) Courses (courseId: int, name: varchar(40), credits: int) Offer (specialization: int, courseId: int, acYear: int, semester: int) Grades (studentId: int, courseId: int, acYear: int, calYear: int, semester: int, status: varchar(10), CAMarks: int, finalMark: int, grade: char(1)) GradePoints (grade: char(1), gradePoint: real) Enrollment (studentId: int, courseId: int, calYear: int, semester: int, basis: varchar(30))",
+    "subquestions": [
+      {
+        "label": "a)",
+        "marks": 27,
+        "text": "Write SQL Queries to perform the following:",
+        "subquestions": [
+          {
+            "label": "i)",
+            "marks": 4,
+            "text": "Display the course id, name, and credits of courses offered in semester 1 in year 2023 for students following Data Science Specialization.",
+            "subquestions": []
+          },
+          {
+            "label": "ii)",
+            "marks": 6,
+            "text": "Find the course IDs and names of modules offered in year 2 semester 1 to more than one specializations.",
+            "subquestions": []
+          },
+          {
+            "label": "iii)",
+            "marks": 7,
+            "text": "Find the ID, name, specialization and gpa of students in the Dean's list for year 2022 semester 2. Note that a student is in a Dean's List if for a particular semester in a year he has completed all modules and has an overall GPA over 3.7.",
+            "subquestions": []
+          }
+        ]
+      },
+      {
+        "label": "b)",
+        "marks": 23,
+        "text": "Create a function to calculate the GPA of a given student for a given semester and year.",
+        "subquestions": []
+      },
+      {
+        "label": "c)",
+        "marks": 12,
+        "text": "Create a trigger to set the grade of basis pro-rata or repeat students to C if he/she passes the module. Assume that CA marks and Final Marks are given by 100 and a student passes the module if the overall mark is above 45. Overall Mark = (CA + Final Marks)/2.",
+        "subquestions": []
+      }
+    ]
   }
 ]

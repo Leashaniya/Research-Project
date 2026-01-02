@@ -1,256 +1,27 @@
 [
   {
-    "question_id": "1",
-    "pdf_stem": "2017",
-    "page_no": 2,
+    "qno": 1,
     "marks": 20,
-    "text": "Question 1 \n(20 Marks)\nConsider the database of a bank that includes the following tables:\nBRANCH (branchNo: int, address: varchar (50), phone\n: char (10), manager: varchar(30))\nACCOUNT (aceNo: char (15), type\n: varchar (10), balance\n: real, branchNo: int)\nCUSTOMER (custNo: char (10), name: varchar(25); phone: char (10), address\n: varchar (50))\nOWNS (accNo: char (15), custNo: char (10))\nTRANSACTION (accNo: char (15), datetime: datetime, type: varchar (15), amount: real)\nThe table BRANCH contains the branch number (branchNo), address of the branch, phone\nnumber (phone), and name of the manager (manager) of all branches of the bank. The\nACCOUNT table contains account number (accNo),\ntype\nof the account ( Savings\nor\nCurrent ), current balance of the account and the branch number of the branch the account is\ncreated in (branchNo) for all accounts in the bank. CUSTOMER table contains customer\nnumber (custNo), name of the customer, phone number of the customer and the address of\neach customer of the bank. For each customer owning an account the OWNS table stores the\naccount number (accNo) and the customer number of the customer owning the account\n(custNo).\nTRANSACTION table stores the account number (accNo), date and time of the\ntransaction (datetime), type of the transaction ( Credit  or  Debit ) and the amount of the credit\nor debit associated with the transaction. The primary keys of the relations are underlined.\na)\nUse the bank database schema and write answers to the following questions.\ni.\nFind the names of customers who lives in Malabe who owns a current account.\n(2 marks)\nii.\nFind the account numbers of accounts which has not been credited with money in year\n2016. (Note\n: DATEPART(yyyy, column) function could be used to extract the year\nfrom a given column)\n(3 marks)\niii. Find the branch number and the name of the manager of the branch with an income\nover 10 Million in 2016. (Hint: The branch with the highest total of deposits (credit)\nhas the highest income).\n(4 marks)\nb)\nWrite a procedure to transfer funds between two accounts given the account from which\nmoney is transferred, account to which money is transferred and amount of money to\ntransfer. The procedure should update the balances of the accounts between which the\nmoney is transferred and also add entries to the transaction table (Note: A fund transfer\ninclude debiting money from one account and crediting to another account)\n(5 marks)\n)\nAssuming that the maximum amount of money to be debiting from an account is Rs.50000\nper day, write a trigger to ensure that transactions performed in the bank does not allow\ncustomers to debit more than the said amount within single day (Note\n: CONVERT(date,\ncalumn) function converts the column in datetime type to short date format)\n(6 marks)\nPage2of 7",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "sub_id": "a)",
-        "marks": 0,
-        "text": "a)\nUse the bank database schema and write answers to the following questions."
-      },
-      {
-        "sub_id": "i.",
-        "marks": 2,
-        "text": "i.\nFind the names of customers who lives in Malabe who owns a current account.\n(2 marks)"
-      },
-      {
-        "sub_id": "ii.",
-        "marks": 3,
-        "text": "ii.\nFind the account numbers of accounts which has not been credited with money in year\n2016. (Note\n: DATEPART(yyyy, column) function could be used to extract the year\nfrom a given column)\n(3 marks)"
-      },
-      {
-        "sub_id": "iii.",
-        "marks": 4,
-        "text": "iii. Find the branch number and the name of the manager of the branch with an income\nover 10 Million in 2016. (Hint: The branch with the highest total of deposits (credit)\nhas the highest income).\n(4 marks)"
-      },
-      {
-        "sub_id": "b)",
-        "marks": 11,
-        "text": "b)\nWrite a procedure to transfer funds between two accounts given the account from which\nmoney is transferred, account to which money is transferred and amount of money to\ntransfer. The procedure should update the balances of the accounts between which the\nmoney is transferred and also add entries to the transaction table (Note: A fund transfer\ninclude debiting money from one account and crediting to another account)\n(5 marks)\n)\nAssuming that the maximum amount of money to be debiting from an account is Rs.50000\nper day, write a trigger to ensure that transactions performed in the bank does not allow\ncustomers to debit more than the said amount within single day (Note\n: CONVERT(date,\ncalumn) function converts the column in datetime type to short date format)\n(6 marks)\nPage2of 7"
-      }
-    ]
+    "text": "Consider the database of a bank that includes the following tables: BRANCH (branchNo: int, address: varchar (50), phone : char (10), manager: varchar(30)) ACCOUNT (aceNo: char (15), type : varchar (10), balance : real, branchNo: int) CUSTOMER (custNo: char (10), name: varchar(25); phone: char (10), address : varchar (50)) OWNS (accNo: char (15), custNo: char (10)) TRANSACTION (accNo: char (15), datetime: datetime, type: varchar (15), amount: real) The table BRANCH contains the branch number (branchNo), address of the branch, phone number (phone), and name of the manager (manager) of all branches of the bank. The ACCOUNT table contains account number (accNo), type of the account ( Savings or Current ), current balance of the account and the branch number of the branch the account is created in (branchNo) for all accounts in the bank. CUSTOMER table contains customer number (custNo), name of the customer, phone number of the customer and the address of each customer of the bank. For each customer owning an account the OWNS table stores the account number (accNo) and the customer number of the customer owning the account (custNo). TRANSACTION table stores the account number (accNo), date and time of the transaction (datetime), type of the transaction ( Credit or Debit ) and the amount of the credit or debit associated with the transaction. The primary keys of the relations are underlined."
   },
   {
-    "question_id": "2",
-    "pdf_stem": "2017",
-    "page_no": 3,
+    "qno": 2,
     "marks": 20,
-    "text": "Question 2 \n(20 marks)\nBriefly explain a software solution and a hardware solution to improve the performance of a\ndatabase.\n(3 marks)\na)\nb)\nConsider a disk with a block size of 512 bytes, 200 tracks per surface, 40 sectors per track and\n4 double-sided platters. Seek time is 30 msec. Suppose that the sector size of 256 bytes is\nchosen.\ni.\nWhat is the capacity of a track in blocks?\n(1 mark)\nii.\nWhat'is the capacity of a cylinder in blocks?\n(1 mark)\niii.\nWhat is the capacity of the disk in blocks\n(2 marks)\niv.\nIf disk platter rotates at 2400 rpm (revolutions per minute), what is the average rotational\ndelay?\n(2 marks)\nv.\nWhat is the access time to read two consecutive disk blocks?\n(4 marks)\n)\nExplain the role of the Buffer Manager in a database management system.\n(1 mark)\nd\nConsider the following data (8 bits) which needs to be stored on\na RAID disk of level 4\n(Block Interleaved Parity).\nData string:\n10001110\nThe RAID configuration consists of 5 disks (which includes the parity disk) as shown below.\nAssume that the block size is 2 bits and parity bit is set (=1) for an even number of 1 s.\n[DIAGRAM: page_003_diagram_1.png]\nShow how the data string above is distributed among the 5 disks\n(2 marks)\ne)\nConsider the following buffer pool with 5 frames. Each frame ha  a frame number (Frame No),\npage id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty)\n[DIAGRAM: page_003_diagram_2.png]\nPage 3 of 7\n\nAssume that the following times states the last time the particular frame was accessed (on the\nsame day):\nFrame number 0 at 2:15 am\nFrame number 1 at 1:17 am\nFrame number 2 at 1:25 am\nFrame number 3 at 2:17 am\nFrame number 4 at 1:05 am\nDescribe the steps followed by the buffer manager when a request for the page with PageID\n32 occurs'if LRU (Least-recently-used) replacement policy is used.\n(4 marks)",
-    "diagram_refs": [
-      "page_003_diagram_1.png",
-      "page_003_diagram_2.png"
-    ],
-    "subquestions": [
-      {
-        "sub_id": "a)",
-        "marks": 0,
-        "text": "a)"
-      },
-      {
-        "sub_id": "b)",
-        "marks": 0,
-        "text": "b)\nConsider a disk with a block size of 512 bytes, 200 tracks per surface, 40 sectors per track and\n4 double-sided platters. Seek time is 30 msec. Suppose that the sector size of 256 bytes is\nchosen."
-      },
-      {
-        "sub_id": "i.",
-        "marks": 1,
-        "text": "i.\nWhat is the capacity of a track in blocks?\n(1 mark)"
-      },
-      {
-        "sub_id": "ii.",
-        "marks": 1,
-        "text": "ii.\nWhat'is the capacity of a cylinder in blocks?\n(1 mark)"
-      },
-      {
-        "sub_id": "iii.",
-        "marks": 2,
-        "text": "iii.\nWhat is the capacity of the disk in blocks\n(2 marks)"
-      },
-      {
-        "sub_id": "iv.",
-        "marks": 2,
-        "text": "iv.\nIf disk platter rotates at 2400 rpm (revolutions per minute), what is the average rotational\ndelay?\n(2 marks)"
-      },
-      {
-        "sub_id": "v.",
-        "marks": 7,
-        "text": "v.\nWhat is the access time to read two consecutive disk blocks?\n(4 marks)\n)\nExplain the role of the Buffer Manager in a database management system.\n(1 mark)\nd\nConsider the following data (8 bits) which needs to be stored on\na RAID disk of level 4\n(Block Interleaved Parity).\nData string:\n10001110\nThe RAID configuration consists of 5 disks (which includes the parity disk) as shown below.\nAssume that the block size is 2 bits and parity bit is set (=1) for an even number of 1 s.\n[DIAGRAM: page_003_diagram_1.png]\nShow how the data string above is distributed among the 5 disks\n(2 marks)"
-      },
-      {
-        "sub_id": "e)",
-        "marks": 4,
-        "text": "e)\nConsider the following buffer pool with 5 frames. Each frame ha  a frame number (Frame No),\npage id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty)\n[DIAGRAM: page_003_diagram_2.png]\nPage 3 of 7\n\nAssume that the following times states the last time the particular frame was accessed (on the\nsame day):\nFrame number 0 at 2:15 am\nFrame number 1 at 1:17 am\nFrame number 2 at 1:25 am\nFrame number 3 at 2:17 am\nFrame number 4 at 1:05 am\nDescribe the steps followed by the buffer manager when a request for the page with PageID\n32 occurs'if LRU (Least-recently-used) replacement policy is used.\n(4 marks)"
-      }
-    ]
+    "text": "Briefly explain a software solution and a hardware solution to improve the performance of a database."
   },
   {
-    "question_id": "3",
-    "pdf_stem": "2017",
-    "page_no": 4,
+    "qno": 3,
     "marks": 20,
-    "text": "Question 3 \n(20 marks)\na)\nBriefly explain the sequential file organization with respect to the application of insert, update,\ndelete and search (equality/range) operations performed on it.\n(4 marks)\nb)\nDeleting a row in the Heap file organization is always easy . Accept or refute the above\nstatement providing reasons.\n(3 marks)\nc)\nExplain general characteristics of B+ tree index with reference to\nits structure, nodes and\nentries in nodes.\n(3 marks)\nd)\nConsider the following B+ tree of order 2.\n[DIAGRAM: page_004_diagram_1.png]\ni.\nIllustrate B+ tree after inserting 8 to the above tree.\n>\n(3 marks)\nii.\nIllustrate the B+ tree after deleting 4 from the original tree.\n(3 marks)\nPage 4 of 7\n\ne)\nConsider the following extendible hashing index. The hashing function considers the last 2\ndigits of the binary representation.\n[DIAGRAM: page_005_diagram_1.png]\nShow the extendible hashed file after inserting 16 and 35.\n(4 marks)",
-    "diagram_refs": [
-      "page_004_diagram_1.png",
-      "page_005_diagram_1.png"
-    ],
-    "subquestions": [
-      {
-        "sub_id": "a)",
-        "marks": 4,
-        "text": "a)\nBriefly explain the sequential file organization with respect to the application of insert, update,\ndelete and search (equality/range) operations performed on it.\n(4 marks)"
-      },
-      {
-        "sub_id": "b)",
-        "marks": 3,
-        "text": "b)\nDeleting a row in the Heap file organization is always easy . Accept or refute the above\nstatement providing reasons.\n(3 marks)"
-      },
-      {
-        "sub_id": "c)",
-        "marks": 3,
-        "text": "c)\nExplain general characteristics of B+ tree index with reference to\nits structure, nodes and\nentries in nodes.\n(3 marks)"
-      },
-      {
-        "sub_id": "d)",
-        "marks": 0,
-        "text": "d)\nConsider the following B+ tree of order 2.\n[DIAGRAM: page_004_diagram_1.png]"
-      },
-      {
-        "sub_id": "i.",
-        "marks": 3,
-        "text": "i.\nIllustrate B+ tree after inserting 8 to the above tree.\n>\n(3 marks)"
-      },
-      {
-        "sub_id": "ii.",
-        "marks": 3,
-        "text": "ii.\nIllustrate the B+ tree after deleting 4 from the original tree.\n(3 marks)\nPage 4 of 7"
-      },
-      {
-        "sub_id": "e)",
-        "marks": 4,
-        "text": "e)\nConsider the following extendible hashing index. The hashing function considers the last 2\ndigits of the binary representation.\n[DIAGRAM: page_005_diagram_1.png]\nShow the extendible hashed file after inserting 16 and 35.\n(4 marks)"
-      }
-    ]
+    "text": "Question 3"
   },
   {
-    "question_id": "4",
-    "pdf_stem": "2017",
-    "page_no": 5,
+    "qno": 4,
     "marks": 15,
-    "text": "Question 4 \n(15 marks)\na)\nBriefly explain the parsing and translation phase in query processing.\n(3 marks)\nb)\nBriefly explain the two techniques the Query optimizer uses to select the most efficient query\nplan during query optimization.\n(2 marks)\n)\nWhat is meant by reduction factor in cost estimation?\n(2 marks)\nd)\nConsider the following relation:\nPhysician (pid\n: char(5), pname\n: varchar(50), address\n: varchar(100), specialty\n: varchar(50))\nThe relation has 20000 pages with 100 tuples per page. Assume that 20 buffer fames available\nin buffer pool.\nPage 5of 7\n\nConsider the following query:\nQuery I:\nSELECT * FROM Physician WHERE pid =  P0001\nEstimate the cost (in Disk 1/Os) of executing Query 1 with the follow!ng indexes.\nThe data entries in the indexes have <k, rid> format. Hash indexes require 1.2 Disk 1/Os on\naverage to retrieve a data entry.\ni. Unclustered hash index on Physician<pid>\n(2 marks)\nii. Clustered hash index on Physician < pid >\n(2 marks)\ne)\nConsider the following relational schema.\nEmp (eid, ename, age, salary)\nWorks (eid,\ndid, pct-time)\nDept (did, budget, managerid)\nAssume that the Emp relation consist of 300 pages with 100 tuples per page. Works relation\ncontains 600 pages with 100 tuples per page. Dept relation consist of 300 pages with 100 tuples\nper page.\nConsider the following query.\nSelect COUNT (e.eid)\nFrom Emp e, Works w\n*\nWherer e.eid = w.eid\nThere exists a B+ tree on Works<eid> with height 3 using Alternative\n1 (record and index key\ntogether). Join tables using index nested loop join algorithm.\ni.\nDraw query tree for the above query.\n(2 marks)\nii.\nEstimate the cost for the above query.\n(2 marks)",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "sub_id": "a)",
-        "marks": 3,
-        "text": "a)\nBriefly explain the parsing and translation phase in query processing.\n(3 marks)"
-      },
-      {
-        "sub_id": "b)",
-        "marks": 4,
-        "text": "b)\nBriefly explain the two techniques the Query optimizer uses to select the most efficient query\nplan during query optimization.\n(2 marks)\n)\nWhat is meant by reduction factor in cost estimation?\n(2 marks)"
-      },
-      {
-        "sub_id": "d)",
-        "marks": 0,
-        "text": "d)\nConsider the following relation:\nPhysician (pid\n: char(5), pname\n: varchar(50), address\n: varchar(100), specialty\n: varchar(50))\nThe relation has 20000 pages with 100 tuples per page. Assume that 20 buffer fames available\nin buffer pool.\nPage 5of 7\n\nConsider the following query:\nQuery I:\nSELECT * FROM Physician WHERE pid =  P0001\nEstimate the cost (in Disk 1/Os) of executing Query 1 with the follow!ng indexes.\nThe data entries in the indexes have <k, rid> format. Hash indexes require 1.2 Disk 1/Os on\naverage to retrieve a data entry."
-      },
-      {
-        "sub_id": "i.",
-        "marks": 2,
-        "text": "i. Unclustered hash index on Physician<pid>\n(2 marks)"
-      },
-      {
-        "sub_id": "ii.",
-        "marks": 2,
-        "text": "ii. Clustered hash index on Physician < pid >\n(2 marks)"
-      },
-      {
-        "sub_id": "e)",
-        "marks": 0,
-        "text": "e)\nConsider the following relational schema.\nEmp (eid, ename, age, salary)\nWorks (eid,\ndid, pct-time)\nDept (did, budget, managerid)\nAssume that the Emp relation consist of 300 pages with 100 tuples per page. Works relation\ncontains 600 pages with 100 tuples per page. Dept relation consist of 300 pages with 100 tuples\nper page.\nConsider the following query.\nSelect COUNT (e.eid)\nFrom Emp e, Works w\n*\nWherer e.eid = w.eid\nThere exists a B+ tree on Works<eid> with height 3 using Alternative\n1 (record and index key\ntogether). Join tables using index nested loop join algorithm."
-      },
-      {
-        "sub_id": "i.",
-        "marks": 2,
-        "text": "i.\nDraw query tree for the above query.\n(2 marks)"
-      },
-      {
-        "sub_id": "ii.",
-        "marks": 2,
-        "text": "ii.\nEstimate the cost for the above query.\n(2 marks)"
-      }
-    ]
+    "text": "Question 4"
   },
   {
-    "question_id": "5",
-    "pdf_stem": "2017",
-    "page_no": 6,
+    "qno": 5,
     "marks": 25,
-    "text": "Question 5 \n(25 marks)\na)\nExplain the atomicity property of database transactions.\n(4 marks)\nb)\nBriefly explain the difference between the Cascading Abort and the Unrecoverable Schedule?\n(3 marks)\nc)\nLocking based concurrency control protocols are used in many database systems. Give two\noverheads of using them.\n(4 marks)\nd)\nBriefly explain the rules in Strict 2 Phase Locking Protocol.\n(3 marks)\nPage 6of 7\n\ne)\nConsider the transaction schedule below.\n[DIAGRAM: page_007_diagram_1.png]\nAssume that Transaction T is higher priority than transaction Tisi(i.e. transaction T has\nhigher priority than T2; and T has higher priority than Ts).\ni.\nDraw a Wait-For-Graph for the schedule given above.\n(2 marks)\nii.\nDraw the above schedule considering deadlock prevention algorithm: Wound-wait\napproach.\n(3 marks)\nf)\nConsider the tree shown below. Describe the steps involved in executing each of the following\noperations according to the Simple Tree Locking Algorithm, in term of the order in which\nnodes are locked, unlocked, read and write.\ni.\nSearch 15\n(2 marks)\nii.\nInsert 18\n(2 marks)\niii.\nDelete 27\n(2 marks)\n[DIAGRAM: page_007_diagram_2.png]\n-- End of the Question Paper --\nPage 70f 7",
-    "diagram_refs": [
-      "page_007_diagram_1.png",
-      "page_007_diagram_2.png"
-    ],
-    "subquestions": [
-      {
-        "sub_id": "a)",
-        "marks": 4,
-        "text": "a)\nExplain the atomicity property of database transactions.\n(4 marks)"
-      },
-      {
-        "sub_id": "b)",
-        "marks": 3,
-        "text": "b)\nBriefly explain the difference between the Cascading Abort and the Unrecoverable Schedule?\n(3 marks)"
-      },
-      {
-        "sub_id": "c)",
-        "marks": 4,
-        "text": "c)\nLocking based concurrency control protocols are used in many database systems. Give two\noverheads of using them.\n(4 marks)"
-      },
-      {
-        "sub_id": "d)",
-        "marks": 3,
-        "text": "d)\nBriefly explain the rules in Strict 2 Phase Locking Protocol.\n(3 marks)\nPage 6of 7"
-      },
-      {
-        "sub_id": "e)",
-        "marks": 0,
-        "text": "e)\nConsider the transaction schedule below.\n[DIAGRAM: page_007_diagram_1.png]\nAssume that Transaction T is higher priority than transaction Tisi(i.e. transaction T has\nhigher priority than T2; and T has higher priority than Ts)."
-      },
-      {
-        "sub_id": "i.",
-        "marks": 2,
-        "text": "i.\nDraw a Wait-For-Graph for the schedule given above.\n(2 marks)"
-      },
-      {
-        "sub_id": "ii.",
-        "marks": 3,
-        "text": "ii.\nDraw the above schedule considering deadlock prevention algorithm: Wound-wait\napproach.\n(3 marks)"
-      },
-      {
-        "sub_id": "f)",
-        "marks": 0,
-        "text": "f)\nConsider the tree shown below. Describe the steps involved in executing each of the following\noperations according to the Simple Tree Locking Algorithm, in term of the order in which\nnodes are locked, unlocked, read and write."
-      },
-      {
-        "sub_id": "i.",
-        "marks": 2,
-        "text": "i.\nSearch 15\n(2 marks)"
-      },
-      {
-        "sub_id": "ii.",
-        "marks": 2,
-        "text": "ii.\nInsert 18\n(2 marks)"
-      },
-      {
-        "sub_id": "iii.",
-        "marks": 2,
-        "text": "iii.\nDelete 27\n(2 marks)\n[DIAGRAM: page_007_diagram_2.png]\n-- End of the Question Paper --\nPage 70f 7"
-      }
-    ]
+    "text": "Question 5"
   }
 ]

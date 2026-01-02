@@ -12,10 +12,10 @@ OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL") # Optional: For Local LLM (e.g. h
 class Settings:
     OPENAI_API_KEY = OPENAI_API_KEY
     OPENAI_BASE_URL = OPENAI_BASE_URL
-    OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4")
+    OPENAI_MODEL = os.getenv("OPENAI_MODEL", "llama3.2") # Default to Local
 
     def validate_openai_key(self):
         if not self.OPENAI_API_KEY:
-            raise ValueError("OPENAI_API_KEY is missing. Please set it before using the generation endpoint.")
+            raise ValueError("AI Cloud API Key is missing. Please set it before using the generation endpoint.")
 
 settings = Settings()

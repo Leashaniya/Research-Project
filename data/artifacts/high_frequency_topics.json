@@ -1,59 +1,59 @@
 {
   "top_clusters": [
     {
-      "cluster_id": 3,
-      "count": 17,
+      "cluster_id": 0,
+      "count": 11,
       "label_keywords": [
         "int",
-        "table",
-        "number",
         "varchar",
+        "table",
+        "date",
+        "number",
         "id",
-        "stores",
-        "account",
-        "char"
+        "phone",
+        "briefly explain"
       ]
     },
     {
-      "cluster_id": 2,
-      "count": 12,
+      "cluster_id": 3,
+      "count": 11,
       "label_keywords": [
-        "tree",
-        "explain",
-        "transaction",
-        "file",
-        "briefly explain",
-        "schedule",
-        "briefly",
-        "marks briefly"
+        "model",
+        "following eer",
+        "eer",
+        "eer model",
+        "consider following",
+        "relations",
+        "consider",
+        "following relations"
       ]
     },
     {
       "cluster_id": 1,
-      "count": 11,
+      "count": 7,
       "label_keywords": [
-        "bcnf",
-        "model",
-        "keys",
-        "convert",
-        "relations",
-        "reasons conclusion",
-        "conclusion",
-        "set"
+        "consider relation",
+        "set functional",
+        "set",
+        "functional dependencies",
+        "functional",
+        "following set",
+        "dependencies",
+        "relation"
       ]
     },
     {
-      "cluster_id": 0,
-      "count": 10,
+      "cluster_id": 2,
+      "count": 5,
       "label_keywords": [
-        "frame",
-        "query",
-        "frame number",
-        "disk",
-        "number",
-        "student",
-        "buffer",
-        "page"
+        "integer",
+        "table",
+        "stores",
+        "table stores",
+        "varchar",
+        "account",
+        "id",
+        "char"
       ]
     }
   ]

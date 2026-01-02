@@ -36,7 +36,7 @@ class QuestionWriter(BaseAgent):
         Output: JSON dict with question details.
         """
         if not self.client:
-             raise EnvironmentError("OpenAI API Key missing for Writer Agent.")
+             raise EnvironmentError("AI Cloud API Key missing for Writer Agent.")
 
         slot = input_data["slot"]
         template = input_data["template"]
@@ -45,7 +45,8 @@ class QuestionWriter(BaseAgent):
 
         prompt = self._build_prompt(slot, template, context, feedback)
         
-        self.log(f"Drafting question for {slot.get('question_no')} ({slot.get('target_marks')} marks)...")
+        q_label = slot.get('question_no') or slot.get('slot_id') or "Q?"
+        self.log(f"Drafting question for {q_label} ({slot.get('target_marks')} marks)...")
         
         from app.core.config import settings
         model_name = settings.OPENAI_MODEL or self.config.get("model", "gpt-4o-mini")

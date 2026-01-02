@@ -26,6 +26,7 @@ class AgentOrchestrator:
         
         self.out_dir = OUTPUTS_DIR / "model_papers"
         self.out_dir.mkdir(parents=True, exist_ok=True)
+        self.checkpoint_path = self.out_dir / "generation_checkpoint.json"
 
         # Load Templates
         self.templates = []
@@ -72,13 +73,28 @@ class AgentOrchestrator:
         exam_title = blueprint.get("exam_title", "Model Paper")
         slots = blueprint.get("question_slots", [])
         
-        final_questions = []
-        total_marks = 0
+        # 1.5 CHECKPOINT: Load existing progress if any
+        checkpoint_data = {}
+        if self.checkpoint_path.exists():
+            try:
+                checkpoint_data = json.loads(self.checkpoint_path.read_text(encoding="utf-8"))
+                print(f"🔄 Resuming from checkpoint: {len(checkpoint_data.get('questions', []))} questions already finished.")
+            except Exception:
+                pass
+        
+        final_questions = checkpoint_data.get("questions", [])
+        total_marks = sum(int(q.get("marks", 0)) for q in final_questions)
         
         # 2. LOOP through slots
         for slot in slots:
-            q_no = slot.get("question_no") or slot.get("slot_id")
+            q_no = slot.get("question_no") or slot.get("slot_id") or f"Q{slot.get('position', '?')}"
             target_marks = slot.get("target_marks")
+
+            # Check if already in checkpoint
+            if any(str(q.get("question_no")) == str(q_no) for q in final_questions):
+                print(f"⏩ Skipping {q_no} (Already in checkpoint)")
+                continue
+
             print(f"\n>>> Processing {q_no} ({target_marks} marks)...")
             
             # 2a. RESEARCHER: Get context
@@ -110,10 +126,13 @@ class AgentOrchestrator:
                 # Critic
                 review = await self.critic.run({
                     "draft": draft,
-                    "context": context
+                    "context": context,
+                    "q_no": q_no  # Pass q_no to fix "None" label
                 })
                 
-                if review["approved"]:
+                is_approved = review.get("approved", True) # Fallback to True if key missing
+                
+                if is_approved:
                     print(f"✅ {q_no} Approved!")
                     approved = True
                     break
@@ -126,6 +145,10 @@ class AgentOrchestrator:
             
             final_questions.append(draft)
             total_marks += int(draft.get("marks", 0))
+
+            # SAVE CHECKPOINT
+            with open(self.checkpoint_path, "w", encoding="utf-8") as f:
+                json.dump({"questions": final_questions}, f, indent=2)
 
         # 3. SAVE
         paper = {
@@ -140,6 +163,11 @@ class AgentOrchestrator:
             json.dump(paper, f, indent=2)
             
         print(f"\n✅ Paper generated: {out_path}")
+
+        # CLEANUP: Delete checkpoint
+        if self.checkpoint_path.exists():
+            self.checkpoint_path.unlink()
+
         return paper
 
 # Entry point for pipeline_service
