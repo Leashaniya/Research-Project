@@ -83,12 +83,36 @@ class QuestionWriter(BaseAgent):
         2. APPLY/DESIGN: (e.g. Construct EER, Calculate blocks, Map to relational).
         Ensure this specific question includes at least one sub-question that asks for a definition or listing to match historical standards.
         
-        CRITICAL RULE:
-        - If you create sub-questions (e.g. a, b, c), their marks MUST sum up exactly to {slot.get('target_marks')}.
+        CRITICAL STRUCTURE RULE:
+        """
+        
+        # Check if we have a canonical structure to enforce
+        required_structure = template.get("required_structure", [])
+        if required_structure:
+            base_prompt += f"""
+        **EXACT STRUCTURE REQUIRED** (Based on historical pattern from {template.get('full_text', 'past papers')}):
+        - You MUST create EXACTLY {len(required_structure)} sub-questions
+        - Follow this EXACT mark distribution:
+"""
+            for struct in required_structure:
+                base_prompt += f"          * Part {struct['label']}: {struct['marks']} marks ({struct['type']} type)\n"
+            
+            base_prompt += f"""
+        - The marks MUST sum to exactly {slot.get('target_marks')}
+        - Do NOT deviate from this structure
+        """
+        else:
+            base_prompt += f"""
+        - For 20-mark questions, create AT LEAST 3 sub-questions (a, b, c, and optionally d).
+        - For 10-15 mark questions, create 2-3 sub-questions.
+        - Sub-question marks MUST sum up exactly to {slot.get('target_marks')}.
         - Explicitly state the marks for each sub-question in parentheses, e.g. (5 marks).
         - **DISTRIBUTION STRATEGY**: Assign marks proportional to difficulty. 
-          * Lower marks (2-4) for Definitions/Recall.
-          * Higher marks (5-10+) for Analysis/Design/Calculation.
+          * Lower marks (2-5) for Definitions/Recall.
+          * Higher marks (6-12) for Analysis/Design/Calculation.
+        """
+        
+        base_prompt += f"""
         
         Style Reference (Template - DO NOT COPY):
         {template.get('full_text')}
@@ -101,13 +125,20 @@ class QuestionWriter(BaseAgent):
                 {{
                     "label": "a",
                     "text": "...",
-                    "marks": 5
+                    "marks": 4
                 }},
                 {{
                     "label": "b",
                     "text": "...",
-                    "marks": 15
+                    "marks": 6
+                }},
+                {{
+                    "label": "c",
+                    "text": "...",
+                    "marks": 10
                 }}
+            ]
+        }}
             ]
         }}
         """

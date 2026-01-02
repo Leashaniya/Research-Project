@@ -30,14 +30,33 @@ class AgentOrchestrator:
         self.checkpoint_path = self.out_dir / "generation_checkpoint.json"
 
         # Load Templates
-        self.templates = []
         tpl_path = ARTIFACTS_DIR / "template_questions.json"
         if tpl_path.exists():
             try:
                 self.templates = json.loads(tpl_path.read_text(encoding="utf-8"))
             except Exception as e:
                 print(f"⚠️ Error loading templates: {e}")
+        
+        # Load Canonical Templates (Frequency-based)
+        canonical_path = ARTIFACTS_DIR / "canonical_templates.json"
+        self.canonical_templates = {}
+        if canonical_path.exists():
+            try:
+                self.canonical_templates = json.loads(canonical_path.read_text(encoding="utf-8"))
+                print(f"✅ Loaded canonical templates for {len(self.canonical_templates)} question positions")
+            except Exception as e:
+                print(f"⚠️ Error loading canonical templates: {e}")
 
+    def _get_canonical_template(self, q_no):
+        """Get the canonical template for a question position."""
+        canonical = self.canonical_templates.get(q_no)
+        if canonical:
+            return canonical
+        
+        # Fallback to old random selection if no canonical template
+        print(f"⚠️ No canonical template for {q_no}, using fallback")
+        return self._select_template(q_no, None)
+    
     def _select_template(self, q_no, marks):
         """Pick a random template that matches Q Number or Marks."""
         # Only consider templates with text
@@ -124,11 +143,23 @@ class AgentOrchestrator:
 
             print(f"\n>>> Processing {q_no} ({target_marks} marks)...")
             
-            # 2a. RESEARCHER: Get context
-            # Select a template
-            template = self._select_template(q_no, target_marks)
+            # 2a. Get Canonical Template (Frequency-based)
+            canonical = self._get_canonical_template(q_no)
             
-            # Use template label/text to guide the research query
+            # Build template dict for backward compatibility
+            if isinstance(canonical, dict) and "subquestion_structure" in canonical:
+                # It's a canonical template
+                template = {
+                    "pattern_label": canonical.get("dominant_topic", "General"),
+                    "full_text": f"Reference: {canonical.get('source_paper', 'Unknown')}",
+                    "marks": canonical.get("total_marks", target_marks),
+                    "required_structure": canonical.get("subquestion_structure", [])
+                }
+            else:
+                # Fallback to old template
+                template = canonical if canonical else self._select_template(q_no, target_marks)
+            
+            # 2b. RESEARCHER: Get context
             # E.g. if template is "SQL_DDL_DML", we might want to research "SQL DDL scenarios"
             # For now, we combine Exam Title + Topic + Template Label
             topic = slot.get('topics', ['General'])[0]

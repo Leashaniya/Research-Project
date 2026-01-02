@@ -1,0 +1,90 @@
+{
+  "Q1": {
+    "dominant_topic": "model following eer eer model",
+    "source_paper": "2019",
+    "total_marks": 0,
+    "subquestion_count": 0,
+    "subquestion_structure": []
+  },
+  "Q2": {
+    "dominant_topic": "functional dependencies functional dependencies",
+    "source_paper": "2024 II",
+    "total_marks": 20,
+    "subquestion_count": 8,
+    "subquestion_structure": [
+      {
+        "label": "a)",
+        "marks": 2,
+        "type": "Draw"
+      },
+      {
+        "label": "b)",
+        "marks": 2,
+        "type": "List"
+      },
+      {
+        "label": "c)",
+        "marks": 2,
+        "type": "General"
+      },
+      {
+        "label": "d)",
+        "marks": 2,
+        "type": "General"
+      },
+      {
+        "label": "e)",
+        "marks": 5,
+        "type": "General"
+      },
+      {
+        "label": "f)",
+        "marks": 2,
+        "type": "General"
+      },
+      {
+        "label": "g).i.",
+        "marks": 2,
+        "type": "General"
+      },
+      {
+        "label": "g).ii.",
+        "marks": 3,
+        "type": "General"
+      }
+    ]
+  },
+  "Q4": {
+    "dominant_topic": "int varchar table",
+    "source_paper": "2023",
+    "total_marks": 40,
+    "subquestion_count": 5,
+    "subquestion_structure": [
+      {
+        "label": "a).i)",
+        "marks": 4,
+        "type": "General"
+      },
+      {
+        "label": "a).ii)",
+        "marks": 6,
+        "type": "General"
+      },
+      {
+        "label": "a).iii)",
+        "marks": 7,
+        "type": "General"
+      },
+      {
+        "label": "b)",
+        "marks": 11,
+        "type": "Calculate"
+      },
+      {
+        "label": "c)",
+        "marks": 12,
+        "type": "General"
+      }
+    ]
+  }
+}
