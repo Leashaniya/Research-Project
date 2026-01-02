@@ -35,6 +35,22 @@ def analyze_templates():
     
     canonical = {}
     
+    # Helper function to map keywords to topic names
+    def keywords_to_topic(keywords):
+        """Convert cluster keywords to a meaningful topic name."""
+        kw_str = " ".join(keywords[:5]).lower()
+        
+        if any(word in kw_str for word in ["functional dependencies", "functional", "normalization"]):
+            return "Functional Dependencies and Normalization"
+        elif any(word in kw_str for word in ["int", "varchar", "table", "sql", "query"]):
+            return "SQL Database Schema and Queries"
+        elif any(word in kw_str for word in ["eer", "model", "diagram", "entity"]):
+            return "ER and EER Diagrams"
+        elif any(word in kw_str for word in ["account", "customer", "branch", "bank"]):
+            return "Database Design (Banking System)"
+        else:
+            return " ".join(keywords[:3])  # Fallback to keywords
+    
     for q_id, questions in sorted(by_position.items()):
         print(f"\n🔍 Analyzing Q{q_id}...")
         
@@ -118,8 +134,13 @@ def analyze_templates():
         total_marks = sum(s["marks"] for s in structure)
         print(f"  📝 Structure: {len(structure)} sub-questions, {total_marks} marks")
         
+        # Convert keywords to readable topic name
+        keywords = most_recent.get("cluster_label_keywords", [])
+        readable_topic = keywords_to_topic(keywords)
+        print(f"  🏷️ Topic name: {readable_topic}")
+        
         canonical[f"Q{q_id}"] = {
-            "dominant_topic": dominant_topic,
+            "dominant_topic": readable_topic,
             "source_paper": source_year,
             "total_marks": total_marks,
             "subquestion_count": len(structure),

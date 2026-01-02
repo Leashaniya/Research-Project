@@ -1,0 +1,166 @@
+{
+  "generated_at": "2026-01-03 00:22:42",
+  "mode": "AGENTIC_V1",
+  "total_marks": 100,
+  "questions": [
+    {
+      "question_no": "Q1",
+      "marks": 20,
+      "subquestions": [
+        {
+          "label": "a.i",
+          "text": "Explain the process of logical database design in 50 words or less.",
+          "marks": 3
+        },
+        {
+          "label": "a.ii",
+          "text": "List three types of integrity constraints (ICs) and provide a brief definition for each.",
+          "marks": 3
+        },
+        {
+          "label": "a.iii",
+          "text": "Explain the concept of normalization in database design, including BCNF, and its importance in reducing data redundancy.",
+          "marks": 4
+        },
+        {
+          "label": "b",
+          "text": "Design a relational schema for a university database that includes tables for students, courses, and departments. Calculate the primary key for each table and explain how to enforce referential integrity between tables using foreign keys.",
+          "marks": 6
+        }
+      ],
+      "text": "a.i) Explain the process of logical database design in 50 words or less. (3 marks)\na.ii) List three types of integrity constraints (ICs) and provide a brief definition for each. (3 marks)\na.iii) Explain the concept of normalization in database design, including BCNF, and its importance in reducing data redundancy. (4 marks)\nb) Design a relational schema for a university database that includes tables for students, courses, and departments. Calculate the primary key for each table and explain how to enforce referential integrity between tables using foreign keys. (6 marks)"
+    },
+    {
+      "question_no": "Q2",
+      "marks": 20,
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Draw an EER diagram for a university library system, including entities such as books, members, and librarians. Ensure that the relationships between entities are accurately represented.",
+          "marks": 4
+        },
+        {
+          "label": "b",
+          "text": "List the following functional dependencies over relation R: {A \u2192 B, A \u2192 C, CD \u2192 E, B \u2192 D, E \u2192 A}. Identify any keys in relation R. ",
+          "marks": 6
+        },
+        {
+          "label": "c",
+          "text": "Define and explain the concept of normalization in relational databases. How does it relate to functional dependencies?",
+          "marks": 10
+        }
+      ],
+      "text": "a) Draw an EER diagram for a university library system, including entities such as books, members, and librarians. Ensure that the relationships between entities are accurately represented. (4 marks)\nb) List the following functional dependencies over relation R: {A \u2192 B, A \u2192 C, CD \u2192 E, B \u2192 D, E \u2192 A}. Identify any keys in relation R.  (6 marks)\nc) Define and explain the concept of normalization in relational databases. How does it relate to functional dependencies? (10 marks)"
+    },
+    {
+      "question_no": "Q3",
+      "marks": 22,
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "List the three main components of a relational database schema.",
+          "marks": 4
+        },
+        {
+          "label": "b",
+          "text": "Explain the concept of normalization in relational databases and provide an example of a normalized table.",
+          "marks": 6
+        },
+        {
+          "label": "c",
+          "text": "Define aggregation relationship and explain its difference from ternary relationships.",
+          "marks": 10
+        },
+        {
+          "label": "d",
+          "text": "Explain the concept of referential integrity constraints and provide an example of a table with referential integrity constraints.",
+          "marks": 6
+        },
+        {
+          "label": "e.i",
+          "text": "Identify the type of relationship between a student and their courses in the context of academic semesters.",
+          "marks": 2
+        },
+        {
+          "label": "e.ii",
+          "text": "Explain the concept of overlapping constraints and provide an example of how they are used to enforce data integrity.",
+          "marks": 3
+        },
+        {
+          "label": "e.iii",
+          "text": "Construct an EER diagram for a library management system that includes entities for books, authors, publishers, and librarians.",
+          "marks": 10
+        },
+        {
+          "label": "e.iv",
+          "text": "Explain the concept of fan traps in ER modeling and provide an example of how to avoid them.",
+          "marks": 3
+        },
+        {
+          "label": "e.v",
+          "text": "Draw a diagram showing the relationships between students, courses, academic semesters, and payments in a university setting.",
+          "marks": 6
+        }
+      ],
+      "text": "a) List the three main components of a relational database schema. (4 marks)\nb) Explain the concept of normalization in relational databases and provide an example of a normalized table. (6 marks)\nc) Define aggregation relationship and explain its difference from ternary relationships. (10 marks)\nd) Explain the concept of referential integrity constraints and provide an example of a table with referential integrity constraints. (6 marks)\ne.i) Identify the type of relationship between a student and their courses in the context of academic semesters. (2 marks)\ne.ii) Explain the concept of overlapping constraints and provide an example of how they are used to enforce data integrity. (3 marks)\ne.iii) Construct an EER diagram for a library management system that includes entities for books, authors, publishers, and librarians. (10 marks)\ne.iv) Explain the concept of fan traps in ER modeling and provide an example of how to avoid them. (3 marks)\ne.v) Draw a diagram showing the relationships between students, courses, academic semesters, and payments in a university setting. (6 marks)"
+    },
+    {
+      "question_no": "Q4",
+      "marks": 20,
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Explain the terms 'Fan Trap' and 'Chasm Trap' in ER modeling. (2 marks)",
+          "marks": 2
+        },
+        {
+          "label": "b",
+          "text": "Draw an E-ER diagram for the given scenario: A Library is organized into several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian.",
+          "marks": 6
+        },
+        {
+          "label": "c.i",
+          "text": "Explain the concept of Aggregation in ER modeling and provide an example. (4 marks)",
+          "marks": 4
+        },
+        {
+          "label": "c.ii",
+          "text": "List three types of integrity constraints used in relational database design.",
+          "marks": 2
+        },
+        {
+          "label": "d.i",
+          "text": "Explain the concept of Referential Integrity Constraint and its role in maintaining data consistency.",
+          "marks": 2
+        },
+        {
+          "label": "d.ii",
+          "text": "Describe how a foreign key attribute in one relation can reference an existing primary key value in another relation, and provide a diagrammatic representation."
+        }
+      ],
+      "text": "a) Explain the terms 'Fan Trap' and 'Chasm Trap' in ER modeling. (2 marks) (2 marks)\nb) Draw an E-ER diagram for the given scenario: A Library is organized into several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian. (6 marks)\nc.i) Explain the concept of Aggregation in ER modeling and provide an example. (4 marks) (4 marks)\nc.ii) List three types of integrity constraints used in relational database design. (2 marks)\nd.i) Explain the concept of Referential Integrity Constraint and its role in maintaining data consistency. (2 marks)\nd.ii) Describe how a foreign key attribute in one relation can reference an existing primary key value in another relation, and provide a diagrammatic representation. (0 marks)"
+    },
+    {
+      "question_no": "Q5",
+      "marks": 18,
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "List three types of functional dependencies in a relation.",
+          "marks": 4
+        },
+        {
+          "label": "b",
+          "text": "Define Armstrong Axioms and explain how they are used to compute attribute closure.",
+          "marks": 6
+        },
+        {
+          "label": "c",
+          "text": "Explain the concept of normalization in database management systems, including the role of keys and functional dependencies. Provide an example of a relation that is not in BCNF.",
+          "marks": 10
+        }
+      ],
+      "text": "a) List three types of functional dependencies in a relation. (4 marks)\nb) Define Armstrong Axioms and explain how they are used to compute attribute closure. (6 marks)\nc) Explain the concept of normalization in database management systems, including the role of keys and functional dependencies. Provide an example of a relation that is not in BCNF. (10 marks)"
+    }
+  ]
+}

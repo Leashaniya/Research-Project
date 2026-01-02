@@ -15,9 +15,9 @@
       "typical_num_subquestions": 2,
       "num_samples": 15,
       "topics": [
-        "model",
-        "following eer",
-        "eer model"
+        "frame",
+        "number",
+        "customer"
       ]
     },
     {
@@ -39,9 +39,9 @@
       "typical_num_subquestions": 5,
       "num_samples": 15,
       "topics": [
-        "int",
-        "varchar",
-        "table"
+        "tree",
+        "explain",
+        "briefly explain"
       ]
     },
     {
@@ -53,7 +53,7 @@
       "topics": [
         "int",
         "varchar",
-        "table"
+        "relations"
       ]
     },
     {
@@ -63,9 +63,9 @@
       "typical_num_subquestions": 7,
       "num_samples": 8,
       "topics": [
-        "int",
-        "varchar",
-        "table"
+        "tree",
+        "explain",
+        "briefly explain"
       ]
     }
   ]

@@ -1,17 +1,246 @@
 [
   {
+    "pdf_stem": "2023",
+    "question_id": "3",
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "tree",
+      "explain",
+      "briefly explain",
+      "transaction",
+      "briefly",
+      "schedule",
+      "file",
+      "index"
+    ],
+    "marks": 25,
+    "full_text": "In Native API Driver, vendor-specific driver must be installed on each client machine. Accept or refute the above statement justifying your answer. There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used. Briefly explain what is meant by a BCP Command? Briefly explain how SQL server security framework manages access to securable entities. A software company has been tasked with developing a comprehensive healthcare information technology (IT) system for a large medical facility. The project manager is responsible for overseeing the project's development, and the following roles and responsibilities are assigned: Linda is the senior database administrator who is tasked with creating and managing the databases required for the healthcare IT system. This includes patient records, appointment scheduling, and medical inventory databases. Raj and Eva are junior database administrators who work under Linda's supervision. They are responsible for managing and maintaining specific databases within the healthcare IT system. Raj takes care of the patient records database, while Eva is responsible for the appointment scheduling database. Carla is a database developer who reports to Raj and Eva. Her role involves designing and building the database schemas, including creating tables, views, and stored procedures for the patient records and appointment scheduling databases. Sophie and John are data entry operators responsible for entering patient information, medical records, and appointment data into the system. They work closely with the junior database administrators to ensure accurate and timely data entry. Write a T-SQL statement to create a login to Linda. Provide permission using fixed server role to handle all the administrative tasks in the server to Linda. Assuming that Eva has the user name eva.e, write a T-SQL statements required to assign her with the responsibility of handling the appointmentDB using user defined server role. Assuming that Carla has a login name by the name carla.a, write T-SQL statements required to allow her to create tables, views and stored procedures. Assuming that John has a login name john.k write T-SQL statements required to perform the tasks he is responsible for.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "label": "a)",
+        "marks": 2,
+        "text": "In Native API Driver, vendor-specific driver must be installed on each client machine. Accept or refute the above statement justifying your answer.",
+        "subquestions": []
+      },
+      {
+        "label": "b)",
+        "marks": 2,
+        "text": "There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used.",
+        "subquestions": []
+      },
+      {
+        "label": "c)",
+        "marks": 2,
+        "text": "Briefly explain what is meant by a BCP Command?",
+        "subquestions": []
+      },
+      {
+        "label": "d)",
+        "marks": 3,
+        "text": "Briefly explain how SQL server security framework manages access to securable entities.",
+        "subquestions": []
+      },
+      {
+        "label": "e)",
+        "marks": 16,
+        "text": "A software company has been tasked with developing a comprehensive healthcare information technology (IT) system for a large medical facility. The project manager is responsible for overseeing the project's development, and the following roles and responsibilities are assigned: Linda is the senior database administrator who is tasked with creating and managing the databases required for the healthcare IT system. This includes patient records, appointment scheduling, and medical inventory databases. Raj and Eva are junior database administrators who work under Linda's supervision. They are responsible for managing and maintaining specific databases within the healthcare IT system. Raj takes care of the patient records database, while Eva is responsible for the appointment scheduling database. Carla is a database developer who reports to Raj and Eva. Her role involves designing and building the database schemas, including creating tables, views, and stored procedures for the patient records and appointment scheduling databases. Sophie and John are data entry operators responsible for entering patient information, medical records, and appointment data into the system. They work closely with the junior database administrators to ensure accurate and timely data entry.",
+        "subquestions": [
+          {
+            "label": "i)",
+            "marks": 2,
+            "text": "Write a T-SQL statement to create a login to Linda.",
+            "subquestions": []
+          },
+          {
+            "label": "ii)",
+            "marks": 3,
+            "text": "Provide permission using fixed server role to handle all the administrative tasks in the server to Linda.",
+            "subquestions": []
+          },
+          {
+            "label": "iii)",
+            "marks": 5,
+            "text": "Assuming that Eva has the user name eva.e, write a T-SQL statements required to assign her with the responsibility of handling the appointmentDB using user defined server role.",
+            "subquestions": []
+          },
+          {
+            "label": "iv)",
+            "marks": 3,
+            "text": "Assuming that Carla has a login name by the name carla.a, write T-SQL statements required to allow her to create tables, views and stored procedures.",
+            "subquestions": []
+          },
+          {
+            "label": "v)",
+            "marks": 3,
+            "text": "Assuming that John has a login name john.k write T-SQL statements required to perform the tasks he is responsible for.",
+            "subquestions": []
+          }
+        ]
+      }
+    ],
+    "pattern_label": "SQL_DDL_DML"
+  },
+  {
+    "pdf_stem": "2023 II",
+    "question_id": "3",
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "tree",
+      "explain",
+      "briefly explain",
+      "transaction",
+      "briefly",
+      "schedule",
+      "file",
+      "index"
+    ],
+    "marks": 25,
+    "full_text": "Native API Driver is faster than Java Thin Driver. Accept or refute the above statement justifying your answer. There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used. Briefly explain what is meant by a Full Backup? Briefly explain the three main aspects to focus on when a database is secured? A software company has been assigned the responsibility of automating the tasks of a digital marketing company. This includes designing and developing a database for the company to maintain the records of various functions. It also maintains records of digital channels to market products and services in order to reach consumers. Menaka, a senior DBA is assigned to the project to handle all the administrative tasks related to the databases by the database architect. Menaka creates the required database and assign Nipun the responsibility of managing the CompanyDB. Since there will be lot of users for the project, Amali is assigned with the responsibility of handling logins to the system. Nipun assigns Kasuni with the responsibility of creating tables. In addition, Kasuni should be able to create views, stored procedures and triggers required. Dinethi, who is data entry operator is given the responsibility of inserting the data to the table. Amal is assigned with the responsibility of generating reports from the table in the data. For the above purpose, Amal could directly query the data or call functions and procedures. Write a T-SQL statement to create a login to Menaka. Provide permission using fixed server role to handle all the administrative tasks in the server to Menaka. Assuming that Nipun has the user name nipun.b, write a T-SQL statements required to assign him with the responsibility of handling the companyDB using user defined server role. Assuming that Kasuni has a login name by the name kasuni.a write T-SQL statements required to allow her to create tables, functions, procedures and triggers. Assuming that Amal has a login name amal k. write T-SQL statements required to perform the tasks she is responsible for.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "label": "a)",
+        "marks": 2,
+        "text": "Native API Driver is faster than Java Thin Driver. Accept or refute the above statement justifying your answer.",
+        "subquestions": []
+      },
+      {
+        "label": "b)",
+        "marks": 2,
+        "text": "There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used.",
+        "subquestions": []
+      },
+      {
+        "label": "c)",
+        "marks": 2,
+        "text": "Briefly explain what is meant by a Full Backup?",
+        "subquestions": []
+      },
+      {
+        "label": "d)",
+        "marks": 3,
+        "text": "Briefly explain the three main aspects to focus on when a database is secured?",
+        "subquestions": []
+      },
+      {
+        "label": "e)",
+        "marks": 16,
+        "text": "A software company has been assigned the responsibility of automating the tasks of a digital marketing company. This includes designing and developing a database for the company to maintain the records of various functions. It also maintains records of digital channels to market products and services in order to reach consumers. Menaka, a senior DBA is assigned to the project to handle all the administrative tasks related to the databases by the database architect. Menaka creates the required database and assign Nipun the responsibility of managing the CompanyDB. Since there will be lot of users for the project, Amali is assigned with the responsibility of handling logins to the system. Nipun assigns Kasuni with the responsibility of creating tables. In addition, Kasuni should be able to create views, stored procedures and triggers required. Dinethi, who is data entry operator is given the responsibility of inserting the data to the table. Amal is assigned with the responsibility of generating reports from the table in the data. For the above purpose, Amal could directly query the data or call functions and procedures.",
+        "subquestions": [
+          {
+            "label": "i)",
+            "marks": 2,
+            "text": "Write a T-SQL statement to create a login to Menaka.",
+            "subquestions": []
+          },
+          {
+            "label": "ii)",
+            "marks": 3,
+            "text": "Provide permission using fixed server role to handle all the administrative tasks in the server to Menaka.",
+            "subquestions": []
+          },
+          {
+            "label": "iii)",
+            "marks": 5,
+            "text": "Assuming that Nipun has the user name nipun.b, write a T-SQL statements required to assign him with the responsibility of handling the companyDB using user defined server role.",
+            "subquestions": []
+          },
+          {
+            "label": "iv)",
+            "marks": 3,
+            "text": "Assuming that Kasuni has a login name by the name kasuni.a write T-SQL statements required to allow her to create tables, functions, procedures and triggers.",
+            "subquestions": []
+          },
+          {
+            "label": "v)",
+            "marks": 3,
+            "text": "Assuming that Amal has a login name amal k. write T-SQL statements required to perform the tasks she is responsible for.",
+            "subquestions": []
+          }
+        ]
+      }
+    ],
+    "pattern_label": "SQL_DDL_DML"
+  },
+  {
+    "pdf_stem": "2015",
+    "question_id": "4",
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "tree",
+      "explain",
+      "briefly explain",
+      "transaction",
+      "briefly",
+      "schedule",
+      "file",
+      "index"
+    ],
+    "marks": 18,
+    "full_text": "Consider the following statement; Indexes speed up selections but may slow down updates. Briefly explain how indexes can slow down update operations. Justify why a table contains only one clustered index whereas more unclustered indexes are allowed. Consider the following schema: Employee(eid:integer, ename:string, address:string, salary:float, dno:int). There are 10000 pages in Employee file. Each page contains 100 tuples. Assume that the following indexes exists: Index I: An unclustered B+ Tree index on Employee<eid> with height 3. Index 2: A clustered hash index using Alt. 1 on Employee<eid> (Assume a cost of 1.2 Disk I/Os to access a hash page). Consider the following queries: Query 1: SELECT salary FROM Employee WHERE eid = E100200762. Query 2: SELECT salary FROM Employee WHERE eid < E00001000. What is the best index (from the indexes given above) that you would select to evaluate query 1? Give reasons? Estimate the cost of the query in disk I/Os using the selected index. Note that eid is primary key in the Employee table. What is the best index (from the indexes given above) that you would select to evaluate query 2? Give reasons? Consider the following relational schema: Student (sno, sname, gpa) Registration (sno, cno, marks) Course (cno, cname, credits) Assume that Student relation consists of 300 pages with 100 tuples per page, Registration relation contains 900 pages with 100 tuples per page, and Course relation contains 300 pages with 100 tuples per page. Consider the following query: Select count (s.sno) From Student s, Registration r Where s.sno = r.sno. There exists a B+ tree on Registration<sno> with height 3 using Alt. 1 (record and index key together). Join tables using index nested loop join algorithm. Draw query tree for the above query. Estimate the cost for the above query.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "label": "a",
+        "marks": 2,
+        "text": "Consider the following statement; Indexes speed up selections but may slow down updates. Briefly explain how indexes can slow down update operations."
+      },
+      {
+        "label": "b",
+        "marks": 3,
+        "text": "Justify why a table contains only one clustered index whereas more unclustered indexes are allowed."
+      },
+      {
+        "label": "c",
+        "marks": null,
+        "text": "Consider the following schema: Employee(eid:integer, ename:string, address:string, salary:float, dno:int). There are 10000 pages in Employee file. Each page contains 100 tuples. Assume that the following indexes exists: Index I: An unclustered B+ Tree index on Employee<eid> with height 3. Index 2: A clustered hash index using Alt. 1 on Employee<eid> (Assume a cost of 1.2 Disk I/Os to access a hash page). Consider the following queries: Query 1: SELECT salary FROM Employee WHERE eid = E100200762. Query 2: SELECT salary FROM Employee WHERE eid < E00001000.",
+        "subquestions": [
+          {
+            "label": "i",
+            "marks": 4,
+            "text": "What is the best index (from the indexes given above) that you would select to evaluate query 1? Give reasons? Estimate the cost of the query in disk I/Os using the selected index. Note that eid is primary key in the Employee table."
+          },
+          {
+            "label": "ii",
+            "marks": 2,
+            "text": "What is the best index (from the indexes given above) that you would select to evaluate query 2? Give reasons?"
+          }
+        ]
+      },
+      {
+        "label": "d",
+        "marks": null,
+        "text": "Consider the following relational schema: Student (sno, sname, gpa) Registration (sno, cno, marks) Course (cno, cname, credits) Assume that Student relation consists of 300 pages with 100 tuples per page, Registration relation contains 900 pages with 100 tuples per page, and Course relation contains 300 pages with 100 tuples per page. Consider the following query: Select count (s.sno) From Student s, Registration r Where s.sno = r.sno. There exists a B+ tree on Registration<sno> with height 3 using Alt. 1 (record and index key together). Join tables using index nested loop join algorithm.",
+        "subquestions": [
+          {
+            "label": "i",
+            "marks": 2,
+            "text": "Draw query tree for the above query."
+          },
+          {
+            "label": "ii",
+            "marks": 5,
+            "text": "Estimate the cost for the above query."
+          }
+        ]
+      }
+    ],
+    "pattern_label": "SQL_DDL_DML"
+  },
+  {
     "pdf_stem": "2015 II",
     "question_id": "1",
-    "cluster": 1,
+    "cluster": 3,
     "cluster_label_keywords": [
       "int",
       "varchar",
+      "relations",
       "table",
+      "following relations",
+      "keys",
       "stores",
-      "id",
-      "date",
-      "table stores",
-      "details"
+      "database"
     ],
     "marks": 20,
     "full_text": "Consider the following schema of a database used in a vehicle rental system. Customers (custld: integer, name: varchar (50), address: varachar (60), phone: char (10)) Vehicles (vehicleld: interger, mileage: double, fuel Type: varchar (10), transmission: varchar (15)) Reservations (cld: integer, vId: integer, startDate: datetime, endDate: datetime, returnDate: datetime) Payments (pld: integer, cId: integer, vId: integer, type: varchar (10), amount: real, date: datetime) Customers table contains attributes to store the id (custld), name, address and the phone number of customers. Vehicles table contains the id (vehicleld), milage, type of fuel and the type of transmission (transmission) for each vehicle. Fuel type attribute stores Petrol, Diesel or Hybrid. The transmission attribute stores either automatic or manual. Reservation table stores information about reservations of vehicles. The table contains information about the vehicles which have been rented (vId), the customers who have reserved vehicles (cId), start dates of the reservations (startDate), the end dates of the reservations (endDate) and the dates the vehicles have been returned by the customer (returnDate). For vehicles that are not returned yet, a null value is stored in the return date field. Payment table stores the payment details of the reservations. The table contains payment id (pId), customer id (cId), vehicle id (vId), type of the payment (type), amount paid and the and the paid date. When customers reserve vehicles they have to make the full payment or a partial payment. If the vehicle is returned late a fine has to be paid for the vehicle. The type attribute of the payment table stores Full, Partial or Fine to show the type of the payment as above. The primary keys of all relations are underlined.",
@@ -55,64 +284,18 @@
     "pattern_label": "GENERAL_THEORY"
   },
   {
-    "pdf_stem": "2017 II",
-    "question_id": "1",
-    "cluster": 1,
-    "cluster_label_keywords": [
-      "int",
-      "varchar",
-      "table",
-      "stores",
-      "id",
-      "date",
-      "table stores",
-      "details"
-    ],
-    "marks": 20,
-    "full_text": "Consider the following relations in a database created for a taxi service Vehicle (vehiclelD : char(4), type : varchar(10), fielType: varchar(6), mileage: real) Driver (driverID : char(4), name : varchar(50), phone : char(10)) Customer (customerID : char(4), name: varchar(5), phone :char(10)) Booking (bookingID: int, vehicleID: char(4), driverID: char(4), customerID: char(4), date: datetime, from : varchar(15), to: varchar(15), distance: real) Payment (bookingID: int, fee: real) The database stores information on vehicles owned by the service in the Vehicle table. The table stores a unique vehicle ID (vehicleID), type ( Hatchback ,  Sedan  or  Van ), firel type ( Petrol  or  Diesel ) and the total distance the vehicle have travelled so far (mileage) for each vehicle owned by the service. Information of drivers working at the taxi service is stored in the Driver table. The table stores a unique ID (driverID), name and the phone number of each driver working at the service. For each customer, the service stores a customer ID (customerID) in the Customer table in the database along with the name of the customer and his/her phone number. When a customer books a taxi, the service assigns a unique ID (bookingID) for the booking, and stores the booking ID along with the ID of the driver assigned (driverID), ID of vehicle assigned (vehicleID), customer ID of the customer (customerID), booked date (date), from where the customer is taking the taxi from (from) and the destination the customer want to reach (o) in the Booking table. Once the customer has completed the journey, the distance of the journey is updated in kilometers in the Booking table. Payment table stores the booking ID and the payment to be made for each booking. Use SQL queries to answer following questions.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "i.",
-        "marks": 2,
-        "text": "Find the names of the customers who has booked the vehicle number V001 to reach Maharagama"
-      },
-      {
-        "label": "ii.",
-        "marks": 4,
-        "text": "For each driver who had driven a Sedan for a total distance exceeding 5000km display the name of the driver and the total distance he had driven."
-      },
-      {
-        "label": "iii.",
-        "marks": 3,
-        "text": "Find the ID and type of all vehicles which have been only booked for travelling more than 100 kilometers between 1% January 2016 and 315 December 2016."
-      },
-      {
-        "label": "b)",
-        "marks": 5,
-        "text": "The charging scheme for the taxis booked with the taxi service is as follows: Initial charge for the taxi is Rs. 300 and the customer can travel for Skms without an additional payment. For each km travelled after the first Skm, a payment of Rs.50 per kilometer would be charged. Create a stored procedure to calculate the payment due for a booking, given the distance the customer has travelled and the booking ID, and store the payment amount to be made along with the booking ID in the Payment table."
-      },
-      {
-        "label": "Create a trigger to update the mileage of the vehicle assigned and add a record to the payment table (use the stored procedure created in part b)), assuming that the Booking table is only updated when the distance is assigned at the completion of a booking.",
-        "marks": 6,
-        "text": ""
-      }
-    ],
-    "pattern_label": "SQL_DDL_DML"
-  },
-  {
     "pdf_stem": "2023",
     "question_id": "4",
-    "cluster": 1,
+    "cluster": 3,
     "cluster_label_keywords": [
       "int",
       "varchar",
+      "relations",
       "table",
+      "following relations",
+      "keys",
       "stores",
-      "id",
-      "date",
-      "table stores",
-      "details"
+      "database"
     ],
     "marks": 40,
     "full_text": "Consider the following schema of a database designed for a hotel: Guest (guestId: int, fname: varchar(50), lastName: varchar(50), phone: int, email: varchar(50), address: varchar(100)) Room (roomNum: int, roomType: varchar(20), bedType: varchar(50), price: real, isOccupied: boolean) Booking (bookingId: int, guestId: int, roomNum: int, checkInDate: date, checkOutDate: date, totalAmount: real) Bill (billNum: int, bookingId: int, totalAmount: real, paymentMethod: varchar(50), paymentStatus: varchar(50)) Receptionist (repId: int, name: varchar(20), phone: int, address: varchar(30)) The 'Guest' table is designed to store information about the hotel's guests, including their unique guest ID, first name, last name, phone number, email address, and physical address. The 'Room' table tracks details about the hotel's rooms. It includes information such as the room number, room type, bed type, price per night, and a flag (boolean) indicating whether the room is currently occupied. The 'Booking' table manages guest reservations. Each booking is assigned a unique ID and is associated with a specific guest (via guestId) and a room (via roomNum). It also records the check-in and check-out dates, as well as the total booking amount. The 'Bill' table handles billing information for guest stays. It connects to a particular booking (via bookingId) and stores the bill number, the total amount to be paid, the payment method, and the payment status. The 'Receptionist' table contains details about hotel receptionist, with each staff member having a unique ID, name, phone number, and address. This allows the system to keep track of receptionists or other staff members involved in hotel operations.",
@@ -159,78 +342,245 @@
     "pattern_label": "GENERAL_THEORY"
   },
   {
-    "pdf_stem": "2018",
+    "pdf_stem": "2016 II",
     "question_id": "1",
     "cluster": 3,
     "cluster_label_keywords": [
-      "model",
-      "following eer",
-      "eer model",
-      "eer",
-      "consider following",
+      "int",
+      "varchar",
       "relations",
-      "consider",
-      "following relations"
+      "table",
+      "following relations",
+      "keys",
+      "stores",
+      "database"
     ],
     "marks": 20,
-    "full_text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
+    "full_text": "Consider the following schema of a database developed for a university. Lecturer (lecturerld: integer, Iname: varchar (30), grade: varchar (20), salary: real, type: varchar (10), department: varchar (30)) Qualifications (lecturerld: integer, qualification: varchar (30)) Course (cid: integer, cname; varchar (25), credits: integer, program: varchar (30)) Teach (lecturerld: integer, cid: integer, year: integer, semester: integer) Lecturer table stores the id (lecturerld), name (Iname), grade ( Assistant Lecturer , Lecturer or Senior Lecturer ), salary, type of the lecturer ( Permanent or Visiting ) and the attached department (such as IT and IS ) for each lecturer in the university. Qualifications table stores information related to the qualifications of lecturers. The table stores the IDs of the lecturers (lecturerld) and the qualifications they have received (such as BSc in IT , MSc in GIS , MBA and Phd in Computer Science ). Course table stores the ID of the course (cid), name (cname), number of credits (credits) and the program the course belongs to (such as BSc in IT , and BEng in Mechanical Engineering ) for each course offered. The Teach table stores information on teaching. For each lecturer teaching a course, the Teach table stores the ID of the lecturer (lecturerld), ID of the course he/she has taught (cid), the year and the semester he/she has taught the course. Lecturerld attribute in Qualifications and Teach tables are foreign keys that references the Lecturer table. Cid attribute in Teach table is a foreign key that references the Course table. All primary keys of the tables are underlined.",
     "diagram_refs": [],
-    "subquestions": [],
+    "subquestions": [
+      {
+        "label": "a",
+        "marks": null,
+        "text": "Use SQL queries to answer following questions.",
+        "subquestions": [
+          {
+            "label": "i",
+            "marks": 3,
+            "text": "Find the names of the courses in the MBA program which are taught by the lecturers attached to the IT department."
+          },
+          {
+            "label": "ii",
+            "marks": 3,
+            "text": "Find the names of the courses that are not offered in semester 2 of 2016."
+          },
+          {
+            "label": "iii",
+            "marks": 4,
+            "text": "Find the names and the IDs of the lecturers who teach a course for the same qualification he has obtained. Hint: When a student completes a program he obtains that qualification."
+          }
+        ]
+      },
+      {
+        "label": "b",
+        "marks": null,
+        "text": "Create a function that calculates and returns the workload for a given lecturer in a given year and a semester. Workload indicate the number of hours'a teacher teach weekly. Assume that a teacher spend 2 hours weekly in teaching every course he teach.",
+        "subquestions": [
+          {
+            "label": "",
+            "marks": 5,
+            "text": "Suppose that the university pays 5000 rupees for visiting lecturers for one hour of lectures. With the assumption that a lecturer teach 20 hours in each course he teach in one semester, write a procedure that calculate the payment to be made for all visiting lecturers for a given year and a semester and store it in the salary column."
+          }
+        ]
+      }
+    ],
     "pattern_label": "ER_EER_MODELING"
   },
   {
-    "pdf_stem": "2018 II",
+    "pdf_stem": "2017 II",
     "question_id": "1",
-    "cluster": 3,
+    "cluster": 0,
     "cluster_label_keywords": [
-      "model",
-      "following eer",
-      "eer model",
-      "eer",
-      "consider following",
-      "relations",
-      "consider",
-      "following relations"
+      "frame",
+      "number",
+      "customer",
+      "frame number",
+      "time",
+      "account",
+      "student",
+      "disk"
     ],
     "marks": 20,
-    "full_text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly. [DIAGRAM: page_002_diagram_1.png]",
+    "full_text": "Consider the following relations in a database created for a taxi service Vehicle (vehiclelD : char(4), type : varchar(10), fielType: varchar(6), mileage: real) Driver (driverID : char(4), name : varchar(50), phone : char(10)) Customer (customerID : char(4), name: varchar(5), phone :char(10)) Booking (bookingID: int, vehicleID: char(4), driverID: char(4), customerID: char(4), date: datetime, from : varchar(15), to: varchar(15), distance: real) Payment (bookingID: int, fee: real) The database stores information on vehicles owned by the service in the Vehicle table. The table stores a unique vehicle ID (vehicleID), type ( Hatchback ,  Sedan  or  Van ), firel type ( Petrol  or  Diesel ) and the total distance the vehicle have travelled so far (mileage) for each vehicle owned by the service. Information of drivers working at the taxi service is stored in the Driver table. The table stores a unique ID (driverID), name and the phone number of each driver working at the service. For each customer, the service stores a customer ID (customerID) in the Customer table in the database along with the name of the customer and his/her phone number. When a customer books a taxi, the service assigns a unique ID (bookingID) for the booking, and stores the booking ID along with the ID of the driver assigned (driverID), ID of vehicle assigned (vehicleID), customer ID of the customer (customerID), booked date (date), from where the customer is taking the taxi from (from) and the destination the customer want to reach (o) in the Booking table. Once the customer has completed the journey, the distance of the journey is updated in kilometers in the Booking table. Payment table stores the booking ID and the payment to be made for each booking. Use SQL queries to answer following questions.",
     "diagram_refs": [],
-    "subquestions": [],
-    "pattern_label": "ER_EER_MODELING"
+    "subquestions": [
+      {
+        "label": "i.",
+        "marks": 2,
+        "text": "Find the names of the customers who has booked the vehicle number V001 to reach Maharagama"
+      },
+      {
+        "label": "ii.",
+        "marks": 4,
+        "text": "For each driver who had driven a Sedan for a total distance exceeding 5000km display the name of the driver and the total distance he had driven."
+      },
+      {
+        "label": "iii.",
+        "marks": 3,
+        "text": "Find the ID and type of all vehicles which have been only booked for travelling more than 100 kilometers between 1% January 2016 and 315 December 2016."
+      },
+      {
+        "label": "b)",
+        "marks": 5,
+        "text": "The charging scheme for the taxis booked with the taxi service is as follows: Initial charge for the taxi is Rs. 300 and the customer can travel for Skms without an additional payment. For each km travelled after the first Skm, a payment of Rs.50 per kilometer would be charged. Create a stored procedure to calculate the payment due for a booking, given the distance the customer has travelled and the booking ID, and store the payment amount to be made along with the booking ID in the Payment table."
+      },
+      {
+        "label": "Create a trigger to update the mileage of the vehicle assigned and add a record to the payment table (use the stored procedure created in part b)), assuming that the Booking table is only updated when the distance is assigned at the completion of a booking.",
+        "marks": 6,
+        "text": ""
+      }
+    ],
+    "pattern_label": "SQL_DDL_DML"
   },
   {
-    "pdf_stem": "2019",
-    "question_id": "1",
-    "cluster": 3,
+    "pdf_stem": "2014 (1)",
+    "question_id": "2",
+    "cluster": 0,
     "cluster_label_keywords": [
-      "model",
-      "following eer",
-      "eer model",
-      "eer",
-      "consider following",
-      "relations",
-      "consider",
-      "following relations"
+      "frame",
+      "number",
+      "customer",
+      "frame number",
+      "time",
+      "account",
+      "student",
+      "disk"
     ],
     "marks": 20,
-    "full_text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
+    "full_text": "Explain the time spent in accessing a block in a disk. Consider a disk with the following characteristics: block size 512 bytes, number of blocks per track 50, number of tracks per surface 100, average seck time 10 msec. The disk consists of 4 double-sided platters. Suppose that a file containing 1000 records of 100 bytes each is to be stored on such a disk and that no record is allowed to span two blocks: How many records of 100 bytes could be stored in a track? How many tracks are needed to store the entire file? If disk platter rotates at 5400 rpm (revolutions per minute), calculate transfer time of one track of data. Assuming that the blocks in the file are stored sequentially and has only this file data in the disk, what is the time taken to read the file content? Briefly explain one technique used in RAID to improve performance and one technique used to improve reliability. Illustrate the two alternatives available for storing fixed length records in a page. List one advantage of each alternative over the other. Consider the following buffer pool with 5 frames. Frame No: 0 | Frame No: 1 | Frame No: 2 | Frame No: 3 | Frame No: 4 Each frame has a frame number (Frame No), page id (PagelD) of page in buffer pool, pin count (PinCount) and a dirty bit (Dirty). Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 11:15 am Frame number 1 at 11:35 am Frame number 2 at 10:57 am Frame number 3 at 11:12 am Frame number 4 at 11:26 am Describe the steps involved when a page request for the page with PageID 50 occurs if LRU (least-recently-used) policy is used as the replacement policy.",
     "diagram_refs": [],
-    "subquestions": [],
-    "pattern_label": "ER_EER_MODELING"
+    "subquestions": [
+      {
+        "label": "a",
+        "marks": 3,
+        "text": "Explain the time spent in accessing a block in a disk."
+      },
+      {
+        "label": "b",
+        "marks": null,
+        "text": "Consider a disk with the following characteristics: block size 512 bytes, number of blocks per track 50, number of tracks per surface 100, average seck time 10 msec. The disk consists of 4 double-sided platters. Suppose that a file containing 1000 records of 100 bytes each is to be stored on such a disk and that no record is allowed to span two blocks:",
+        "subquestions": [
+          {
+            "label": "i",
+            "marks": 1,
+            "text": "How many records of 100 bytes could be stored in a track?"
+          },
+          {
+            "label": "ii",
+            "marks": 2,
+            "text": "How many tracks are needed to store the entire file?"
+          },
+          {
+            "label": "iii",
+            "marks": 2,
+            "text": "If disk platter rotates at 5400 rpm (revolutions per minute), calculate transfer time of one track of data."
+          },
+          {
+            "label": "iv",
+            "marks": 2,
+            "text": "Assuming that the blocks in the file are stored sequentially and has only this file data in the disk, what is the time taken to read the file content?"
+          }
+        ]
+      },
+      {
+        "label": "c",
+        "marks": 2,
+        "text": "Briefly explain one technique used in RAID to improve performance and one technique used to improve reliability."
+      },
+      {
+        "label": "d",
+        "marks": 3,
+        "text": "Illustrate the two alternatives available for storing fixed length records in a page. List one advantage of each alternative over the other."
+      },
+      {
+        "label": "e",
+        "marks": null,
+        "text": "Consider the following buffer pool with 5 frames. Frame No: 0 | Frame No: 1 | Frame No: 2 | Frame No: 3 | Frame No: 4 [DIAGRAM: page_003_diagram_1.png] Each frame has a frame number (Frame No), page id (PagelD) of page in buffer pool, pin count (PinCount) and a dirty bit (Dirty). Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 11:15 am Frame number 1 at 11:35 am Frame number 2 at 10:57 am Frame number 3 at 11:12 am Frame number 4 at 11:26 am Describe the steps involved when a page request for the page with PageID 50 occurs if LRU (least-recently-used) policy is used as the replacement policy.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2024 II",
+    "question_id": "1",
+    "cluster": 0,
+    "cluster_label_keywords": [
+      "frame",
+      "number",
+      "customer",
+      "frame number",
+      "time",
+      "account",
+      "student",
+      "disk"
+    ],
+    "marks": 20,
+    "full_text": "The Computer Science Students at SLIIT are planning to design a database to produce music albums. The students have come up with the following requirements. The students who have talent in music (i.e. singing, playing an instrument, etc..) are named as student musician. All student musicians are capable of singing songs. In addition, some of them play instruments and some of them act as producers when albums are produced. For each student musician a unique identification number, name and address are recorded. For those who play instruments, their specialization, and the duration that they play should be stored. For each instrument, a unique identification number and the name (e.g., guitar, violin, flute, etc.) are recorded. Each student capable of playing instruments may play several instruments, and a given instrument is played by one student. A student who plays instruments may supervise several other such students. Each album has a unique identification number, title, copyright date and a format (e.g., CD or MC). Each album has one student who acts as its producer. A student may produce several albums. Each album has several songs on it and a song appears on one album. The date that the songs are recorded on the album should be known. For each song a unique identification number, the title and the author are recorded. Each song is sung by one or more students, and a student sings several songs. The number of times that a song is sung should be recorded. Each song may have several melody types. For each melody type, the tempo, and the key for that song (e.g. C major, D minor etc.) are recorded. Different songs may have the same key.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "label": "a)",
+        "marks": 3,
+        "text": "What are the entities that could be used for the above requirements?",
+        "subquestions": []
+      },
+      {
+        "label": "b)",
+        "marks": 3,
+        "text": "Identify suitable attributes and the primary key, if any, for each of the entities that you have identified.",
+        "subquestions": []
+      },
+      {
+        "label": "c)",
+        "marks": 2,
+        "text": "Is there a recursive relationship? Justify your answer.",
+        "subquestions": []
+      },
+      {
+        "label": "d)",
+        "marks": 2,
+        "text": "Is there any weak entity type? Justify your answer.",
+        "subquestions": []
+      },
+      {
+        "label": "e)",
+        "marks": 2,
+        "text": "Identify a likely superclass/subclass relationship. Justify your answer.",
+        "subquestions": []
+      },
+      {
+        "label": "f)",
+        "marks": 8,
+        "text": "Construct a suitable EER diagram for the above given requirements. State any assumptions you make. Note: You may avoid showing the attributes on the entity types, but any attributes on the relationships must be shown.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
   },
   {
     "pdf_stem": "2024 II",
     "question_id": "2",
-    "cluster": 0,
+    "cluster": 1,
     "cluster_label_keywords": [
       "functional dependencies",
       "functional",
       "dependencies",
       "set functional",
-      "set",
       "following set",
       "consider relation",
-      "relation"
+      "set",
+      "relation following"
     ],
     "marks": 20,
     "full_text": "Consider the following relation schema Investment and the functional dependencies FD1, FD2 and FD3. Investment (A, W, O, L, S, D) Here: A - Agent W - Work station of Agent O - Land Owner L - Name of the land S - Size of the land owned by the owner, D - Dividend paid for the land FD1: L → D FD2: A → W FD3: {O,L} → {A,S}",
@@ -297,16 +647,16 @@
   {
     "pdf_stem": "2024",
     "question_id": "2",
-    "cluster": 0,
+    "cluster": 1,
     "cluster_label_keywords": [
       "functional dependencies",
       "functional",
       "dependencies",
       "set functional",
-      "set",
       "following set",
       "consider relation",
-      "relation"
+      "set",
+      "relation following"
     ],
     "marks": 15,
     "full_text": "Consider a relation R (ProjectNo, ProjectName, EmpNo, EmpName, DeptNo, DeptName, HrsWork) with the following set of functional dependencies F over R: F={ ProjecNo->ProjectName DeptNo->DeptName EmpNo->EmpName, DeptNo, DeptName, HrsWork}",
@@ -336,16 +686,16 @@
   {
     "pdf_stem": "2023 II",
     "question_id": "2",
-    "cluster": 0,
+    "cluster": 1,
     "cluster_label_keywords": [
       "functional dependencies",
       "functional",
       "dependencies",
       "set functional",
-      "set",
       "following set",
       "consider relation",
-      "relation"
+      "set",
+      "relation following"
     ],
     "marks": 15,
     "full_text": "Consider a relation R (A, B, C, D, E, F, G) with the following set of functional dependencies over R: F = {A->BC, B->D, C->EF, AC->G}",
@@ -371,164 +721,5 @@
       }
     ],
     "pattern_label": "NORMALIZATION_FD_KEYS"
-  },
-  {
-    "pdf_stem": "2017",
-    "question_id": "1",
-    "cluster": 2,
-    "cluster_label_keywords": [
-      "account",
-      "number",
-      "customer",
-      "char",
-      "stock",
-      "integer",
-      "branch",
-      "table"
-    ],
-    "marks": 20,
-    "full_text": "Consider the database of a bank that includes the following tables: BRANCH (branchNo: int, address: varchar (50), phone : char (10), manager: varchar(30)) ACCOUNT (aceNo: char (15), type : varchar (10), balance : real, branchNo: int) CUSTOMER (custNo: char (10), name: varchar(25); phone: char (10), address : varchar (50)) OWNS (accNo: char (15), custNo: char (10)) TRANSACTION (accNo: char (15), datetime: datetime, type: varchar (15), amount: real) The table BRANCH contains the branch number (branchNo), address of the branch, phone number (phone), and name of the manager (manager) of all branches of the bank. The ACCOUNT table contains account number (accNo), type of the account ( Savings or Current ), current balance of the account and the branch number of the branch the account is created in (branchNo) for all accounts in the bank. CUSTOMER table contains customer number (custNo), name of the customer, phone number of the customer and the address of each customer of the bank. For each customer owning an account the OWNS table stores the account number (accNo) and the customer number of the customer owning the account (custNo). TRANSACTION table stores the account number (accNo), date and time of the transaction (datetime), type of the transaction ( Credit or Debit ) and the amount of the credit or debit associated with the transaction. The primary keys of the relations are underlined.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a",
-        "marks": null,
-        "text": "Use the bank database schema and write answers to the following questions.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 2,
-            "text": "Find the names of customers who lives in Malabe who owns a current account."
-          },
-          {
-            "label": "ii",
-            "marks": 3,
-            "text": "Find the account numbers of accounts which has not been credited with money in year 2016. (Note : DATEPART(yyyy, column) function could be used to extract the year from a given column)"
-          },
-          {
-            "label": "iii",
-            "marks": 4,
-            "text": "Find the branch number and the name of the manager of the branch with an income over 10 Million in 2016. (Hint: The branch with the highest total of deposits (credit) has the highest income)."
-          }
-        ]
-      },
-      {
-        "label": "b",
-        "marks": 5,
-        "text": "Write a procedure to transfer funds between two accounts given the account from which money is transferred, account to which money is transferred and amount of money to transfer. The procedure should update the balances of the accounts between which the money is transferred and also add entries to the transaction table (Note: A fund transfer include debiting money from one account and crediting to another account)"
-      },
-      {
-        "label": null,
-        "marks": 6,
-        "text": "Assuming that the maximum amount of money to be debiting from an account is Rs.50000 per day, write a trigger to ensure that transactions performed in the bank does not allow customers to debit more than the said amount within single day (Note : CONVERT(date, calumn) function converts the column in datetime type to short date format)"
-      }
-    ],
-    "pattern_label": "TRANSACTIONS_CONCURRENCY"
-  },
-  {
-    "pdf_stem": "2016",
-    "question_id": "1",
-    "cluster": 2,
-    "cluster_label_keywords": [
-      "account",
-      "number",
-      "customer",
-      "char",
-      "stock",
-      "integer",
-      "branch",
-      "table"
-    ],
-    "marks": 20,
-    "full_text": "Consider the following schema of a database developed for an airport. Customer (customerId: integer, name: varchar (30), age: int, phone: char (10)) Reservations (flno: char (6), custId: integer) Flights (flno: char (6), from: varchar (30), to: varchar (30), departs: datetime, arrives: datetime, regNo: char (8), pilotId: integer) Aircraft (regNo: char (8), model: varchar (15), capacity: integer, Pilots (id: integer, name: varchar (30), salary: float, flyingHours: integer) The Aircraft table stores the registration number (regNo), model (model) and the number of passengers who can travel in the aircraft (capacity) for each aircraft type. The Flights table stores the flight number (flno), the departing airport (from), destination airport (to), departing time (departs), arrival time (arrives), the registration number of the aircraft (regNo) and the id of the pilot (pilot) related to all flights. Reservations table stores the flight number (flno) and the customer number (custId) for each customer who has reserved a flight. Pilots table stores the id (id), name (name), salary (salary) and the number of hours the pilot have flown (flyingHours) for each pilot. Primary keys of the tables are underlined.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a",
-        "marks": null,
-        "text": "Use SQL queries to answer following questions.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 2,
-            "text": "Find the registration number and the model of aircrafts that departs to Brisbane between 1st January 2010 and 31st May 2010.",
-            "subquestions": []
-          },
-          {
-            "label": "ii",
-            "marks": 3,
-            "text": "For each aircraft that has a capacity over 200 display the registration number and the number of flights it has taken. If the aircraft has not taken any flights display 0 for the number of flights.",
-            "subquestions": []
-          },
-          {
-            "label": "iii",
-            "marks": 4,
-            "text": "For each pilot who has flown an aircraft more than 100 times and has the number of flying hours exceeding 5000, print the pilots name and the salary.",
-            "subquestions": []
-          }
-        ]
-      },
-      {
-        "label": "b",
-        "marks": 5,
-        "text": "Create a function which outputs the number of seats available in a given flight. Hint: If the number of reservations in a flight is equal to its capacity there are no seats available in the flight.",
-        "subquestions": []
-      },
-      {
-        "label": "c",
-        "marks": 6,
-        "text": "Create a trigger that uses the function you have created in part b) to ensure that the number of passengers in a flight does not exceed the capacity of the aircraft.",
-        "subquestions": []
-      }
-    ],
-    "pattern_label": "GENERAL_THEORY"
-  },
-  {
-    "pdf_stem": "2015",
-    "question_id": "1",
-    "cluster": 2,
-    "cluster_label_keywords": [
-      "account",
-      "number",
-      "customer",
-      "char",
-      "stock",
-      "integer",
-      "branch",
-      "table"
-    ],
-    "marks": 20,
-    "full_text": "Consider a database schema consisting of the following relations for recording information on the clients of a stock broking firm: Clients (cIno, name, phone) Stocks (scode, sname, price, dividend, eps) BuySell (clno. trdate, trtype, scode, qty, price) StocksOwned (clno, scode, totalgty, totalcost, currval) A tuple in the Clients table consists of a unique client number, name and phone number. Each tuple of Stocks table contains unique stock code, stock name, the current price of a share, dividend per share, and earning per share (eps). Each transaction of a client which may be a buy or a sell of a stock is recorded a tuple in the BuySell table. It contains the client number, transaction date and time, type of transaction (B for buy or S for sell), stock code, number of shares (qty) and price per share for the transaction. The StocksOwned table contains a tuple for each stock a client currently owns, along with the total quantity of the stock, the total cost of purchasing the stock, and its current value. The primary key of each table is underlined.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a",
-        "marks": null,
-        "text": "Express the following queries in SQL.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 4,
-            "text": "Find the name and price of each stock that is owned by five or more clients."
-          },
-          {
-            "label": "ii",
-            "marks": 5,
-            "text": "Find the name and phone number of clients who have not bought any stock since 1* January 2014."
-          }
-        ]
-      },
-      {
-        "label": "b",
-        "marks": 5,
-        "text": "Write T-SQL procedure named insertasell to insert a row into the BuySell table for a sell transaction given the input parameters of client number, stock code, and quantity. The transaction date and time should be the current date and time; the price is the current price of the stock in the Stocks table."
-      },
-      {
-        "label": "c",
-        "marks": 6,
-        "text": "Assume that a procedure named updstockowned is already available to update the StocksOwned table. It takes clients number, stock code, quantity, price, and transaction type as a parameters. When the transaction type is B, the procedure increase the total quantity and cost of the given stock for the client (or inserts a new row for client and stock if that client did not own the previously). Write a trigger named buytrigger on the BuySell table that will update the StocksOwned table by calling this procedure, whenever a new row of a Buy transaction is inserted into the BuySell table. [Only write the trigger, don t write the updstockowned procedure]"
-      }
-    ],
-    "pattern_label": "TRANSACTIONS_CONCURRENCY"
   }
 ]

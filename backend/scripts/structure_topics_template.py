@@ -160,7 +160,8 @@ def main():
 
         # FIX: Sanitize question_id and ensure it exists
         for idx, q in enumerate(data, start=1):
-            qid = q.get("question_id")
+            # Support both 'qno' and 'question_id' fields
+            qid = q.get("qno") or q.get("question_id")
             if qid is None or str(qid).lower() == "none" or str(qid).strip() == "":
                 q["question_id"] = str(idx)
             else:
@@ -286,12 +287,35 @@ def main():
     for p in papers_good:
         for pos, q in enumerate(p["questions"], start=1):
             txt = clean_for_vector(q.get("text", ""))
+            
+            # If main text is empty or too short, aggregate sub-question texts
+            if len(txt.split()) < MIN_WORDS_QUESTION_TEXT:
+                subqs = q.get("subquestions", [])
+                if subqs:
+                    # Recursively collect all sub-question texts
+                    def collect_subq_texts(subqs_list):
+                        texts = []
+                        for sq in subqs_list:
+                            sq_text = sq.get("text", "").strip()
+                            if sq_text:
+                                texts.append(sq_text)
+                            # Handle nested sub-questions
+                            nested = sq.get("subquestions", [])
+                            if nested:
+                                texts.extend(collect_subq_texts(nested))
+                        return texts
+                    
+                    all_subq_texts = collect_subq_texts(subqs)
+                    txt = clean_for_vector(" ".join(all_subq_texts))
+            
+            # Final check after aggregation
             if len(txt.split()) < MIN_WORDS_QUESTION_TEXT:
                 continue
+                
             question_texts.append(txt)
             question_meta.append({
                 "pdf_stem": p["pdf_stem"],
-                "question_id": str(q.get("question_id")),
+                "question_id": str(q.get("qno") or q.get("question_id") or pos),  # Support both qno and question_id
                 "question_pos": pos,
                 "marks": compute_main_marks(q),
             })

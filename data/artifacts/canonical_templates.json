@@ -1,13 +1,34 @@
 {
   "Q1": {
-    "dominant_topic": "model following eer eer model",
-    "source_paper": "2019",
-    "total_marks": 0,
-    "subquestion_count": 0,
-    "subquestion_structure": []
+    "dominant_topic": "SQL Database Schema and Queries",
+    "source_paper": "2016 II",
+    "total_marks": 15,
+    "subquestion_count": 4,
+    "subquestion_structure": [
+      {
+        "label": "a.i",
+        "marks": 3,
+        "type": "General"
+      },
+      {
+        "label": "a.ii",
+        "marks": 3,
+        "type": "General"
+      },
+      {
+        "label": "a.iii",
+        "marks": 4,
+        "type": "General"
+      },
+      {
+        "label": "b.",
+        "marks": 5,
+        "type": "Calculate"
+      }
+    ]
   },
   "Q2": {
-    "dominant_topic": "functional dependencies functional dependencies",
+    "dominant_topic": "Functional Dependencies and Normalization",
     "source_paper": "2024 II",
     "total_marks": 20,
     "subquestion_count": 8,
@@ -54,35 +75,93 @@
       }
     ]
   },
-  "Q4": {
-    "dominant_topic": "int varchar table",
+  "Q3": {
+    "dominant_topic": "tree explain briefly explain",
     "source_paper": "2023",
-    "total_marks": 40,
-    "subquestion_count": 5,
+    "total_marks": 25,
+    "subquestion_count": 9,
     "subquestion_structure": [
       {
-        "label": "a).i)",
-        "marks": 4,
-        "type": "General"
-      },
-      {
-        "label": "a).ii)",
-        "marks": 6,
-        "type": "General"
-      },
-      {
-        "label": "a).iii)",
-        "marks": 7,
+        "label": "a)",
+        "marks": 2,
         "type": "General"
       },
       {
         "label": "b)",
-        "marks": 11,
-        "type": "Calculate"
+        "marks": 2,
+        "type": "General"
       },
       {
         "label": "c)",
-        "marks": 12,
+        "marks": 2,
+        "type": "Define"
+      },
+      {
+        "label": "d)",
+        "marks": 3,
+        "type": "Define"
+      },
+      {
+        "label": "e).i)",
+        "marks": 2,
+        "type": "General"
+      },
+      {
+        "label": "e).ii)",
+        "marks": 3,
+        "type": "General"
+      },
+      {
+        "label": "e).iii)",
+        "marks": 5,
+        "type": "General"
+      },
+      {
+        "label": "e).iv)",
+        "marks": 3,
+        "type": "General"
+      },
+      {
+        "label": "e).v)",
+        "marks": 3,
+        "type": "General"
+      }
+    ]
+  },
+  "Q4": {
+    "dominant_topic": "tree explain briefly explain",
+    "source_paper": "2015",
+    "total_marks": 18,
+    "subquestion_count": 6,
+    "subquestion_structure": [
+      {
+        "label": "a",
+        "marks": 2,
+        "type": "General"
+      },
+      {
+        "label": "b",
+        "marks": 3,
+        "type": "General"
+      },
+      {
+        "label": "c.i",
+        "marks": 4,
+        "type": "General"
+      },
+      {
+        "label": "c.ii",
+        "marks": 2,
+        "type": "General"
+      },
+      {
+        "label": "d.i",
+        "marks": 2,
+        "type": "General"
+      },
+      {
+        "label": "d.ii",
+        "marks": 5,
         "type": "General"
       }
     ]
