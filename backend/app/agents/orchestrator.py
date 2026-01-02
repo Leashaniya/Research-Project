@@ -7,7 +7,9 @@ import random
 from app.core.paths import OUTPUTS_DIR, ARTIFACTS_DIR
 
 # Config
-MAX_RETRIES = 2  # How many times to rewrite a question if Critic rejects it
+MAX_RETRIES = 0  # How many times to rewrite a question if Critic rejects it
+
+from app.core.db import db
 
 class AgentOrchestrator:
     """
@@ -28,62 +30,74 @@ class AgentOrchestrator:
         self.out_dir = OUTPUTS_DIR / "model_papers"
         self.out_dir.mkdir(parents=True, exist_ok=True)
         self.checkpoint_path = self.out_dir / "generation_checkpoint.json"
-
-        # Load Templates
-        tpl_path = ARTIFACTS_DIR / "template_questions.json"
-        if tpl_path.exists():
-            try:
-                self.templates = json.loads(tpl_path.read_text(encoding="utf-8"))
-            except Exception as e:
-                print(f"⚠️ Error loading templates: {e}")
         
-        # Load Canonical Templates (Frequency-based)
-        canonical_path = ARTIFACTS_DIR / "canonical_templates.json"
-        self.canonical_templates = {}
-        if canonical_path.exists():
-            try:
-                self.canonical_templates = json.loads(canonical_path.read_text(encoding="utf-8"))
-                print(f"✅ Loaded canonical templates for {len(self.canonical_templates)} question positions")
-            except Exception as e:
-                print(f"⚠️ Error loading canonical templates: {e}")
+        # MongoDB Connection
+        self.db = db.get_db()
 
-    def _get_canonical_template(self, q_no):
+    async def _get_canonical_template(self, q_no):
         """Get the canonical template for a question position."""
-        canonical = self.canonical_templates.get(q_no)
+        # Query MongoDB
+        # q_no might be "Q1" or "1"
+        q_str = str(q_no).replace("Q", "")
+        
+        canonical = await self.db.canonical_templates.find_one({"position_id": f"Q{q_str}"})
+        if canonical:
+             return canonical
+             
+        # Try raw ID match
+        canonical = await self.db.canonical_templates.find_one({"position_id": q_str})
         if canonical:
             return canonical
-        
-        # Fallback to old random selection if no canonical template
-        print(f"⚠️ No canonical template for {q_no}, using fallback")
-        return self._select_template(q_no, None)
-    
-    def _select_template(self, q_no, marks):
-        """Pick a random template that matches Q Number or Marks."""
-        # Only consider templates with text
-        valid = [t for t in self.templates if t.get("full_text")]
-        
-        if not valid:
-             return {
-                 "pattern_label": "General Theory",
-                 "full_text": "(Reference style only) Explain the concept of X.",
-                 "marks": marks
-            }
 
-        # Try match by Question Number (String vs Int usually problematic, handle both)
-        # q_no might be "Q1", template q_id might be "1"
+        print(f"⚠️ No canonical template for {q_no}, using fallback")
+        return await self._select_template(q_no, None)
+    
+    async def _select_template(self, q_no, marks):
+        """Pick a random template from DB."""
+        # Only consider templates with text
+        # Using aggregation for random sample
+        pipeline = [
+            { "$match": { "full_text": { "$exists": True, "$ne": "" } } },
+            { "$sample": { "size": 1 } }
+        ]
+        
+        # Try specific match first
         q_num_str = str(q_no).replace("Q", "")
+        match_query = { "question_id": q_num_str, "full_text": { "$exists": True } }
         
-        matches = [t for t in valid if str(t.get("question_id")) == q_num_str]
+        cursor = self.db.templates.aggregate([
+            { "$match": match_query },
+            { "$sample": { "size": 1 } }
+        ])
         
-        if not matches:
-            # Fallback: Match by marks (approx (+-5))
-            matches = [t for t in valid if abs(int(t.get("marks", 0)) - int(marks or 0)) <= 5]
+        results = await cursor.to_list(length=1)
+        if results:
+            return results[0]
             
-        if not matches:
-            matches = valid # Fallback to any valid template
+        # Fallback: Match by marks
+        if marks:
+            cursor = self.db.templates.aggregate([
+                { "$match": { 
+                    "full_text": { "$exists": True },
+                    "marks": { "$gte": int(marks)-5, "$lte": int(marks)+5 }
+                }},
+                { "$sample": { "size": 1 } }
+            ])
+            results = await cursor.to_list(length=1)
+            if results:
+                return results[0]
+
+        # Final Fallback: Any template
+        cursor = self.db.templates.aggregate(pipeline)
+        results = await cursor.to_list(length=1)
+        if results:
+            return results[0]
             
-        selected = random.choice(matches)
-        return selected
+        return {
+             "pattern_label": "General Theory",
+             "full_text": "(Reference style only) Explain the concept of X.",
+             "marks": marks
+        }
 
     def _render_question(self, draft):
         """Convert structured subquestions into a beautiful string."""
@@ -120,7 +134,7 @@ class AgentOrchestrator:
                 pass
         
         final_questions = checkpoint_data.get("questions", [])
-        total_marks = sum(int(q.get("marks", 0)) for q in final_questions)
+        total_marks = sum(int(q.get("marks") or 0) for q in final_questions)
         
         # 2. LOOP through slots
         for slot in slots:
@@ -144,7 +158,7 @@ class AgentOrchestrator:
             print(f"\n>>> Processing {q_no} ({target_marks} marks)...")
             
             # 2a. Get Canonical Template (Frequency-based)
-            canonical = self._get_canonical_template(q_no)
+            canonical = await self._get_canonical_template(q_no)
             
             # Build template dict for backward compatibility
             if isinstance(canonical, dict) and "subquestion_structure" in canonical:
@@ -157,7 +171,7 @@ class AgentOrchestrator:
                 }
             else:
                 # Fallback to old template
-                template = canonical if canonical else self._select_template(q_no, target_marks)
+                template = canonical if canonical else await self._select_template(q_no, target_marks)
             
             # 2b. RESEARCHER: Get context
             # E.g. if template is "SQL_DDL_DML", we might want to research "SQL DDL scenarios"
@@ -199,14 +213,78 @@ class AgentOrchestrator:
                     feedback = review["feedback"]
             
             if not approved:
-                print(f"⚠️ {q_no} forced approval after max retries.")
+                print(f"⚠️ {q_no} forced approval after max retries. Applying STRICT TEMPLATE FALLBACK.")
+                
+                # FALLBACK: Force the draft to match the Template's structure exactly
+                # This ensures marks sum up correctly (as they come from a real paper)
+                
+                # 1. Determine the source of truth for structure
+                # 'required_structure' (Canonical) or 'subquestions' (Raw Template)
+                struct_source = template.get("required_structure") or template.get("subquestions", [])
+                
+                if struct_source:
+                    fallback_draft = {
+                        "question_no": q_no,
+                        "marks": target_marks,
+                        "subquestions": []
+                    }
+                    
+                    failed_sub_qs = draft.get("subquestions", [])
+                    
+                    # --- SCALING LOGIC ---
+                    # 1. Calculate Template Total to see if we need to scale
+                    template_total = sum(int(item.get("marks") or 0) for item in struct_source)
+                    current_sum = 0
+                    
+                    # 2. Prepare the list
+                    final_subqs = []
+                    
+                    for idx, item in enumerate(struct_source):
+                        t_label = item.get("label", f"({idx+1})")
+                        raw_t_marks = int(item.get("marks") or 0)
+                        
+                        # Scale marks if template differs from target
+                        if template_total > 0 and template_total != target_marks:
+                            # Proportional scaling
+                            ratio = target_marks / template_total
+                            new_marks = int(round(raw_t_marks * ratio))
+                            # Ensure at least 1 mark if original had marks
+                            if raw_t_marks > 0 and new_marks == 0:
+                                new_marks = 1
+                        else:
+                            new_marks = raw_t_marks
+
+                        salvaged_text = "..."
+                        if idx < len(failed_sub_qs):
+                            salvaged_text = failed_sub_qs[idx].get("text", "...")
+                            
+                        final_subqs.append({
+                            "label": t_label,
+                            "marks": new_marks,
+                            "text": salvaged_text
+                        })
+                        current_sum += new_marks
+                    
+                    # 3. Fix Rounding Errors (Distribution of Remainder)
+                    diff = target_marks - current_sum
+                    if diff != 0 and final_subqs:
+                        # Add/Subtract difference to the item with the most marks (safest place)
+                        # Find index of max mark item
+                        max_idx = max(range(len(final_subqs)), key=lambda i: final_subqs[i]['marks'])
+                        final_subqs[max_idx]['marks'] += diff
+                        
+                    fallback_draft["subquestions"] = final_subqs
+                    
+                    # Replace the failed draft with our mathematically correct fallback
+                    draft = fallback_draft
+                    print(f"  🔧 Fixed marks using template structure (Scaled {template_total} -> {target_marks})")
             
             # 2c. RENDER the question for final display
             draft["question_no"] = q_no
             draft["text"] = self._render_question(draft)
             
             final_questions.append(draft)
-            total_marks += int(draft.get("marks", 0))
+            total_marks += int(draft.get("marks") or 0)
 
             # SAVE CHECKPOINT
             with open(self.checkpoint_path, "w", encoding="utf-8") as f:
@@ -220,9 +298,16 @@ class AgentOrchestrator:
             "questions": final_questions
         }
         
+        # Save to MongoDB
+        try:
+            await self.db.papers.insert_one(paper.copy()) # Copy because _id is added
+            print("✅ Paper saved to MongoDB.")
+        except Exception as e:
+            print(f"⚠️ MongoDB Save failed: {e}")
+
         out_path = self.out_dir / "agentic_model_paper.json"
         with open(out_path, "w", encoding="utf-8") as f:
-            json.dump(paper, f, indent=2)
+            json.dump(paper, f, indent=2, default=str) # default=str for ObjectId
             
         print(f"\n✅ JSON Paper generated: {out_path}")
 

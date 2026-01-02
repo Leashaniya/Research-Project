@@ -94,7 +94,33 @@ class QuestionWriter(BaseAgent):
         - You MUST create EXACTLY {len(required_structure)} sub-questions
         - Follow this EXACT mark distribution:
 """
-            for struct in required_structure:
+            # Calculate Scaling
+            target_marks = int(slot.get('target_marks') or 0)
+            template_total = sum(int(i.get("marks") or 0) for i in required_structure)
+            
+            scaled_structure = []
+            current_sum = 0
+            
+            for idx, struct in enumerate(required_structure):
+                raw_marks = int(struct.get("marks") or 0)
+                new_marks = raw_marks
+                
+                if template_total > 0 and template_total != target_marks:
+                    ratio = target_marks / template_total
+                    new_marks = int(round(raw_marks * ratio))
+                    if raw_marks > 0 and new_marks == 0:
+                        new_marks = 1
+                
+                scaled_structure.append({"label": struct.get("label"), "type": struct.get("type"), "marks": new_marks})
+                current_sum += new_marks
+                
+            # Distribute Remainder
+            diff = target_marks - current_sum
+            if diff != 0 and scaled_structure:
+                 max_idx = max(range(len(scaled_structure)), key=lambda i: scaled_structure[i]['marks'])
+                 scaled_structure[max_idx]['marks'] += diff
+
+            for struct in scaled_structure:
                 base_prompt += f"          * Part {struct['label']}: {struct['marks']} marks ({struct['type']} type)\n"
             
             base_prompt += f"""

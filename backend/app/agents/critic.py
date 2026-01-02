@@ -36,14 +36,24 @@ class QualityCritic(BaseAgent):
             "feedback": "..."
         }
         """
-        if not self.client:
-             raise EnvironmentError("AI Cloud API Key missing for Critic Agent.")
-
-        draft = input_data["draft"]
-        context = input_data["context"]
+        # --- DETERMINISTIC GUARDRAILS ---
+        # Validate Input
+        draft = input_data.get("draft", {})
+        context = input_data.get("context", "")
         
-        q_label = input_data.get("q_no") or draft.get('question_no') or "Q?"
-        self.log(f"Reviewing draft for {q_label}...")
+        # --- DETERMINISTIC GUARDRAILS ---
+        # 1. Math Check
+        total_q_marks = int(draft.get("marks") or 0)
+        sub_qs = draft.get("subquestions", [])
+        
+        if sub_qs:
+            status_sum = sum(int(sq.get("marks") or 0) for sq in sub_qs)
+            
+            # Allow a tiny margin? No, exams must be exact.
+            if status_sum != total_q_marks:
+                err_msg = f"MATH ERROR: Sub-question marks sum to {status_sum}, but expected {total_q_marks}. Please adjusting weighting."
+                self.log(f"❌ Deterministic Reject: {err_msg}")
+                return {"approved": False, "feedback": err_msg}
 
         prompt = f"""
         You are a strict Exam Quality Reviewer.
@@ -55,10 +65,9 @@ class QualityCritic(BaseAgent):
         {context}
         
         Checklist:
-        1. MATHEMATICS: Iterate through the 'subquestions' list. Do their individual 'marks' sum up EXACTLY to {draft.get('marks')}? This is the most important rule.
-        2. CONTENT: Is the answer for each sub-question findable in the Reference Material? (No Hallucinations).
-        3. STRUCTURE: Ensure sub-questions are labeled (a, b, c...) and have clear text.
-        4. MARK DISTRIBUTION: Be lenient on "fairness". As long as the harder parts have more marks and it sums to {draft.get('marks')}, APPROVE it.
+        1. CONTENT: Is the answer for each sub-question findable in the Reference Material? (No Hallucinations).
+        2. STRUCTURE: Ensure sub-questions are labeled (a, b, c...) and have clear text.
+        3. MARK DISTRIBUTION: Be lenient on "fairness". As long as the harder parts have more marks, APPROVE it.
         
         If REJECTED, provide specific feedback on how to fix it.
         
