@@ -7,7 +7,7 @@ import random
 from app.core.paths import OUTPUTS_DIR, ARTIFACTS_DIR
 
 # Config
-MAX_RETRIES = 0  # How many times to rewrite a question if Critic rejects it
+MAX_RETRIES = 1  # How many times to rewrite a question if Critic rejects it
 
 from app.core.db import db
 
@@ -199,6 +199,7 @@ class AgentOrchestrator:
                 review = await self.critic.run({
                     "draft": draft,
                     "context": context,
+                    "template": template,
                     "q_no": q_no  # Pass q_no to fix "None" label
                 })
                 
@@ -209,8 +210,13 @@ class AgentOrchestrator:
                     approved = True
                     break
                 else:
-                    print(f"❌ {q_no} Rejected. Feedback: {review['feedback']}")
-                    feedback = review["feedback"]
+                    feedback = review.get("feedback", "No feedback")
+                    print(f"❌ {q_no} Rejected. Feedback: {feedback}")
+                    
+                    # IF it is a MATH ERROR, fallback immediately (no retries)
+                    if "MATH ERROR" in feedback.upper():
+                        print(f"🛑 Math mismatch detected. Skipping retries and applying fallback logic.")
+                        break
             
             if not approved:
                 print(f"⚠️ {q_no} forced approval after max retries. Applying STRICT TEMPLATE FALLBACK.")
@@ -266,10 +272,9 @@ class AgentOrchestrator:
                         current_sum += new_marks
                     
                     # 3. Fix Rounding Errors (Distribution of Remainder)
-                    diff = target_marks - current_sum
+                    diff = int(target_marks) - int(current_sum)
                     if diff != 0 and final_subqs:
-                        # Add/Subtract difference to the item with the most marks (safest place)
-                        # Find index of max mark item
+                        # Add/Subtract difference to the item with the most marks
                         max_idx = max(range(len(final_subqs)), key=lambda i: final_subqs[i]['marks'])
                         final_subqs[max_idx]['marks'] += diff
                         

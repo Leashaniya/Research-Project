@@ -98,7 +98,7 @@ class PDFService:
                     pdf.set_y(current_y - 6)  # Move up one line height
                     pdf.set_x(175)
                     pdf.set_font("helvetica", "I", 10)
-                    pdf.cell(20, 6, f"({marks})", align="R")
+                    pdf.cell(20, 6, f"({int(marks)})", align="R")
                     
                     # Reset Y to continue below
                     pdf.set_y(current_y)

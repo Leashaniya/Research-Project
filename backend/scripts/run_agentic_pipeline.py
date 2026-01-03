@@ -3,8 +3,14 @@ import os
 import sys
 from pathlib import Path
 
-# Add backend to python path
-sys.path.append(os.path.join(os.getcwd(), "backend"))
+# Add backend to python path dynamically
+script_dir = Path(__file__).parent.absolute()
+project_root = script_dir.parent # backend is the parent of scripts
+if project_root.name == "backend":
+    sys.path.append(str(project_root))
+else:
+    # If for some reason we are in a different structure
+    sys.path.append(os.path.join(os.getcwd(), "backend"))
 
 from app.agents.orchestrator import main as agentic_main
 

@@ -29,32 +29,51 @@ class QualityCritic(BaseAgent):
         """
         Input: {
             "draft": {...},
-            "context": "..."
-        }
-        Output: {
-            "approved": bool,
-            "feedback": "..."
+            "context": "...",
+            "template": {...}
         }
         """
-        # --- DETERMINISTIC GUARDRAILS ---
-        # Validate Input
         draft = input_data.get("draft", {})
         context = input_data.get("context", "")
+        template = input_data.get("template", {})
         
         # --- DETERMINISTIC GUARDRAILS ---
+        
         # 1. Math Check
         total_q_marks = int(draft.get("marks") or 0)
         sub_qs = draft.get("subquestions", [])
         
         if sub_qs:
             status_sum = sum(int(sq.get("marks") or 0) for sq in sub_qs)
-            
-            # Allow a tiny margin? No, exams must be exact.
             if status_sum != total_q_marks:
-                err_msg = f"MATH ERROR: Sub-question marks sum to {status_sum}, but expected {total_q_marks}. Please adjusting weighting."
+                err_msg = f"MATH ERROR: Sub-question marks sum to {status_sum}, but expected {total_q_marks}. Please adjust weighting."
                 self.log(f"❌ Deterministic Reject: {err_msg}")
                 return {"approved": False, "feedback": err_msg}
 
+        # 2. Structure Count Check (If template exists)
+        required_struct = template.get("required_structure") or template.get("subquestions", [])
+        if required_struct and len(sub_qs) != len(required_struct):
+            err_msg = f"STRUCTURE ERROR: Generated {len(sub_qs)} sub-questions, but template requires EXACTLY {len(required_struct)}. Please follow the required structure."
+            self.log(f"❌ Deterministic Reject: {err_msg}")
+            return {"approved": False, "feedback": err_msg}
+
+        # 3. Figure Placeholders & Empty Scenarios Check (Hallucinations)
+        draft_str = json.dumps(draft).lower()
+        if "[figure:" in draft_str or "slide_" in draft_str or "fig_" in draft_str:
+            err_msg = "QUALITY ERROR: Hallucinated figure placeholder or slide reference found (e.g. [FIGURE: ...], slide_02, fig_01). Replace with a descriptive scenario or remove reference."
+            self.log(f"❌ Deterministic Reject: {err_msg}")
+            return {"approved": False, "feedback": err_msg}
+            
+        # Check for "given scenario" with no actual content
+        for sq in sub_qs:
+            text = sq.get("text", "").lower()
+            if "given scenario" in text or "given following scenario" in text:
+                if len(text) < 60: # Too short to be a real scenario
+                    err_msg = "QUALITY ERROR: You asked to design for a 'given scenario' but didn't provide the scenario text. You MUST write out the full background scenario (Library, University, Shop, etc.) in the question text."
+                    self.log(f"❌ Deterministic Reject: {err_msg}")
+                    return {"approved": False, "feedback": err_msg}
+
+        # --- LLM AUDIT ---
         prompt = f"""
         You are a strict Exam Quality Reviewer.
         
@@ -64,17 +83,18 @@ class QualityCritic(BaseAgent):
         Reference Material (Slide Context):
         {context}
         
-        Checklist:
-        1. CONTENT: Is the answer for each sub-question findable in the Reference Material? (No Hallucinations).
-        2. STRUCTURE: Ensure sub-questions are labeled (a, b, c...) and have clear text.
-        3. MARK DISTRIBUTION: Be lenient on "fairness". As long as the harder parts have more marks, APPROVE it.
+        Quality Checklist:
+        1. CONTENT RELEVANCE: Is the question actually about the requested topic?
+        2. NO HALLUCINATIONS: Does it contain placeholders like "..." or "refer to the diagram above" (without a diagram)? 
+        3. SCENARIO COMPLETENESS: If it asks to "Draw", "Construct", or "Design" based on a "given scenario", does the question ACTUALLY provide the text of that scenario? If not, REJECT.
+        4. CLARITY: Is the phrasing professional?
         
-        If REJECTED, provide specific feedback on how to fix it.
+        If REJECTED, provide specific feedback on how to fix it. Be very critical about missing scenarios and figure references.
         
         Output JSON:
         {{
             "approved": true/false,
-            "feedback": "Reason for rejection if false, or 'Good' if true."
+            "feedback": "..."
         }}
         """
         
@@ -88,15 +108,13 @@ class QualityCritic(BaseAgent):
                     {"role": "system", "content": "You are a strict Quality Assurance Critic."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.1, # Keep very low for critic
+                temperature=0.1,
                 response_format={"type": "json_object"}
             )
             content = response.choices[0].message.content
             data = json.loads(content)
             
-            # Robust key checking
             if isinstance(data, dict):
-                # Handle variations in naming (Local LLMs sometimes hallucinate keys)
                 if "approved" in data:
                     return data
                 elif "is_approved" in data:

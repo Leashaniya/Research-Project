@@ -55,7 +55,11 @@ class QuestionWriter(BaseAgent):
             response = self.client.chat.completions.create(
                 model=model_name,
                 messages=[
-                    {"role": "system", "content": "You are an expert University Exam Question Setter."},
+                    {"role": "system", "content": """You are an expert University Exam Question Setter. 
+    ULTRA-STRICT RULES:
+    1. SCENARIO MANDATORY: If you ask to 'Draw' or 'Design' based on a 'given scenario', you MUST write the scenario text yourself. Use at least 3-4 sentences of detail.
+    2. NO PLACEHOLDERS: NEVER use [FIGURE: ...], slide_XX, or '...' for text. 
+    3. SELF-CONTAINED: Every question must be 100% readable and answerable without any external images or slides."""},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.4, # Lower for local models
@@ -69,19 +73,23 @@ class QuestionWriter(BaseAgent):
 
     def _build_prompt(self, slot, template, context, feedback=None) -> str:
         base_prompt = f"""
-        Generate ONE university exam question.
+        Generate ONE high-quality university exam question for a Database Systems course.
         
         Specifications:
         - Question Number: {slot.get('question_no') or slot.get('slot_id') or "Q?"}
-        - Marks: {slot.get('target_marks')}
-        - Type: {template.get('pattern_label', 'General')}
+        - Total Marks: {slot.get('target_marks')}
         - Topic Context: {context}
+        
+        CRITICAL CONTENT RULES:
+        1. NO FIGURE PLACEHOLDERS: Do NOT use text like "[FIGURE: ...]", "slide_014", or "fig_1". If context refers to a figure, describe the component in text (e.g., "Given a table with columns X, Y, Z...") or invent a scenario.
+        2. COMPLETE SCENARIOS: If you ask to "Draw an ER diagram" or "Design a schema" for a "given scenario", you MUST provide the FULL text of that scenario. Do NOT say "given following scenario" and then leave it empty.
+        3. SELF-CONTAINED: The question must be answerable using only the text you provide.
         
         CRITICAL AUTHENTICITY RULE:
         SLIIT papers usually follow a "50/50" split for sub-questions:
         1. RECALL: (e.g. List 3 properties, Define X, Identify entities). 
         2. APPLY/DESIGN: (e.g. Construct EER, Calculate blocks, Map to relational).
-        Ensure this specific question includes at least one sub-question that asks for a definition or listing to match historical standards.
+        Ensure this specific question includes balance between definitions and practical application.
         
         CRITICAL STRUCTURE RULE:
         """
@@ -90,8 +98,8 @@ class QuestionWriter(BaseAgent):
         required_structure = template.get("required_structure", [])
         if required_structure:
             base_prompt += f"""
-        **EXACT STRUCTURE REQUIRED** (Based on historical pattern from {template.get('full_text', 'past papers')}):
-        - You MUST create EXACTLY {len(required_structure)} sub-questions
+        **EXACT STRUCTURE REQUIRED** (Follow this sub-question count and mark distribution):
+        - You MUST create EXACTLY {len(required_structure)} sub-questions. No more, no less.
         - Follow this EXACT mark distribution:
 """
             # Calculate Scaling
@@ -124,26 +132,22 @@ class QuestionWriter(BaseAgent):
                 base_prompt += f"          * Part {struct['label']}: {struct['marks']} marks ({struct['type']} type)\n"
             
             base_prompt += f"""
-        - The marks MUST sum to exactly {slot.get('target_marks')}
-        - Do NOT deviate from this structure
+        - The sub-question marks MUST sum to exactly {slot.get('target_marks')}
+        - Do NOT deviate from this structure.
         """
         else:
             base_prompt += f"""
-        - For 20-mark questions, create AT LEAST 3 sub-questions (a, b, c, and optionally d).
-        - For 10-15 mark questions, create 2-3 sub-questions.
+        - Create 3-4 sub-questions (a, b, c, d).
         - Sub-question marks MUST sum up exactly to {slot.get('target_marks')}.
         - Explicitly state the marks for each sub-question in parentheses, e.g. (5 marks).
-        - **DISTRIBUTION STRATEGY**: Assign marks proportional to difficulty. 
-          * Lower marks (2-5) for Definitions/Recall.
-          * Higher marks (6-12) for Analysis/Design/Calculation.
         """
         
         base_prompt += f"""
         
-        Style Reference (Template - DO NOT COPY):
+        Style Reference (Based on {template.get('pattern_label', 'past papers')}):
         {template.get('full_text')}
         
-        Output JSON:
+        Output valid JSON:
         {{
             "question_no": "{slot.get('question_no')}",
             "marks": {slot.get('target_marks')},
@@ -151,26 +155,13 @@ class QuestionWriter(BaseAgent):
                 {{
                     "label": "a",
                     "text": "...",
-                    "marks": 4
-                }},
-                {{
-                    "label": "b",
-                    "text": "...",
-                    "marks": 6
-                }},
-                {{
-                    "label": "c",
-                    "text": "...",
-                    "marks": 10
+                    "marks": 5
                 }}
-            ]
-        }}
             ]
         }}
         """
         
         if feedback:
-            base_prompt += f"\n\nCRITIC FEEDBACK (FIX THIS): {feedback}\n"
-            base_prompt += "Ensure the new draft resolves the issue raised by the critic."
+            base_prompt += f"\n\nCRITIC FEEDBACK FROM PREVIOUS ATTEMPT (FIX THESE ERRORS): {feedback}\n"
             
         return base_prompt
