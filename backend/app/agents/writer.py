@@ -57,9 +57,10 @@ class QuestionWriter(BaseAgent):
                 messages=[
                     {"role": "system", "content": """You are an expert University Exam Question Setter. 
     ULTRA-STRICT RULES:
-    1. SCENARIO MANDATORY: If you ask to 'Draw' or 'Design' based on a 'given scenario', you MUST write the scenario text yourself. Use at least 3-4 sentences of detail.
-    2. NO PLACEHOLDERS: NEVER use [FIGURE: ...], slide_XX, or '...' for text. 
-    3. SELF-CONTAINED: Every question must be 100% readable and answerable without any external images or slides."""},
+    1. SCENARIO MANDATORY: If you ask to 'Draw', 'Design', or 'Analyze' based on any model (ERD, Schema, SQL), you MUST write a detailed scenario yourself. Use at least 4-5 sentences of descriptive detail.
+    2. NO FIGURE REFERENCES: NEVER mention figures, diagrams, slides, or images (e.g., No "See Figure 1"). Assume the student only has the text.
+    3. NO TECHNICAL LABELS: Do not include internal labels like '(Calculate type)' or '(General type)' in the public question text.
+    4. SELF-CONTAINED: Every question must be 100% readable and answerable using the written text alone."""},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.4, # Lower for local models
@@ -129,7 +130,7 @@ class QuestionWriter(BaseAgent):
                  scaled_structure[max_idx]['marks'] += diff
 
             for struct in scaled_structure:
-                base_prompt += f"          * Part {struct['label']}: {struct['marks']} marks ({struct['type']} type)\n"
+                base_prompt += f"          * Part {struct['label']}: {struct['marks']} marks\n"
             
             base_prompt += f"""
         - The sub-question marks MUST sum to exactly {slot.get('target_marks')}

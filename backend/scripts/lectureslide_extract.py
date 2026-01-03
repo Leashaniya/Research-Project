@@ -172,6 +172,14 @@ def ocr_masked_text(img_bgr, rects_img):
 def process_slides_pdf(pdf_path: Path, dpi=DPI):
     stem = pdf_path.stem
     out_dir = OUT_ROOT / stem
+    
+    # Cache Check
+    combined_file = out_dir / "slides_text_with_figures.txt"
+    if combined_file.exists() and (out_dir / "pages_text").exists():
+        if list((out_dir / "pages_text").glob("*.txt")):
+            print(f" -> Skipping Slide Extraction: {stem} (Cache hit)")
+            return True
+
     pages_out = out_dir / "pages_text"
     figs_out  = out_dir / "figures"
     pages_out.mkdir(parents=True, exist_ok=True)

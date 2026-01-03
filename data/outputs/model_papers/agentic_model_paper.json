@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-03 02:51:52",
+  "generated_at": "2026-01-03 18:15:53",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "questions": [
@@ -9,100 +9,125 @@
       "subquestions": [
         {
           "label": "a.i",
-          "text": "List the three types of integrity constraints discussed in today's lecture.",
+          "text": "Explain the process of logical database design and its importance in the overall database design process.",
           "marks": 4
         },
         {
           "label": "a.ii",
-          "text": "Explain the concept of referential integrity and its importance in a relational database schema.",
+          "text": "Describe the different types of integrity constraints (domain, referential, key, other) and provide an example for each type.",
           "marks": 4
         },
         {
           "label": "a.iii",
-          "text": "Describe the process of normalizing a relation to achieve Boyce-Codd Normal Form (BCNF).",
+          "text": "Explain how to convert a complex ER model to the relational model and provide a step-by-step guide on this process.",
           "marks": 5
         },
         {
-          "label": "b",
-          "text": "Design a relational schema for a university database that includes the following entities: Students, Courses, Professors, and Departments. The schema should include the following attributes: Students - StudentId (primary key), Name, Email, CourseId (foreign key to Courses), ProfessorId (foreign key to Professors); Courses - CourseId (primary key), CourseName, Credits; Professors - ProfessorId (primary key), Name, DepartmentId (foreign key to Departments); Departments - DepartmentId (primary key), DepartmentName.",
+          "label": "b.",
+          "text": "Given an ER diagram with entities 'Employee', 'Department', and 'Project', calculate the primary keys for each entity and explain how they relate to the overall database schema. (Calculate type)",
           "marks": 7
         }
       ],
-      "text": "a.i) List the three types of integrity constraints discussed in today's lecture. (4 marks)\na.ii) Explain the concept of referential integrity and its importance in a relational database schema. (4 marks)\na.iii) Describe the process of normalizing a relation to achieve Boyce-Codd Normal Form (BCNF). (5 marks)\nb) Design a relational schema for a university database that includes the following entities: Students, Courses, Professors, and Departments. The schema should include the following attributes: Students - StudentId (primary key), Name, Email, CourseId (foreign key to Courses), ProfessorId (foreign key to Professors); Courses - CourseId (primary key), CourseName, Credits; Professors - ProfessorId (primary key), Name, DepartmentId (foreign key to Departments); Departments - DepartmentId (primary key), DepartmentName. (7 marks)"
+      "text": "a.i) Explain the process of logical database design and its importance in the overall database design process. (4 marks)\na.ii) Describe the different types of integrity constraints (domain, referential, key, other) and provide an example for each type. (4 marks)\na.iii) Explain how to convert a complex ER model to the relational model and provide a step-by-step guide on this process. (5 marks)\nb.) Given an ER diagram with entities 'Employee', 'Department', and 'Project', calculate the primary keys for each entity and explain how they relate to the overall database schema. (Calculate type) (7 marks)"
     },
     {
       "question_no": "Q2",
       "marks": 20,
       "subquestions": [
         {
-          "label": "a",
-          "text": "Draw an ER diagram for the scenario below. A Library is organized into several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian. Each book belong to a section and has a title, authors, ISBN, year and a publisher. A book may have several copies. Each copy is identified by an access number. For each copy borrowed, current borrower and due date should be tracked. Members have a membership number, an address and a phone number. Members can borrow 5 books and could put hold request on a book. Librarian has a name, id number, phone and an address.",
-          "marks": 4
+          "label": "a)",
+          "marks": 2,
+          "text": "Draw an entity-relationship diagram for the following scenario: A library has several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian. Each book belong to a section and has a title, authors, ISBN, year and a publisher. A book may have several copies. Each copy is identified by an access number. For each copy borrowed, current borrower and due date should be tracked. Members have a membership number, an address and a phone number. Members can borrow 5 books and could put hold request on a book Librarian has a name, id number, phone and an address."
         },
         {
-          "label": "b",
-          "text": "List three properties of the Boyce-Codd Normal Form (BCNF).",
-          "marks": 6
+          "label": "b)",
+          "marks": 2,
+          "text": "List the four normal forms of relational databases: First Normal Form (1NF), Second Normal Form (2NF), Third Normal Form (3NF) and Boyce-Codd Normal Form (BCNF). Explain each in detail."
         },
         {
-          "label": "c",
-          "text": "Define functional dependency and explain its importance in normalization. Provide an example to illustrate your answer.",
-          "marks": 10
+          "label": "c)",
+          "marks": 2,
+          "text": "A relation R has the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Compute the keys for relation R. Explain your reasoning."
+        },
+        {
+          "label": "d)",
+          "marks": 2,
+          "text": "Explain the concept of superkey and key in the context of relational databases. Provide examples to illustrate each."
+        },
+        {
+          "label": "e)",
+          "marks": 5,
+          "text": "A relation R has the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Determine if the relation is in Boyce-Codd Normal Form (BCNF). Explain your reasoning."
+        },
+        {
+          "label": "f)",
+          "marks": 2,
+          "text": "Explain the concept of transitive dependency and its implications on normalization. Provide examples to illustrate each."
+        },
+        {
+          "label": "g).i.",
+          "marks": 2,
+          "text": "A relation R has the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Normalize the relation to its highest normal form. Explain your reasoning."
+        },
+        {
+          "label": "g).ii.",
+          "marks": 3,
+          "text": "Consider a relation R with the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Determine if the relation is in Boyce-Codd Normal Form (BCNF). Explain your reasoning."
         }
       ],
-      "text": "a) Draw an ER diagram for the scenario below. A Library is organized into several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian. Each book belong to a section and has a title, authors, ISBN, year and a publisher. A book may have several copies. Each copy is identified by an access number. For each copy borrowed, current borrower and due date should be tracked. Members have a membership number, an address and a phone number. Members can borrow 5 books and could put hold request on a book. Librarian has a name, id number, phone and an address. (4 marks)\nb) List three properties of the Boyce-Codd Normal Form (BCNF). (6 marks)\nc) Define functional dependency and explain its importance in normalization. Provide an example to illustrate your answer. (10 marks)"
+      "text": "a)) Draw an entity-relationship diagram for the following scenario: A library has several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian. Each book belong to a section and has a title, authors, ISBN, year and a publisher. A book may have several copies. Each copy is identified by an access number. For each copy borrowed, current borrower and due date should be tracked. Members have a membership number, an address and a phone number. Members can borrow 5 books and could put hold request on a book Librarian has a name, id number, phone and an address. (2 marks)\nb)) List the four normal forms of relational databases: First Normal Form (1NF), Second Normal Form (2NF), Third Normal Form (3NF) and Boyce-Codd Normal Form (BCNF). Explain each in detail. (2 marks)\nc)) A relation R has the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Compute the keys for relation R. Explain your reasoning. (2 marks)\nd)) Explain the concept of superkey and key in the context of relational databases. Provide examples to illustrate each. (2 marks)\ne)) A relation R has the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Determine if the relation is in Boyce-Codd Normal Form (BCNF). Explain your reasoning. (5 marks)\nf)) Explain the concept of transitive dependency and its implications on normalization. Provide examples to illustrate each. (2 marks)\ng).i.) A relation R has the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Normalize the relation to its highest normal form. Explain your reasoning. (2 marks)\ng).ii.) Consider a relation R with the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Determine if the relation is in Boyce-Codd Normal Form (BCNF). Explain your reasoning. (3 marks)"
     },
     {
       "question_no": "Q3",
       "marks": 22,
       "subquestions": [
         {
-          "label": "a)",
-          "marks": 2,
-          "text": "List the three main components of an ER model."
+          "label": "Part a: General type",
+          "text": "Explain the concept of EER model and its significance in database design.",
+          "marks": 2
         },
         {
-          "label": "b)",
-          "marks": 2,
-          "text": "Explain the concept of fan trap in ER modeling and provide an example."
+          "label": "Part b: General type",
+          "text": "Describe the difference between ternary and aggregation relationships in EER diagrams.",
+          "marks": 2
         },
         {
-          "label": "c)",
-          "marks": 2,
-          "text": "Define aggregation relationship and explain its difference with ternary relationship."
+          "label": "Part c: Define type",
+          "text": "Define specialization and generalization concepts in the context of EER model.",
+          "marks": 2
         },
         {
-          "label": "d)",
-          "marks": 3,
-          "text": "Explain the concept of overlapping constraint and provide an example."
+          "label": "Part d: Define type",
+          "text": "Explain overlapping constraint and its application in EER diagrams.",
+          "marks": 3
         },
         {
-          "label": "e).i)",
-          "marks": 2,
-          "text": "List the five types of integrity constraints in database management systems."
+          "label": "Part e.i: General type",
+          "text": "Draw an ER diagram for the given scenario: A Library is organized into several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian.",
+          "marks": 2
         },
         {
-          "label": "e).ii)",
-          "marks": 3,
-          "text": "Explain the concept of relational model and its components."
+          "label": "Part e.ii: General type",
+          "text": "Explain the concept of fan trap in EER diagrams and provide an example.",
+          "marks": 3
         },
         {
-          "label": "e).iii)",
-          "marks": 2,
-          "text": "Define domain constraint and explain its purpose in database management systems."
+          "label": "Part e.iii: General type",
+          "text": "Explain the concept of chasm trap in EER diagrams and provide an example.",
+          "marks": 2
         },
         {
-          "label": "e).iv)",
-          "marks": 3,
-          "text": "Explain the concept of referential integrity constraints and provide an example."
+          "label": "Part e.iv: General type",
+          "text": "Describe the process of logical database design and its importance in database management systems.",
+          "marks": 3
         },
         {
-          "label": "e).v)",
-          "marks": 3,
-          "text": "List the benefits of using a database management system over file processing systems."
+          "label": "Part e.v: General type",
+          "text": "Explain the concept of relational model and its advantages over other data models.",
+          "marks": 3
         }
       ],
-      "text": "a)) List the three main components of an ER model. (2 marks)\nb)) Explain the concept of fan trap in ER modeling and provide an example. (2 marks)\nc)) Define aggregation relationship and explain its difference with ternary relationship. (2 marks)\nd)) Explain the concept of overlapping constraint and provide an example. (3 marks)\ne).i)) List the five types of integrity constraints in database management systems. (2 marks)\ne).ii)) Explain the concept of relational model and its components. (3 marks)\ne).iii)) Define domain constraint and explain its purpose in database management systems. (2 marks)\ne).iv)) Explain the concept of referential integrity constraints and provide an example. (3 marks)\ne).v)) List the benefits of using a database management system over file processing systems. (3 marks)"
+      "text": "Part a: General type) Explain the concept of EER model and its significance in database design. (2 marks)\nPart b: General type) Describe the difference between ternary and aggregation relationships in EER diagrams. (2 marks)\nPart c: Define type) Define specialization and generalization concepts in the context of EER model. (2 marks)\nPart d: Define type) Explain overlapping constraint and its application in EER diagrams. (3 marks)\nPart e.i: General type) Draw an ER diagram for the given scenario: A Library is organized into several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian. (2 marks)\nPart e.ii: General type) Explain the concept of fan trap in EER diagrams and provide an example. (3 marks)\nPart e.iii: General type) Explain the concept of chasm trap in EER diagrams and provide an example. (2 marks)\nPart e.iv: General type) Describe the process of logical database design and its importance in database management systems. (3 marks)\nPart e.v: General type) Explain the concept of relational model and its advantages over other data models. (3 marks)"
     },
     {
       "question_no": "Q4",
@@ -111,57 +136,52 @@
         {
           "label": "a",
           "marks": 2,
-          "text": "Explain the concept of Aggregation in ER modeling. (2 marks)"
+          "text": "What is the primary key for the Students relation in the given ER model?"
         },
         {
           "label": "b",
           "marks": 3,
-          "text": "List three types of integrity constraints used in relational database design. (3 marks)"
+          "text": "Explain the concept of referential integrity constraint and its application in the given ER model."
         },
         {
           "label": "c.i",
           "marks": 4,
-          "text": "Draw an ER diagram for the following scenario: Students contain an id (unique), name and an address. There are academic semesters containing an semester id (unique), semester and year. There are courses offered during academic semesters. A course has a number (unique), name and credits. Students make payments. A payment has receipt number (unique), amount and date. Payments can be classified into Tuition (semester payment), Examination and other (Library fine, Printouts). A Tuition payment is made for an academic semester For other payments description should be stored. Students register for courses offered during a particular semester. The registered date must be stored in the database. (4 marks)"
+          "text": "Draw an EER diagram for the Students relation, including the primary key and foreign keys."
         },
         {
           "label": "c.ii",
           "marks": 2,
-          "text": "Explain the concept of Referential Integrity Constraint and its importance in relational database design. (2 marks)"
+          "text": "Explain the concept of aggregation in ER modeling and provide an example from the given scenario."
         },
         {
           "label": "d.i",
           "marks": 2,
-          "text": "List two common types of relationships used in ER modeling: Ternary and Aggregation. (2 marks)"
+          "text": "Identify the entities that participate in a fan trap relationship in the given ER model."
         },
         {
           "label": "d.ii",
           "marks": 7,
-          "text": "Construct an ER diagram for the following scenario: A library is organized into several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian. Each book belongs to a section and has a title, authors, ISBN, year and a publisher. Each copy is identified by an access number. For each copy borrowed, current borrower and due date should be tracked. Members have a membership number, an address and a phone number. Members can borrow 5 books and could put hold request on a book. Librarian has a name, id number, phone and an address. (7 marks)"
+          "text": "Design an EER diagram for the given scenario, including all relationships and constraints."
         }
       ],
-      "text": "a) Explain the concept of Aggregation in ER modeling. (2 marks) (2 marks)\nb) List three types of integrity constraints used in relational database design. (3 marks) (3 marks)\nc.i) Draw an ER diagram for the following scenario: Students contain an id (unique), name and an address. There are academic semesters containing an semester id (unique), semester and year. There are courses offered during academic semesters. A course has a number (unique), name and credits. Students make payments. A payment has receipt number (unique), amount and date. Payments can be classified into Tuition (semester payment), Examination and other (Library fine, Printouts). A Tuition payment is made for an academic semester For other payments description should be stored. Students register for courses offered during a particular semester. The registered date must be stored in the database. (4 marks) (4 marks)\nc.ii) Explain the concept of Referential Integrity Constraint and its importance in relational database design. (2 marks) (2 marks)\nd.i) List two common types of relationships used in ER modeling: Ternary and Aggregation. (2 marks) (2 marks)\nd.ii) Construct an ER diagram for the following scenario: A library is organized into several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian. Each book belongs to a section and has a title, authors, ISBN, year and a publisher. Each copy is identified by an access number. For each copy borrowed, current borrower and due date should be tracked. Members have a membership number, an address and a phone number. Members can borrow 5 books and could put hold request on a book. Librarian has a name, id number, phone and an address. (7 marks) (7 marks)"
+      "text": "a) What is the primary key for the Students relation in the given ER model? (2 marks)\nb) Explain the concept of referential integrity constraint and its application in the given ER model. (3 marks)\nc.i) Draw an EER diagram for the Students relation, including the primary key and foreign keys. (4 marks)\nc.ii) Explain the concept of aggregation in ER modeling and provide an example from the given scenario. (2 marks)\nd.i) Identify the entities that participate in a fan trap relationship in the given ER model. (2 marks)\nd.ii) Design an EER diagram for the given scenario, including all relationships and constraints. (7 marks)"
     },
     {
       "question_no": "Q5",
       "marks": 18,
       "subquestions": [
         {
-          "label": "a)",
-          "marks": 5,
-          "text": "List at least three properties of a relation that is in Second Normal Form (2NF)."
+          "label": "a",
+          "marks": 18,
+          "text": "Draw an ER diagram for a university database that stores information about courses, lecturers, and their qualifications. The database should include the following entities: Lecturer, Qualifications, Course, and Teach. Ensure that the ER diagram accurately represents the relationships between these entities."
         },
         {
-          "label": "b)",
-          "marks": 4,
-          "text": "Define functional dependency and explain its importance in database normalization."
-        },
-        {
-          "label": "c)",
-          "marks": 9,
-          "text": "Consider a relation R (A, B, C, D) with the following set of functional dependencies over R: F = { A -> B, B -> C, B -> D}. Compute the keys for relation R."
+          "label": "b",
+          "marks": 0,
+          "text": "Explain the concept of normalization in database design and provide an example of a normalized database schema for the university database. Be sure to include the benefits of normalization."
         }
       ],
-      "text": "a)) List at least three properties of a relation that is in Second Normal Form (2NF). (5 marks)\nb)) Define functional dependency and explain its importance in database normalization. (4 marks)\nc)) Consider a relation R (A, B, C, D) with the following set of functional dependencies over R: F = { A -> B, B -> C, B -> D}. Compute the keys for relation R. (9 marks)"
+      "text": "a) Draw an ER diagram for a university database that stores information about courses, lecturers, and their qualifications. The database should include the following entities: Lecturer, Qualifications, Course, and Teach. Ensure that the ER diagram accurately represents the relationships between these entities. (18 marks)\nb) Explain the concept of normalization in database design and provide an example of a normalized database schema for the university database. Be sure to include the benefits of normalization. (0 marks)"
     }
   ]
 }

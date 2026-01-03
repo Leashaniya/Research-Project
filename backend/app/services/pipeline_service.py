@@ -14,92 +14,49 @@ def _pdfs_in(folder: Path):
     return list(folder.glob("*.pdf")) + list(folder.glob("*.PDF"))
 
 
-async def run_full_pipeline() -> Dict[str, Any]:
+async def process_uploaded_files() -> Dict[str, Any]:
+    """Runs OCR, extraction, and template generation for all uploaded files."""
     steps: List[str] = []
-
     pp_dir = Path(PAST_PAPERS_DIR)
     sl_dir = Path(SLIDES_DIR)
-
-    print("PIPELINE: past papers dir =", pp_dir)
-    print("PIPELINE: slides dir      =", sl_dir)
 
     pp_pdfs = _pdfs_in(pp_dir) if pp_dir.exists() else []
     sl_pdfs = _pdfs_in(sl_dir) if sl_dir.exists() else []
 
-    print("PIPELINE: past papers PDFs =", [p.name for p in pp_pdfs])
-    print("PIPELINE: slides PDFs      =", [p.name for p in sl_pdfs])
-
     try:
-        # Step 1: Force synchronous script to run in a separate thread to avoid blocking loop
         if pp_pdfs:
-            steps.append("Processing past papers...")
+            steps.append(f"Processing {len(pp_pdfs)} past papers...")
             await asyncio.to_thread(main_full_run)
             steps.append("Past papers processed.")
-        else:
-            steps.append("No past papers found. Skipping past paper processing.")
-
-        # Step 2
+        
         if sl_pdfs:
-            steps.append("Processing lecture slides...")
+            steps.append(f"Processing {len(sl_pdfs)} lecture slides...")
             await asyncio.to_thread(slides_main)
             steps.append("Lecture slides processed.")
-        else:
-            steps.append("No lecture slides found. Skipping lecture slide processing.")
-
-        # Step 3
-        steps.append("Generating exam structure & templates...")
+        
+        steps.append("Generating exam structure and topic clusters...")
         await asyncio.to_thread(structure_main)
-        steps.append("Exam structure & templates generated.")
+        steps.append("Exam structure generated.")
 
-        # Step 4: Call agentic_main directly as it is async
-        steps.append("Generating model paper (Agentic Mode)...")
-        await agentic_main()
-        
-        steps.append("Model paper generated (Agentic).")
-        
         return {"status": "success", "steps": steps}
-
     except Exception as e:
-        print(f"PIPELINE ERROR: {e}")
-        steps.append(f"Error encountered: {str(e)}")
-        steps.append("Falling back to MOCK generation for presentation.")
-        
-        # Mock Response
-        mock_paper = {
-            "generated_at": "MOCK_TIME",
-            "model": "MOCK_MODEL",
-            "total_marks": 100,
-            "questions": [
-                {
-                    "question_no": "Q1",
-                    "marks": 25,
-                    "pattern_label": "THEORY",
-                    "question_text": "Explain the concept of Artificial Intelligence in the context of modern web applications. (MOCK QUESTION)"
-                },
-                {
-                    "question_no": "Q2",
-                    "marks": 25,
-                    "pattern_label": "PRACTICAL",
-                    "question_text": "Write a Python function to demonstrate a simple neural network forward pass. (MOCK QUESTION)"
-                },
-                {
-                    "question_no": "Q3",
-                    "marks": 25,
-                    "pattern_label": "ANALYSIS",
-                    "question_text": "Analyze the impact of Large Language Models on software engineering practices. (MOCK QUESTION)"
-                },
-                {
-                    "question_no": "Q4",
-                    "marks": 25,
-                    "pattern_label": "DESIGN",
-                    "question_text": "Design a system architecture for a real-time chat application using WebSocket. (MOCK QUESTION)"
-                }
-            ]
-        }
-        
-        return {
-            "status": "partial_success", 
-            "steps": steps, 
-            "message": "Pipeline failed (likely due to missing API keys/data), returning MOCK data for demo.",
-            "data": mock_paper
-        }
+        return {"status": "error", "message": str(e), "steps": steps}
+
+async def run_agentic_generation() -> Dict[str, Any]:
+    """Runs the AI agents to generate the final model paper."""
+    steps: List[str] = []
+    try:
+        steps.append("Waking up AI agents...")
+        paper = await agentic_main()
+        steps.append("Agentic generation complete.")
+        return {"status": "success", "steps": steps, "paper": paper}
+    except Exception as e:
+        return {"status": "error", "message": str(e), "steps": steps}
+
+async def run_full_pipeline() -> Dict[str, Any]:
+    """Legacy endpoint for total automation."""
+    res1 = await process_uploaded_files()
+    if res1["status"] == "error": return res1
+    res2 = await run_agentic_generation()
+    res2["steps"] = res1["steps"] + res2["steps"]
+    return res2
