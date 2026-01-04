@@ -15,9 +15,9 @@
       "typical_num_subquestions": 2,
       "num_samples": 15,
       "topics": [
-        "frame",
-        "number",
-        "customer"
+        "database",
+        "stores",
+        "date"
       ]
     },
     {
@@ -27,9 +27,9 @@
       "typical_num_subquestions": 3,
       "num_samples": 15,
       "topics": [
+        "set functional",
         "functional dependencies",
-        "functional",
-        "dependencies"
+        "functional"
       ]
     },
     {
@@ -39,9 +39,9 @@
       "typical_num_subquestions": 5,
       "num_samples": 15,
       "topics": [
-        "tree",
-        "explain",
-        "briefly explain"
+        "transaction",
+        "schedule",
+        "explain"
       ]
     },
     {
@@ -51,9 +51,9 @@
       "typical_num_subquestions": 4,
       "num_samples": 15,
       "topics": [
-        "int",
-        "varchar",
-        "relations"
+        "query",
+        "index",
+        "tree"
       ]
     },
     {
@@ -63,9 +63,9 @@
       "typical_num_subquestions": 7,
       "num_samples": 8,
       "topics": [
-        "tree",
-        "explain",
-        "briefly explain"
+        "transaction",
+        "schedule",
+        "explain"
       ]
     }
   ]

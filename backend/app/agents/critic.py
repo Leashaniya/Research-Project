@@ -59,19 +59,53 @@ class QualityCritic(BaseAgent):
 
         # 3. Figure Placeholders & Empty Scenarios Check (Hallucinations)
         draft_str = json.dumps(draft).lower()
-        if "[figure:" in draft_str or "slide_" in draft_str or "fig_" in draft_str:
-            err_msg = "QUALITY ERROR: Hallucinated figure placeholder or slide reference found (e.g. [FIGURE: ...], slide_02, fig_01). Replace with a descriptive scenario or remove reference."
+        hallucination_keywords = ["[figure:", "slide ", "slide_", "fig_", "page ", "page_", "refer to", "diagram above", "shown in figure"]
+        if any(kw in draft_str for kw in hallucination_keywords):
+            err_msg = "QUALITY ERROR: Hallucinated figure placeholder, slide reference, or diagram reference found. You MUST describe the content in text or create a scenario. Do NOT use placeholders."
             self.log(f"❌ Deterministic Reject: {err_msg}")
             return {"approved": False, "feedback": err_msg}
             
-        # Check for "given scenario" with no actual content
+        # 4. Strict Content Quality Checks
         for sq in sub_qs:
-            text = sq.get("text", "").lower()
-            if "given scenario" in text or "given following scenario" in text:
-                if len(text) < 60: # Too short to be a real scenario
-                    err_msg = "QUALITY ERROR: You asked to design for a 'given scenario' but didn't provide the scenario text. You MUST write out the full background scenario (Library, University, Shop, etc.) in the question text."
+            text = sq.get("text", "").strip()
+            marks = int(sq.get("marks", 0))
+            
+            # 4.0 Check for EMPTY or too short text
+            if len(text) < 10:
+                err_msg = f"QUALITY ERROR: Sub-question text is empty or too short. You must provide a full question."
+                self.log(f"❌ Deterministic Reject: {err_msg}")
+                return {"approved": False, "feedback": err_msg}
+            
+            # 4.1 NO Vague/Subjective questions
+            if any(v in text for v in ["think of", "what do you think", "your opinion", "personally"]):
+                err_msg = "QUALITY ERROR: Question is subjective or vague (e.g. 'Can you think of...'). Must be a technical, objective exam question."
+                self.log(f"❌ Deterministic Reject: {err_msg}")
+                return {"approved": False, "feedback": err_msg}
+            
+            # 4.2 NO Fragmented Data (Analyzing without data)
+            if any(a in text for a in ["analyze", "normalize", "compute keys"]) and "relation" not in text:
+                err_msg = "QUALITY ERROR: You asked to Analyze or Normalize but didn't provide any Relation/Table Schema. You MUST define the attributes and functional dependencies."
+                self.log(f"❌ Deterministic Reject: {err_msg}")
+                return {"approved": False, "feedback": err_msg}
+
+            # 4.3 Mark-to-effort mismatch (e.g. 1 mark for huge explanation)
+            if marks <= 2 and ("explain" in text and "briefly" not in text) and len(text) > 100:
+                err_msg = f"QUALITY ERROR: Mark mismatch. You have {marks} marks for a potentially complex question. Simplify or increase marks."
+                self.log(f"❌ Deterministic Reject: {err_msg}")
+                return {"approved": False, "feedback": err_msg}
+            
+        # 4. Scenario Repetition Check
+        seen_texts = set()
+        for sq in sub_qs:
+            txt = sq.get("text", "").strip()
+            if len(txt) > 50: # Only check significant blocks
+                # Use a simplified version for comparison to catch minor variations
+                simple_txt = "".join(filter(str.isalnum, txt.lower()))
+                if simple_txt in seen_texts:
+                    err_msg = "QUALITY ERROR: You reused the EXACT same scenario/text for multiple sub-questions. Each sub-question must have a unique scenario (e.g., if part a is about a Library, part b should be about something else)."
                     self.log(f"❌ Deterministic Reject: {err_msg}")
                     return {"approved": False, "feedback": err_msg}
+                seen_texts.add(simple_txt)
 
         # --- LLM AUDIT ---
         prompt = f"""

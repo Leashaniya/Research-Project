@@ -7,7 +7,7 @@ import random
 from app.core.paths import OUTPUTS_DIR, ARTIFACTS_DIR
 
 # Config
-MAX_RETRIES = 1  # How many times to rewrite a question if Critic rejects it
+MAX_RETRIES = 3  # How many times to rewrite a question if Critic rejects it
 
 from app.core.db import db
 
@@ -108,8 +108,16 @@ class AgentOrchestrator:
             return draft.get("text", "...")
             
         lines = []
-        for sq in sub_qs:
-            label = sq.get("label", "?")
+        # Use sequential alphabetic labeling (a, b, c...) for total consistency
+        import string
+        for idx, sq in enumerate(sub_qs):
+            # Determine label: use existing if it's a simple character, otherwise use index
+            raw_label = str(sq.get("label", "")).strip().rstrip(").")
+            if not raw_label or len(raw_label) > 1:
+                label = string.ascii_lowercase[idx % 26]
+            else:
+                label = raw_label
+                
             text = sq.get("text", "...")
             marks = sq.get("marks", 0)
             lines.append(f"{label}) {text} ({marks} marks)")
@@ -135,6 +143,17 @@ class AgentOrchestrator:
         
         final_questions = checkpoint_data.get("questions", [])
         total_marks = sum(int(q.get("marks") or 0) for q in final_questions)
+        
+        # Track already used content for uniqueness
+        used_topics = set()
+        used_scenarios = set()
+        
+        # Pre-populate based on checkpoint
+        for q in final_questions:
+            topic = q.get("main_topic")
+            if topic: used_topics.add(topic)
+            # Scenario tracking might be trickier from saved text, but we can try simple extraction
+            # Or just rely on fresh generation for the rest
         
         # 2. LOOP through slots
         for slot in slots:
@@ -192,7 +211,11 @@ class AgentOrchestrator:
                     "slot": slot,
                     "template": template,
                     "context": context,
-                    "feedback": feedback
+                    "feedback": feedback,
+                    "global_context": {
+                        "used_topics": list(used_topics),
+                        "used_scenarios": list(used_scenarios)
+                    }
                 })
                 
                 # Critic
@@ -208,9 +231,28 @@ class AgentOrchestrator:
                 if is_approved:
                     print(f"✅ {q_no} Approved!")
                     approved = True
+                    
+                    # NORMALIZE LABELS (Strictly a, b, c...)
+                    import string, re
+                    for idx, sq in enumerate(draft.get("subquestions", [])):
+                        sq["label"] = string.ascii_lowercase[idx % 26]
+                        # Remove redundant label prefixes from text (e.g., "a) What is..." -> "What is...")
+                        sq["text"] = re.sub(r"^\(?[a-iA-I]\)?[\.\)]\s*", "", sq.get("text", "")).strip()
+                    
+                    # Update global tracking: store topic and a snippet of the scenario
+                    used_topics.add(template.get("pattern_label", "General"))
+                    
+                    # Store a snippet of the scenario for global uniqueness
+                    # Combine subquestion texts to get a good proxy for the scenario
+                    scenario_proxy = " ".join([sq.get("text", "")[:50] for sq in draft.get("subquestions", [])[:2]])
+                    if scenario_proxy:
+                        used_scenarios.add(scenario_proxy)
+                    
                     break
                 else:
                     feedback = review.get("feedback", "No feedback")
+                    if isinstance(feedback, list):
+                        feedback = "; ".join(feedback)
                     print(f"❌ {q_no} Rejected. Feedback: {feedback}")
                     
                     # IF it is a MATH ERROR, fallback immediately (no retries)
@@ -219,6 +261,16 @@ class AgentOrchestrator:
                         break
             
             if not approved:
+                # If it's a hallucination error, we should NOT force approve it as is.
+                if feedback and "QUALITY ERROR" in feedback.upper():
+                    print(f"🛑 {q_no} failed quality check after retries. Attempting to sanitize...")
+                    # Basic sanitization: strip common hallucination placeholders
+                    draft_json = json.dumps(draft)
+                    hallucination_placeholders = ["[FIGURE: ...]", "[FIGURE]", "slide 22", "slide_22", "fig 1", "refer to diagram"]
+                    for hp in hallucination_placeholders:
+                        draft_json = draft_json.replace(hp, "(Diagram omitted - please refer to context)")
+                    draft = json.loads(draft_json)
+                
                 print(f"⚠️ {q_no} forced approval after max retries. Applying STRICT TEMPLATE FALLBACK.")
                 
                 # FALLBACK: Force the draft to match the Template's structure exactly
@@ -246,23 +298,24 @@ class AgentOrchestrator:
                     final_subqs = []
                     
                     for idx, item in enumerate(struct_source):
-                        t_label = item.get("label", f"({idx+1})")
+                        import string, re
+                        t_label = string.ascii_lowercase[idx % 26]
                         raw_t_marks = int(item.get("marks") or 0)
                         
                         # Scale marks if template differs from target
                         if template_total > 0 and template_total != target_marks:
-                            # Proportional scaling
                             ratio = target_marks / template_total
                             new_marks = int(round(raw_t_marks * ratio))
-                            # Ensure at least 1 mark if original had marks
-                            if raw_t_marks > 0 and new_marks == 0:
-                                new_marks = 1
+                            if raw_t_marks > 0 and new_marks == 0: new_marks = 1
                         else:
                             new_marks = raw_t_marks
 
                         salvaged_text = "..."
                         if idx < len(failed_sub_qs):
                             salvaged_text = failed_sub_qs[idx].get("text", "...")
+                        
+                        # Clean salvaged text
+                        salvaged_text = re.sub(r"^\(?[a-iA-I]\)?[\.\)]\s*", "", salvaged_text).strip()
                             
                         final_subqs.append({
                             "label": t_label,

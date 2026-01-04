@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-01-03 18:15:53",
+  "generated_at": "2026-01-04 11:56:03",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "questions": [
@@ -8,126 +8,136 @@
       "marks": 20,
       "subquestions": [
         {
-          "label": "a.i",
-          "text": "Explain the process of logical database design and its importance in the overall database design process.",
+          "label": "a",
+          "text": "List the three main types of integrity constraints in relational databases and provide a brief explanation for each. (2 marks)",
+          "marks": 2
+        },
+        {
+          "label": "b",
+          "text": "Design an EER diagram to represent a university's student database, including entities such as Student, Course, and Professor. Ensure that the diagram accurately reflects the relationships between these entities. (4 marks)",
           "marks": 4
         },
         {
-          "label": "a.ii",
-          "text": "Describe the different types of integrity constraints (domain, referential, key, other) and provide an example for each type.",
-          "marks": 4
+          "label": "c",
+          "text": "Explain the concept of normalization in relational databases and provide an example of a normalized schema for a university's student database. Be sure to discuss the benefits of normalization. (3 marks)",
+          "marks": 3
         },
         {
-          "label": "a.iii",
-          "text": "Explain how to convert a complex ER model to the relational model and provide a step-by-step guide on this process.",
+          "label": "d",
+          "text": "Create a stored procedure that updates the mileage of a vehicle assigned to a booking and adds a record to the payment table when the distance is completed. Assume that the Booking table is updated only when the distance is assigned at the completion of a booking. Provide the SQL code for this procedure, including any necessary parameters and constraints. (5 marks)",
           "marks": 5
         },
         {
-          "label": "b.",
-          "text": "Given an ER diagram with entities 'Employee', 'Department', and 'Project', calculate the primary keys for each entity and explain how they relate to the overall database schema. (Calculate type)",
-          "marks": 7
+          "label": "e",
+          "text": "Design a relational schema to store information about university courses, including course names, descriptions, credits, and instructors. Ensure that the schema is normalized and includes all necessary tables and relationships. Provide a brief explanation for your design choices. (6 marks)",
+          "marks": 6
         }
       ],
-      "text": "a.i) Explain the process of logical database design and its importance in the overall database design process. (4 marks)\na.ii) Describe the different types of integrity constraints (domain, referential, key, other) and provide an example for each type. (4 marks)\na.iii) Explain how to convert a complex ER model to the relational model and provide a step-by-step guide on this process. (5 marks)\nb.) Given an ER diagram with entities 'Employee', 'Department', and 'Project', calculate the primary keys for each entity and explain how they relate to the overall database schema. (Calculate type) (7 marks)"
+      "text": "a) List the three main types of integrity constraints in relational databases and provide a brief explanation for each. (2 marks) (2 marks)\nb) Design an EER diagram to represent a university's student database, including entities such as Student, Course, and Professor. Ensure that the diagram accurately reflects the relationships between these entities. (4 marks) (4 marks)\nc) Explain the concept of normalization in relational databases and provide an example of a normalized schema for a university's student database. Be sure to discuss the benefits of normalization. (3 marks) (3 marks)\nd) Create a stored procedure that updates the mileage of a vehicle assigned to a booking and adds a record to the payment table when the distance is completed. Assume that the Booking table is updated only when the distance is assigned at the completion of a booking. Provide the SQL code for this procedure, including any necessary parameters and constraints. (5 marks) (5 marks)\ne) Design a relational schema to store information about university courses, including course names, descriptions, credits, and instructors. Ensure that the schema is normalized and includes all necessary tables and relationships. Provide a brief explanation for your design choices. (6 marks) (6 marks)"
     },
     {
       "question_no": "Q2",
       "marks": 20,
       "subquestions": [
         {
-          "label": "a)",
-          "marks": 2,
-          "text": "Draw an entity-relationship diagram for the following scenario: A library has several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian. Each book belong to a section and has a title, authors, ISBN, year and a publisher. A book may have several copies. Each copy is identified by an access number. For each copy borrowed, current borrower and due date should be tracked. Members have a membership number, an address and a phone number. Members can borrow 5 books and could put hold request on a book Librarian has a name, id number, phone and an address."
-        },
-        {
-          "label": "b)",
-          "marks": 2,
-          "text": "List the four normal forms of relational databases: First Normal Form (1NF), Second Normal Form (2NF), Third Normal Form (3NF) and Boyce-Codd Normal Form (BCNF). Explain each in detail."
-        },
-        {
-          "label": "c)",
-          "marks": 2,
-          "text": "A relation R has the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Compute the keys for relation R. Explain your reasoning."
-        },
-        {
-          "label": "d)",
-          "marks": 2,
-          "text": "Explain the concept of superkey and key in the context of relational databases. Provide examples to illustrate each."
-        },
-        {
-          "label": "e)",
-          "marks": 5,
-          "text": "A relation R has the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Determine if the relation is in Boyce-Codd Normal Form (BCNF). Explain your reasoning."
-        },
-        {
-          "label": "f)",
-          "marks": 2,
-          "text": "Explain the concept of transitive dependency and its implications on normalization. Provide examples to illustrate each."
-        },
-        {
-          "label": "g).i.",
-          "marks": 2,
-          "text": "A relation R has the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Normalize the relation to its highest normal form. Explain your reasoning."
-        },
-        {
-          "label": "g).ii.",
+          "label": "a",
           "marks": 3,
-          "text": "Consider a relation R with the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Determine if the relation is in Boyce-Codd Normal Form (BCNF). Explain your reasoning."
+          "text": "What is the normal form of the relation in Figure 22?"
+        },
+        {
+          "label": "b",
+          "marks": 2,
+          "text": "If the relation is not in 2NF, normalize it to 2NF by removing any non-prime attributes that are transitively dependent on any key."
+        },
+        {
+          "label": "c",
+          "marks": 1,
+          "text": "Is the relation in Figure 23 in 3rd Normal Form (3NF)? Explain your answer."
+        },
+        {
+          "label": "d",
+          "marks": 2,
+          "text": "If the relation is not in 3NF, normalize it to 3NF by removing any non-prime attributes that are transitively dependent on any key."
+        },
+        {
+          "label": "e",
+          "marks": 2,
+          "text": "Consider a relation R with functional dependencies F = {A -> B, A -> C, CD -> E, B -> D, E -> A}. Compute the keys for relation R."
+        },
+        {
+          "label": "f",
+          "marks": 2,
+          "text": "What is the difference between a superkey and a key in the context of relational databases?"
+        },
+        {
+          "label": "g",
+          "marks": 2,
+          "text": "Explain the concept of Boyce-Codd Normal Form (BCNF) and how it is used to normalize relations."
+        },
+        {
+          "label": "h",
+          "marks": 2,
+          "text": "Design an ER diagram for a university's library system, including entities such as 'Book', 'Author', and 'Section'."
+        },
+        {
+          "label": "i",
+          "marks": 4,
+          "text": "Map the following ER diagram to a relational schema: [FIGURE: slide_013_fig_1.png]. Explain your design choices."
         }
       ],
-      "text": "a)) Draw an entity-relationship diagram for the following scenario: A library has several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian. Each book belong to a section and has a title, authors, ISBN, year and a publisher. A book may have several copies. Each copy is identified by an access number. For each copy borrowed, current borrower and due date should be tracked. Members have a membership number, an address and a phone number. Members can borrow 5 books and could put hold request on a book Librarian has a name, id number, phone and an address. (2 marks)\nb)) List the four normal forms of relational databases: First Normal Form (1NF), Second Normal Form (2NF), Third Normal Form (3NF) and Boyce-Codd Normal Form (BCNF). Explain each in detail. (2 marks)\nc)) A relation R has the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Compute the keys for relation R. Explain your reasoning. (2 marks)\nd)) Explain the concept of superkey and key in the context of relational databases. Provide examples to illustrate each. (2 marks)\ne)) A relation R has the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Determine if the relation is in Boyce-Codd Normal Form (BCNF). Explain your reasoning. (5 marks)\nf)) Explain the concept of transitive dependency and its implications on normalization. Provide examples to illustrate each. (2 marks)\ng).i.) A relation R has the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Normalize the relation to its highest normal form. Explain your reasoning. (2 marks)\ng).ii.) Consider a relation R with the following set of functional dependencies over R: {A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A}. Determine if the relation is in Boyce-Codd Normal Form (BCNF). Explain your reasoning. (3 marks)"
+      "text": "a) What is the normal form of the relation in Figure 22? (3 marks)\nb) If the relation is not in 2NF, normalize it to 2NF by removing any non-prime attributes that are transitively dependent on any key. (2 marks)\nc) Is the relation in Figure 23 in 3rd Normal Form (3NF)? Explain your answer. (1 marks)\nd) If the relation is not in 3NF, normalize it to 3NF by removing any non-prime attributes that are transitively dependent on any key. (2 marks)\ne) Consider a relation R with functional dependencies F = {A -> B, A -> C, CD -> E, B -> D, E -> A}. Compute the keys for relation R. (2 marks)\nf) What is the difference between a superkey and a key in the context of relational databases? (2 marks)\ng) Explain the concept of Boyce-Codd Normal Form (BCNF) and how it is used to normalize relations. (2 marks)\nh) Design an ER diagram for a university's library system, including entities such as 'Book', 'Author', and 'Section'. (2 marks)\ni) Map the following ER diagram to a relational schema: [FIGURE: slide_013_fig_1.png]. Explain your design choices. (4 marks)"
     },
     {
       "question_no": "Q3",
       "marks": 22,
       "subquestions": [
         {
-          "label": "Part a: General type",
-          "text": "Explain the concept of EER model and its significance in database design.",
-          "marks": 2
+          "label": "a",
+          "marks": 2,
+          "text": "List the three main types of integrity constraints in a relational database system."
         },
         {
-          "label": "Part b: General type",
-          "text": "Describe the difference between ternary and aggregation relationships in EER diagrams.",
-          "marks": 2
+          "label": "b",
+          "marks": 2,
+          "text": "Explain the concept of specialization and generalization in the Entity-Relationship (ER) model, providing an example from the given scenario."
         },
         {
-          "label": "Part c: Define type",
-          "text": "Define specialization and generalization concepts in the context of EER model.",
-          "marks": 2
+          "label": "c",
+          "marks": 2,
+          "text": "Design a relational schema to represent the 'Member' entity in the library system, including primary key, foreign keys, and attributes."
         },
         {
-          "label": "Part d: Define type",
-          "text": "Explain overlapping constraint and its application in EER diagrams.",
-          "marks": 3
+          "label": "d",
+          "marks": 3,
+          "text": "Construct an EER diagram for the given scenario, representing the relationships between entities and their attributes."
         },
         {
-          "label": "Part e.i: General type",
-          "text": "Draw an ER diagram for the given scenario: A Library is organized into several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian.",
-          "marks": 2
+          "label": "e",
+          "marks": 2,
+          "text": "Explain how to map an N-ary relationship in the ER model to a relational schema, providing an example from the given scenario."
         },
         {
-          "label": "Part e.ii: General type",
-          "text": "Explain the concept of fan trap in EER diagrams and provide an example.",
-          "marks": 3
+          "label": "f",
+          "marks": 3,
+          "text": "Design a trigger to ensure that no customer withdraws more than the given limit (40000) per day in the bank's database system."
         },
         {
-          "label": "Part e.iii: General type",
-          "text": "Explain the concept of chasm trap in EER diagrams and provide an example.",
-          "marks": 2
+          "label": "g",
+          "marks": 2,
+          "text": "Explain how to handle overlapping constraints between entity types in the ER model, providing an example from the given scenario."
         },
         {
-          "label": "Part e.iv: General type",
-          "text": "Describe the process of logical database design and its importance in database management systems.",
-          "marks": 3
+          "label": "h",
+          "marks": 3,
+          "text": "Map the 'Member' entity to a relational schema, including primary key, foreign keys, and attributes, considering the given constraints."
         },
         {
-          "label": "Part e.v: General type",
-          "text": "Explain the concept of relational model and its advantages over other data models.",
-          "marks": 3
+          "label": "i",
+          "marks": 3,
+          "text": "Design an assertion to ensure that no employee has a salary greater than their manager's salary in the database system."
         }
       ],
-      "text": "Part a: General type) Explain the concept of EER model and its significance in database design. (2 marks)\nPart b: General type) Describe the difference between ternary and aggregation relationships in EER diagrams. (2 marks)\nPart c: Define type) Define specialization and generalization concepts in the context of EER model. (2 marks)\nPart d: Define type) Explain overlapping constraint and its application in EER diagrams. (3 marks)\nPart e.i: General type) Draw an ER diagram for the given scenario: A Library is organized into several sections such as fiction, children and technology. Each section has a name and a number(unique) and its headed by a head librarian. (2 marks)\nPart e.ii: General type) Explain the concept of fan trap in EER diagrams and provide an example. (3 marks)\nPart e.iii: General type) Explain the concept of chasm trap in EER diagrams and provide an example. (2 marks)\nPart e.iv: General type) Describe the process of logical database design and its importance in database management systems. (3 marks)\nPart e.v: General type) Explain the concept of relational model and its advantages over other data models. (3 marks)"
+      "text": "a) List the three main types of integrity constraints in a relational database system. (2 marks)\nb) Explain the concept of specialization and generalization in the Entity-Relationship (ER) model, providing an example from the given scenario. (2 marks)\nc) Design a relational schema to represent the 'Member' entity in the library system, including primary key, foreign keys, and attributes. (2 marks)\nd) Construct an EER diagram for the given scenario, representing the relationships between entities and their attributes. (3 marks)\ne) Explain how to map an N-ary relationship in the ER model to a relational schema, providing an example from the given scenario. (2 marks)\nf) Design a trigger to ensure that no customer withdraws more than the given limit (40000) per day in the bank's database system. (3 marks)\ng) Explain how to handle overlapping constraints between entity types in the ER model, providing an example from the given scenario. (2 marks)\nh) Map the 'Member' entity to a relational schema, including primary key, foreign keys, and attributes, considering the given constraints. (3 marks)\ni) Design an assertion to ensure that no employee has a salary greater than their manager's salary in the database system. (3 marks)"
     },
     {
       "question_no": "Q4",
@@ -135,36 +145,41 @@
       "subquestions": [
         {
           "label": "a",
-          "marks": 2,
-          "text": "What is the primary key for the Students relation in the given ER model?"
+          "marks": 3,
+          "text": "Explain the process of logical database design and its importance in database development."
         },
         {
           "label": "b",
           "marks": 3,
-          "text": "Explain the concept of referential integrity constraint and its application in the given ER model."
+          "text": "Design a conceptual ER model for a university's student information system, including entities such as Student, Course, and Department."
         },
         {
-          "label": "c.i",
+          "label": "c",
+          "marks": 1,
+          "text": "Explain the concept of normalization in database design and provide an example of a normalized schema."
+        },
+        {
+          "label": "d",
+          "marks": 3,
+          "text": "Given a conceptual ER model, identify the entities that are dependent on another entity and explain how to create a composite key."
+        },
+        {
+          "label": "e",
+          "marks": 3,
+          "text": "Design a schema for a university's course registration system, including tables for courses, students, and registrations."
+        },
+        {
+          "label": "f",
           "marks": 4,
-          "text": "Draw an EER diagram for the Students relation, including the primary key and foreign keys."
+          "text": "Explain the process of converting an ER model to a relational model, including entity-relationship diagrams and data normalization."
         },
         {
-          "label": "c.ii",
-          "marks": 2,
-          "text": "Explain the concept of aggregation in ER modeling and provide an example from the given scenario."
-        },
-        {
-          "label": "d.i",
-          "marks": 2,
-          "text": "Identify the entities that participate in a fan trap relationship in the given ER model."
-        },
-        {
-          "label": "d.ii",
-          "marks": 7,
-          "text": "Design an EER diagram for the given scenario, including all relationships and constraints."
+          "label": "g",
+          "marks": 3,
+          "text": "Given a relational schema, identify the primary key and foreign keys, and explain how to create indexes for efficient query performance."
         }
       ],
-      "text": "a) What is the primary key for the Students relation in the given ER model? (2 marks)\nb) Explain the concept of referential integrity constraint and its application in the given ER model. (3 marks)\nc.i) Draw an EER diagram for the Students relation, including the primary key and foreign keys. (4 marks)\nc.ii) Explain the concept of aggregation in ER modeling and provide an example from the given scenario. (2 marks)\nd.i) Identify the entities that participate in a fan trap relationship in the given ER model. (2 marks)\nd.ii) Design an EER diagram for the given scenario, including all relationships and constraints. (7 marks)"
+      "text": "a) Explain the process of logical database design and its importance in database development. (3 marks)\nb) Design a conceptual ER model for a university's student information system, including entities such as Student, Course, and Department. (3 marks)\nc) Explain the concept of normalization in database design and provide an example of a normalized schema. (1 marks)\nd) Given a conceptual ER model, identify the entities that are dependent on another entity and explain how to create a composite key. (3 marks)\ne) Design a schema for a university's course registration system, including tables for courses, students, and registrations. (3 marks)\nf) Explain the process of converting an ER model to a relational model, including entity-relationship diagrams and data normalization. (4 marks)\ng) Given a relational schema, identify the primary key and foreign keys, and explain how to create indexes for efficient query performance. (3 marks)"
     },
     {
       "question_no": "Q5",
@@ -172,16 +187,51 @@
       "subquestions": [
         {
           "label": "a",
-          "marks": 18,
-          "text": "Draw an ER diagram for a university database that stores information about courses, lecturers, and their qualifications. The database should include the following entities: Lecturer, Qualifications, Course, and Teach. Ensure that the ER diagram accurately represents the relationships between these entities."
+          "text": "List the three main types of integrity constraints used in EER models.",
+          "marks": 5
         },
         {
           "label": "b",
-          "marks": 0,
-          "text": "Explain the concept of normalization in database design and provide an example of a normalized database schema for the university database. Be sure to include the benefits of normalization."
+          "text": "Consider a university with several departments. Each department has a name, and each employee is assigned to one department. Create an EER diagram to represent this scenario.",
+          "marks": 2
+        },
+        {
+          "label": "c",
+          "text": "Explain the concept of specialization in EER models and provide an example.",
+          "marks": 2
+        },
+        {
+          "label": "d",
+          "text": "An employee can be assigned to one or more departments. If an employee is assigned to both a department and a project, which attribute should be used as the primary key for the employee's record?",
+          "marks": 2
+        },
+        {
+          "label": "e",
+          "text": "List the four main options for mapping ISA relationships in EER models.",
+          "marks": 1
+        },
+        {
+          "label": "f",
+          "text": "Consider a student who is enrolled in both a degree program and a certificate course. How would you represent this relationship using an EER diagram?",
+          "marks": 1
+        },
+        {
+          "label": "g",
+          "text": "Explain the concept of referential integrity and provide an example.",
+          "marks": 1
+        },
+        {
+          "label": "h",
+          "text": "Consider a university with several departments. Each department has a budget, and each employee is assigned to one department. Create an EER diagram to represent this scenario.",
+          "marks": 2
+        },
+        {
+          "label": "i",
+          "text": "Explain the concept of data independence in database systems.",
+          "marks": 2
         }
       ],
-      "text": "a) Draw an ER diagram for a university database that stores information about courses, lecturers, and their qualifications. The database should include the following entities: Lecturer, Qualifications, Course, and Teach. Ensure that the ER diagram accurately represents the relationships between these entities. (18 marks)\nb) Explain the concept of normalization in database design and provide an example of a normalized database schema for the university database. Be sure to include the benefits of normalization. (0 marks)"
+      "text": "a) List the three main types of integrity constraints used in EER models. (5 marks)\nb) Consider a university with several departments. Each department has a name, and each employee is assigned to one department. Create an EER diagram to represent this scenario. (2 marks)\nc) Explain the concept of specialization in EER models and provide an example. (2 marks)\nd) An employee can be assigned to one or more departments. If an employee is assigned to both a department and a project, which attribute should be used as the primary key for the employee's record? (2 marks)\ne) List the four main options for mapping ISA relationships in EER models. (1 marks)\nf) Consider a student who is enrolled in both a degree program and a certificate course. How would you represent this relationship using an EER diagram? (1 marks)\ng) Explain the concept of referential integrity and provide an example. (1 marks)\nh) Consider a university with several departments. Each department has a budget, and each employee is assigned to one department. Create an EER diagram to represent this scenario. (2 marks)\ni) Explain the concept of data independence in database systems. (2 marks)"
     }
   ]
 }

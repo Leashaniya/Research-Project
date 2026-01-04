@@ -2,11 +2,6 @@ from typing import Dict, Any, List
 from pathlib import Path
 import asyncio
 
-from scripts.pastpaper_extract import main_full_run
-from scripts.lectureslide_extract import main as slides_main
-from scripts.structure_topics_template import main as structure_main
-from app.agents.orchestrator import main as agentic_main
-
 from app.core.paths import PAST_PAPERS_DIR, SLIDES_DIR
 
 
@@ -25,18 +20,29 @@ async def process_uploaded_files() -> Dict[str, Any]:
 
     try:
         if pp_pdfs:
+            from scripts.pastpaper_extract import main_full_run
             steps.append(f"Processing {len(pp_pdfs)} past papers...")
             await asyncio.to_thread(main_full_run)
             steps.append("Past papers processed.")
         
         if sl_pdfs:
+            from scripts.lectureslide_extract import main as slides_main
             steps.append(f"Processing {len(sl_pdfs)} lecture slides...")
             await asyncio.to_thread(slides_main)
             steps.append("Lecture slides processed.")
         
         steps.append("Generating exam structure and topic clusters...")
+        from scripts.structure_topics_template import main as structure_main
         await asyncio.to_thread(structure_main)
-        steps.append("Exam structure generated.")
+        
+        steps.append("Analyzing question patterns and selecting canonical templates...")
+        from scripts.template_analyzer import analyze_templates
+        await asyncio.to_thread(analyze_templates)
+        
+        steps.append("Syncing templates to brain (database)...")
+        from scripts.migrate_data import main as migrate_main
+        await migrate_main() # migrate_main is already async
+        steps.append("Exam structure and templates generated & synced.")
 
         return {"status": "success", "steps": steps}
     except Exception as e:
@@ -47,8 +53,10 @@ async def run_agentic_generation() -> Dict[str, Any]:
     steps: List[str] = []
     try:
         steps.append("Waking up AI agents...")
+        from app.agents.orchestrator import main as agentic_main
         paper = await agentic_main()
         steps.append("Agentic generation complete.")
+        
         return {"status": "success", "steps": steps, "paper": paper}
     except Exception as e:
         return {"status": "error", "message": str(e), "steps": steps}

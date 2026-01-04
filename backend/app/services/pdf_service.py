@@ -71,6 +71,7 @@ class PDFService:
             pdf.set_font("helvetica", "B", 12)
             pdf.ln(10)
             pdf.cell(0, 10, f"Question {q_no} ({total_q_marks} marks)", ln=True)
+                
             pdf.line(pdf.get_x(), pdf.get_y(), pdf.get_x() + 190, pdf.get_y())
             pdf.ln(2)
             

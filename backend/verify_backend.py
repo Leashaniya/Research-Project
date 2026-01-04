@@ -11,8 +11,8 @@ def test_endpoints():
     print(f"Response: {response.json()}")
     assert response.status_code == 200
     
-    print("\nTesting /model-paper/generate endpoint (expecting Mock if no keys)...")
-    response = client.get("/model-paper/generate")
+    print("\nTesting /model-paper/generate-paper endpoint (expecting Mock if no keys)...")
+    response = client.post("/model-paper/generate-paper")
     print(f"Status: {response.status_code}")
     data = response.json()
     print(f"Response Status Key: {data.get('status')}")

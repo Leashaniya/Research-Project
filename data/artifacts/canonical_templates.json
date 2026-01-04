@@ -1,82 +1,92 @@
 {
   "Q1": {
     "dominant_topic": "SQL Database Schema and Queries",
-    "source_paper": "2016 II",
-    "total_marks": 15,
-    "subquestion_count": 4,
-    "subquestion_structure": [
-      {
-        "label": "a.i",
-        "marks": 3,
-        "type": "General"
-      },
-      {
-        "label": "a.ii",
-        "marks": 3,
-        "type": "General"
-      },
-      {
-        "label": "a.iii",
-        "marks": 4,
-        "type": "General"
-      },
-      {
-        "label": "b.",
-        "marks": 5,
-        "type": "Calculate"
-      }
-    ]
-  },
-  "Q2": {
-    "dominant_topic": "Functional Dependencies and Normalization",
-    "source_paper": "2024 II",
+    "source_paper": "2017 II",
     "total_marks": 20,
-    "subquestion_count": 8,
+    "subquestion_count": 5,
     "subquestion_structure": [
       {
-        "label": "a)",
-        "marks": 2,
-        "type": "Draw"
-      },
-      {
-        "label": "b)",
+        "label": "i.",
         "marks": 2,
         "type": "List"
       },
       {
-        "label": "c)",
-        "marks": 2,
+        "label": "ii.",
+        "marks": 4,
         "type": "General"
       },
       {
-        "label": "d)",
-        "marks": 2,
-        "type": "General"
+        "label": "iii.",
+        "marks": 3,
+        "type": "Calculate"
       },
       {
-        "label": "e)",
+        "label": "b)",
         "marks": 5,
         "type": "General"
       },
       {
-        "label": "f)",
-        "marks": 2,
+        "label": "Create a trigger to update the mileage of the vehicle assigned and add a record to the payment table (use the stored procedure created in part b)), assuming that the Booking table is only updated when the distance is assigned at the completion of a booking.",
+        "marks": 6,
         "type": "General"
-      },
+      }
+    ]
+  },
+  "Q2": {
+    "dominant_topic": "frame bytes frame number",
+    "source_paper": "2016",
+    "total_marks": 20,
+    "subquestion_count": 9,
+    "subquestion_structure": [
       {
-        "label": "g).i.",
-        "marks": 2,
-        "type": "General"
-      },
-      {
-        "label": "g).ii.",
+        "label": "a",
         "marks": 3,
+        "type": "General"
+      },
+      {
+        "label": "b",
+        "marks": 2,
+        "type": "Define"
+      },
+      {
+        "label": "c.i",
+        "marks": 1,
+        "type": "General"
+      },
+      {
+        "label": "c.ii",
+        "marks": 2,
+        "type": "General"
+      },
+      {
+        "label": "c.iii",
+        "marks": 2,
+        "type": "General"
+      },
+      {
+        "label": "c.iv",
+        "marks": 2,
+        "type": "General"
+      },
+      {
+        "label": "c.v",
+        "marks": 2,
+        "type": "General"
+      },
+      {
+        "label": "d",
+        "marks": 2,
+        "type": "Define"
+      },
+      {
+        "label": "e",
+        "marks": 4,
         "type": "General"
       }
     ]
   },
   "Q3": {
-    "dominant_topic": "tree explain briefly explain",
+    "dominant_topic": "Transaction Management and Concurrency",
     "source_paper": "2023",
     "total_marks": 25,
     "subquestion_count": 9,
@@ -129,30 +139,25 @@
     ]
   },
   "Q4": {
-    "dominant_topic": "tree explain briefly explain",
-    "source_paper": "2015",
-    "total_marks": 18,
-    "subquestion_count": 6,
+    "dominant_topic": "SQL Database Schema and Queries",
+    "source_paper": "2016 II",
+    "total_marks": 15,
+    "subquestion_count": 7,
     "subquestion_structure": [
       {
         "label": "a",
-        "marks": 2,
-        "type": "General"
+        "marks": 3,
+        "type": "Define"
       },
       {
         "label": "b",
-        "marks": 3,
-        "type": "General"
-      },
-      {
-        "label": "c.i",
-        "marks": 4,
-        "type": "General"
-      },
-      {
-        "label": "c.ii",
         "marks": 2,
         "type": "General"
+      },
+      {
+        "label": "c",
+        "marks": 1,
+        "type": "Define"
       },
       {
         "label": "d.i",
@@ -161,8 +166,71 @@
       },
       {
         "label": "d.ii",
-        "marks": 5,
+        "marks": 2,
         "type": "General"
+      },
+      {
+        "label": "e.i",
+        "marks": 3,
+        "type": "List"
+      },
+      {
+        "label": "e.ii",
+        "marks": 2,
+        "type": "List"
+      }
+    ]
+  },
+  "Q5": {
+    "dominant_topic": "Transaction Management and Concurrency",
+    "source_paper": "2017 II",
+    "total_marks": 25,
+    "subquestion_count": 9,
+    "subquestion_structure": [
+      {
+        "label": "a)",
+        "marks": 4,
+        "type": "Define"
+      },
+      {
+        "label": "b)",
+        "marks": 3,
+        "type": "General"
+      },
+      {
+        "label": "c)",
+        "marks": 3,
+        "type": "Define"
+      },
+      {
+        "label": "d)",
+        "marks": 3,
+        "type": "Define"
+      },
+      {
+        "label": "e)",
+        "marks": 2,
+        "type": "Define"
+      },
+      {
+        "label": "f)",
+        "marks": 2,
+        "type": "Define"
+      },
+      {
+        "label": "i.",
+        "marks": 2,
+        "type": "Draw"
+      },
+      {
+        "label": "ii.",
+        "marks": 3,
+        "type": "Draw"
+      },
+      {
+        "label": "h)",
+        "marks": 3,
+        "type": "Draw"
       }
     ]
   }

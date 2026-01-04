@@ -8,9 +8,21 @@ function App() {
   const [processing, setProcessing] = useState(false);
   const [paper, setPaper] = useState(null);
   const [status, setStatus] = useState("Idle");
+  const [files, setFiles] = useState({ past_papers: [], lecture_slides: [] });
+  const [showFiles, setShowFiles] = useState(false);
 
   const addLog = (msg) => {
     setLogs(prev => [...prev.slice(-10), `[${new Date().toLocaleTimeString()}] ${msg}`]);
+  };
+
+  const fetchFiles = async () => {
+    try {
+      const resp = await fetch(`${API_BASE}/files`);
+      const data = await resp.json();
+      setFiles(data);
+    } catch (err) {
+      addLog(`Error fetching files: ${err.message}`);
+    }
   };
 
   const handleUpload = async (file, type) => {
@@ -27,6 +39,7 @@ function App() {
       });
       const data = await resp.json();
       addLog(`Success: ${data.message}`);
+      fetchFiles(); // Refresh list after upload
     } catch (err) {
       addLog(`Error: ${err.message}`);
     }
@@ -100,6 +113,34 @@ function App() {
           </button>
         </div>
       </div>
+
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <button className="Btn" onClick={() => { setShowFiles(!showFiles); if (!showFiles) fetchFiles(); }} style={{ background: '#475569' }}>
+          {showFiles ? "Hide Processed Files" : "View Processed Files"}
+        </button>
+      </div>
+
+      {showFiles && (
+        <div className="Card" style={{ maxWidth: '800px', margin: '0 auto 2rem auto', textAlign: 'left' }}>
+          <h3>Processed Files</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <h4 style={{ color: '#6366f1' }}>Past Papers</h4>
+              <ul style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
+                {files.past_papers.map((f, i) => <li key={i}>{f}</li>)}
+                {files.past_papers.length === 0 && <li>No papers found.</li>}
+              </ul>
+            </div>
+            <div>
+              <h4 style={{ color: '#6366f1' }}>Lecture Slides</h4>
+              <ul style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
+                {files.lecture_slides.map((f, i) => <li key={i}>{f}</li>)}
+                {files.lecture_slides.length === 0 && <li>No slides found.</li>}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="StatusSection">
         <h3>System Status: <span style={{ color: '#6366f1' }}>{status}</span></h3>

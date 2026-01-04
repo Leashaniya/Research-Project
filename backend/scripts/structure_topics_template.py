@@ -48,8 +48,8 @@ OUT_ROOT.mkdir(parents=True, exist_ok=True)
 # CONFIG
 # -------------------------------
 EXPECTED_TOTAL_MARKS = 100
-NUM_CLUSTERS = 4
-TOP_K_CLUSTERS = 4
+NUM_CLUSTERS = 7
+TOP_K_CLUSTERS = 7
 TEMPLATES_PER_CLUSTER = 3
 
 MIN_WORDS_QUESTION_TEXT = 5
@@ -324,8 +324,12 @@ def main():
     if len(question_texts) < NUM_CLUSTERS:
         raise ValueError("Not enough questions to form the requested number of clusters.")
 
+    DOMAIN_STOP_WORDS = ["student", "table", "varchar", "int", "following", "relations", "char", "number", "given", "provide", "based", "consider", "illustrate"]
+    from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+    all_stop_words = list(ENGLISH_STOP_WORDS) + DOMAIN_STOP_WORDS
+
     vectorizer = TfidfVectorizer(
-        stop_words="english",
+        stop_words=all_stop_words,
         max_df=TFIDF_MAX_DF,
         min_df=TFIDF_MIN_DF,
         ngram_range=TFIDF_NGRAM_RANGE
@@ -426,6 +430,7 @@ def main():
     topic_df = pd.DataFrame(topic_rows)
 
     templates = []
+    # 1. Cluster-based selection (already exists)
     for c in top_clusters:
         sub = topic_df[topic_df["cluster"] == c].sort_values("text_len", ascending=False).head(TEMPLATES_PER_CLUSTER)
         for _, row in sub.iterrows():
@@ -442,6 +447,31 @@ def main():
                 "subquestions": bp.get("subquestions", []),
                 "pattern_label": classify_pattern(full_text),
             })
+
+    # 2. Position-based selection (to ensure Q1-Q5 representation)
+    unique_positions = sorted(topic_df["question_id"].unique())
+    for pos in unique_positions:
+        # If we don't already have enough samples for this position, snag some
+        current_count = sum(1 for t in templates if str(t["question_id"]) == str(pos))
+        if current_count < 2:
+            sub = topic_df[topic_df["question_id"] == str(pos)].sort_values("text_len", ascending=False).head(2)
+            for _, row in sub.iterrows():
+                # Avoid duplicates
+                if any(t["pdf_stem"] == row["pdf_stem"] and str(t["question_id"]) == str(row["question_id"]) for t in templates):
+                    continue
+                bp = blueprint_index.get((row["pdf_stem"], row["question_id"]), {})
+                full_text = (bp.get("text") or row["text"]).strip()
+                templates.append({
+                    "pdf_stem": row["pdf_stem"],
+                    "question_id": row["question_id"],
+                    "cluster": int(row["cluster"]),
+                    "cluster_label_keywords": cluster_terms[int(row["cluster"])][:8],
+                    "marks": compute_main_marks(bp),
+                    "full_text": full_text,
+                    "diagram_refs": bp.get("diagram_refs", []),
+                    "subquestions": bp.get("subquestions", []),
+                    "pattern_label": classify_pattern(full_text),
+                })
 
     (OUT_ROOT / "template_questions.json").write_text(
         json.dumps(templates, indent=2, ensure_ascii=False),

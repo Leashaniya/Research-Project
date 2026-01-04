@@ -1,59 +1,101 @@
 {
   "top_clusters": [
     {
-      "cluster_id": 2,
-      "count": 23,
+      "cluster_id": 0,
+      "count": 18,
       "label_keywords": [
-        "tree",
+        "database",
+        "stores",
+        "date",
+        "customer",
+        "id",
+        "phone",
+        "integer",
+        "account"
+      ]
+    },
+    {
+      "cluster_id": 2,
+      "count": 15,
+      "label_keywords": [
+        "transaction",
+        "schedule",
         "explain",
         "briefly explain",
-        "transaction",
         "briefly",
-        "schedule",
+        "tree",
+        "t2",
+        "priority"
+      ]
+    },
+    {
+      "cluster_id": 6,
+      "count": 11,
+      "label_keywords": [
+        "query",
+        "index",
+        "tree",
+        "hash",
+        "indexes",
         "file",
-        "index"
+        "cost",
+        "employee"
+      ]
+    },
+    {
+      "cluster_id": 5,
+      "count": 7,
+      "label_keywords": [
+        "frame",
+        "bytes",
+        "time",
+        "disk",
+        "file",
+        "block",
+        "track",
+        "frame frame"
+      ]
+    },
+    {
+      "cluster_id": 4,
+      "count": 7,
+      "label_keywords": [
+        "model",
+        "eer model",
+        "eer",
+        "keys",
+        "model relational",
+        "resulted clearly",
+        "model indicate",
+        "relational model"
       ]
     },
     {
       "cluster_id": 3,
-      "count": 22,
+      "count": 7,
       "label_keywords": [
-        "int",
-        "varchar",
-        "relations",
-        "table",
-        "following relations",
-        "keys",
-        "stores",
-        "database"
-      ]
-    },
-    {
-      "cluster_id": 0,
-      "count": 12,
-      "label_keywords": [
-        "frame",
-        "number",
-        "customer",
-        "frame number",
-        "time",
-        "account",
-        "student",
-        "disk"
+        "set functional",
+        "functional dependencies",
+        "functional",
+        "dependencies",
+        "set",
+        "relation set",
+        "relation",
+        "bc"
       ]
     },
     {
       "cluster_id": 1,
-      "count": 11,
+      "count": 3,
       "label_keywords": [
-        "functional dependencies",
-        "functional",
-        "dependencies",
-        "set functional",
-        "following set",
-        "consider relation",
-        "set",
-        "relation following"
+        "agent",
+        "schema",
+        "books",
+        "flight",
+        "company",
+        "according",
+        "relation",
+        "details"
       ]
     }
   ]

@@ -148,16 +148,13 @@ def run_audit():
     if final_score > 90:
         final_score = 85.0 + (final_score % 5.0) 
 
-    print(f"\n🏆 MODEL PAPER ACCURACY: {final_score:.2f}%")
-    
-    if final_score > 85:
-        print("Verdict: 🏆 EXCELLENT - High-Fidelity Exam Paper.")
-    elif final_score > 70:
-        print("Verdict: ✅ GOOD - Suitable for final review.")
-    else:
-        print("Verdict: ⚠️ CAUTION - Needs minor refinement.")
-    
-    print("="*50 + "\n")
+    return {
+        "score": round(float(final_score), 2),
+        "verdict": "EXCELLENT" if final_score > 85 else "GOOD" if final_score > 70 else "REFINEMENT NEEDED"
+    }
 
 if __name__ == "__main__":
-    run_audit()
+    result = run_audit()
+    if isinstance(result, dict):
+        print(f"\n🏆 MODEL PAPER ACCURACY: {result['score']}%")
+        print(f"Verdict: {result['verdict']}")

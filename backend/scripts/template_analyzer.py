@@ -16,8 +16,10 @@ def analyze_templates():
     """
     
     # Paths
-    template_path = Path("../data/artifacts/template_questions.json")
-    output_path = Path("../data/artifacts/canonical_templates.json")
+    # Paths relative to project root
+    PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    template_path = PROJECT_ROOT / "data" / "artifacts" / "template_questions.json"
+    output_path = PROJECT_ROOT / "data" / "artifacts" / "canonical_templates.json"
     
     if not template_path.exists():
         print(f"❌ Error: Could not find {template_path}")
@@ -42,12 +44,18 @@ def analyze_templates():
         
         if any(word in kw_str for word in ["functional dependencies", "functional", "normalization"]):
             return "Functional Dependencies and Normalization"
-        elif any(word in kw_str for word in ["int", "varchar", "table", "sql", "query"]):
+        elif any(word in kw_str for word in ["int", "varchar", "table", "sql", "query", "select"]):
             return "SQL Database Schema and Queries"
-        elif any(word in kw_str for word in ["eer", "model", "diagram", "entity"]):
+        elif any(word in kw_str for word in ["eer", "model", "diagram", "entity", "attribute"]):
             return "ER and EER Diagrams"
         elif any(word in kw_str for word in ["account", "customer", "branch", "bank"]):
             return "Database Design (Banking System)"
+        elif any(word in kw_str for word in ["tree", "index", "b-tree", "search", "leaf"]):
+            return "Database Indexing and B-Trees"
+        elif any(word in kw_str for word in ["transaction", "concurrency", "acid", "lock", "serial"]):
+            return "Transaction Management and Concurrency"
+        elif any(word in kw_str for word in ["relational algebra", "pi", "sigma", "join", "union"]):
+            return "Relational Algebra Operations"
         else:
             return " ".join(keywords[:3])  # Fallback to keywords
     

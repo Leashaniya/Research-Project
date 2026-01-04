@@ -43,7 +43,8 @@ class QuestionWriter(BaseAgent):
         context = input_data["context"]
         feedback = input_data.get("feedback")
 
-        prompt = self._build_prompt(slot, template, context, feedback)
+        global_context = input_data.get("global_context", {})
+        prompt = self._build_prompt(slot, template, context, global_context, feedback)
         
         q_label = slot.get('question_no') or slot.get('slot_id') or "Q?"
         self.log(f"Drafting question for {q_label} ({slot.get('target_marks')} marks)...")
@@ -55,12 +56,15 @@ class QuestionWriter(BaseAgent):
             response = self.client.chat.completions.create(
                 model=model_name,
                 messages=[
-                    {"role": "system", "content": """You are an expert University Exam Question Setter. 
-    ULTRA-STRICT RULES:
-    1. SCENARIO MANDATORY: If you ask to 'Draw', 'Design', or 'Analyze' based on any model (ERD, Schema, SQL), you MUST write a detailed scenario yourself. Use at least 4-5 sentences of descriptive detail.
-    2. NO FIGURE REFERENCES: NEVER mention figures, diagrams, slides, or images (e.g., No "See Figure 1"). Assume the student only has the text.
-    3. NO TECHNICAL LABELS: Do not include internal labels like '(Calculate type)' or '(General type)' in the public question text.
-    4. SELF-CONTAINED: Every question must be 100% readable and answerable using the written text alone."""},
+                    {"role": "system", "content": """You are an expert University Exam Question Setter for Database Systems.
+    ULTRA-STRICT RULES (ZERO TOLERANCE):
+    1. NO SLIDE/FIGURE REFERENCES: Never use "Slide X", "Figure Y", "[FIGURE]", or "Refer to...". If context mentions a slide, you MUST extract the actual technical content (e.g., a table, a diagram's logic) and describe it in full sentences.
+    2. SCENARIO MANDATORY: If you ask to 'Draw', 'Design', or 'Analyze', you MUST write a detailed, unique scenario yourself inside the question text.
+    3. UNIQUE SCENARIOS: DO NOT reuse any scenario context (e.g., student/course) from previous questions.
+    4. NO VAGUE QUESTIONS: DO NOT ask "Can you think of...", "What do you think...", or "Give your opinion". Questions must be objective and technical.
+    5. NO BLANK QUESTIONS: Every sub-question MUST have a substantial 'text' field. Do NOT leave text empty or just put a label.
+    6. COGNITIVE LEVEL (BLOOM'S): Target 30% Understand, 40% Apply/Analyze, 30% Create/Design. Avoid too many 'Explain' questions.
+"""},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.4, # Lower for local models
@@ -72,7 +76,7 @@ class QuestionWriter(BaseAgent):
             self.log(f"Error drafting question: {e}")
             raise e
 
-    def _build_prompt(self, slot, template, context, feedback=None) -> str:
+    def _build_prompt(self, slot, template, context, global_context, feedback=None) -> str:
         base_prompt = f"""
         Generate ONE high-quality university exam question for a Database Systems course.
         
@@ -80,6 +84,10 @@ class QuestionWriter(BaseAgent):
         - Question Number: {slot.get('question_no') or slot.get('slot_id') or "Q?"}
         - Total Marks: {slot.get('target_marks')}
         - Topic Context: {context}
+        
+        GLOBAL UNIQUENESS (DO NOT REUSE THESE):
+        - Topics already used: {global_context.get('used_topics', [])}
+        - Scenarios already used: {global_context.get('used_scenarios', [])}
         
         CRITICAL CONTENT RULES:
         1. NO FIGURE PLACEHOLDERS: Do NOT use text like "[FIGURE: ...]", "slide_014", or "fig_1". If context refers to a figure, describe the component in text (e.g., "Given a table with columns X, Y, Z...") or invent a scenario.
