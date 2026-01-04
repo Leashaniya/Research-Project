@@ -310,6 +310,13 @@ class AgentOrchestrator:
                 forbidden_topics.append("Draw an ER diagram")
                 forbidden_topics.append("Draw an EER diagram")
             
+            # If we already have ER → Relational Mapping, forbid another one
+            if "er_to_relational_mapping" in used_question_types:
+                forbidden_topics.append("Map the ER diagram to relational")
+                forbidden_topics.append("Map ER to relational schema")
+                forbidden_topics.append("Convert ER diagram to relational model")
+                forbidden_topics.append("Design relational schema from ER diagram")
+            
             # If we just asked about Normalization, restrict it
             if "normalization" in used_question_types:
                 forbidden_topics.append("Normalization")
@@ -369,6 +376,14 @@ class AgentOrchestrator:
                         used_question_types.add("normalization")
                     if "write a query" in q_text_lower or "sql" in q_text_lower:
                         used_question_types.add("sql_query")
+                    # Detect ER → Relational Mapping
+                    if ("map" in q_text_lower or "convert" in q_text_lower or "transform" in q_text_lower) and ("er diagram" in q_text_lower or "eer diagram" in q_text_lower) and ("relational" in q_text_lower or "relational schema" in q_text_lower or "relational model" in q_text_lower):
+                        used_question_types.add("er_to_relational_mapping")
+                        print("      📌 Marked type: er_to_relational_mapping")
+                    # Also detect "Design relational schema" as mapping (if ER mentioned in question)
+                    if "design" in q_text_lower and "relational schema" in q_text_lower and ("er" in q_text_lower or "entity" in q_text_lower):
+                        used_question_types.add("er_to_relational_mapping")
+                        print("      📌 Marked type: er_to_relational_mapping")
                     
                     # Store a snippet of the scenario for global uniqueness
                     # Combine subquestion texts to get a good proxy for the scenario
@@ -498,6 +513,13 @@ class AgentOrchestrator:
                 used_question_types.add("normalization")
             if "write a query" in q_text_lower or "sql" in q_text_lower:
                 used_question_types.add("sql_query")
+            # Detect ER → Relational Mapping (Forced Approval)
+            if ("map" in q_text_lower or "convert" in q_text_lower or "transform" in q_text_lower) and ("er diagram" in q_text_lower or "eer diagram" in q_text_lower) and ("relational" in q_text_lower or "relational schema" in q_text_lower or "relational model" in q_text_lower):
+                used_question_types.add("er_to_relational_mapping")
+                print("      📌 Marked type: er_to_relational_mapping (Forced)")
+            if "design" in q_text_lower and "relational schema" in q_text_lower and ("er" in q_text_lower or "entity" in q_text_lower):
+                used_question_types.add("er_to_relational_mapping")
+                print("      📌 Marked type: er_to_relational_mapping (Forced)")
 
             # Store Scenario for Forced Approval
             scenario_proxy = " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])])
