@@ -58,12 +58,17 @@ class QuestionWriter(BaseAgent):
                 messages=[
                     {"role": "system", "content": """You are an expert University Exam Question Setter for Database Systems.
     ULTRA-STRICT RULES (ZERO TOLERANCE):
-    1. NO SLIDE/FIGURE REFERENCES: Never use "Slide X", "Figure Y", "[FIGURE]", or "Refer to...". If context mentions a slide, you MUST extract the actual technical content (e.g., a table, a diagram's logic) and describe it in full sentences.
-    2. SCENARIO MANDATORY: If you ask to 'Draw', 'Design', or 'Analyze', you MUST write a detailed, unique scenario yourself inside the question text.
-    3. UNIQUE SCENARIOS: DO NOT reuse any scenario context (e.g., student/course) from previous questions.
-    4. NO VAGUE QUESTIONS: DO NOT ask "Can you think of...", "What do you think...", or "Give your opinion". Questions must be objective and technical.
-    5. NO BLANK QUESTIONS: Every sub-question MUST have a substantial 'text' field. Do NOT leave text empty or just put a label.
-    6. COGNITIVE LEVEL (BLOOM'S): Target 30% Understand, 40% Apply/Analyze, 30% Create/Design. Avoid too many 'Explain' questions.
+    1. DATABASE SYSTEMS ONLY (CRITICAL): This is a Database Systems exam. EVERY question MUST be about database concepts ONLY:
+       - ER/EER diagrams, Normalization, SQL queries, Transactions, Indexing, Relational Model
+       - Functional Dependencies, Keys (Primary, Foreign, Candidate), Constraints
+       - Database Design, Schema Design, Data Integrity, Concurrency Control
+       - DO NOT include: Networking (frame bytes, TCP/IP), Operating Systems, Software Engineering, Web Development, Machine Learning, or ANY non-database topic.
+    2. NO SLIDE/FIGURE REFERENCES: Never use "Slide X", "Figure Y", "[FIGURE]", or "Refer to...". If context mentions a slide, you MUST extract the actual technical content (e.g., a table, a diagram's logic) and describe it in full sentences.
+    3. SCENARIO MANDATORY: If you ask to 'Draw', 'Design', or 'Analyze', you MUST write a detailed, unique scenario yourself inside the question text.
+    4. UNIQUE SCENARIOS: DO NOT reuse any scenario context (e.g., student/course) from previous questions.
+    5. NO VAGUE QUESTIONS: DO NOT ask "Can you think of...", "What do you think...", or "Give your opinion". Questions must be objective and technical.
+    6. NO BLANK QUESTIONS: Every sub-question MUST have a substantial 'text' field. Do NOT leave text empty or just put a label.
+    7. COGNITIVE LEVEL (BLOOM'S): Target 30% Understand, 40% Apply/Analyze, 30% Create/Design. Avoid too many 'Explain' questions.
 """},
                     {"role": "user", "content": prompt}
                 ],
@@ -87,6 +92,11 @@ class QuestionWriter(BaseAgent):
         base_prompt = f"""
         Generate ONE high-quality university exam question for a Database Systems course.
         
+        CRITICAL: This is a Database Systems exam. ALL questions MUST be about database concepts:
+        - ER/EER diagrams, Normalization, SQL, Transactions, Indexing, Relational Model
+        - Functional Dependencies, Keys, Constraints, Database Design, Schema Design
+        - DO NOT include networking, operating systems, software engineering, web development, or any non-database topics.
+        
         Specifications:
         - Question Number: {slot.get('question_no') or slot.get('slot_id') or "Q?"}
         - Total Marks: {slot.get('target_marks')}
@@ -94,7 +104,9 @@ class QuestionWriter(BaseAgent):
         
         GLOBAL UNIQUENESS (DO NOT REUSE THESE):
         - Topics already used: {global_context.get('used_topics', [])}
-        - PREVIOUS QUESTIONS (DO NOT REPEAT THESE): {global_context.get('used_scenarios', [])}
+        - PREVIOUS SCENARIOS (DO NOT REUSE): {global_context.get('used_scenarios', [])}
+        - FORBIDDEN TOPICS (STRICTLY PROHIBITED): {global_context.get('forbidden_topics', [])}
+        - IMPORTANT: If the requested template asks for a FORBIDDEN TOPIC, you MUST change the topic to something else from the syllabus (e.g. Normalization -> SQL, ER -> Relational Map). VALIDITY > TEMPLATE.
         
         CRITICAL CONTENT RULES (ZERO TOLERANCE):
         1. **SINGLE SCENARIO ENFORCEMENT**: If this question involves a scenario (e.g. University, Hospital, Bank), it must be the ONLY scenario used for the ENTIRE question (all sub-questions). DO NOT mix multiple scenarios.
@@ -155,18 +167,17 @@ class QuestionWriter(BaseAgent):
         """
         else:
             base_prompt += f"""
-        - Create 3-4 sub-questions (a, b, c, d).
+        - Create 3-7 sub-questions (a, b, c, d, e, f, g). DO NOT EXCEED 7 SUB-QUESTIONS.
+        - Consolidate small questions if you have more than 7.
         - Sub-question marks MUST sum up exactly to {slot.get('target_marks')}.
         - Explicitly state the marks for each sub-question in parentheses, e.g. (5 marks).
         """
         
         base_prompt += f"""
         
-        Style Reference (Based on {template.get('pattern_label', 'past papers')}):
-        {template.get('full_text')}
-        
         Output valid JSON:
         {{
+            "reasoning": "STEP-BY-STEP PLAN: 1. Scenario: [Describe your unique scenario here] 2. Sub-questions: [Plan parts a-e] 3. Marks Check: [Ensure sum is {slot.get('target_marks')}]",
             "question_no": "{slot.get('question_no')}",
             "marks": {slot.get('target_marks')},
             "subquestions": [
@@ -180,6 +191,6 @@ class QuestionWriter(BaseAgent):
         """
         
         if feedback:
-            base_prompt += f"\n\nCRITIC FEEDBACK FROM PREVIOUS ATTEMPT (FIX THESE ERRORS): {feedback}\n"
+            base_prompt += f"\n\nCRITIC FEEDBACK FROM PREVIOUS ATTEMPT (FIX THESE ERRORS): {{feedback}}\n"
             
         return base_prompt

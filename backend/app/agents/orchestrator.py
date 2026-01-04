@@ -99,6 +99,65 @@ class AgentOrchestrator:
              "marks": marks
         }
 
+    def _simplify_template(self, template, target_marks):
+        """
+        Force-reduce templates with >7 sub-questions to exactly 7.
+        Merges small questions to maintain mark total.
+        Real-world papers can have up to 7 sub-questions if needed.
+        """
+        structure = template.get("required_structure") or template.get("subquestions", [])
+        if not structure or len(structure) <= 7:
+            return template
+
+        print(f"    ✂️  Template too long ({len(structure)} parts). Simplifying to 7 parts...")
+        
+        # Sort by marks (preserve high-value questions)
+        # Strategy: Keep top 6 biggest questions, merge the rest into a "Concepts" question
+        # OR simple accumulation. Let's do simple accumulation to preserve order.
+        
+        new_structure = []
+        current_part = {"label": "x", "marks": 0, "text": "Combined part"}
+        
+        # Calculate target per part (approx)
+        total_marks = sum(int(s.get("marks",0)) for s in structure)
+        
+        # Create exactly 7 buckets (increased from 5 for realism)
+        bucket_size = len(structure) / 7.0 
+        
+        # Group indices: 0,1 -> 0; 2,3 -> 1; etc.
+        import math
+        
+        buckets = [[] for _ in range(7)]
+        for i, item in enumerate(structure):
+            bucket_idx = min(int(i // bucket_size), 6)
+            buckets[bucket_idx].append(item)
+            
+        final_qs = []
+        import string
+        for idx, bucket in enumerate(buckets):
+            if not bucket: continue
+            
+            # Sum marks
+            m = sum(int(item.get("marks", 0)) for item in bucket)
+            
+            # Combine text descriptions (if any) or types
+            # Heuristic: Use the type/label of the first item
+            first = bucket[0]
+            
+            final_qs.append({
+                "label": string.ascii_lowercase[idx],
+                "marks": m,
+                "type": first.get("type", "General"),
+                "text": first.get("text", "...") # Preserve hint from first item
+            })
+            
+        # Update template
+        new_template = template.copy()
+        new_template["required_structure"] = final_qs
+        new_template["subquestions"] = final_qs
+        
+        return new_template
+
     def _render_question(self, draft):
         """Convert structured subquestions into a beautiful string."""
         main_q_no = draft.get("question_no", "?")
@@ -124,6 +183,38 @@ class AgentOrchestrator:
             
         return "\n".join(lines)
 
+    def _validate_topic_coverage(self, questions):
+        """
+        Validates that the paper covers diverse topics and no single topic dominates.
+        Real-world papers should have balanced topic distribution.
+        """
+        topic_marks = {}
+        total_marks = 0
+        
+        for q in questions:
+            # Extract main topic from pattern_label or main_topic
+            topic = q.get("main_topic") or q.get("pattern_label", "General")
+            marks = int(q.get("marks", 0))
+            topic_marks[topic] = topic_marks.get(topic, 0) + marks
+            total_marks += marks
+        
+        if total_marks == 0:
+            return
+        
+        # Check if any single topic dominates (>40% of marks)
+        max_topic_ratio = max((marks / total_marks) * 100 for marks in topic_marks.values())
+        if max_topic_ratio > 40:
+            print(f"⚠️  WARNING: Topic '{max(topic_marks.items(), key=lambda x: x[1])[0]}' dominates with {max_topic_ratio:.1f}% of marks")
+            print(f"   Recommendation: Ensure better topic diversity (no topic should exceed 40%)")
+        
+        # Check topic diversity (should have at least 3 distinct topics for 5 questions)
+        unique_topics = len(topic_marks)
+        if unique_topics < 3 and len(questions) >= 5:
+            print(f"⚠️  WARNING: Only {unique_topics} unique topics detected for {len(questions)} questions")
+            print(f"   Recommendation: Ensure broader syllabus coverage")
+        else:
+            print(f"✅ Topic Coverage: {unique_topics} distinct topics covered")
+
     async def run_pipeline(self):
         print("\n--- AGENTIC PIPELINE STARTED ---\n")
         
@@ -147,6 +238,7 @@ class AgentOrchestrator:
         # Track already used content for uniqueness
         used_topics = set()
         used_scenarios = set()
+        used_question_types = set() # Track structural types like 'er_diagram', 'sql_query'
         
         # Pre-populate based on checkpoint
         for q in final_questions:
@@ -192,6 +284,10 @@ class AgentOrchestrator:
                 # Fallback to old template
                 template = canonical if canonical else await self._select_template(q_no, target_marks)
             
+            # 2a.2 SIMPLIFY TEMPLATE (User Request: Realistic Flow)
+            # If template has > 5 parts, crush it down to 5
+            template = self._simplify_template(template, target_marks)
+
             # 2b. RESEARCHER: Get context
             # E.g. if template is "SQL_DDL_DML", we might want to research "SQL DDL scenarios"
             # For now, we combine Exam Title + Topic + Template Label
@@ -205,6 +301,21 @@ class AgentOrchestrator:
             feedback = None
             draft = None
             
+            # Identify forbidden topics for this specific slot
+            forbidden_topics = []
+            
+            # --- STRICT ANTI-REPETITION LOGIC ---
+            # If we already have an ER diagram, forbid another one
+            if "er_diagram" in used_question_types:
+                forbidden_topics.append("Draw an ER diagram")
+                forbidden_topics.append("Draw an EER diagram")
+            
+            # If we just asked about Normalization, restrict it
+            if "normalization" in used_question_types:
+                forbidden_topics.append("Normalization")
+                
+            print(f"    ⛔ Forbidden Topics: {forbidden_topics}")
+            
             for attempt in range(MAX_RETRIES + 1):
                 # Writer
                 # Writer
@@ -216,7 +327,8 @@ class AgentOrchestrator:
                         "feedback": feedback,
                         "global_context": {
                             "used_topics": list(used_topics),
-                            "used_scenarios": list(used_scenarios)
+                            "used_scenarios": list(used_scenarios),
+                            "forbidden_topics": forbidden_topics
                         }
                     })
                 except Exception as e:
@@ -248,6 +360,16 @@ class AgentOrchestrator:
                     # Update global tracking: store topic and a snippet of the scenario
                     used_topics.add(template.get("pattern_label", "General"))
                     
+                    # Detect Question Type from Text (Heuristic)
+                    q_text_lower = draft.get("text", "").lower()
+                    if ("draw" in q_text_lower or "design" in q_text_lower or "construct" in q_text_lower) and ("er diagram" in q_text_lower or "eer diagram" in q_text_lower):
+                        used_question_types.add("er_diagram")
+                        print("      📌 Marked type: er_diagram")
+                    if "normalization" in q_text_lower or "normal form" in q_text_lower:
+                        used_question_types.add("normalization")
+                    if "write a query" in q_text_lower or "sql" in q_text_lower:
+                        used_question_types.add("sql_query")
+                    
                     # Store a snippet of the scenario for global uniqueness
                     # Combine subquestion texts to get a good proxy for the scenario
                     scenario_proxy = " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])])
@@ -277,7 +399,10 @@ class AgentOrchestrator:
                         draft_json = draft_json.replace(hp, "(Diagram omitted - please refer to context)")
                     draft = json.loads(draft_json)
                 
-                print(f"⚠️ {q_no} forced approval after max retries. Applying STRICT TEMPLATE FALLBACK.")
+                if "MATH ERROR" in feedback.upper():
+                     print(f"⚠️ {q_no} forced approval (Trigger: MATH ERROR). Applying STRICT TEMPLATE FALLBACK.")
+                else:
+                     print(f"⚠️ {q_no} forced approval after max retries. Applying STRICT TEMPLATE FALLBACK.")
                 
                 # FALLBACK: Force the draft to match the Template's structure exactly
                 # This ensures marks sum up correctly (as they come from a real paper)
@@ -322,6 +447,23 @@ class AgentOrchestrator:
                         
                         # Clean salvaged text
                         salvaged_text = re.sub(r"^\(?[a-iA-I]\)?[\.\)]\s*", "", salvaged_text).strip()
+                        
+                        # Improved fallback: Generate minimal viable question text instead of "..."
+                        if not salvaged_text or salvaged_text == "..." or len(salvaged_text.strip()) < 10:
+                            # Generate context-aware fallback based on structure type
+                            struct_type = item.get("type", "concept")
+                            pattern_label = template.get("pattern_label", "Database Systems")
+                            
+                            if "er" in struct_type.lower() or "diagram" in struct_type.lower():
+                                salvaged_text = f"Construct an ER/EER diagram for the scenario described above, showing all entities, relationships, and attributes."
+                            elif "normalize" in struct_type.lower() or "normal" in struct_type.lower():
+                                salvaged_text = f"Normalize the given relation schema to the appropriate normal form, showing all steps."
+                            elif "sql" in struct_type.lower() or "query" in struct_type.lower():
+                                salvaged_text = f"Write SQL queries to perform the required operations on the database schema."
+                            elif "define" in struct_type.lower() or "explain" in struct_type.lower():
+                                salvaged_text = f"Define and explain the key concepts related to {pattern_label}."
+                            else:
+                                salvaged_text = f"Explain {struct_type if struct_type != 'General' else pattern_label} in the context of the scenario above."
                             
                         final_subqs.append({
                             "label": t_label,
@@ -343,6 +485,25 @@ class AgentOrchestrator:
                     draft = fallback_draft
                     print(f"  🔧 Fixed marks using template structure (Scaled {template_total} -> {target_marks})")
             
+            # --- IMPORTANT: UPDATE GLOBAL TRACKING FOR FORCED APPROVAL ---
+            # Even if forced, we must record what we used so Q2, Q3 know about it
+            used_topics.add(template.get("pattern_label", "General"))
+            
+            # Detect Question Type (Heuristic) for Forced Approval
+            q_text_lower = draft.get("text", "").lower()
+            if ("draw" in q_text_lower or "design" in q_text_lower or "construct" in q_text_lower) and ("er diagram" in q_text_lower or "eer diagram" in q_text_lower):
+                used_question_types.add("er_diagram")
+                print("      📌 Marked type: er_diagram (Forced)")
+            if "normalization" in q_text_lower or "normal form" in q_text_lower:
+                used_question_types.add("normalization")
+            if "write a query" in q_text_lower or "sql" in q_text_lower:
+                used_question_types.add("sql_query")
+
+            # Store Scenario for Forced Approval
+            scenario_proxy = " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])])
+            if scenario_proxy:
+                used_scenarios.add(scenario_proxy[:200])
+            
             # 2c. RENDER the question for final display
             draft["question_no"] = q_no
             draft["text"] = self._render_question(draft)
@@ -354,7 +515,10 @@ class AgentOrchestrator:
             with open(self.checkpoint_path, "w", encoding="utf-8") as f:
                 json.dump({"questions": final_questions}, f, indent=2)
 
-        # 3. SAVE
+        # 3. VALIDATE TOPIC COVERAGE
+        self._validate_topic_coverage(final_questions)
+        
+        # 4. SAVE
         paper = {
             "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
             "mode": "AGENTIC_V1",

@@ -59,9 +59,14 @@ class QualityCritic(BaseAgent):
 
         # 3. Figure Placeholders & Empty Scenarios Check (Hallucinations)
         draft_str = json.dumps(draft).lower()
+        # EXCEPTION: We explicitly ALLOW "[placeholder figure]" as per rule.
+        # So we remove that string before checking for other bad keywords.
+        clean_draft_str = draft_str.replace("[placeholder figure]", "")
+        
         hallucination_keywords = ["[figure:", "slide ", "slide_", "fig_", "page ", "page_", "refer to", "diagram above", "shown in figure"]
-        if any(kw in draft_str for kw in hallucination_keywords):
-            err_msg = "QUALITY ERROR: Hallucinated figure placeholder, slide reference, or diagram reference found. You MUST describe the content in text or create a scenario. Do NOT use placeholders."
+        
+        if any(kw in clean_draft_str for kw in hallucination_keywords):
+            err_msg = "QUALITY ERROR: Hallucinated figure placeholder (other than '[PLACEHOLDER FIGURE]'), slide reference, or diagram reference found. You MUST describe the content in text or create a scenario."
             self.log(f"❌ Deterministic Reject: {err_msg}")
             return {"approved": False, "feedback": err_msg}
             
@@ -94,6 +99,28 @@ class QualityCritic(BaseAgent):
                 self.log(f"❌ Deterministic Reject: {err_msg}")
                 return {"approved": False, "feedback": err_msg}
             
+            # 4.4 DATABASE SYSTEMS RELEVANCE CHECK (CRITICAL)
+            # List of non-database topics that should be rejected
+            non_db_keywords = [
+                "frame bytes", "frame bytes time", "network protocol", "tcp/ip", "http", "https",
+                "routing", "switching", "packet", "datagram", "osi model", "network layer",
+                "transport layer", "application layer", "socket", "port number", "dns",
+                "dhcp", "subnet", "gateway", "router", "switch", "firewall", "vpn",
+                "operating system", "process scheduling", "memory management", "file system",
+                "cpu scheduling", "deadlock", "semaphore", "mutex", "thread", "process",
+                "compiler", "interpreter", "syntax", "parsing", "lexical analysis",
+                "software engineering", "agile", "scrum", "waterfall", "sdlc",
+                "web development", "html", "css", "javascript", "frontend", "backend",
+                "machine learning", "neural network", "deep learning", "ai algorithm"
+            ]
+            
+            text_lower = text.lower()
+            for non_db_term in non_db_keywords:
+                if non_db_term in text_lower:
+                    err_msg = f"RELEVANCE ERROR: Question contains non-database systems topic '{non_db_term}'. This is a Database Systems exam - ALL questions MUST be about database concepts only (ER diagrams, normalization, SQL, transactions, indexing, etc.). Replace with a relevant database systems topic."
+                    self.log(f"❌ Deterministic Reject: {err_msg}")
+                    return {"approved": False, "feedback": err_msg}
+            
         # 4. Scenario Repetition Check
         seen_texts = set()
         for sq in sub_qs:
@@ -118,12 +145,20 @@ class QualityCritic(BaseAgent):
         {context}
         
         Quality Checklist:
-        1. CONTENT RELEVANCE: Is the question actually about the requested topic?
+        1. CONTENT RELEVANCE (CRITICAL): Is the question 100% about Database Systems? REJECT if it mentions:
+           - Networking concepts (frame bytes, TCP/IP, routing, protocols)
+           - Operating Systems (process scheduling, memory management)
+           - Software Engineering (SDLC, Agile, Scrum)
+           - Web Development (HTML, CSS, JavaScript)
+           - Machine Learning or AI algorithms
+           - Any topic NOT related to: ER diagrams, normalization, SQL, transactions, indexing, relational model, functional dependencies, etc.
         2. NO HALLUCINATIONS: Does it contain placeholders like "..." or "refer to the diagram above" (without a diagram)? 
         3. SCENARIO COMPLETENESS: If it asks to "Draw", "Construct", or "Design" based on a "given scenario", does the question ACTUALLY provide the text of that scenario? If not, REJECT.
         4. CLARITY: Is the phrasing professional?
         
-        If REJECTED, provide specific feedback on how to fix it. Be very critical about missing scenarios and figure references.
+        CRITICAL: This is a Database Systems exam. EVERY question MUST be about database concepts. If you see ANY non-database topic, REJECT immediately.
+        
+        If REJECTED, provide specific feedback on how to fix it. Be very critical about missing scenarios, figure references, and especially non-database topics.
         
         Output JSON:
         {{
