@@ -64,6 +64,9 @@ def _strip_markdown_for_tts(text: str) -> str:
     t = re.sub(r"[ \t]{2,}", " ", t)
     t = re.sub(r"\n{3,}", "\n\n", t)
 
+    # Remove tables (entire content between [TABLE] and next double newline or end of text)
+    t = re.sub(r"\[TABLE\][\s\S]*?(?=\n\n|\Z)", "", t)
+
     return t.strip()
 def _strip_markdown_for_tts(text: str) -> str:
     """

@@ -75,15 +75,71 @@
 # print("Sample images:", sample)
 
 
-from app.ca_guidance.rag.ingestion.vectorstore_builder import load_vectorstore
-from app.ca_guidance.rag.config.settings import VECTORSTORE_DIR
+# from app.ca_guidance.rag.ingestion.vectorstore_builder import load_vectorstore
+# from app.ca_guidance.rag.config.settings import VECTORSTORE_DIR
 
-vs = load_vectorstore(VECTORSTORE_DIR)
-docs = vs.similarity_search("Fan trap", k=5)
+# vs = load_vectorstore(VECTORSTORE_DIR)
+# docs = vs.similarity_search("Fan trap", k=5)
 
-print("Total retrieved:", len(docs))
-print("Image docs in topK:", sum(1 for d in docs if "image_path" in (d.metadata or {})))
+# print("Total retrieved:", len(docs))
+# print("Image docs in topK:", sum(1 for d in docs if "image_path" in (d.metadata or {})))
 
-for d in docs:
-    if "image_path" in (d.metadata or {}):
-        print("IMAGE HIT:", d.metadata["image_path"])
+# for d in docs:
+#     if "image_path" in (d.metadata or {}):
+#         print("IMAGE HIT:", d.metadata["image_path"])
+
+
+from app.ca_guidance.tools.rag_tool import (
+    _get_rag_chain,
+    _extract_context_text,
+    _verify_summary_accuracy
+)
+
+def test_summary_accuracy_checker():
+    print("TEST STARTED", flush=True)
+
+    rag_chain = _get_rag_chain()
+    assert rag_chain is not None, "RAG chain not initialized"
+    print("RAG CHAIN READY", flush=True)
+
+    # Normal topic
+    result = rag_chain.invoke({"question": "Summarize Fan Trap"})
+    summary = result.get("answer", "")
+    context = _extract_context_text(result)
+
+    check = _verify_summary_accuracy(
+        summary=summary,
+        context_text=context,
+        topic="Fan Trap"
+    )
+
+    print("\n=== ACCURACY CHECK (VALID TOPIC) ===", flush=True)
+    print(check, flush=True)
+
+    # Hallucination test
+    bad_result = rag_chain.invoke(
+        {"question": "Summarize Fan Trap in quantum computing"}
+    )
+    bad_summary = bad_result.get("answer", "")
+    bad_context = _extract_context_text(bad_result)
+
+    bad_check = _verify_summary_accuracy(
+        summary=bad_summary,
+        context_text=bad_context,
+        topic="Fan Trap (Quantum Computing)"
+    )
+
+    print("\n=== ACCURACY CHECK (HALLUCINATION TEST) ===", flush=True)
+    print(bad_check, flush=True)
+
+    assert "report" in check
+    assert "report" in bad_check
+    assert "rouge_1" in check
+    assert "rouge_2" in check
+    assert "rouge_l" in check
+
+
+# ✅ THIS is what you asked to add
+if __name__ == "__main__":
+    test_summary_accuracy_checker()
+

@@ -5,11 +5,18 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
+from pydantic import BaseModel
 from app.core.dependencies import get_current_user
 from app.models.schemas import UserInfo, SummarizeRequest
 from app.ca_guidance.crew import create_guidance_crew, create_summarization_crew
 from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR
 from app.ca_guidance.tools.tts_tool import text_to_speech_wav  # ✅ AUDIO
+from app.ca_guidance.tools.rag_tool import (
+    _get_rag_chain,
+    _extract_context_text,
+    _verify_summary_accuracy,
+    verify_guidance_accuracy
+)
 
 logger = logging.getLogger(__name__)
 
@@ -264,4 +271,100 @@ async def summarize_topic(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create summary: {e}"
+        )
+
+
+class CheckSummaryAccuracyRequest(BaseModel):
+    topic: str
+    summary_content: str
+
+
+class CheckGuidanceAccuracyRequest(BaseModel):
+    guidance_content: str
+    assignment_topic: Optional[str] = None
+
+
+@router.post("/check-summary-accuracy")
+async def check_summary_accuracy(
+    request: CheckSummaryAccuracyRequest,
+    user: UserInfo = Depends(get_current_user)
+):
+    """
+    Check the accuracy of a summary using ROUGE metrics.
+    
+    Returns:
+        JSON response with ROUGE scores and accuracy assessment
+    """
+    logger.info(f"=== Checking summary accuracy for topic: {request.topic} ===")
+    
+    try:
+        rag_chain = _get_rag_chain()
+        
+        if rag_chain is None:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="RAG system is not available. The vectorstore needs to be built first."
+            )
+        
+        # Query for relevant context
+        summary_query = f"Provide detailed information about {request.topic} from lecture materials"
+        result = rag_chain.invoke({"question": summary_query})
+        
+        # Extract context and verify accuracy
+        context_text = _extract_context_text(result)
+        
+        if not context_text:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No relevant context found in lecture materials for this topic."
+            )
+        
+        accuracy_result = _verify_summary_accuracy(
+            summary=request.summary_content,
+            context_text=context_text,
+            topic=request.topic
+        )
+        
+        logger.info(f"Accuracy check completed. Overall F-measure: {accuracy_result.get('overall', {}).get('avg_fmeasure_pct', 0):.2f}%")
+        
+        return accuracy_result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error checking summary accuracy: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to check summary accuracy: {e}"
+        )
+
+
+@router.post("/check-guidance-accuracy")
+async def check_guidance_accuracy(
+    request: CheckGuidanceAccuracyRequest,
+    user: UserInfo = Depends(get_current_user)
+):
+    """
+    Check the accuracy of CA guidance using ROUGE metrics.
+    
+    Returns:
+        JSON response with ROUGE scores and accuracy assessment
+    """
+    logger.info("=== Checking guidance accuracy ===")
+    
+    try:
+        accuracy_result = verify_guidance_accuracy(
+            guidance_text=request.guidance_content,
+            assignment_topic=request.assignment_topic or ""
+        )
+        
+        logger.info(f"Accuracy check completed. Overall F-measure: {accuracy_result.get('overall', {}).get('avg_fmeasure_pct', 0):.2f}%")
+        
+        return accuracy_result
+        
+    except Exception as e:
+        logger.error(f"Error checking guidance accuracy: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to check guidance accuracy: {e}"
         )
