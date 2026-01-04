@@ -71,7 +71,14 @@ class QuestionWriter(BaseAgent):
                 response_format={"type": "json_object"}
             )
             content = response.choices[0].message.content
-            return json.loads(content)
+            parsed = json.loads(content)
+            
+            # Validation: Check for empty text
+            for sq in parsed.get("subquestions", []):
+                if not sq.get("text") or len(sq.get("text").strip()) < 5:
+                    raise ValueError(f"Generated empty question text for label {sq.get('label')}")
+                    
+            return parsed
         except Exception as e:
             self.log(f"Error drafting question: {e}")
             raise e
@@ -87,12 +94,14 @@ class QuestionWriter(BaseAgent):
         
         GLOBAL UNIQUENESS (DO NOT REUSE THESE):
         - Topics already used: {global_context.get('used_topics', [])}
-        - Scenarios already used: {global_context.get('used_scenarios', [])}
+        - PREVIOUS QUESTIONS (DO NOT REPEAT THESE): {global_context.get('used_scenarios', [])}
         
-        CRITICAL CONTENT RULES:
-        1. NO FIGURE PLACEHOLDERS: Do NOT use text like "[FIGURE: ...]", "slide_014", or "fig_1". If context refers to a figure, describe the component in text (e.g., "Given a table with columns X, Y, Z...") or invent a scenario.
-        2. COMPLETE SCENARIOS: If you ask to "Draw an ER diagram" or "Design a schema" for a "given scenario", you MUST provide the FULL text of that scenario. Do NOT say "given following scenario" and then leave it empty.
-        3. SELF-CONTAINED: The question must be answerable using only the text you provide.
+        CRITICAL CONTENT RULES (ZERO TOLERANCE):
+        1. **SINGLE SCENARIO ENFORCEMENT**: If this question involves a scenario (e.g. University, Hospital, Bank), it must be the ONLY scenario used for the ENTIRE question (all sub-questions). DO NOT mix multiple scenarios.
+        2. **NO MCQs**: This is a structural paper. DO NOT generate Multiple Choice Questions (A, B, C, D). All questions must be descriptive or design-based.
+        3. **FIGURE PLACEHOLDERS**: If a diagram is required, DO NOT describe it. Instead, insert exactly: `[PLACEHOLDER FIGURE] (Description of what diagram should show)`.
+        4. **NO FIGURE REFERENCES**: Do NOT refer to "Figure 1", "Slide 2", etc.
+        5. **NO EMPTY QUESTIONS**: Every sub-question `text` field must have substantial content.
         
         CRITICAL AUTHENTICITY RULE:
         SLIIT papers usually follow a "50/50" split for sub-questions:

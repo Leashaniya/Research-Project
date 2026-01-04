@@ -1,39 +1,13 @@
 {
   "Q1": {
-    "dominant_topic": "SQL Database Schema and Queries",
-    "source_paper": "2017 II",
-    "total_marks": 20,
-    "subquestion_count": 5,
-    "subquestion_structure": [
-      {
-        "label": "i.",
-        "marks": 2,
-        "type": "List"
-      },
-      {
-        "label": "ii.",
-        "marks": 4,
-        "type": "General"
-      },
-      {
-        "label": "iii.",
-        "marks": 3,
-        "type": "Calculate"
-      },
-      {
-        "label": "b)",
-        "marks": 5,
-        "type": "General"
-      },
-      {
-        "label": "Create a trigger to update the mileage of the vehicle assigned and add a record to the payment table (use the stored procedure created in part b)), assuming that the Booking table is only updated when the distance is assigned at the completion of a booking.",
-        "marks": 6,
-        "type": "General"
-      }
-    ]
+    "dominant_topic": "ER and EER Diagrams",
+    "source_paper": "2019",
+    "total_marks": 0,
+    "subquestion_count": 0,
+    "subquestion_structure": []
   },
   "Q2": {
-    "dominant_topic": "frame bytes frame number",
+    "dominant_topic": "frame bytes time",
     "source_paper": "2016",
     "total_marks": 20,
     "subquestion_count": 9,

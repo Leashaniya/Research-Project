@@ -16,7 +16,7 @@ async def run_now():
     
     try:
         # Initialize DB
-        await db.connect_to_mongo()
+        db.connect()
         
         # Run Orchestrator
         orchestrator = AgentOrchestrator()
@@ -26,7 +26,7 @@ async def run_now():
     except Exception as e:
         print(f"\n❌ Error during generation: {e}")
     finally:
-        await db.close_mongo_connection()
+        db.close()
 
 if __name__ == "__main__":
     asyncio.run(run_now())

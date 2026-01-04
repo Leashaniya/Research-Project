@@ -207,16 +207,22 @@ class AgentOrchestrator:
             
             for attempt in range(MAX_RETRIES + 1):
                 # Writer
-                draft = await self.writer.run({
-                    "slot": slot,
-                    "template": template,
-                    "context": context,
-                    "feedback": feedback,
-                    "global_context": {
-                        "used_topics": list(used_topics),
-                        "used_scenarios": list(used_scenarios)
-                    }
-                })
+                # Writer
+                try:
+                    draft = await self.writer.run({
+                        "slot": slot,
+                        "template": template,
+                        "context": context,
+                        "feedback": feedback,
+                        "global_context": {
+                            "used_topics": list(used_topics),
+                            "used_scenarios": list(used_scenarios)
+                        }
+                    })
+                except Exception as e:
+                    print(f"⚠️ Writer failed on attempt {attempt}: {e}. Retrying...")
+                    feedback = f"Previous generation failed with error: {e}. Ensure all fields are filled."
+                    continue
                 
                 # Critic
                 review = await self.critic.run({
@@ -244,9 +250,9 @@ class AgentOrchestrator:
                     
                     # Store a snippet of the scenario for global uniqueness
                     # Combine subquestion texts to get a good proxy for the scenario
-                    scenario_proxy = " ".join([sq.get("text", "")[:50] for sq in draft.get("subquestions", [])[:2]])
+                    scenario_proxy = " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])])
                     if scenario_proxy:
-                        used_scenarios.add(scenario_proxy)
+                        used_scenarios.add(scenario_proxy[:200]) # Store first 200 chars as a signature
                     
                     break
                 else:
