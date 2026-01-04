@@ -408,7 +408,7 @@ class AgentOrchestrator:
                 if feedback and "QUALITY ERROR" in feedback.upper():
                     print(f"🛑 {q_no} failed quality check after retries. Attempting to sanitize...")
                     # Basic sanitization: strip common hallucination placeholders
-                    draft_json = json.dumps(draft)
+                    draft_json = json.dumps(draft) if draft else "{}"
                     hallucination_placeholders = ["[FIGURE: ...]", "[FIGURE]", "slide 22", "slide_22", "fig 1", "refer to diagram"]
                     for hp in hallucination_placeholders:
                         draft_json = draft_json.replace(hp, "(Diagram omitted - please refer to context)")
@@ -433,7 +433,7 @@ class AgentOrchestrator:
                         "subquestions": []
                     }
                     
-                    failed_sub_qs = draft.get("subquestions", [])
+                    failed_sub_qs = draft.get("subquestions", []) if draft else []
                     
                     # --- SCALING LOGIC ---
                     # 1. Calculate Template Total to see if we need to scale

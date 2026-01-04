@@ -42,17 +42,19 @@ def analyze_templates():
         """Convert cluster keywords to a meaningful topic name."""
         kw_str = " ".join(keywords[:5]).lower()
         
-        if any(word in kw_str for word in ["functional dependencies", "functional", "normalization"]):
+        if any(word in kw_str for word in ["functional dependencies", "functional", "normalization", "normal form"]):
             return "Functional Dependencies and Normalization"
-        elif any(word in kw_str for word in ["int", "varchar", "table", "sql", "query", "select"]):
+        elif any(word in kw_str for word in ["security", "role", "login", "permission", "user", "grant", "dba", "authorization", "authentication"]):
+            return "Database Security and Administration"
+        elif any(word in kw_str for word in ["table", "sql", "query", "select", "insert", "update", "delete", "ddl", "dml"]):
             return "SQL Database Schema and Queries"
-        elif any(word in kw_str for word in ["eer", "model", "diagram", "entity", "attribute"]):
+        elif any(word in kw_str for word in ["eer", "er model", "diagram", "entity", "attribute", "relationship"]):
             return "ER and EER Diagrams"
-        elif any(word in kw_str for word in ["account", "customer", "branch", "bank"]):
-            return "Database Design (Banking System)"
-        elif any(word in kw_str for word in ["tree", "index", "b-tree", "search", "leaf"]):
+        elif any(word in kw_str for word in ["account", "customer", "branch", "bank", "library", "hotel"]):
+            return "Database Design (Case Study)"
+        elif any(word in kw_str for word in ["tree", "index", "b-tree", "hash", "search", "leaf", "cost"]):
             return "Database Indexing and B-Trees"
-        elif any(word in kw_str for word in ["transaction", "concurrency", "acid", "lock", "serial"]):
+        elif any(word in kw_str for word in ["transaction", "concurrency", "acid", "lock", "serial", "2pl", "deadlock"]):
             return "Transaction Management and Concurrency"
         elif any(word in kw_str for word in ["relational algebra", "pi", "sigma", "join", "union"]):
             return "Relational Algebra Operations"

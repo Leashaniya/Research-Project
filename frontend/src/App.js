@@ -12,7 +12,7 @@ function App() {
   const [showFiles, setShowFiles] = useState(false);
 
   const addLog = (msg) => {
-    setLogs(prev => [...prev.slice(-10), `[${new Date().toLocaleTimeString()}] ${msg}`]);
+    setLogs(prev => [...prev.slice(-50), `[${new Date().toLocaleTimeString()}] ${msg}`]);
   };
 
   const fetchFiles = async () => {
@@ -24,6 +24,24 @@ function App() {
       addLog(`Error fetching files: ${err.message}`);
     }
   };
+
+  const checkLatestPaper = async () => {
+    try {
+      const resp = await fetch(`${API_BASE}/model-paper/paper-json`);
+      if (resp.ok) {
+        const data = await resp.json();
+        setPaper(data);
+        setStatus("Ready (Retrieved existing paper)");
+      }
+    } catch (err) {
+      // Ignore if no paper found
+    }
+  };
+
+  React.useEffect(() => {
+    fetchFiles();
+    checkLatestPaper();
+  }, []);
 
   const handleUpload = async (file, type) => {
     const formData = new FormData();
@@ -50,7 +68,16 @@ function App() {
     setStatus("Running End-to-End Pipeline...");
     addLog("Analyzing documents and deploying AI Agents...");
     try {
-      const resp = await fetch(`${API_BASE}/model-paper/generate-paper`, { method: "POST" });
+      const resp = await fetch(`${API_BASE}/model-paper/generate-paper`, {
+        method: "POST",
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+
+      if (!resp.ok) {
+        const errData = await resp.json();
+        throw new Error(errData.detail || "Server Error");
+      }
+
       const data = await resp.json();
 
       // Log steps from backend
@@ -61,14 +88,18 @@ function App() {
       if (data.status === "success") {
         setPaper(data.paper);
         addLog("Success! Model paper generated with latest data.");
+        setStatus("Done");
       } else {
         addLog(`Failed: ${data.message}`);
+        setStatus("Error");
       }
     } catch (err) {
       addLog(`Error: ${err.message}`);
+      setStatus("Timed out or Connection Lost. Check backend console.");
+      // Check if a checkpoint exists and we can resume later
+      addLog("Retrying may resume from the last saved question.");
     } finally {
       setProcessing(false);
-      setStatus("Done");
     }
   };
 

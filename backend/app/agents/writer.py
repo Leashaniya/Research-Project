@@ -105,8 +105,10 @@ class QuestionWriter(BaseAgent):
         GLOBAL UNIQUENESS (DO NOT REUSE THESE):
         - Topics already used: {global_context.get('used_topics', [])}
         - PREVIOUS SCENARIOS (DO NOT REUSE): {global_context.get('used_scenarios', [])}
-        - FORBIDDEN TOPICS (STRICTLY PROHIBITED): {global_context.get('forbidden_topics', [])}
-        - IMPORTANT: If the requested template asks for a FORBIDDEN TOPIC, you MUST change the topic to something else from the syllabus (e.g. Normalization -> SQL, ER -> Relational Map). VALIDITY > TEMPLATE.
+        - TOPIC ALIGNMENT (CRITICAL):
+          If the 'Topic Context' contains information about one topic (e.g., SQL) but the 'Requested Slot' asks for a different topic (e.g., Transactions), you MUST PRIORITIZE the Requested Slot topic.
+          If the 'Topic Context' is missing or irrelevant, use your internal expert knowledge of Database Systems to write a high-quality university-level question on the requested topic.
+          For 'Transactions', focus on ACID properties, 2PL, Locking, Serializability, and Schedules.
         
         CRITICAL CONTENT RULES (ZERO TOLERANCE):
         1. **SINGLE SCENARIO ENFORCEMENT**: If this question involves a scenario (e.g. University, Hospital, Bank), it must be the ONLY scenario used for the ENTIRE question (all sub-questions). DO NOT mix multiple scenarios.
