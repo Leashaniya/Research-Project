@@ -1,218 +1,163 @@
 {
-  "generated_at": "2026-01-05 03:11:31",
+  "generated_at": "2026-01-14 01:12:21",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "questions": [
     {
-      "reasoning": "STEP-BY-STEP PLAN: 1. Scenario: Library Management System \n2. Sub-questions:\n3. Marks Check: Marks for sub-question a, b, c, d, e, f, g should sum up to 20\n",
       "question_no": "Q1",
       "marks": 20,
+      "text": "a) Identify and list all entities in the library scenario. (5 marks)\nb) List all attributes for the identified entities, ensuring to specify any unique constraints. (5 marks)\nc) Draw the ER diagram for the library scenario, including any relationships and cardinalities between the entities: sections, books, and members. [DIAGRAM PLACEHOLDER: Draw the ER diagram for the scenario in the answer booklet.] (5 marks)\nd) Describe the relationships between the library entities and map them to a relational schema including primary and foreign keys. (5 marks)",
       "subquestions": [
         {
           "label": "a",
-          "text": "Draw an EER diagram for the Library Management System scenario below. The system consists of several sections (fiction, children, technology) with unique section names and head librarians. Each book belongs to a section and has attributes like title, authors, ISBN, year, and publisher. A book may have multiple copies identified by access numbers. For each copy borrowed, the current borrower and due date should be tracked. Members have membership numbers, addresses, and phone numbers. Members can borrow 5 books and place hold requests on a book. Librarians have names, IDs, phones, and addresses.\n\nThe system also tracks payments made by members for course materials. A payment has a receipt number, amount, and date. Payments are classified into tuition (semester payment), examination fees, and library fines. The system should ensure data integrity and enforce constraints like unique section names, valid ISBNs, and non-negative payment amounts.\n\n[PLACEHOLDER FIGURE] (Describe the EER diagram showing entities, attributes, and relationships)",
+          "text": "Identify and list all entities in the library scenario.",
           "marks": 5
         },
         {
           "label": "b",
-          "text": "Explain how you would map the Library Management System's entities and relationships to a relational model. Consider the following entities: Sections, Books, Copies, Members, Payments, and Librarians. How would you handle overlapping relationships like a member being both a student and a faculty member?\n\n[PLACEHOLDER FIGURE] (Describe the mapping process)",
+          "text": "List all attributes for the identified entities, ensuring to specify any unique constraints.",
           "marks": 5
         },
         {
           "label": "c",
-          "text": "Construct an EER diagram for the Library Management System. Ensure it includes entities, attributes, and relationships like aggregation, composition, and generalization.\n\n[PLACEHOLDER FIGURE] (Describe the EER diagram)",
+          "text": "Draw the ER diagram for the library scenario, including any relationships and cardinalities between the entities: sections, books, and members. [DIAGRAM PLACEHOLDER: Draw the ER diagram for the scenario in the answer booklet.]",
           "marks": 5
         },
         {
           "label": "d",
-          "text": "Design a database schema for the Library Management System. Consider the entities and relationships discussed earlier. How would you normalize the data to minimize redundancy and ensure data integrity?\n\n[PLACEHOLDER FIGURE] (Describe the database schema)",
-          "marks": 5
-        },
-        {
-          "label": "e",
-          "text": "Explain how you would enforce constraints like unique section names, valid ISBNs, and non-negative payment amounts in the Library Management System. Consider using triggers, assertions, or other mechanisms.\n\n[PLACEHOLDER FIGURE] (Describe the constraint enforcement mechanism)",
-          "marks": 5
-        },
-        {
-          "label": "f",
-          "text": "Map the Library Management System's binary relationships to a relational model. Consider the entities and relationships discussed earlier. How would you handle overlapping relationships like a member being both a student and a faculty member?\n\n[PLACEHOLDER FIGURE] (Describe the mapping process)",
-          "marks": 5
-        },
-        {
-          "label": "g",
-          "text": "Design a query to retrieve all members who have borrowed books from the fiction section. Consider using joins, subqueries, or other SQL techniques.\n\n[PLACEHOLDER FIGURE] (Describe the query)",
+          "text": "Describe the relationships between the library entities and map them to a relational schema including primary and foreign keys.",
           "marks": 5
         }
-      ],
-      "text": "a) Draw an EER diagram for the Library Management System scenario below. The system consists of several sections (fiction, children, technology) with unique section names and head librarians. Each book belongs to a section and has attributes like title, authors, ISBN, year, and publisher. A book may have multiple copies identified by access numbers. For each copy borrowed, the current borrower and due date should be tracked. Members have membership numbers, addresses, and phone numbers. Members can borrow 5 books and place hold requests on a book. Librarians have names, IDs, phones, and addresses.\n\nThe system also tracks payments made by members for course materials. A payment has a receipt number, amount, and date. Payments are classified into tuition (semester payment), examination fees, and library fines. The system should ensure data integrity and enforce constraints like unique section names, valid ISBNs, and non-negative payment amounts.\n\n[PLACEHOLDER FIGURE] (Describe the EER diagram showing entities, attributes, and relationships) (5 marks)\nb) Explain how you would map the Library Management System's entities and relationships to a relational model. Consider the following entities: Sections, Books, Copies, Members, Payments, and Librarians. How would you handle overlapping relationships like a member being both a student and a faculty member?\n\n[PLACEHOLDER FIGURE] (Describe the mapping process) (5 marks)\nc) Construct an EER diagram for the Library Management System. Ensure it includes entities, attributes, and relationships like aggregation, composition, and generalization.\n\n[PLACEHOLDER FIGURE] (Describe the EER diagram) (5 marks)\nd) Design a database schema for the Library Management System. Consider the entities and relationships discussed earlier. How would you normalize the data to minimize redundancy and ensure data integrity?\n\n[PLACEHOLDER FIGURE] (Describe the database schema) (5 marks)\ne) Explain how you would enforce constraints like unique section names, valid ISBNs, and non-negative payment amounts in the Library Management System. Consider using triggers, assertions, or other mechanisms.\n\n[PLACEHOLDER FIGURE] (Describe the constraint enforcement mechanism) (5 marks)\nf) Map the Library Management System's binary relationships to a relational model. Consider the entities and relationships discussed earlier. How would you handle overlapping relationships like a member being both a student and a faculty member?\n\n[PLACEHOLDER FIGURE] (Describe the mapping process) (5 marks)\ng) Design a query to retrieve all members who have borrowed books from the fiction section. Consider using joins, subqueries, or other SQL techniques.\n\n[PLACEHOLDER FIGURE] (Describe the query) (5 marks)"
+      ]
     },
     {
       "question_no": "Q2",
-      "marks": 20,
+      "marks": 15,
+      "text": "a) Identify the key concepts and definitions related to frame bytes time. (2 marks)\nb) Explain the main components and their relationships related to frame bytes time. (1 marks)\nc) Describe the advantages and disadvantages related to frame bytes time. (2 marks)\nd) Analyze the implementation approach related to frame bytes time. (3 marks)\ne) Design the real-world applications related to frame bytes time. (2 marks)\nf) Calculate the key concepts and definitions related to frame bytes time. (2 marks)\ng) List the main components and their relationships related to frame bytes time. (3 marks)",
       "subquestions": [
         {
           "label": "a",
-          "marks": 5,
-          "text": "Describe the relation for the University Library's book lending system, including attributes such as book title, author, publication date, and student name. (5 marks)"
+          "marks": 2,
+          "text": "Identify the key concepts and definitions related to frame bytes time."
         },
         {
           "label": "b",
           "marks": 1,
-          "text": "Determine if the relation is in 1NF and explain why or why not. If not, propose a normalization strategy to achieve 1NF. (4 marks)"
+          "text": "Explain the main components and their relationships related to frame bytes time."
         },
         {
           "label": "c",
           "marks": 2,
-          "text": "Analyze the functional dependencies between attributes in the relation and identify any partial dependencies. Explain how these dependencies affect data integrity. (3 marks)"
+          "text": "Describe the advantages and disadvantages related to frame bytes time."
         },
         {
           "label": "d",
-          "marks": 4,
-          "text": "Design an EER diagram for the University Library's book lending system, including entities such as 'Book', 'Student', and 'Lending'. Label the relationships between these entities. (4 marks)"
+          "marks": 3,
+          "text": "Analyze the implementation approach related to frame bytes time."
         },
         {
           "label": "e",
           "marks": 2,
-          "text": "Propose a solution to address potential issues with data integrity in the book lending system, including constraints such as primary keys and foreign keys. Explain how these constraints will ensure data consistency. (2 marks)"
+          "text": "Design the real-world applications related to frame bytes time."
         },
         {
           "label": "f",
           "marks": 2,
-          "text": "Explain the concept of weak entities in the context of the University Library's book lending system and provide an example of a weak entity that cannot be uniquely identified alone. (2 marks)"
+          "text": "Calculate the key concepts and definitions related to frame bytes time."
         },
         {
           "label": "g",
-          "marks": 4,
-          "text": "Describe how the EER diagram will help ensure data consistency and integrity in the book lending system, including the role of identifying relationships and constraints. (4 marks)"
+          "marks": 3,
+          "text": "List the main components and their relationships related to frame bytes time."
         }
-      ],
-      "text": "a) Describe the relation for the University Library's book lending system, including attributes such as book title, author, publication date, and student name. (5 marks) (5 marks)\nb) Determine if the relation is in 1NF and explain why or why not. If not, propose a normalization strategy to achieve 1NF. (4 marks) (1 marks)\nc) Analyze the functional dependencies between attributes in the relation and identify any partial dependencies. Explain how these dependencies affect data integrity. (3 marks) (2 marks)\nd) Design an EER diagram for the University Library's book lending system, including entities such as 'Book', 'Student', and 'Lending'. Label the relationships between these entities. (4 marks) (4 marks)\ne) Propose a solution to address potential issues with data integrity in the book lending system, including constraints such as primary keys and foreign keys. Explain how these constraints will ensure data consistency. (2 marks) (2 marks)\nf) Explain the concept of weak entities in the context of the University Library's book lending system and provide an example of a weak entity that cannot be uniquely identified alone. (2 marks) (2 marks)\ng) Describe how the EER diagram will help ensure data consistency and integrity in the book lending system, including the role of identifying relationships and constraints. (4 marks) (4 marks)"
+      ]
     },
     {
       "question_no": "Q3",
-      "marks": 22,
+      "marks": 25,
+      "text": "a) Draw an ER diagram representing the library system, illustrating sections, books, copies, and members. Be sure to include all necessary relationships and constraints. (4 marks)\nb) List at least five attributes for the 'Book' entity in your ER diagram, ensuring you include identifiers. (2 marks)\nc) Define the primary key for the 'Section' entity and explain its significance in this database design. (3 marks)\nd) Provide a basic SQL schema for the 'Book' and 'Section' entities including relationships. Ensure all primary keys and foreign keys are specified. (5 marks)\ne) Discuss two potential concurrency issues that may arise when members concurrently attempt to borrow the same book copy and propose solutions for each. (5 marks)\nf) Construct an ER/EER diagram for the scenario described above, showing all entities, relationships, and attributes. (3 marks)\ng) Identify and explain the importance of maintaining a history table for borrowed books and how it will facilitate data auditing. (3 marks)",
       "subquestions": [
         {
           "label": "a",
-          "marks": 3,
-          "text": "Describe the ER diagram for the library's book lending system, including entities such as 'Book', 'Student', and 'Librarian'."
+          "marks": 4,
+          "text": "Draw an ER diagram representing the library system, illustrating sections, books, copies, and members. Be sure to include all necessary relationships and constraints."
         },
         {
           "label": "b",
           "marks": 2,
-          "text": "Explain how to enforce referential integrity between 'Book' and 'Student' using foreign keys."
+          "text": "List at least five attributes for the 'Book' entity in your ER diagram, ensuring you include identifiers."
         },
         {
           "label": "c",
           "marks": 3,
-          "text": "Design a relational schema for the 'Book' entity, including primary and secondary keys."
+          "text": "Define the primary key for the 'Section' entity and explain its significance in this database design."
         },
         {
           "label": "d",
-          "marks": 4,
-          "text": "Describe the constraints on the 'Student' entity, including domain and referential integrity constraints."
+          "marks": 5,
+          "text": "Provide a basic SQL schema for the 'Book' and 'Section' entities including relationships. Ensure all primary keys and foreign keys are specified."
         },
         {
           "label": "e",
-          "marks": 4,
-          "text": "Explain how to implement triggers in SQL to enforce business rules such as 'borrowed books cannot exceed 5'."
+          "marks": 5,
+          "text": "Discuss two potential concurrency issues that may arise when members concurrently attempt to borrow the same book copy and propose solutions for each."
         },
         {
           "label": "f",
           "marks": 3,
-          "text": "Map the ER diagram to a relational schema for the 'Librarian' entity."
+          "text": "Construct an ER/EER diagram for the scenario described above, showing all entities, relationships, and attributes."
         },
         {
           "label": "g",
           "marks": 3,
-          "text": "Design an index on the 'ISBN' column of the 'Book' table to improve query performance."
+          "text": "Identify and explain the importance of maintaining a history table for borrowed books and how it will facilitate data auditing."
         }
-      ],
-      "text": "a) Describe the ER diagram for the library's book lending system, including entities such as 'Book', 'Student', and 'Librarian'. (3 marks)\nb) Explain how to enforce referential integrity between 'Book' and 'Student' using foreign keys. (2 marks)\nc) Design a relational schema for the 'Book' entity, including primary and secondary keys. (3 marks)\nd) Describe the constraints on the 'Student' entity, including domain and referential integrity constraints. (4 marks)\ne) Explain how to implement triggers in SQL to enforce business rules such as 'borrowed books cannot exceed 5'. (4 marks)\nf) Map the ER diagram to a relational schema for the 'Librarian' entity. (3 marks)\ng) Design an index on the 'ISBN' column of the 'Book' table to improve query performance. (3 marks)"
+      ]
     },
     {
       "question_no": "Q4",
-      "marks": 20,
+      "marks": 40,
+      "text": "a) Identify the main entities and their attributes. (9 marks)\nb) Explain the relationships between entities and their cardinalities. (5 marks)\nc) Describe how to map the ER diagram to a relational schema. (3 marks)\nd) Analyze the primary and foreign keys in the relational model. (5 marks)\ne) Design the constraints and integrity rules. (5 marks)\nf) Calculate the main entities and their attributes. (8 marks)\ng) List the relationships between entities and their cardinalities. (5 marks)",
       "subquestions": [
         {
           "label": "a",
-          "marks": 3,
-          "text": "Describe the ER diagram for the student information system, including entities such as 'Student', 'Course', and 'Department'. Explain how to enforce referential integrity between 'Student' and 'Course'. (5 marks)"
+          "marks": 9,
+          "text": "Identify the main entities and their attributes."
         },
         {
           "label": "b",
-          "marks": 3,
-          "text": "List three normalization rules that can be applied to the student information system. Justify why each rule is necessary. (6 marks)"
+          "marks": 5,
+          "text": "Explain the relationships between entities and their cardinalities."
         },
         {
           "label": "c",
-          "marks": 1,
-          "text": "[PLACEHOLDER FIGURE] (Describe the relation for the University Library's book lending system, including attributes such as book title, author, publication date, and student name.) (1 mark)"
+          "marks": 3,
+          "text": "Describe how to map the ER diagram to a relational schema."
         },
         {
           "label": "d",
-          "marks": 3,
-          "text": "Design a relational schema for the student information system, ensuring data integrity and minimizing redundancy. (6 marks)"
+          "marks": 5,
+          "text": "Analyze the primary and foreign keys in the relational model."
         },
         {
           "label": "e",
-          "marks": 3,
-          "text": "Explain how to enforce referential integrity between 'Course' and 'Department' in the relational schema designed in part d.i. (6 marks)"
+          "marks": 5,
+          "text": "Design the constraints and integrity rules."
         },
         {
           "label": "f",
-          "marks": 4,
-          "text": "Describe the process of normalization for the student information system, including BCNF and 3NF. Justify why each form is necessary. (8 marks)"
+          "marks": 8,
+          "text": "Calculate the main entities and their attributes."
         },
         {
           "label": "g",
-          "marks": 3,
-          "text": "List two potential database management systems that can be used to implement the student information system. Compare their features and advantages. (5 marks)"
+          "marks": 5,
+          "text": "List the relationships between entities and their cardinalities."
         }
       ],
-      "text": "a) Describe the ER diagram for the student information system, including entities such as 'Student', 'Course', and 'Department'. Explain how to enforce referential integrity between 'Student' and 'Course'. (5 marks) (3 marks)\nb) List three normalization rules that can be applied to the student information system. Justify why each rule is necessary. (6 marks) (3 marks)\nc) [PLACEHOLDER FIGURE] (Describe the relation for the University Library's book lending system, including attributes such as book title, author, publication date, and student name.) (1 mark) (1 marks)\nd) Design a relational schema for the student information system, ensuring data integrity and minimizing redundancy. (6 marks) (3 marks)\ne) Explain how to enforce referential integrity between 'Course' and 'Department' in the relational schema designed in part d.i. (6 marks) (3 marks)\nf) Describe the process of normalization for the student information system, including BCNF and 3NF. Justify why each form is necessary. (8 marks) (4 marks)\ng) List two potential database management systems that can be used to implement the student information system. Compare their features and advantages. (5 marks) (3 marks)"
-    },
-    {
-      "question_no": "Q5",
-      "marks": 18,
-      "subquestions": [
-        {
-          "label": "a",
-          "marks": 6,
-          "text": "[PLACEHOLDER FIGURE] (Describe ER diagram for Library Management System, including entities such as 'Book', 'Student', and 'Librarian')"
-        },
-        {
-          "label": "b",
-          "marks": 2,
-          "text": "Explain how to enforce referential integrity between 'Book' and 'Student'."
-        },
-        {
-          "label": "c",
-          "marks": 2,
-          "text": "Design a database schema for the library management system."
-        },
-        {
-          "label": "d",
-          "marks": 3,
-          "text": "Determine if the relation is in 1NF."
-        },
-        {
-          "label": "e",
-          "marks": 1,
-          "text": "Calculate the number of books that can be borrowed by each student."
-        },
-        {
-          "label": "f",
-          "marks": 2,
-          "text": "Create a trigger to ensure that no book is borrowed more than once."
-        },
-        {
-          "label": "g",
-          "marks": 2,
-          "text": "Explain how to enforce referential integrity between 'Student' and 'Librarian'."
-        }
-      ],
-      "text": "a) [PLACEHOLDER FIGURE] (Describe ER diagram for Library Management System, including entities such as 'Book', 'Student', and 'Librarian') (6 marks)\nb) Explain how to enforce referential integrity between 'Book' and 'Student'. (2 marks)\nc) Design a database schema for the library management system. (2 marks)\nd) Determine if the relation is in 1NF. (3 marks)\ne) Calculate the number of books that can be borrowed by each student. (1 marks)\nf) Create a trigger to ensure that no book is borrowed more than once. (2 marks)\ng) Explain how to enforce referential integrity between 'Student' and 'Librarian'. (2 marks)"
+      "needs_diagram": true,
+      "diagram_type": "ER",
+      "diagram_placeholder_text": "[DIAGRAM PLACEHOLDER: Draw the ER diagram for the scenario in the answer booklet.]"
     }
   ]
 }

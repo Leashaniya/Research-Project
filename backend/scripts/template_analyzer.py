@@ -7,6 +7,56 @@ from collections import Counter, defaultdict
 # Add backend to path
 sys.path.append(os.getcwd())
 
+# Helper function to map keywords to topic names
+# Note: Using KeyBERT if available, otherwise fallback to heuristics
+try:
+    from keybert import KeyBERT
+    kw_model = KeyBERT()
+    print("✅ KeyBERT loaded for advanced topic extraction.")
+except ImportError:
+    kw_model = None
+    print("⚠️ KeyBERT not found. Using simple keyword heuristics.")
+
+def extract_topic_keybert(text, top_n=3):
+    if not kw_model:
+        return None
+    keywords = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 2), stop_words='english', top_n=top_n)
+    return " ".join([k[0] for k in keywords])
+
+def keywords_to_topic(keywords, full_text=None):
+    """Convert cluster keywords or text to a meaningful topic name using KeyBERT or Heuristics."""
+    
+    # 1. OPTION A: KeyBERT (Advanced)
+    if kw_model and full_text and len(full_text) > 50:
+        extracted = extract_topic_keybert(full_text)
+        if extracted:
+            # Map extracted keyphrases to standardized categories if possible
+            # For now, return the rich KeyBERT phrases capitalized
+            return extracted.title()
+
+    # 2. OPTION B: Heuristics (Legacy/Fallback)
+    kw_str = " ".join(keywords[:5]).lower()
+    if full_text: kw_str += " " + full_text[:200].lower()
+    
+    if any(word in kw_str for word in ["functional dependencies", "functional", "normalization", "normal form"]):
+        return "Functional Dependencies and Normalization"
+    elif any(word in kw_str for word in ["security", "role", "login", "permission", "user", "grant", "dba", "authorization", "authentication"]):
+        return "Database Security and Administration"
+    elif any(word in kw_str for word in ["table", "sql", "query", "select", "insert", "update", "delete", "ddl", "dml"]):
+        return "SQL Database Schema and Queries"
+    elif any(word in kw_str for word in ["eer", "er model", "diagram", "entity", "attribute", "relationship"]):
+        return "ER and EER Diagrams"
+    elif any(word in kw_str for word in ["account", "customer", "branch", "bank", "library", "hotel"]):
+        return "Database Design (Case Study)"
+    elif any(word in kw_str for word in ["tree", "index", "b-tree", "hash", "search", "leaf", "cost"]):
+        return "Database Indexing and B-Trees"
+    elif any(word in kw_str for word in ["transaction", "concurrency", "acid", "lock", "serial", "2pl", "deadlock"]):
+        return "Transaction Management and Concurrency"
+    elif any(word in kw_str for word in ["relational algebra", "pi", "sigma", "join", "union"]):
+        return "Relational Algebra Operations"
+    else:
+        return " ".join(keywords[:3]).title()  # Fallback to keywords
+
 def analyze_templates():
     """
     Analyzes template_questions.json to find:
@@ -36,30 +86,6 @@ def analyze_templates():
         by_position[q_id].append(t)
     
     canonical = {}
-    
-    # Helper function to map keywords to topic names
-    def keywords_to_topic(keywords):
-        """Convert cluster keywords to a meaningful topic name."""
-        kw_str = " ".join(keywords[:5]).lower()
-        
-        if any(word in kw_str for word in ["functional dependencies", "functional", "normalization", "normal form"]):
-            return "Functional Dependencies and Normalization"
-        elif any(word in kw_str for word in ["security", "role", "login", "permission", "user", "grant", "dba", "authorization", "authentication"]):
-            return "Database Security and Administration"
-        elif any(word in kw_str for word in ["table", "sql", "query", "select", "insert", "update", "delete", "ddl", "dml"]):
-            return "SQL Database Schema and Queries"
-        elif any(word in kw_str for word in ["eer", "er model", "diagram", "entity", "attribute", "relationship"]):
-            return "ER and EER Diagrams"
-        elif any(word in kw_str for word in ["account", "customer", "branch", "bank", "library", "hotel"]):
-            return "Database Design (Case Study)"
-        elif any(word in kw_str for word in ["tree", "index", "b-tree", "hash", "search", "leaf", "cost"]):
-            return "Database Indexing and B-Trees"
-        elif any(word in kw_str for word in ["transaction", "concurrency", "acid", "lock", "serial", "2pl", "deadlock"]):
-            return "Transaction Management and Concurrency"
-        elif any(word in kw_str for word in ["relational algebra", "pi", "sigma", "join", "union"]):
-            return "Relational Algebra Operations"
-        else:
-            return " ".join(keywords[:3])  # Fallback to keywords
     
     for q_id, questions in sorted(by_position.items()):
         print(f"\n🔍 Analyzing Q{q_id}...")
@@ -146,7 +172,8 @@ def analyze_templates():
         
         # Convert keywords to readable topic name
         keywords = most_recent.get("cluster_label_keywords", [])
-        readable_topic = keywords_to_topic(keywords)
+        full_text = most_recent.get("full_text", "")
+        readable_topic = keywords_to_topic(keywords, full_text)
         print(f"  🏷️ Topic name: {readable_topic}")
         
         canonical[f"Q{q_id}"] = {

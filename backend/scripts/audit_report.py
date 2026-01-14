@@ -1,3 +1,23 @@
+"""
+AUDIT-ONLY SCRIPT: TF-IDF Analysis for Paper Quality Assessment
+
+This script uses TF-IDF (Term Frequency-Inverse Document Frequency) for semantic similarity
+analysis between generated papers and past papers. This is AUDIT-ONLY and does NOT affect
+the live generation pipeline.
+
+TF-IDF is used here for:
+- Post-generation quality assessment
+- Semantic style accuracy scoring
+- Comparison with historical papers
+
+NOT used in:
+- Template selection (uses MongoDB queries + embeddings)
+- Question generation (uses LLM)
+- Validation (uses deterministic rules + LLM review)
+
+To replace TF-IDF with modern approaches, update this script only.
+"""
+
 import json
 import os
 import re

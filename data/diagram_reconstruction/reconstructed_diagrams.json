@@ -1,0 +1,37 @@
+[
+  {
+    "pdf_stem": "2014 (1)",
+    "page_no": 3,
+    "mermaid": "erDiagram\n    Diagram_Analysis_Failed_New { string id }",
+    "pattern_label": "ER_EER_MODELING",
+    "raw_boxes_count": 1
+  },
+  {
+    "pdf_stem": "2014 (1)",
+    "page_no": 4,
+    "mermaid": "erDiagram\n    Diagram_Analysis_Failed_v2 { string id }",
+    "pattern_label": "ER_EER_MODELING",
+    "raw_boxes_count": 1
+  },
+  {
+    "pdf_stem": "2014 (1)",
+    "page_no": 4,
+    "mermaid": "erDiagram\n    Diagram_Analysis_Failed_v2 { string id }",
+    "pattern_label": "ER_EER_MODELING",
+    "raw_boxes_count": 1
+  },
+  {
+    "pdf_stem": "2014 (1)",
+    "page_no": 6,
+    "mermaid": "erDiagram\n    Diagram_Analysis_Failed_v2 { string id }",
+    "pattern_label": "ER_EER_MODELING",
+    "raw_boxes_count": 1
+  },
+  {
+    "pdf_stem": "2015",
+    "page_no": 3,
+    "mermaid": "erDiagram\n    Diagram_Analysis_Failed_System { string id }",
+    "pattern_label": "ER_EER_MODELING",
+    "raw_boxes_count": 1
+  }
+]

@@ -1,11 +1,19 @@
 {
   "component": "model_exam_paper",
   "canonical_total_marks": 100,
-  "canonical_num_questions": 5,
+  "canonical_num_questions": 4,
+  "bloom_guidance": "30% Understand, 40% Apply, 30% Create",
   "note": {
-    "good_papers_used": 15,
-    "skipped_papers": 0,
-    "rule": "Only papers with total=100 and missing_marks=0 were used for structure + topics"
+    "good_papers_available": 15,
+    "blueprint_papers_used": [
+      "2024 II",
+      "2024",
+      "2023 II",
+      "2023",
+      "2019 II",
+      "2019"
+    ],
+    "rule": "Blueprint derived from latest 3 years; Clustering uses all historical data."
   },
   "question_slots": [
     {
@@ -13,60 +21,87 @@
       "position": 1,
       "target_marks": 20,
       "typical_num_subquestions": 2,
-      "num_samples": 15,
+      "structural_fingerprint": [
+        17,
+        3
+      ],
+      "num_samples": 6,
       "topics": [
-        "database",
-        "stores",
-        "date"
-      ]
+        "varchar",
+        "table",
+        "int"
+      ],
+      "topic_probabilities": {
+        "varchar, table, int": 0.53,
+        "model, keys, eer": 0.47
+      }
     },
     {
       "slot_id": "Q2",
       "position": 2,
-      "target_marks": 20,
+      "target_marks": 15,
       "typical_num_subquestions": 3,
-      "num_samples": 15,
+      "structural_fingerprint": [
+        4,
+        3,
+        8
+      ],
+      "num_samples": 6,
       "topics": [
-        "set functional",
-        "functional dependencies",
-        "functional"
-      ]
+        "relation",
+        "functional",
+        "dependencies"
+      ],
+      "topic_probabilities": {
+        "frame, number, bytes": 0.4,
+        "tree, file, after": 0.07,
+        "relation, functional, dependencies": 0.53
+      }
     },
     {
       "slot_id": "Q3",
       "position": 3,
-      "target_marks": 22,
+      "target_marks": 25,
       "typical_num_subquestions": 5,
-      "num_samples": 15,
+      "structural_fingerprint": [
+        2,
+        2,
+        2,
+        3,
+        16
+      ],
+      "num_samples": 6,
       "topics": [
-        "transaction",
-        "schedule",
-        "explain"
-      ]
+        "tree",
+        "file",
+        "after"
+      ],
+      "topic_probabilities": {
+        "tree, file, after": 0.47,
+        "varchar, table, int": 0.47,
+        "transaction, schedule, explain": 0.07
+      }
     },
     {
       "slot_id": "Q4",
       "position": 4,
-      "target_marks": 20,
-      "typical_num_subquestions": 4,
-      "num_samples": 15,
+      "target_marks": 40,
+      "typical_num_subquestions": 3,
+      "structural_fingerprint": [
+        8,
+        9,
+        12
+      ],
+      "num_samples": 6,
       "topics": [
-        "query",
-        "index",
-        "tree"
-      ]
-    },
-    {
-      "slot_id": "Q5",
-      "position": 5,
-      "target_marks": 18,
-      "typical_num_subquestions": 7,
-      "num_samples": 8,
-      "topics": [
-        "transaction",
-        "schedule",
-        "explain"
-      ]
+        "varchar",
+        "table",
+        "int"
+      ],
+      "topic_probabilities": {
+        "query, index, indexes": 0.47,
+        "varchar, table, int": 0.53
+      }
     }
   ]
 }

@@ -9,14 +9,28 @@ sys.path.append(os.getcwd())
 from app.services.pdf_service import PDFService
 
 def run_pdf_export():
-    # Paths (relative to backend directory)
-    json_path = Path("../data/outputs/model_papers/agentic_model_paper.json")
-    pdf_path = Path("../data/outputs/model_papers/agentic_model_paper.pdf")
-
-    if not json_path.exists():
-        print(f"❌ Error: Could not find generated JSON at {json_path}")
+    # Use absolute paths based on script location for robustness
+    SCRIPT_DIR = Path(__file__).resolve().parent
+    DATA_DIR = SCRIPT_DIR.parent / "data"
+    
+    # Try both potential filenames
+    paths_to_try = [
+        DATA_DIR / "outputs" / "model_papers" / "agentic_model_paper.json",
+        DATA_DIR / "outputs" / "model_papers" / "model_paper_latest.json"
+    ]
+    
+    json_path = None
+    for p in paths_to_try:
+        if p.exists():
+            json_path = p
+            break
+            
+    if not json_path:
+        print("❌ Error: Could not find any generated JSON in data/outputs/model_papers/")
         print("💡 Tip: Ensure you have generated the model paper first.")
         return
+
+    pdf_path = json_path.with_suffix(".pdf")
 
     print(f"📄 Loading model paper from: {json_path}")
     try:

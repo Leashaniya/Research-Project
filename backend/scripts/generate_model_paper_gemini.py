@@ -1,5 +1,5 @@
 """
-Generate Model Paper (OpenAI + Slides RAG)
+Generate Model Paper (Gemini + Slides RAG)
 
 Reads:
   data/artifacts/exam_blueprint_template.json
@@ -8,8 +8,8 @@ Reads:
   data/slides_embeddings/slides_faiss_index_flatip.index
 
 Writes:
-  data/outputs/model_papers/model_paper_latest.json
-  data/outputs/model_papers/model_paper_latest.txt
+  data/outputs/model_papers/model_paper_latest_gemini.json
+  data/outputs/model_papers/model_paper_latest_gemini.txt
 """
 
 from __future__ import annotations
@@ -24,8 +24,8 @@ from typing import Dict, List, Any, Tuple
 import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
-from openai import OpenAI
-from app.core.config import OPENAI_API_KEY
+import google.generativeai as genai
+from app.core.config import settings
 
 
 # -------------------------------
@@ -56,10 +56,9 @@ OUT_TXT = OUT_DIR / "model_paper_latest.txt"
 # -------------------------------
 # Config
 # -------------------------------
-from app.core.config import settings
-OPENAI_MODEL = settings.OPENAI_MODEL or "gpt-4o-mini"
+GEMINI_MODEL = settings.GEMINI_MODEL or "gemini-1.5-flash"
 TOPK_SLIDES = 6
-MAX_CONTEXT_CHARS = 10000  # Keeping it aligned with Gemini context window
+MAX_CONTEXT_CHARS = 10000  # Gemini has larger context, but keeping it tidy
 
 # Deterministic-ish
 random.seed(42)
@@ -127,16 +126,15 @@ def build_prompt(slot: dict, template: dict, slide_context: str, bloom_guidance:
     # Diagram Mutation Logic
     diagram_info = ""
     if mermaid_code:
-        diagram_info = f"\n- DIAGRAM MUTATION: Use this Mermaid structure but rename entities to fit your scenario. Include the mermaid block inside the appropriate sub-question text:\n```mermaid\n{mermaid_code}\n```\n"
+        diagram_info = f"\n- DIAGRAM MUTATION: Use this Mermaid structure but rename entities to fit your scenario:\n```mermaid\n{mermaid_code}\n```\n"
     elif "[PLACEHOLDER FIGURE]" in template_text or "diagram" in template_text.lower():
-         diagram_info = "\n- Include a [PLACEHOLDER FIGURE] and describe it in text.\n"
+         diagram_info = "\n- Include a [PLACEHOLDER FIGURE] and describe it.\n"
     
-    # Structural Fingerprinting
+    # 1. Structural Fingerprinting
     fingerprint = slot.get("structural_fingerprint", [])
     structure_info = ""
     if fingerprint:
-        marks_str = ", ".join(map(str, fingerprint))
-        structure_info = f"\n- MANDATORY STRUCTURE: Exactly {len(fingerprint)} sub-questions. Follow this mark distribution exactly: {marks_str}\n"
+        structure_info = f"\n- MANDATORY STRUCTURE: Exactly {len(fingerprint)} sub-questions with marks: {', '.join(map(str, fingerprint))}\n"
 
     return f"""
 You are an expert University Exam Paper Setter for Database Systems.
@@ -148,21 +146,14 @@ Requirements:
 - Bloom's Taxonomy Guidance: {bloom_guidance}
 - Write a NEW unique question (not a copy), but follow the style/structure of the template provided.{structure_info}{diagram_info}
 - Use the slide context for technical accuracy; do NOT reference "slide" or "context" explicitly.
-- Every sub-question MUST have a 'label' (a, b, c...), 'text', and 'marks'.
-- IMPORTANT: If you use a Mermaid diagram, you MUST put the entire ```mermaid\n...\n``` block INSIDE the 'text' field of the appropriate sub-question. Do NOT create new keys for the diagram.
+- The question must be realistic, academic, and self-contained.
 - Output MUST be valid JSON in this schema:
 
 {{
-  "question_no": "Q1",
+  "question_no": "<like Q1>",
   "marks": {target_marks},
   "pattern_label": "{pattern}",
-  "subquestions": [
-    {{
-      "label": "a",
-      "text": "...",
-      "marks": 5
-    }}
-  ]
+  "question_text": "<final question text with all parts and mark allocations in parentheses, e.g. (5 marks)>"
 }}
 
 Template (style reference):
@@ -180,10 +171,14 @@ def main():
     must_exist(SLIDES_CHUNKS_PATH, "slides_chunks.jsonl")
     must_exist(SLIDES_FAISS_PATH, "slides_faiss_index_flatip.index")
 
-    if not settings.OPENAI_API_KEY:
-        raise EnvironmentError("OPENAI_API_KEY is not set. Please check your .env file.")
+    if not settings.GOOGLE_API_KEY:
+        raise EnvironmentError("GOOGLE_API_KEY is not set. Please check your .env file.")
 
-    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    genai.configure(api_key=settings.GOOGLE_API_KEY)
+    model = genai.GenerativeModel(
+        model_name=GEMINI_MODEL,
+        generation_config={"response_mime_type": "application/json"}
+    )
 
     print("Loading artifacts...")
     exam_bp = load_json(EXAM_BP_PATH)
@@ -222,20 +217,12 @@ def main():
         
         # Match a diagram if needed
         mermaid_code = None
-        # Check full_text + all subquestion texts for diagram hints
-        content_for_hints = [template.get("full_text", "")]
-        for sq in template.get("subquestions", []):
-            content_for_hints.append(sq.get("text", ""))
-        
-        combined_text = " ".join(content_for_hints).lower()
-        
-        if "diagram" in combined_text or "figure" in combined_text or "[diagram" in combined_text:
+        if "[PLACEHOLDER FIGURE]" in template.get("full_text", "") or "diagram" in template.get("full_text", "").lower():
+            # Try to find a diagram from the same pattern or random match
             matches = [r for r in reconstructed_diagrams if r.get("pattern_label") == template.get("pattern_label")]
             if not matches: matches = reconstructed_diagrams # Generic fallback
             if matches:
-                # Prioritize ones with more content (raw_boxes_count)
-                matches.sort(key=lambda x: x.get("raw_boxes_count", 0), reverse=True)
-                mermaid_code = random.choice(matches[:3]).get("mermaid") # top 3 candidates
+                mermaid_code = random.choice(matches).get("mermaid")
 
         retrieval_query = f"{', '.join(query_topics)} {template.get('full_text','')}"
         hit_idxs = retrieve_slide_chunks(retrieval_query, embedder, index, topk=TOPK_SLIDES)
@@ -243,15 +230,11 @@ def main():
 
         prompt = build_prompt(slot, template, slide_context, bloom_guidance, mermaid_code)
 
-        print(f"Generating {qno} ({target_marks} marks) topic={query_topics} diagram={bool(mermaid_code)} using OpenAI ({OPENAI_MODEL}) ...")
+        print(f"Generating {qno} ({target_marks} marks) topic={query_topics} diagram={bool(mermaid_code)} using Gemini ({GEMINI_MODEL}) ...")
         
         try:
-            response = client.chat.completions.create(
-                model=OPENAI_MODEL,
-                messages=[{"role": "user", "content": prompt}],
-                response_format={"type": "json_object"}
-            )
-            q_json = json.loads(response.choices[0].message.content)
+            response = model.generate_content(prompt)
+            q_json = json.loads(response.text)
         except Exception as e:
             print(f"⚠️ Error generating {qno}: {e}")
             continue
@@ -263,11 +246,9 @@ def main():
         out_questions.append(q_json)
         total += target_marks
 
-        time.sleep(0.1)
-
     model_paper = {
         "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "model": OPENAI_MODEL,
+        "model": GEMINI_MODEL,
         "total_marks": total,
         "questions": out_questions,
     }
@@ -275,14 +256,9 @@ def main():
     OUT_JSON.write_text(json.dumps(model_paper, indent=2, ensure_ascii=False), encoding="utf-8")
 
     lines = []
-    lines.append(f"MODEL EXAM PAPER (OpenAI RAG)\nModel: {OPENAI_MODEL}\nTotal Marks: {total}\n" + "="*70)
+    lines.append(f"MODEL EXAM PAPER (Gemini RAG)\nModel: {GEMINI_MODEL}\nTotal Marks: {total}\n" + "="*70)
     for q in out_questions:
-        q_header = f"\n{q['question_no']} ({q['marks']} marks) — {q.get('pattern_label','')}"
-        sub_lines = []
-        for sq in q.get("subquestions", []):
-            sub_lines.append(f"  {sq.get('label')}) {sq.get('text')} ({sq.get('marks')} marks)")
-        lines.append(q_header + "\n" + "\n".join(sub_lines))
-    
+        lines.append(f"\n{q['question_no']} ({q['marks']} marks) — {q.get('pattern_label','')}\n{q['question_text']}".strip())
     OUT_TXT.write_text("\n\n".join(lines).strip(), encoding="utf-8")
 
     print(f"\n✅ Done! Model paper generated with {total} total marks.")

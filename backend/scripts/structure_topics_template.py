@@ -29,8 +29,8 @@ from statistics import median
 
 import numpy as np
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
+from sentence_transformers import SentenceTransformer
 
 
 # -------------------------------
@@ -53,9 +53,6 @@ TOP_K_CLUSTERS = 7
 TEMPLATES_PER_CLUSTER = 3
 
 MIN_WORDS_QUESTION_TEXT = 5
-TFIDF_MIN_DF = 2
-TFIDF_MAX_DF = 0.9
-TFIDF_NGRAM_RANGE = (1, 2)
 
 
 # -------------------------------
@@ -111,19 +108,24 @@ def classify_pattern(text: str) -> str:
         return "INDEXING_STORAGE"
     return "GENERAL_THEORY"
 
-def top_terms_per_cluster(X, labels, vectorizer, top_n=8):
-    terms = np.array(vectorizer.get_feature_names_out())
-    out = {}
-    for c in sorted(set(labels)):
-        idx = np.where(labels == c)[0]
-        if len(idx) == 0:
-            out[c] = []
-            continue
-        mean_tfidf = X[idx].mean(axis=0)
-        arr = np.asarray(mean_tfidf).ravel()
-        top_idx = arr.argsort()[::-1][:top_n]
-        out[c] = [terms[i] for i in top_idx if arr[i] > 0]
-    return out
+def get_representative_terms(model, cluster_texts, top_n=8):
+    """
+    Since embeddings don't give terms directly, we find the most common words 
+    in the cluster, excluding stopwords.
+    """
+    from collections import Counter
+    import re
+    
+    words = []
+    STOPWORDS = {"the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "with", "by", "is", "are", "it", "this", "that", "of", "from", "as", "be", "which", "following", "given", "provide", "based", "consider", "illustrate"}
+    
+    for text in cluster_texts:
+        # Clean and tokenize
+        w = re.findall(r'\b\w{3,}\b', text.lower())
+        words.extend([word for word in w if word not in STOPWORDS])
+    
+    most_common = Counter(words).most_common(top_n)
+    return [w for w, count in most_common]
 
 
 def main():
@@ -207,23 +209,41 @@ def main():
 
     papers_good = [p for p in papers if p["pdf_stem"] in good_stems]
 
+    # SELECT LATEST PAPERS FOR BLUEPRINT CONSTRUCTION (e.g. Last 3 Years / 6 papers)
+    # Extract year from stem and sort
+    def get_year(stem):
+        match = re.search(r"20\d{2}", stem)
+        return int(match.group()) if match else 0
+
+    papers_good_sorted = sorted(papers_good, key=lambda x: (get_year(x["pdf_stem"]), "II" in x["pdf_stem"]), reverse=True)
+    blueprint_papers = papers_good_sorted[:6]
+    print(f"\nUsing latest {len(blueprint_papers)} papers for structural blueprint (Probabilistic Marking Matrix):")
+    for bp in blueprint_papers:
+        print(f" - {bp['pdf_stem']}")
+
 
     # ==========================================================
-    # STEP 3 — EXAM STRUCTURE TEMPLATE
+    # STEP 3 — EXAM STRUCTURE TEMPLATE (Probabilistic Marking Matrix)
     # ==========================================================
     rows = []
-    for p in papers_good:
+    for p in blueprint_papers:
         for pos, q in enumerate(p["questions"], start=1):
             mm = compute_main_marks(q)
+            # Structural Fingerprinting: Record sub-question splits
+            subqs = q.get("subquestions", []) or []
+            subq_marks = [safe_int(sq.get("marks")) for sq in subqs]
+            subq_marks = [m for m in subq_marks if m is not None]
+            
             rows.append({
                 "pdf_stem": p["pdf_stem"],
                 "question_pos": pos,
                 "main_marks": mm,
-                "num_subqs": len(q.get("subquestions", []) or [])
+                "subq_split": subq_marks,
+                "num_subqs": len(subqs)
             })
     df = pd.DataFrame(rows)
 
-    num_qs = [len(p["questions"]) for p in papers_good]
+    num_qs = [len(p["questions"]) for p in blueprint_papers]
     canonical_num_questions = int(pd.Series(num_qs).mode()[0])
     canonical_total_marks = int(EXPECTED_TOTAL_MARKS)
 
@@ -233,10 +253,16 @@ def main():
         marks_vals = pd.to_numeric(slot_df["main_marks"], errors="coerce").dropna().astype(int).tolist()
         if not marks_vals:
             continue
+            
+        # Modal Sub-question Split (Structural Fingerprint)
+        split_counts = Counter([tuple(s) for s in slot_df["subq_split"].tolist() if s])
+        modal_split = list(split_counts.most_common(1)[0][0]) if split_counts else []
+
         slot_stats[qpos] = {
             "position": qpos,
             "target_marks": int(median(marks_vals)),
             "typical_num_subquestions": int(Counter(slot_df["num_subqs"]).most_common(1)[0][0]),
+            "structural_fingerprint": modal_split,
             "num_samples": int(len(marks_vals))
         }
 
@@ -251,10 +277,11 @@ def main():
         "component": "model_exam_paper",
         "canonical_total_marks": canonical_total_marks,
         "canonical_num_questions": canonical_num_questions,
+        "bloom_guidance": "30% Understand, 40% Apply, 30% Create",
         "note": {
-            "good_papers_used": int(len(papers_good)),
-            "skipped_papers": int(len(papers) - len(papers_good)),
-            "rule": "Only papers with total=100 and missing_marks=0 were used for structure + topics"
+            "good_papers_available": len(papers_good),
+            "blueprint_papers_used": [p["pdf_stem"] for p in blueprint_papers],
+            "rule": "Blueprint derived from latest 3 years; Clustering uses all historical data."
         },
         "question_slots": [
             {
@@ -262,8 +289,10 @@ def main():
                 "position": pos,
                 "target_marks": slot_stats[pos]["target_marks"],
                 "typical_num_subquestions": slot_stats[pos]["typical_num_subquestions"],
+                "structural_fingerprint": slot_stats[pos]["structural_fingerprint"],
                 "num_samples": slot_stats[pos]["num_samples"],
-                "topics": ["General"] # Placeholder to be updated after Step 4
+                "topics": ["General"], # Updated in Step 4
+                "topic_probabilities": {} # Updated in Step 4
             }
             for pos in sorted(slot_stats)
         ]
@@ -324,22 +353,21 @@ def main():
     if len(question_texts) < NUM_CLUSTERS:
         raise ValueError("Not enough questions to form the requested number of clusters.")
 
-    DOMAIN_STOP_WORDS = ["student", "table", "varchar", "int", "following", "relations", "char", "number", "given", "provide", "based", "consider", "illustrate"]
-    from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
-    all_stop_words = list(ENGLISH_STOP_WORDS) + DOMAIN_STOP_WORDS
+    # Modern Embedding-based Clustering
+    print("Vectorizing questions using SentenceTransformer (all-MiniLM-L6-v2)...")
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    X = model.encode(question_texts, show_progress_bar=True)
+    X = np.asarray(X, dtype="float32")
 
-    vectorizer = TfidfVectorizer(
-        stop_words=all_stop_words,
-        max_df=TFIDF_MAX_DF,
-        min_df=TFIDF_MIN_DF,
-        ngram_range=TFIDF_NGRAM_RANGE
-    )
-    X = vectorizer.fit_transform(question_texts)
-
+    print(f"Running KMeans (k={NUM_CLUSTERS})...")
     kmeans = KMeans(n_clusters=NUM_CLUSTERS, random_state=42, n_init="auto")
     labels = kmeans.fit_predict(X)
 
-    cluster_terms = top_terms_per_cluster(X, labels, vectorizer, top_n=10)
+    # Discover themes per cluster
+    cluster_terms = {}
+    for c in range(NUM_CLUSTERS):
+        c_texts = [txt for txt, lbl in zip(question_texts, labels) if lbl == c]
+        cluster_terms[c] = get_representative_terms(model, c_texts, top_n=10)
 
     assignments = {}
     for meta, label, text in zip(question_meta, labels, question_texts):
@@ -364,21 +392,30 @@ def main():
         pos = meta["question_pos"]
         if pos not in pos_clusters: pos_clusters[pos] = []
         pos_clusters[pos].append(int(label))
-    
     for slot in exam_blueprint["question_slots"]:
         pos = slot["position"]
         if pos in pos_clusters:
-            most_common_cluster = Counter(pos_clusters[pos]).most_common(1)[0][0]
-            # Map cluster ID to its top keywords for better research
+            # Topic-Slot Correlation (Probabilistic Matrix)
+            counts = Counter(pos_clusters[pos])
+            total_samples = len(pos_clusters[pos])
+            
+            # Modal Cluster
+            most_common_cluster = counts.most_common(1)[0][0]
             keywords = cluster_terms[most_common_cluster][:3]
             slot["topics"] = keywords if keywords else ["General"]
+            
+            # Fully probabilistic breakdown
+            slot["topic_probabilities"] = {
+                ", ".join(cluster_terms[cid][:3]): round(count / total_samples, 2)
+                for cid, count in counts.items()
+            }
     
     # Re-save blueprint with topics
     (OUT_ROOT / "exam_blueprint_template.json").write_text(
         json.dumps(exam_blueprint, indent=2, ensure_ascii=False),
         encoding="utf-8"
     )
-    print("✅ Updated exam_blueprint_template.json with discovered topics")
+    print("✅ Updated exam_blueprint_template.json with Probabilistic Topics")
 
 
     # ==========================================================

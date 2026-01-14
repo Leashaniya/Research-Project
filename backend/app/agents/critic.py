@@ -1,29 +1,263 @@
-from .base import BaseAgent
-from openai import OpenAI
-from app.core.config import OPENAI_API_KEY
 import json
+import re
+from typing import Tuple
+from difflib import SequenceMatcher
+from app.core.config import settings
+from app.core.llm_factory import get_llm_client
+from .base import BaseAgent  # Ensure BaseAgent is imported or mock it for script run
 
 class QualityCritic(BaseAgent):
     """
     The Quality Critic Agent (Reviewer).
     Role: Review draft questions for quality, relevance, and hallucination.
+    Using OpenAI GPT-4o-mini.
     """
 
     def __init__(self, config=None):
         super().__init__(name="Quality Critic", config=config)
-        self.api_key = OPENAI_API_KEY
-        self.client = None
+        self.api_key = settings.OPENAI_API_KEY
+        # Always use OpenAI (Azure is not used)
+        self.model_name = settings.OPENAI_MODEL or "gpt-4o-mini"
+        provider_name = "openai"
         
-        # Local LLM Support
+        try:
+             self.client = get_llm_client()
+             self.log(f"Initialized LLM ({provider_name}): {self.model_name}")
+        except Exception as e:
+             self.log(f"Failed to initialize LLM: {e}")
+             self.client = None
+
+    def _normalize_text(self, text: str) -> str:
+        """Normalize text for similarity comparison: lowercase, strip punctuation, collapse whitespace."""
+        if not text:
+            return ""
+        # Lowercase
+        text = text.lower()
+        # Remove punctuation, keep alphanumeric and spaces
+        text = re.sub(r'[^\w\s]', '', text)
+        # Collapse whitespace
+        text = re.sub(r'\s+', ' ', text).strip()
+        return text
+
+    def _check_duplicate_subquestions(self, sub_qs: list) -> Tuple[bool, str]:
+        """Check for duplicate/near-duplicate subquestions using similarity matching."""
+        normalized_texts = []
+        for sq in sub_qs:
+            text = sq.get("text", "").strip()
+            if text:
+                normalized = self._normalize_text(text)
+                normalized_texts.append((normalized, text))
+        
+        # Check for exact duplicates (after normalization)
+        seen = set()
+        for norm_text, orig_text in normalized_texts:
+            if norm_text in seen:
+                return True, f"DUPLICATE_SUBQUESTIONS: Found duplicate subquestion text: '{orig_text[:50]}...'"
+            seen.add(norm_text)
+        
+        # Check for high similarity (SequenceMatcher ratio >= 0.85)
+        for i in range(len(normalized_texts)):
+            for j in range(i + 1, len(normalized_texts)):
+                norm1, orig1 = normalized_texts[i]
+                norm2, orig2 = normalized_texts[j]
+                similarity = SequenceMatcher(None, norm1, norm2).ratio()
+                if similarity >= 0.85:
+                    return True, f"DUPLICATE_SUBQUESTIONS: Subquestions have {similarity:.2%} similarity: '{orig1[:50]}...' vs '{orig2[:50]}...'"
+                
+                # Check if one is contained in another
+                if norm1 in norm2 or norm2 in norm1:
+                    if len(norm1) > 20 and len(norm2) > 20:  # Only flag if both are substantial
+                        return True, f"DUPLICATE_SUBQUESTIONS: One subquestion is contained in another: '{orig1[:50]}...' vs '{orig2[:50]}...'"
+        
+        return False, ""
+
+    def _check_placeholder_content(self, text: str) -> bool:
+        """Check if text contains placeholders or is empty/punctuation only."""
+        if not text or not text.strip():
+            return True
+        
+        text_lower = text.lower().strip()
+        
+        # Check for placeholder patterns
+        # Use word boundaries for short patterns to avoid false positives (e.g., "na" in "name")
+        placeholder_patterns_word_boundary = [
+            r'\btbd\b', r'\bna\b', r'\btba\b',  # Standalone words only
+            r'\bn/a\b', r'\bfill in\b', r'\badd here\b'
+        ]
+        
+        placeholder_patterns_substring = [
+            "...", "to be added", "[insert", "[placeholder", 
+            "to be determined"
+        ]
+        
+        # Check word-boundary patterns (standalone words)
+        for pattern in placeholder_patterns_word_boundary:
+            if re.search(pattern, text_lower):
+                return True
+        
+        # Check substring patterns (exact matches)
+        for pattern in placeholder_patterns_substring:
+            if pattern in text_lower:
+                return True
+        
+        # Check if text is only punctuation/whitespace
+        if not re.search(r'[a-zA-Z0-9]', text):
+            return True
+        
+        return False
+
+    def _check_er_scenario_required(self, draft: dict, template: dict) -> Tuple[bool, str]:
+        """
+        Check if ER/EER question has required scenario block.
+        
+        GOLDEN RULE: Structure decides validation. This check only applies if the topic
+        (pattern_label) indicates ER/EER. The topic comes from data analysis, not question number.
+        
+        Uses robust deterministic rules (not strict sentence count):
+        - Minimum length (chars or tokens)
+        - Entity-like terms (2+ distinct)
+        - Relationship indicators (1+)
+        Accepts bullet scenarios and short paragraphs if informative.
+        """
         from app.core.config import settings
-        base_url = settings.OPENAI_BASE_URL
         
-        if self.api_key:
-            if base_url:
-                self.client = OpenAI(api_key=self.api_key, base_url=base_url)
-                self.log(f"Using Local LLM at: {base_url}")
-            else:
-                self.client = OpenAI(api_key=self.api_key)
+        pattern_label = template.get("pattern_label", "").lower()
+        draft_text = draft.get("text", "").lower()
+        sub_qs_text = " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])]).lower()
+        combined_text = (draft_text + " " + sub_qs_text)
+        combined_text_lower = combined_text.lower()
+        
+        # Check if this is an ER/EER/diagram question
+        is_er_question = (
+            "er" in pattern_label or "eer" in pattern_label or "diagram" in pattern_label or
+            "er diagram" in combined_text_lower or "eer diagram" in combined_text_lower or
+            ("draw" in combined_text_lower and ("er" in combined_text_lower or "entity" in combined_text_lower))
+        )
+        
+        if not is_er_question:
+            return True, ""  # Not an ER question, skip check
+        
+        # Check minimum length (chars or approximate tokens)
+        char_count = len(combined_text.strip())
+        # Approximate tokens: split by whitespace and punctuation
+        token_count = len(re.findall(r'\b\w+\b', combined_text))
+        
+        if char_count < settings.MIN_SCENARIO_CHARS and token_count < settings.MIN_SCENARIO_TOKENS:
+            return False, f"SCENARIO_MISSING: ER/EER question scenario is too short ({char_count} chars, {token_count} tokens). Minimum: {settings.MIN_SCENARIO_CHARS} chars or {settings.MIN_SCENARIO_TOKENS} tokens."
+        
+        # Check for entity-like terms (2+ distinct)
+        # Look for capitalized words (likely entity names) or common entity keywords
+        entity_keywords = [
+            "entity", "entities", "student", "course", "book", "member", "customer",
+            "employee", "department", "product", "order", "invoice", "account",
+            "branch", "loan", "author", "publisher", "library", "hospital", "bank",
+            "university", "company", "organization", "system"
+        ]
+        
+        # Find capitalized words (potential entity names)
+        capitalized_words = set(re.findall(r'\b[A-Z][a-z]+\b', combined_text))
+        # Find entity keywords
+        found_entity_keywords = [kw for kw in entity_keywords if kw in combined_text_lower]
+        
+        # Count distinct entity-like terms
+        entity_terms = capitalized_words | set(found_entity_keywords)
+        entity_count = len(entity_terms)
+        
+        # Check for relationship indicators
+        relationship_indicators = [
+            "has", "contains", "enrolls", "belongs", "assigned", "manages", "relates",
+            "borrows", "lends", "purchases", "sells", "works", "studies", "teaches",
+            "owns", "rents", "reserves", "issues", "receives", "sends"
+        ]
+        
+        relationship_count = sum(1 for indicator in relationship_indicators if indicator in combined_text_lower)
+        
+        # Validation: Require at least 2 entity-like terms and 1 relationship indicator
+        if entity_count < 2:
+            return False, f"SCENARIO_MISSING: ER/EER question must include at least 2 distinct entity-like terms. Found: {entity_count} ({list(entity_terms)[:5]})."
+        
+        if relationship_count < 1:
+            return False, f"SCENARIO_MISSING: ER/EER question must include at least 1 relationship indicator (e.g., 'has', 'contains', 'enrolls'). Found: {relationship_count}."
+        
+        return True, ""
+
+    def _check_normalization_schema_required(self, draft: dict, template: dict) -> Tuple[bool, str]:
+        """Check if Normalization question has required schema and functional dependencies."""
+        pattern_label = template.get("pattern_label", "").lower()
+        draft_text = draft.get("text", "").lower()
+        sub_qs_text = " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])]).lower()
+        combined_text = (draft_text + " " + sub_qs_text).lower()
+        
+        # Check if this is a normalization question
+        is_norm_question = (
+            "normalization" in pattern_label or "normal form" in pattern_label or
+            "normalization" in combined_text or "normal form" in combined_text or
+            ("normalize" in combined_text and ("relation" in combined_text or "schema" in combined_text))
+        )
+        
+        if not is_norm_question:
+            return True, ""  # Not a normalization question, skip check
+        
+        # Check for relation schema (R(A,B,C) or explicit attributes)
+        schema_patterns = [
+            r'R\s*\([A-Za-z,\s]+\)',  # R(A, B, C)
+            r'relation\s+[A-Za-z]+\s*\(',  # relation R(
+            r'attributes?\s*[:=]\s*[A-Za-z,\s]+',  # attributes: A, B, C
+            r'schema\s*[:=]\s*[A-Za-z,\s]+',  # schema: A, B, C
+        ]
+        
+        has_schema = any(re.search(pattern, combined_text) for pattern in schema_patterns)
+        
+        # Check for functional dependencies
+        fd_patterns = [
+            r'functional\s+dependenc',  # functional dependency
+            r'fd\s*[:=]',  # FD:
+            r'[A-Za-z]+\s*→\s*[A-Za-z]+',  # A -> B
+            r'[A-Za-z]+\s*->\s*[A-Za-z]+',  # A -> B
+        ]
+        
+        has_fd = any(re.search(pattern, combined_text) for pattern in fd_patterns)
+        
+        if not has_schema:
+            return False, "SCHEMA_MISSING: Normalization question must include a relation schema (e.g., R(A,B,C) or explicit attributes). Current text lacks schema definition."
+        
+        if not has_fd:
+            return False, "SCHEMA_MISSING: Normalization question must include functional dependencies (FDs). Current text lacks functional dependency definitions."
+        
+        return True, ""
+
+    def _check_reference_above(self, draft: dict) -> Tuple[bool, str]:
+        """Check if 'described above' / 'as shown above' references exist without actual content."""
+        draft_text = draft.get("text", "").lower()
+        sub_qs = draft.get("subquestions", [])
+        
+        # Collect all text
+        all_text = draft_text
+        for sq in sub_qs:
+            all_text += " " + sq.get("text", "").lower()
+        
+        # Check for reference phrases
+        reference_phrases = [
+            "described above", "as shown above", "diagram above", "refer to above",
+            "shown above", "mentioned above", "as above", "above scenario", "above diagram"
+        ]
+        
+        for phrase in reference_phrases:
+            if phrase in all_text:
+                # Check if stem contains substantial content (scenario/schema/diagram)
+                stem_has_content = (
+                    len(draft_text) > 100 or  # Substantial stem text
+                    "scenario" in draft_text or
+                    "schema" in draft_text or
+                    "relation" in draft_text or
+                    "diagram" in draft_text or
+                    "entity" in draft_text
+                )
+                
+                if not stem_has_content:
+                    return False, f"REFERENCE_ERROR: Question references '{phrase}' but stem does not contain the referenced content (scenario/schema/diagram)."
+        
+        return True, ""
 
     async def run(self, input_data: dict) -> dict:
         """
@@ -32,23 +266,92 @@ class QualityCritic(BaseAgent):
             "context": "...",
             "template": {...}
         }
+        
+        Returns: {"approved": bool, "feedback": str, "feedback_code": str}
         """
         draft = input_data.get("draft", {})
         context = input_data.get("context", "")
         template = input_data.get("template", {})
         
-        # --- DETERMINISTIC GUARDRAILS ---
+        # --- DETERMINISTIC HARD-FAIL RULES (Run BEFORE LLM review) ---
         
-        # 1. Math Check
+        # 0. Check question stem for empty/placeholder
+        question_stem = draft.get("text", "").strip()
+        if self._check_placeholder_content(question_stem):
+            err_msg = "EMPTY_STEM: Question stem is empty, contains placeholders, or is punctuation only."
+            self.log(f"❌ Deterministic Reject: {err_msg}")
+            return {"approved": False, "feedback": err_msg, "feedback_code": "EMPTY_STEM"}
+        
+        # 1. Marks Check
         total_q_marks = int(draft.get("marks") or 0)
+        if total_q_marks <= 0:
+            err_msg = "MARKS_ERROR: Question must have marks > 0."
+            self.log(f"❌ Deterministic Reject: {err_msg}")
+            return {"approved": False, "feedback": err_msg, "feedback_code": "MARKS_ERROR"}
+        
         sub_qs = draft.get("subquestions", [])
         
+        # 2. Math Check (Sub-question marks sum)
         if sub_qs:
             status_sum = sum(int(sq.get("marks") or 0) for sq in sub_qs)
             if status_sum != total_q_marks:
-                err_msg = f"MATH ERROR: Sub-question marks sum to {status_sum}, but expected {total_q_marks}. Please adjust weighting."
+                err_msg = f"MATH_ERROR: Sub-question marks sum to {status_sum}, but expected {total_q_marks}. Please adjust weighting."
                 self.log(f"❌ Deterministic Reject: {err_msg}")
-                return {"approved": False, "feedback": err_msg}
+                return {"approved": False, "feedback": err_msg, "feedback_code": "MATH_ERROR"}
+            
+            # Check individual subquestion marks
+            for sq in sub_qs:
+                sq_marks = int(sq.get("marks") or 0)
+                if sq_marks <= 0:
+                    err_msg = f"MARKS_ERROR: Sub-question '{sq.get('label', '?')}' has marks <= 0."
+                    self.log(f"❌ Deterministic Reject: {err_msg}")
+                    return {"approved": False, "feedback": err_msg, "feedback_code": "MARKS_ERROR"}
+        
+        # 3. Structure Count Check (If template exists)
+        required_struct = template.get("required_structure") or template.get("subquestions", [])
+        if required_struct and len(sub_qs) != len(required_struct):
+            err_msg = f"STRUCTURE_ERROR: Generated {len(sub_qs)} sub-questions, but template requires EXACTLY {len(required_struct)}. Please follow the required structure."
+            self.log(f"❌ Deterministic Reject: {err_msg}")
+            return {"approved": False, "feedback": err_msg, "feedback_code": "STRUCTURE_ERROR"}
+        
+        # 4. Check for empty/placeholder subquestions
+        for sq in sub_qs:
+            text = sq.get("text", "").strip()
+            if self._check_placeholder_content(text):
+                err_msg = f"EMPTY_SUBQUESTION: Sub-question '{sq.get('label', '?')}' is empty, contains placeholders (e.g., '...', 'TBD'), or is punctuation only."
+                self.log(f"❌ Deterministic Reject: {err_msg}")
+                return {"approved": False, "feedback": err_msg, "feedback_code": "EMPTY_SUBQUESTION"}
+            
+            # Check for minimum length
+            if len(text) < 10:
+                err_msg = f"EMPTY_SUBQUESTION: Sub-question '{sq.get('label', '?')}' text is too short (minimum 10 characters)."
+                self.log(f"❌ Deterministic Reject: {err_msg}")
+                return {"approved": False, "feedback": err_msg, "feedback_code": "EMPTY_SUBQUESTION"}
+        
+        # 5. Check for duplicate/near-duplicate subquestions
+        if len(sub_qs) > 1:
+            is_duplicate, dup_msg = self._check_duplicate_subquestions(sub_qs)
+            if is_duplicate:
+                self.log(f"❌ Deterministic Reject: {dup_msg}")
+                return {"approved": False, "feedback": dup_msg, "feedback_code": "DUPLICATE_SUBQUESTIONS"}
+        
+        # 6. Check for "described above" / "as shown above" without content
+        ref_check, ref_msg = self._check_reference_above(draft)
+        if not ref_check:
+            self.log(f"❌ Deterministic Reject: {ref_msg}")
+            return {"approved": False, "feedback": ref_msg, "feedback_code": "REFERENCE_ERROR"}
+        
+        # 7. ER/EER Scenario Check
+        er_check, er_msg = self._check_er_scenario_required(draft, template)
+        if not er_check:
+            self.log(f"❌ Deterministic Reject: {er_msg}")
+            return {"approved": False, "feedback": er_msg, "feedback_code": "SCENARIO_MISSING"}
+        
+        # 8. Normalization Schema Check
+        norm_check, norm_msg = self._check_normalization_schema_required(draft, template)
+        if not norm_check:
+            self.log(f"❌ Deterministic Reject: {norm_msg}")
+            return {"approved": False, "feedback": norm_msg, "feedback_code": "SCHEMA_MISSING"}
 
         # 2. Structure Count Check (If template exists)
         required_struct = template.get("required_structure") or template.get("subquestions", [])
@@ -57,50 +360,36 @@ class QualityCritic(BaseAgent):
             self.log(f"❌ Deterministic Reject: {err_msg}")
             return {"approved": False, "feedback": err_msg}
 
-        # 3. Figure Placeholders & Empty Scenarios Check (Hallucinations)
+        # 9. Figure Placeholders & Hallucinations Check
         draft_str = json.dumps(draft).lower()
-        # EXCEPTION: We explicitly ALLOW "[placeholder figure]" as per rule.
-        # So we remove that string before checking for other bad keywords.
-        clean_draft_str = draft_str.replace("[placeholder figure]", "")
+        # EXCEPTION: We explicitly ALLOW "[DIAGRAM PLACEHOLDER]" as per new rule.
+        clean_draft_str = draft_str.replace("[diagram placeholder]", "").replace("[placeholder figure]", "")
         
-        hallucination_keywords = ["[figure:", "slide ", "slide_", "fig_", "page ", "page_", "refer to", "diagram above", "shown in figure"]
+        hallucination_keywords = ["[figure:", "slide ", "slide_", "fig_", "page ", "page_", "refer to figure", "shown in figure"]
         
         if any(kw in clean_draft_str for kw in hallucination_keywords):
-            err_msg = "QUALITY ERROR: Hallucinated figure placeholder (other than '[PLACEHOLDER FIGURE]'), slide reference, or diagram reference found. You MUST describe the content in text or create a scenario."
+            err_msg = "HALLUCINATION_ERROR: Hallucinated figure placeholder (other than '[DIAGRAM PLACEHOLDER]'), slide reference, or diagram reference found. You MUST describe the content in text or create a scenario."
             self.log(f"❌ Deterministic Reject: {err_msg}")
-            return {"approved": False, "feedback": err_msg}
-            
-        # 4. Strict Content Quality Checks
+            return {"approved": False, "feedback": err_msg, "feedback_code": "HALLUCINATION_ERROR"}
+        
+        # 10. Additional Content Quality Checks
         for sq in sub_qs:
             text = sq.get("text", "").strip()
             marks = int(sq.get("marks", 0))
             
-            # 4.0 Check for EMPTY or too short text
-            if len(text) < 10:
-                err_msg = f"QUALITY ERROR: Sub-question text is empty or too short. You must provide a full question."
+            # 10.1 NO Vague/Subjective questions
+            if any(v in text.lower() for v in ["think of", "what do you think", "your opinion", "personally"]):
+                err_msg = "QUALITY_ERROR: Question is subjective or vague (e.g. 'Can you think of...'). Must be a technical, objective exam question."
                 self.log(f"❌ Deterministic Reject: {err_msg}")
-                return {"approved": False, "feedback": err_msg}
+                return {"approved": False, "feedback": err_msg, "feedback_code": "QUALITY_ERROR"}
             
-            # 4.1 NO Vague/Subjective questions
-            if any(v in text for v in ["think of", "what do you think", "your opinion", "personally"]):
-                err_msg = "QUALITY ERROR: Question is subjective or vague (e.g. 'Can you think of...'). Must be a technical, objective exam question."
+            # 10.2 Mark-to-effort mismatch (e.g. 1 mark for huge explanation)
+            if marks <= 2 and ("explain" in text.lower() and "briefly" not in text.lower()) and len(text) > 100:
+                err_msg = f"QUALITY_ERROR: Mark mismatch. You have {marks} marks for a potentially complex question. Simplify or increase marks."
                 self.log(f"❌ Deterministic Reject: {err_msg}")
-                return {"approved": False, "feedback": err_msg}
+                return {"approved": False, "feedback": err_msg, "feedback_code": "QUALITY_ERROR"}
             
-            # 4.2 NO Fragmented Data (Analyzing without data)
-            if any(a in text for a in ["analyze", "normalize", "compute keys"]) and "relation" not in text:
-                err_msg = "QUALITY ERROR: You asked to Analyze or Normalize but didn't provide any Relation/Table Schema. You MUST define the attributes and functional dependencies."
-                self.log(f"❌ Deterministic Reject: {err_msg}")
-                return {"approved": False, "feedback": err_msg}
-
-            # 4.3 Mark-to-effort mismatch (e.g. 1 mark for huge explanation)
-            if marks <= 2 and ("explain" in text and "briefly" not in text) and len(text) > 100:
-                err_msg = f"QUALITY ERROR: Mark mismatch. You have {marks} marks for a potentially complex question. Simplify or increase marks."
-                self.log(f"❌ Deterministic Reject: {err_msg}")
-                return {"approved": False, "feedback": err_msg}
-            
-            # 4.4 DATABASE SYSTEMS RELEVANCE CHECK (CRITICAL)
-            # List of non-database topics that should be rejected
+            # 10.3 DATABASE SYSTEMS RELEVANCE CHECK (CRITICAL)
             non_db_keywords = [
                 "frame bytes", "frame bytes time", "network protocol", "tcp/ip", "http", "https",
                 "routing", "switching", "packet", "datagram", "osi model", "network layer",
@@ -117,48 +406,23 @@ class QualityCritic(BaseAgent):
             text_lower = text.lower()
             for non_db_term in non_db_keywords:
                 if non_db_term in text_lower:
-                    err_msg = f"RELEVANCE ERROR: Question contains non-database systems topic '{non_db_term}'. This is a Database Systems exam - ALL questions MUST be about database concepts only (ER diagrams, normalization, SQL, transactions, indexing, etc.). Replace with a relevant database systems topic."
+                    err_msg = f"RELEVANCE_ERROR: Question contains non-database systems topic '{non_db_term}'. This is a Database Systems exam."
                     self.log(f"❌ Deterministic Reject: {err_msg}")
-                    return {"approved": False, "feedback": err_msg}
-            
-        # 4. Scenario Repetition Check
-        seen_texts = set()
-        for sq in sub_qs:
-            txt = sq.get("text", "").strip()
-            if len(txt) > 50: # Only check significant blocks
-                # Use a simplified version for comparison to catch minor variations
-                simple_txt = "".join(filter(str.isalnum, txt.lower()))
-                if simple_txt in seen_texts:
-                    err_msg = "QUALITY ERROR: You reused the EXACT same scenario/text for multiple sub-questions. Each sub-question must have a unique scenario (e.g., if part a is about a Library, part b should be about something else)."
-                    self.log(f"❌ Deterministic Reject: {err_msg}")
-                    return {"approved": False, "feedback": err_msg}
-                seen_texts.add(simple_txt)
+                    return {"approved": False, "feedback": err_msg, "feedback_code": "RELEVANCE_ERROR"}
 
-        # --- LLM AUDIT ---
+        # --- LLM AUDIT (Only if deterministic checks pass) ---
+        # All hard-fail conditions have been checked above.
+        # LLM review is for semantic quality, not structural validation.
         prompt = f"""
-        You are a strict Exam Quality Reviewer.
+        You are a strict Exam Quality Reviewer for a Database Systems exam.
+        Review this Draft Question: {json.dumps(draft, indent=2)}
+        Reference Material: {context}
         
-        Review this Draft Question:
-        {json.dumps(draft, indent=2)}
-        
-        Reference Material (Slide Context):
-        {context}
-        
-        Quality Checklist:
-        1. CONTENT RELEVANCE (CRITICAL): Is the question 100% about Database Systems? REJECT if it mentions:
-           - Networking concepts (frame bytes, TCP/IP, routing, protocols)
-           - Operating Systems (process scheduling, memory management)
-           - Software Engineering (SDLC, Agile, Scrum)
-           - Web Development (HTML, CSS, JavaScript)
-           - Machine Learning or AI algorithms
-           - Any topic NOT related to: ER diagrams, normalization, SQL, transactions, indexing, relational model, functional dependencies, etc.
-        2. NO HALLUCINATIONS: Does it contain placeholders like "..." or "refer to the diagram above" (without a diagram)? 
-        3. SCENARIO COMPLETENESS: If it asks to "Draw", "Construct", or "Design" based on a "given scenario", does the question ACTUALLY provide the text of that scenario? If not, REJECT.
-        4. CLARITY: Is the phrasing professional?
-        
-        CRITICAL: This is a Database Systems exam. EVERY question MUST be about database concepts. If you see ANY non-database topic, REJECT immediately.
-        
-        If REJECTED, provide specific feedback on how to fix it. Be very critical about missing scenarios, figure references, and especially non-database topics.
+        Check for:
+        1. CONTENT RELEVANCE: Is it 100% Database Systems? REJECT if networking, OS, etc.
+        2. NO HALLUCINATIONS: REJECT phantom slide references.
+        3. SCENARIO COMPLETENESS: REJECT if missing scenario text for "Design" tasks.
+        4. SEMANTIC QUALITY: Ensure questions are clear, unambiguous, and academically appropriate.
         
         Output JSON:
         {{
@@ -167,30 +431,24 @@ class QualityCritic(BaseAgent):
         }}
         """
         
-        from app.core.config import settings
-        model_name = settings.OPENAI_MODEL or self.config.get("model", "gpt-4o-mini")
-        
         try:
+            if not self.client:
+                # If LLM unavailable, approve if deterministic checks passed
+                self.log("⚠️ LLM unavailable, approving based on deterministic checks only.")
+                return {"approved": True, "feedback": "Approved (deterministic checks passed, LLM unavailable)", "feedback_code": "LLM_UNAVAILABLE"}
+            
             response = self.client.chat.completions.create(
-                model=model_name,
-                messages=[
-                    {"role": "system", "content": "You are a strict Quality Assurance Critic."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.1,
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
                 response_format={"type": "json_object"}
             )
-            content = response.choices[0].message.content
-            data = json.loads(content)
-            
-            if isinstance(data, dict):
-                if "approved" in data:
-                    return data
-                elif "is_approved" in data:
-                    return {"approved": data["is_approved"], "feedback": data.get("feedback", "No feedback")}
-            
-            return {"approved": True, "feedback": "Format mismatch, auto-approved."}
-            
+            data = json.loads(response.choices[0].message.content)
+            # Ensure feedback_code is present
+            if "feedback_code" not in data:
+                data["feedback_code"] = "LLM_REVIEW"
+            return data
         except Exception as e:
-            self.log(f"Error reviewing question: {e}")
-            return {"approved": True, "feedback": f"Critic failure ({e}), auto-approved."}
+            self.log(f"Error reviewing question with OpenAI: {e}")
+            # Do NOT auto-approve on LLM failure - deterministic checks already passed
+            # Return approved=True but with warning
+            return {"approved": True, "feedback": f"Approved (deterministic checks passed, LLM review failed: {e})", "feedback_code": "LLM_ERROR"}

@@ -88,10 +88,22 @@ class PDFService:
                     
                     # Print label and text on the same line
                     pdf.set_x(15)
-                    full_text = f"{label})  {text}"
                     
                     # Use multi_cell for the full text (handles wrapping)
-                    pdf.multi_cell(155, 6, full_text)
+                    if "```mermaid" in text:
+                        # Split text into description and mermaid code
+                        parts = text.split("```mermaid")
+                        desc = parts[0].strip()
+                        mermaid = "```mermaid" + parts[1]
+                        
+                        pdf.multi_cell(155, 6, f"{label})  {desc}")
+                        pdf.set_font("courier", "I", 9)
+                        pdf.ln(2)
+                        pdf.set_x(25)
+                        pdf.multi_cell(145, 5, mermaid)
+                        pdf.set_font("helvetica", "", 11)
+                    else:
+                        pdf.multi_cell(155, 6, f"{label})  {text}")
                     
                     # Now place the marks on the right side of the LAST line
                     # We need to go back up to align with the last line of text
@@ -109,6 +121,62 @@ class PDFService:
                 text = PDFService._sanitize_text(q.get("text", "No content available."))
                 pdf.set_font("helvetica", "", 11)
                 pdf.multi_cell(0, 7, text)
+                pdf.ln(5)
+
+            # --- DIAGRAM PLACEHOLDER RENDERING ---
+            # Check if the Question object needs a diagram placeholder
+            needs_diagram = q.get("needs_diagram", False)
+            diagram_placeholder_text = q.get("diagram_placeholder_text")
+            diagram_type = q.get("diagram_type", "Diagram")
+            
+            if needs_diagram and diagram_placeholder_text:
+                pdf.ln(5)
+                pdf.set_font("helvetica", "B", 10)
+                pdf.cell(0, 10, PDFService._sanitize_text(f"Diagram Placeholder ({diagram_type})"), ln=True)
+                
+                # Draw a boxed placeholder
+                pdf.set_fill_color(250, 250, 250)  # Light gray background
+                pdf.set_draw_color(200, 200, 200)  # Border color
+                pdf.set_line_width(0.5)
+                
+                # Calculate box dimensions
+                box_x = 20
+                box_y = pdf.get_y()
+                box_width = 170
+                box_height = 40
+                
+                # Draw box
+                pdf.rect(box_x, box_y, box_width, box_height, style='FD')  # Filled and drawn
+                
+                # Add placeholder text inside box
+                pdf.set_font("helvetica", "I", 10)
+                pdf.set_text_color(100, 100, 100)  # Gray text
+                pdf.set_xy(box_x + 5, box_y + box_height / 2 - 3)
+                pdf.multi_cell(box_width - 10, 6, PDFService._sanitize_text(diagram_placeholder_text), align="C")
+                
+                # Reset text color
+                pdf.set_text_color(0, 0, 0)
+                pdf.ln(5)
+            
+            # Legacy support: If mermaid_code exists but no placeholder, render as code (for backward compatibility)
+            mermaid_code = q.get("mermaid_code")
+            if mermaid_code and not needs_diagram:
+                caption = q.get("image_caption", "Figure")
+                pdf.ln(5)
+                pdf.set_font("helvetica", "B", 10)
+                pdf.cell(0, 10, PDFService._sanitize_text(caption), ln=True)
+                
+                pdf.set_fill_color(245, 245, 245) # Light gray background
+                pdf.set_font("courier", "", 9)
+                
+                # Split lines for rendering
+                code_lines = mermaid_code.split("\n")
+                for line in code_lines:
+                    # Sanitize line
+                    safe_line = PDFService._sanitize_text(line)
+                    pdf.set_x(20)
+                    pdf.cell(0, 5, safe_line, ln=True, fill=True)
+                
                 pdf.ln(5)
         
         # Final Save

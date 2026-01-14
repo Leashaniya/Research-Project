@@ -2,100 +2,100 @@
   "top_clusters": [
     {
       "cluster_id": 0,
-      "count": 18,
+      "count": 23,
       "label_keywords": [
-        "database",
+        "varchar",
+        "table",
+        "int",
+        "name",
+        "number",
         "stores",
-        "date",
-        "customer",
-        "id",
-        "phone",
-        "integer",
-        "account"
-      ]
-    },
-    {
-      "cluster_id": 2,
-      "count": 15,
-      "label_keywords": [
-        "transaction",
-        "schedule",
-        "explain",
-        "briefly explain",
-        "briefly",
-        "tree",
-        "t2",
-        "priority"
+        "each",
+        "char"
       ]
     },
     {
       "cluster_id": 6,
-      "count": 11,
+      "count": 8,
       "label_keywords": [
-        "query",
-        "index",
         "tree",
-        "hash",
-        "indexes",
         "file",
-        "cost",
-        "employee"
+        "after",
+        "index",
+        "explain",
+        "above",
+        "inserting",
+        "briefly"
       ]
     },
     {
       "cluster_id": 5,
-      "count": 7,
+      "count": 8,
       "label_keywords": [
-        "frame",
-        "bytes",
-        "time",
-        "disk",
-        "file",
-        "block",
-        "track",
-        "frame frame"
+        "transaction",
+        "schedule",
+        "explain",
+        "briefly",
+        "higher",
+        "priority",
+        "than",
+        "wait"
+      ]
+    },
+    {
+      "cluster_id": 1,
+      "count": 8,
+      "label_keywords": [
+        "relation",
+        "functional",
+        "dependencies",
+        "set",
+        "over",
+        "land",
+        "deptno",
+        "deptname"
       ]
     },
     {
       "cluster_id": 4,
       "count": 7,
       "label_keywords": [
-        "model",
-        "eer model",
-        "eer",
-        "keys",
-        "model relational",
-        "resulted clearly",
-        "model indicate",
-        "relational model"
+        "frame",
+        "number",
+        "bytes",
+        "time",
+        "disk",
+        "page",
+        "used",
+        "block"
+      ]
+    },
+    {
+      "cluster_id": 2,
+      "count": 7,
+      "label_keywords": [
+        "query",
+        "index",
+        "indexes",
+        "pages",
+        "cost",
+        "student",
+        "relation",
+        "page"
       ]
     },
     {
       "cluster_id": 3,
       "count": 7,
       "label_keywords": [
-        "set functional",
-        "functional dependencies",
-        "functional",
-        "dependencies",
-        "set",
-        "relation set",
-        "relation",
-        "bc"
-      ]
-    },
-    {
-      "cluster_id": 1,
-      "count": 3,
-      "label_keywords": [
-        "agent",
-        "schema",
-        "books",
-        "flight",
-        "company",
-        "according",
-        "relation",
-        "details"
+        "model",
+        "keys",
+        "eer",
+        "convert",
+        "relational",
+        "indicate",
+        "primary",
+        "foreign"
       ]
     }
   ]
