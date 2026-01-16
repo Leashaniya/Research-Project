@@ -1,0 +1,1191 @@
+{
+  "2014 (1)_Q1": [
+    {
+      "chunk_id": "1__sc0003",
+      "slide": 16,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4699411988258362,
+      "original_score": 0.4699411988258362,
+      "boost": 0.0,
+      "text_preview": "the ternary relationship plus one or more of the binary relationships, if they represent different m..."
+    },
+    {
+      "chunk_id": "2__sc0001",
+      "slide": 8,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.44894909858703613,
+      "original_score": 0.44894909858703613,
+      "boost": 0.0,
+      "text_preview": "(IC) is a condition specified on a database schema and restricts the data that could be stored in an..."
+    },
+    {
+      "chunk_id": "5__sc0006",
+      "slide": 38,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4239500164985657,
+      "original_score": 0.4239500164985657,
+      "boost": 0.0,
+      "text_preview": "Declare @balance float Select @ano=accountNo,@balance=balance from inserted Insert into accountAudit..."
+    }
+  ],
+  "2015_Q1": [
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.45184779167175293,
+      "original_score": 0.45184779167175293,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "2__sc0001",
+      "slide": 8,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4421353340148926,
+      "original_score": 0.4421353340148926,
+      "boost": 0.0,
+      "text_preview": "(IC) is a condition specified on a database schema and restricts the data that could be stored in an..."
+    },
+    {
+      "chunk_id": "3__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.42121490836143494,
+      "original_score": 0.42121490836143494,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- SCHEMA REFINEMENT --- SLIDE 2 --- ..."
+    }
+  ],
+  "2015 II_Q1": [
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.37979546189308167,
+      "original_score": 0.37979546189308167,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "3__sc0001",
+      "slide": 7,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3674893379211426,
+      "original_score": 0.3674893379211426,
+      "boost": 0.0,
+      "text_preview": "null \uf0a1Deletion Anomaly \uf0a1Deleting the last employee from the department will lead to loosing informat..."
+    },
+    {
+      "chunk_id": "5__sc0006",
+      "slide": 38,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.35364264249801636,
+      "original_score": 0.35364264249801636,
+      "boost": 0.0,
+      "text_preview": "Declare @balance float Select @ano=accountNo,@balance=balance from inserted Insert into accountAudit..."
+    }
+  ],
+  "2016_Q1": [
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4533192217350006,
+      "original_score": 0.4533192217350006,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "4__sc0001",
+      "slide": 9,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.41864579916000366,
+      "original_score": 0.41864579916000366,
+      "boost": 0.0,
+      "text_preview": "--- CREATING A TABLE - EXAMPLE CREATE TABLE STUDENT ( studentId INTEGER PRIMARY KEY, sName VARCHAR (..."
+    },
+    {
+      "chunk_id": "2__sc0001",
+      "slide": 8,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3863520622253418,
+      "original_score": 0.3863520622253418,
+      "boost": 0.0,
+      "text_preview": "(IC) is a condition specified on a database schema and restricts the data that could be stored in an..."
+    }
+  ],
+  "2016 II_Q1": [
+    {
+      "chunk_id": "4__sc0004",
+      "slide": 21,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5469269156455994,
+      "original_score": 0.5469269156455994,
+      "boost": 0.0,
+      "text_preview": "2.5 IT \uf0a1Ex : For all the students display the name and the offering institute Name offerBy Select s...."
+    },
+    {
+      "chunk_id": "4__sc0001",
+      "slide": 9,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.524323046207428,
+      "original_score": 0.524323046207428,
+      "boost": 0.0,
+      "text_preview": "--- CREATING A TABLE - EXAMPLE CREATE TABLE STUDENT ( studentId INTEGER PRIMARY KEY, sName VARCHAR (..."
+    },
+    {
+      "chunk_id": "4__sc0003",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4952588379383087,
+      "original_score": 0.4952588379383087,
+      "boost": 0.0,
+      "text_preview": "IT 1002 Aruni 3.8 SE 1003 Surani 2.5 IT 1004 Imali 4.0 BM Select studentID From student StudentID Wh..."
+    }
+  ],
+  "2017_Q1": [
+    {
+      "chunk_id": "5__sc0006",
+      "slide": 38,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5933796167373657,
+      "original_score": 0.5933796167373657,
+      "boost": 0.0,
+      "text_preview": "Declare @balance float Select @ano=accountNo,@balance=balance from inserted Insert into accountAudit..."
+    },
+    {
+      "chunk_id": "5__sc0003",
+      "slide": 19,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3529098927974701,
+      "original_score": 0.3529098927974701,
+      "boost": 0.0,
+      "text_preview": "@count<=100 BEGIN INSERT INTO Employees VALUES(@count,CONCAT('Employee',@count)) SET @count=@count+1..."
+    },
+    {
+      "chunk_id": "3__sc0001",
+      "slide": 7,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.336989164352417,
+      "original_score": 0.336989164352417,
+      "boost": 0.0,
+      "text_preview": "null \uf0a1Deletion Anomaly \uf0a1Deleting the last employee from the department will lead to loosing informat..."
+    }
+  ],
+  "2017_Q2": [
+    {
+      "chunk_id": "1__sc0001",
+      "slide": 8,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.49729931354522705,
+      "original_score": 0.49729931354522705,
+      "boost": 0.0,
+      "text_preview": "stored \uf0a1Efficient data access \u2013 make the data retrieval efficient using sophisticated techniques to ..."
+    },
+    {
+      "chunk_id": "6__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4534066915512085,
+      "original_score": 0.4534066915512085,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 06 \u2013 JAVA DATABASE CONNECTIVITY --- SL..."
+    },
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.45113903284072876,
+      "original_score": 0.45113903284072876,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    }
+  ],
+  "2017_Q3": [
+    {
+      "chunk_id": "3__sc0001",
+      "slide": 7,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.22777493298053741,
+      "original_score": 0.22777493298053741,
+      "boost": 0.0,
+      "text_preview": "null \uf0a1Deletion Anomaly \uf0a1Deleting the last employee from the department will lead to loosing informat..."
+    },
+    {
+      "chunk_id": "8__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.2021312117576599,
+      "original_score": 0.2021312117576599,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY --- SLIDE 2 ---..."
+    },
+    {
+      "chunk_id": "3__sc0004",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.19561973214149475,
+      "original_score": 0.19561973214149475,
+      "boost": 0.0,
+      "text_preview": "the following set of functional dependencies over R: \uf0a1{A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A} \uf0a1Compute the k..."
+    }
+  ],
+  "2017_Q4": [
+    {
+      "chunk_id": "3__sc0001",
+      "slide": 7,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.2615295648574829,
+      "original_score": 0.2615295648574829,
+      "boost": 0.0,
+      "text_preview": "null \uf0a1Deletion Anomaly \uf0a1Deleting the last employee from the department will lead to loosing informat..."
+    },
+    {
+      "chunk_id": "8__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.22052136063575745,
+      "original_score": 0.22052136063575745,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY --- SLIDE 2 ---..."
+    },
+    {
+      "chunk_id": "3__sc0004",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.2036081999540329,
+      "original_score": 0.2036081999540329,
+      "boost": 0.0,
+      "text_preview": "the following set of functional dependencies over R: \uf0a1{A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A} \uf0a1Compute the k..."
+    }
+  ],
+  "2017_Q5": [
+    {
+      "chunk_id": "3__sc0001",
+      "slide": 7,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.20407778024673462,
+      "original_score": 0.20407778024673462,
+      "boost": 0.0,
+      "text_preview": "null \uf0a1Deletion Anomaly \uf0a1Deleting the last employee from the department will lead to loosing informat..."
+    },
+    {
+      "chunk_id": "8__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.1798948347568512,
+      "original_score": 0.1798948347568512,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY --- SLIDE 2 ---..."
+    },
+    {
+      "chunk_id": "1__sc0003",
+      "slide": 16,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.16048601269721985,
+      "original_score": 0.16048601269721985,
+      "boost": 0.0,
+      "text_preview": "the ternary relationship plus one or more of the binary relationships, if they represent different m..."
+    }
+  ],
+  "2017 II_Q1": [
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4044957756996155,
+      "original_score": 0.4044957756996155,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "3__sc0001",
+      "slide": 7,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3859923183917999,
+      "original_score": 0.3859923183917999,
+      "boost": 0.0,
+      "text_preview": "null \uf0a1Deletion Anomaly \uf0a1Deleting the last employee from the department will lead to loosing informat..."
+    },
+    {
+      "chunk_id": "3__sc0002",
+      "slide": 11,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3755333721637726,
+      "original_score": 0.3755333721637726,
+      "boost": 0.0,
+      "text_preview": "process for analyzing a relational schema with the aim of minimizing redundancies and minimizing ins..."
+    }
+  ],
+  "2017 II_Q2": [
+    {
+      "chunk_id": "7__sc0002",
+      "slide": 13,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.28505396842956543,
+      "original_score": 0.28505396842956543,
+      "boost": 0.0,
+      "text_preview": "command line utility that enables us to transfer large number of records between a SQL instance and ..."
+    },
+    {
+      "chunk_id": "1__sc0001",
+      "slide": 8,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.2711825966835022,
+      "original_score": 0.2711825966835022,
+      "boost": 0.0,
+      "text_preview": "stored \uf0a1Efficient data access \u2013 make the data retrieval efficient using sophisticated techniques to ..."
+    },
+    {
+      "chunk_id": "1__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.2466910481452942,
+      "original_score": 0.2466910481452942,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE ..."
+    }
+  ],
+  "2018_Q1": [
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.518549382686615,
+      "original_score": 0.518549382686615,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "2__sc0002",
+      "slide": 10,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5078009963035583,
+      "original_score": 0.5078009963035583,
+      "boost": 0.0,
+      "text_preview": "the foreign key to the primary key --- SLIDE 10 --- INTEGRITY CONSTRAINTS (CONTD.) \uf0a1Other constraint..."
+    },
+    {
+      "chunk_id": "1__sc0002",
+      "slide": 13,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5044553279876709,
+      "original_score": 0.5044553279876709,
+      "boost": 0.0,
+      "text_preview": "- ENTITIES & ATTRIBUTES \uf0a1You already know these ! \uf0a1Check the handout for the definitions and example..."
+    }
+  ],
+  "2018_Q2": [
+    {
+      "chunk_id": "3__sc0002",
+      "slide": 11,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5055796504020691,
+      "original_score": 0.5055796504020691,
+      "boost": 0.0,
+      "text_preview": "process for analyzing a relational schema with the aim of minimizing redundancies and minimizing ins..."
+    },
+    {
+      "chunk_id": "3__sc0005",
+      "slide": 22,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5019705295562744,
+      "original_score": 0.5019705295562744,
+      "boost": 0.0,
+      "text_preview": "R. \uf0a1Second normal form (2NF) is based on the concept of full functional dependency. \uf0a1 A functional d..."
+    },
+    {
+      "chunk_id": "3__sc0004",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4548821449279785,
+      "original_score": 0.4548821449279785,
+      "boost": 0.0,
+      "text_preview": "the following set of functional dependencies over R: \uf0a1{A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A} \uf0a1Compute the k..."
+    }
+  ],
+  "2018_Q3": [
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4813976585865021,
+      "original_score": 0.4813976585865021,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "3__sc0001",
+      "slide": 7,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4363810420036316,
+      "original_score": 0.4363810420036316,
+      "boost": 0.0,
+      "text_preview": "null \uf0a1Deletion Anomaly \uf0a1Deleting the last employee from the department will lead to loosing informat..."
+    },
+    {
+      "chunk_id": "4__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4189406633377075,
+      "original_score": 0.4189406633377075,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL --- SLIDE 2 --- LECTURE CONTEN..."
+    }
+  ],
+  "2018_Q4": [
+    {
+      "chunk_id": "4__sc0004",
+      "slide": 21,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4417377710342407,
+      "original_score": 0.4417377710342407,
+      "boost": 0.0,
+      "text_preview": "2.5 IT \uf0a1Ex : For all the students display the name and the offering institute Name offerBy Select s...."
+    },
+    {
+      "chunk_id": "4__sc0003",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4398956000804901,
+      "original_score": 0.4398956000804901,
+      "boost": 0.0,
+      "text_preview": "IT 1002 Aruni 3.8 SE 1003 Surani 2.5 IT 1004 Imali 4.0 BM Select studentID From student StudentID Wh..."
+    },
+    {
+      "chunk_id": "3__sc0001",
+      "slide": 7,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4221023917198181,
+      "original_score": 0.4221023917198181,
+      "boost": 0.0,
+      "text_preview": "null \uf0a1Deletion Anomaly \uf0a1Deleting the last employee from the department will lead to loosing informat..."
+    }
+  ],
+  "2018 II_Q1": [
+    {
+      "chunk_id": "2__sc0002",
+      "slide": 10,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5483196377754211,
+      "original_score": 0.5483196377754211,
+      "boost": 0.0,
+      "text_preview": "the foreign key to the primary key --- SLIDE 10 --- INTEGRITY CONSTRAINTS (CONTD.) \uf0a1Other constraint..."
+    },
+    {
+      "chunk_id": "1__sc0002",
+      "slide": 13,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5192768573760986,
+      "original_score": 0.5192768573760986,
+      "boost": 0.0,
+      "text_preview": "- ENTITIES & ATTRIBUTES \uf0a1You already know these ! \uf0a1Check the handout for the definitions and example..."
+    },
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.515015721321106,
+      "original_score": 0.515015721321106,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    }
+  ],
+  "2018 II_Q2": [
+    {
+      "chunk_id": "3__sc0002",
+      "slide": 11,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5185961723327637,
+      "original_score": 0.5185961723327637,
+      "boost": 0.0,
+      "text_preview": "process for analyzing a relational schema with the aim of minimizing redundancies and minimizing ins..."
+    },
+    {
+      "chunk_id": "3__sc0005",
+      "slide": 22,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5159662961959839,
+      "original_score": 0.5159662961959839,
+      "boost": 0.0,
+      "text_preview": "R. \uf0a1Second normal form (2NF) is based on the concept of full functional dependency. \uf0a1 A functional d..."
+    },
+    {
+      "chunk_id": "3__sc0004",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.47284457087516785,
+      "original_score": 0.47284457087516785,
+      "boost": 0.0,
+      "text_preview": "the following set of functional dependencies over R: \uf0a1{A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A} \uf0a1Compute the k..."
+    }
+  ],
+  "2018 II_Q3": [
+    {
+      "chunk_id": "1__sc0003",
+      "slide": 16,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.49800050258636475,
+      "original_score": 0.49800050258636475,
+      "boost": 0.0,
+      "text_preview": "the ternary relationship plus one or more of the binary relationships, if they represent different m..."
+    },
+    {
+      "chunk_id": "4__sc0007",
+      "slide": 32,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4022504687309265,
+      "original_score": 0.4022504687309265,
+      "boost": 0.0,
+      "text_preview": "A 1002 DBII C 1002 DBII C [FIGURE: slide_031_fig_1.png] 1002 SPD C 1002 SPD C Select CID, Count(SID)..."
+    },
+    {
+      "chunk_id": "4__sc0004",
+      "slide": 21,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4001103937625885,
+      "original_score": 0.4001103937625885,
+      "boost": 0.0,
+      "text_preview": "2.5 IT \uf0a1Ex : For all the students display the name and the offering institute Name offerBy Select s...."
+    }
+  ],
+  "2018 II_Q4": [
+    {
+      "chunk_id": "4__sc0004",
+      "slide": 21,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4385487735271454,
+      "original_score": 0.4385487735271454,
+      "boost": 0.0,
+      "text_preview": "2.5 IT \uf0a1Ex : For all the students display the name and the offering institute Name offerBy Select s...."
+    },
+    {
+      "chunk_id": "4__sc0003",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4036586284637451,
+      "original_score": 0.4036586284637451,
+      "boost": 0.0,
+      "text_preview": "IT 1002 Aruni 3.8 SE 1003 Surani 2.5 IT 1004 Imali 4.0 BM Select studentID From student StudentID Wh..."
+    },
+    {
+      "chunk_id": "4__sc0006",
+      "slide": 28,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3845800459384918,
+      "original_score": 0.3845800459384918,
+      "boost": 0.0,
+      "text_preview": "a number of rows, returning a single value. \uf0a1Some of the commonly used aggregate functions are SUM, ..."
+    }
+  ],
+  "2019_Q1": [
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.518549382686615,
+      "original_score": 0.518549382686615,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "2__sc0002",
+      "slide": 10,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5078009963035583,
+      "original_score": 0.5078009963035583,
+      "boost": 0.0,
+      "text_preview": "the foreign key to the primary key --- SLIDE 10 --- INTEGRITY CONSTRAINTS (CONTD.) \uf0a1Other constraint..."
+    },
+    {
+      "chunk_id": "1__sc0002",
+      "slide": 13,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5044553279876709,
+      "original_score": 0.5044553279876709,
+      "boost": 0.0,
+      "text_preview": "- ENTITIES & ATTRIBUTES \uf0a1You already know these ! \uf0a1Check the handout for the definitions and example..."
+    }
+  ],
+  "2019_Q2": [
+    {
+      "chunk_id": "3__sc0002",
+      "slide": 11,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5203848481178284,
+      "original_score": 0.5203848481178284,
+      "boost": 0.0,
+      "text_preview": "process for analyzing a relational schema with the aim of minimizing redundancies and minimizing ins..."
+    },
+    {
+      "chunk_id": "3__sc0005",
+      "slide": 22,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4936402440071106,
+      "original_score": 0.4936402440071106,
+      "boost": 0.0,
+      "text_preview": "R. \uf0a1Second normal form (2NF) is based on the concept of full functional dependency. \uf0a1 A functional d..."
+    },
+    {
+      "chunk_id": "3__sc0004",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.47685569524765015,
+      "original_score": 0.47685569524765015,
+      "boost": 0.0,
+      "text_preview": "the following set of functional dependencies over R: \uf0a1{A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A} \uf0a1Compute the k..."
+    }
+  ],
+  "2019_Q3": [
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5541026592254639,
+      "original_score": 0.5541026592254639,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "4__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.47816234827041626,
+      "original_score": 0.47816234827041626,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL --- SLIDE 2 --- LECTURE CONTEN..."
+    },
+    {
+      "chunk_id": "1__sc0001",
+      "slide": 8,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4754382371902466,
+      "original_score": 0.4754382371902466,
+      "boost": 0.0,
+      "text_preview": "stored \uf0a1Efficient data access \u2013 make the data retrieval efficient using sophisticated techniques to ..."
+    }
+  ],
+  "2019_Q4": [
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.46966272592544556,
+      "original_score": 0.46966272592544556,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "2__sc0004",
+      "slide": 25,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.46327489614486694,
+      "original_score": 0.46327489614486694,
+      "boost": 0.0,
+      "text_preview": "OPTION 4 (CONTD.) [FIGURE: slide_024_fig_1.png] \uf0a1Now think how you would store information of follow..."
+    },
+    {
+      "chunk_id": "3__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4294775724411011,
+      "original_score": 0.4294775724411011,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- SCHEMA REFINEMENT --- SLIDE 2 --- ..."
+    }
+  ],
+  "2019 II_Q1": [
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.518549382686615,
+      "original_score": 0.518549382686615,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "2__sc0002",
+      "slide": 10,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5078009963035583,
+      "original_score": 0.5078009963035583,
+      "boost": 0.0,
+      "text_preview": "the foreign key to the primary key --- SLIDE 10 --- INTEGRITY CONSTRAINTS (CONTD.) \uf0a1Other constraint..."
+    },
+    {
+      "chunk_id": "1__sc0002",
+      "slide": 13,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5044553279876709,
+      "original_score": 0.5044553279876709,
+      "boost": 0.0,
+      "text_preview": "- ENTITIES & ATTRIBUTES \uf0a1You already know these ! \uf0a1Check the handout for the definitions and example..."
+    }
+  ],
+  "2019 II_Q2": [
+    {
+      "chunk_id": "3__sc0005",
+      "slide": 22,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5266236066818237,
+      "original_score": 0.5266236066818237,
+      "boost": 0.0,
+      "text_preview": "R. \uf0a1Second normal form (2NF) is based on the concept of full functional dependency. \uf0a1 A functional d..."
+    },
+    {
+      "chunk_id": "3__sc0002",
+      "slide": 11,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5133870840072632,
+      "original_score": 0.5133870840072632,
+      "boost": 0.0,
+      "text_preview": "process for analyzing a relational schema with the aim of minimizing redundancies and minimizing ins..."
+    },
+    {
+      "chunk_id": "3__sc0004",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.48482584953308105,
+      "original_score": 0.48482584953308105,
+      "boost": 0.0,
+      "text_preview": "the following set of functional dependencies over R: \uf0a1{A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A} \uf0a1Compute the k..."
+    }
+  ],
+  "2019 II_Q3": [
+    {
+      "chunk_id": "1__sc0003",
+      "slide": 16,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4500104784965515,
+      "original_score": 0.4500104784965515,
+      "boost": 0.0,
+      "text_preview": "the ternary relationship plus one or more of the binary relationships, if they represent different m..."
+    },
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3713115155696869,
+      "original_score": 0.3713115155696869,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "1__sc0001",
+      "slide": 8,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3563416004180908,
+      "original_score": 0.3563416004180908,
+      "boost": 0.0,
+      "text_preview": "stored \uf0a1Efficient data access \u2013 make the data retrieval efficient using sophisticated techniques to ..."
+    }
+  ],
+  "2019 II_Q4": [
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5125308036804199,
+      "original_score": 0.5125308036804199,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "2__sc0004",
+      "slide": 25,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5072659850120544,
+      "original_score": 0.5072659850120544,
+      "boost": 0.0,
+      "text_preview": "OPTION 4 (CONTD.) [FIGURE: slide_024_fig_1.png] \uf0a1Now think how you would store information of follow..."
+    },
+    {
+      "chunk_id": "2__sc0003",
+      "slide": 19,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.49481940269470215,
+      "original_score": 0.49481940269470215,
+      "boost": 0.0,
+      "text_preview": "parial) [FIGURE: slide_018_fig_1.png] \uf0a1A person who is a student but not a faculty member (i.e disjo..."
+    }
+  ],
+  "2023_Q1": [
+    {
+      "chunk_id": "1__sc0003",
+      "slide": 16,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4277923107147217,
+      "original_score": 0.4277923107147217,
+      "boost": 0.0,
+      "text_preview": "the ternary relationship plus one or more of the binary relationships, if they represent different m..."
+    },
+    {
+      "chunk_id": "1__sc0005",
+      "slide": 25,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3280169367790222,
+      "original_score": 0.3280169367790222,
+      "boost": 0.0,
+      "text_preview": "and another which is having a overlapping constraint. \uf0a1Exchange what you have drawn with your peer. ..."
+    },
+    {
+      "chunk_id": "1__sc0004",
+      "slide": 19,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3066789507865906,
+      "original_score": 0.3066789507865906,
+      "boost": 0.0,
+      "text_preview": "EER diagrams using \u2018ISA\u2019 relationships --- SLIDE 19 --- EER MODEL - ISA RELATIONSHIPS (CONTD.) [FIGU..."
+    }
+  ],
+  "2023_Q2": [
+    {
+      "chunk_id": "3__sc0005",
+      "slide": 22,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5133222937583923,
+      "original_score": 0.5133222937583923,
+      "boost": 0.0,
+      "text_preview": "R. \uf0a1Second normal form (2NF) is based on the concept of full functional dependency. \uf0a1 A functional d..."
+    },
+    {
+      "chunk_id": "3__sc0002",
+      "slide": 11,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4899398684501648,
+      "original_score": 0.4899398684501648,
+      "boost": 0.0,
+      "text_preview": "process for analyzing a relational schema with the aim of minimizing redundancies and minimizing ins..."
+    },
+    {
+      "chunk_id": "3__sc0004",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4841949939727783,
+      "original_score": 0.4841949939727783,
+      "boost": 0.0,
+      "text_preview": "the following set of functional dependencies over R: \uf0a1{A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A} \uf0a1Compute the k..."
+    }
+  ],
+  "2023_Q4": [
+    {
+      "chunk_id": "5__sc0006",
+      "slide": 38,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3787834048271179,
+      "original_score": 0.3787834048271179,
+      "boost": 0.0,
+      "text_preview": "Declare @balance float Select @ano=accountNo,@balance=balance from inserted Insert into accountAudit..."
+    },
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.35189899802207947,
+      "original_score": 0.35189899802207947,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "2__sc0002",
+      "slide": 10,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.34994935989379883,
+      "original_score": 0.34994935989379883,
+      "boost": 0.0,
+      "text_preview": "the foreign key to the primary key --- SLIDE 10 --- INTEGRITY CONSTRAINTS (CONTD.) \uf0a1Other constraint..."
+    }
+  ],
+  "2023 II_Q1": [
+    {
+      "chunk_id": "1__sc0003",
+      "slide": 16,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4277923107147217,
+      "original_score": 0.4277923107147217,
+      "boost": 0.0,
+      "text_preview": "the ternary relationship plus one or more of the binary relationships, if they represent different m..."
+    },
+    {
+      "chunk_id": "1__sc0005",
+      "slide": 25,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3280169367790222,
+      "original_score": 0.3280169367790222,
+      "boost": 0.0,
+      "text_preview": "and another which is having a overlapping constraint. \uf0a1Exchange what you have drawn with your peer. ..."
+    },
+    {
+      "chunk_id": "1__sc0004",
+      "slide": 19,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3066789507865906,
+      "original_score": 0.3066789507865906,
+      "boost": 0.0,
+      "text_preview": "EER diagrams using \u2018ISA\u2019 relationships --- SLIDE 19 --- EER MODEL - ISA RELATIONSHIPS (CONTD.) [FIGU..."
+    }
+  ],
+  "2023 II_Q2": [
+    {
+      "chunk_id": "3__sc0005",
+      "slide": 22,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5185144543647766,
+      "original_score": 0.5185144543647766,
+      "boost": 0.0,
+      "text_preview": "R. \uf0a1Second normal form (2NF) is based on the concept of full functional dependency. \uf0a1 A functional d..."
+    },
+    {
+      "chunk_id": "3__sc0002",
+      "slide": 11,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.508925199508667,
+      "original_score": 0.508925199508667,
+      "boost": 0.0,
+      "text_preview": "process for analyzing a relational schema with the aim of minimizing redundancies and minimizing ins..."
+    },
+    {
+      "chunk_id": "3__sc0004",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4702891707420349,
+      "original_score": 0.4702891707420349,
+      "boost": 0.0,
+      "text_preview": "the following set of functional dependencies over R: \uf0a1{A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A} \uf0a1Compute the k..."
+    }
+  ],
+  "2023 II_Q4": [
+    {
+      "chunk_id": "4__sc0004",
+      "slide": 21,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5382059216499329,
+      "original_score": 0.5382059216499329,
+      "boost": 0.0,
+      "text_preview": "2.5 IT \uf0a1Ex : For all the students display the name and the offering institute Name offerBy Select s...."
+    },
+    {
+      "chunk_id": "4__sc0001",
+      "slide": 9,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5264264941215515,
+      "original_score": 0.5264264941215515,
+      "boost": 0.0,
+      "text_preview": "--- CREATING A TABLE - EXAMPLE CREATE TABLE STUDENT ( studentId INTEGER PRIMARY KEY, sName VARCHAR (..."
+    },
+    {
+      "chunk_id": "4__sc0006",
+      "slide": 28,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5255653858184814,
+      "original_score": 0.5255653858184814,
+      "boost": 0.0,
+      "text_preview": "a number of rows, returning a single value. \uf0a1Some of the commonly used aggregate functions are SUM, ..."
+    }
+  ],
+  "2024_Q1": [
+    {
+      "chunk_id": "1__sc0003",
+      "slide": 16,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4277923107147217,
+      "original_score": 0.4277923107147217,
+      "boost": 0.0,
+      "text_preview": "the ternary relationship plus one or more of the binary relationships, if they represent different m..."
+    },
+    {
+      "chunk_id": "1__sc0005",
+      "slide": 25,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3280169367790222,
+      "original_score": 0.3280169367790222,
+      "boost": 0.0,
+      "text_preview": "and another which is having a overlapping constraint. \uf0a1Exchange what you have drawn with your peer. ..."
+    },
+    {
+      "chunk_id": "1__sc0004",
+      "slide": 19,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3066789507865906,
+      "original_score": 0.3066789507865906,
+      "boost": 0.0,
+      "text_preview": "EER diagrams using \u2018ISA\u2019 relationships --- SLIDE 19 --- EER MODEL - ISA RELATIONSHIPS (CONTD.) [FIGU..."
+    }
+  ],
+  "2024_Q2": [
+    {
+      "chunk_id": "3__sc0002",
+      "slide": 11,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5918750762939453,
+      "original_score": 0.5918750762939453,
+      "boost": 0.0,
+      "text_preview": "process for analyzing a relational schema with the aim of minimizing redundancies and minimizing ins..."
+    },
+    {
+      "chunk_id": "3__sc0004",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5133255124092102,
+      "original_score": 0.5133255124092102,
+      "boost": 0.0,
+      "text_preview": "the following set of functional dependencies over R: \uf0a1{A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A} \uf0a1Compute the k..."
+    },
+    {
+      "chunk_id": "3__sc0005",
+      "slide": 22,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4935133755207062,
+      "original_score": 0.4935133755207062,
+      "boost": 0.0,
+      "text_preview": "R. \uf0a1Second normal form (2NF) is based on the concept of full functional dependency. \uf0a1 A functional d..."
+    }
+  ],
+  "2024_Q4": [
+    {
+      "chunk_id": "1__sc0003",
+      "slide": 16,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4685811400413513,
+      "original_score": 0.4685811400413513,
+      "boost": 0.0,
+      "text_preview": "the ternary relationship plus one or more of the binary relationships, if they represent different m..."
+    },
+    {
+      "chunk_id": "3__sc0002",
+      "slide": 11,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.423032283782959,
+      "original_score": 0.423032283782959,
+      "boost": 0.0,
+      "text_preview": "process for analyzing a relational schema with the aim of minimizing redundancies and minimizing ins..."
+    },
+    {
+      "chunk_id": "4__sc0001",
+      "slide": 9,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4036295413970947,
+      "original_score": 0.4036295413970947,
+      "boost": 0.0,
+      "text_preview": "--- CREATING A TABLE - EXAMPLE CREATE TABLE STUDENT ( studentId INTEGER PRIMARY KEY, sName VARCHAR (..."
+    }
+  ],
+  "2024 II_Q1": [
+    {
+      "chunk_id": "1__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.48621782660484314,
+      "original_score": 0.48621782660484314,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE ..."
+    },
+    {
+      "chunk_id": "1__sc0003",
+      "slide": 16,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4676904082298279,
+      "original_score": 0.4676904082298279,
+      "boost": 0.0,
+      "text_preview": "the ternary relationship plus one or more of the binary relationships, if they represent different m..."
+    },
+    {
+      "chunk_id": "1__sc0005",
+      "slide": 25,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4062407910823822,
+      "original_score": 0.4062407910823822,
+      "boost": 0.0,
+      "text_preview": "and another which is having a overlapping constraint. \uf0a1Exchange what you have drawn with your peer. ..."
+    }
+  ],
+  "2024 II_Q2": [
+    {
+      "chunk_id": "3__sc0002",
+      "slide": 11,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.5105105042457581,
+      "original_score": 0.5105105042457581,
+      "boost": 0.0,
+      "text_preview": "process for analyzing a relational schema with the aim of minimizing redundancies and minimizing ins..."
+    },
+    {
+      "chunk_id": "3__sc0005",
+      "slide": 22,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4864361584186554,
+      "original_score": 0.4864361584186554,
+      "boost": 0.0,
+      "text_preview": "R. \uf0a1Second normal form (2NF) is based on the concept of full functional dependency. \uf0a1 A functional d..."
+    },
+    {
+      "chunk_id": "3__sc0004",
+      "slide": 18,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4255973696708679,
+      "original_score": 0.4255973696708679,
+      "boost": 0.0,
+      "text_preview": "the following set of functional dependencies over R: \uf0a1{A \u2192B, A \u2192C, CD \u2192E, B \u2192D, E \u2192A} \uf0a1Compute the k..."
+    }
+  ],
+  "2024 II_Q4": [
+    {
+      "chunk_id": "2__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.500035285949707,
+      "original_score": 0.500035285949707,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAP..."
+    },
+    {
+      "chunk_id": "2__sc0001",
+      "slide": 8,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.49378615617752075,
+      "original_score": 0.49378615617752075,
+      "boost": 0.0,
+      "text_preview": "(IC) is a condition specified on a database schema and restricts the data that could be stored in an..."
+    },
+    {
+      "chunk_id": "3__sc0000",
+      "slide": 1,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.4445362091064453,
+      "original_score": 0.4445362091064453,
+      "boost": 0.0,
+      "text_preview": "--- SLIDE 1 --- DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- SCHEMA REFINEMENT --- SLIDE 2 --- ..."
+    }
+  ],
+  "2024 II_Q5": [
+    {
+      "chunk_id": "3__sc0001",
+      "slide": 7,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3400799632072449,
+      "original_score": 0.3400799632072449,
+      "boost": 0.0,
+      "text_preview": "null \uf0a1Deletion Anomaly \uf0a1Deleting the last employee from the department will lead to loosing informat..."
+    },
+    {
+      "chunk_id": "4__sc0001",
+      "slide": 9,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3268951177597046,
+      "original_score": 0.3268951177597046,
+      "boost": 0.0,
+      "text_preview": "--- CREATING A TABLE - EXAMPLE CREATE TABLE STUDENT ( studentId INTEGER PRIMARY KEY, sName VARCHAR (..."
+    },
+    {
+      "chunk_id": "1__sc0003",
+      "slide": 16,
+      "source": "slides_text_with_figures.txt",
+      "score": 0.3144075274467468,
+      "original_score": 0.3144075274467468,
+      "boost": 0.0,
+      "text_preview": "the ternary relationship plus one or more of the binary relationships, if they represent different m..."
+    }
+  ]
+}

@@ -50,6 +50,7 @@ import pytesseract
 from pytesseract import Output
 from typing import Dict, Any, Optional
 from app.services.structure_service import analyze_document_structure
+from app.services.vision_service import analyze_exam_diagram
 
 # =========================
 # CONFIG
@@ -572,6 +573,27 @@ def process_one_pdf(pdf_path: Path, dpi_used=DPI):
             cv2.imwrite(str(diagrams_out / name.replace(".png", "_thumb.png")), thumb)
 
             placeholder_lines.append((int(d["y_mid"]), f"[DIAGRAM: {name}]"))
+
+            # --- VLM ANALYSIS (Red Box) ---
+            if USE_CLOUD_AI:
+                print(f"   🤖 Analyzing diagram {name}...")
+                # Pass page_text as context to reduce hallucinations
+                analysis = analyze_exam_diagram(diagrams_out / name, context_text=page_text)
+                
+                meta_entry = {
+                    "pdf_stem": stem,
+                    "page": page_num,
+                    "filename": name,
+                    "semantic_label": analysis.get("semantic_label"),
+                    "student_action": analysis.get("student_action"),
+                    "type": analysis.get("type"),
+                    "bbox": d
+                }
+                
+                # Global output root for metadata
+                meta_jsonl = OUT_ROOT / "diagrams_metadata.jsonl"
+                with open(meta_jsonl, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(meta_entry) + "\n")
 
         merged_lines = []
         if use_ocr:

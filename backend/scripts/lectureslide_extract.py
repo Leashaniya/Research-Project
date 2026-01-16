@@ -22,6 +22,12 @@ OUTPUT:
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Add the backend root to sys.path
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 import os, re, json, csv
 from pathlib import Path
 from tqdm import tqdm
@@ -32,6 +38,7 @@ import pytesseract
 from pytesseract import Output
 from sentence_transformers import SentenceTransformer
 import faiss
+from app.services.vision_service import analyze_slide_diagram
 
 
 # =========================
@@ -57,6 +64,7 @@ PAD = 6
 BORDER_STRIP = 4
 OCR_TEXT_MIN_CHARS = 40
 TESS_CONFIG = "--oem 3 --psm 6"
+USE_CLOUD_AI = True # Flag to toggle Cloud AI usage
 
 CHUNK_WORDS = 350
 OVERLAP_WORDS = 70
@@ -248,6 +256,25 @@ def process_slides_pdf(pdf_path: Path, dpi=DPI):
             fig_name = f"slide_{pno+1:03d}_fig_{i}.png"
             cv2.imwrite(str(figs_out / fig_name), crop)
 
+            # --- VLM ANALYSIS (Green Box - Logic & Knowledge) ---
+            # We treat every green box as a potential knowledge source
+            if USE_CLOUD_AI:
+                print(f"   🤖 Analyzing slide figure {fig_name}...")
+                analysis = analyze_slide_diagram(figs_out / fig_name)
+                
+                meta_entry = {
+                    "pdf_stem": stem,
+                    "slide_no": pno + 1,
+                    "fig_id": fig_name,
+                    "mermaid_code": analysis.get("mermaid_code"),
+                    "caption": analysis.get("caption")
+                }
+                
+                # Save to sidecar metadata file
+                meta_jsonl = out_dir / "figures_metadata.jsonl" 
+                with open(meta_jsonl, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(meta_entry) + "\n")
+
             placeholders.append((rp["y_mid_pdf"], f"[FIGURE: {fig_name}]"))
 
         if lines:
@@ -291,6 +318,27 @@ def build_slides_chunks(chunk_words=CHUNK_WORDS, overlap_words=OVERLAP_WORDS):
     global_chunks = []
     csv_rows = []
 
+    # 1. Load Figure Metadata Map (Filename -> Caption/Mermaid)
+    fig_meta_map = {}
+    for meta_file in OUT_ROOT.glob("*/figures_metadata.jsonl"):
+        try:
+            with open(meta_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    if line.strip():
+                        data = json.loads(line)
+                        # key = "slide_001_fig_1.png"
+                        fid = data.get("fig_id")
+                        content = []
+                        if data.get("caption"):
+                            content.append(f"Figure Description: {data['caption']}")
+                        if data.get("mermaid_code"):
+                            content.append(f"Diagram Logic: {data['mermaid_code']}")
+                        
+                        if fid and content:
+                            fig_meta_map[fid] = " | ".join(content)
+        except Exception:
+            pass
+
     for tf in all_text_files:
         pdf_stem = tf.parent.name
         doc_text = tf.read_text(encoding="utf-8", errors="ignore")
@@ -305,6 +353,15 @@ def build_slides_chunks(chunk_words=CHUNK_WORDS, overlap_words=OVERLAP_WORDS):
             end = min(start + chunk_words, n)
             chunk_words_list = words[start:end]
             chunk_text = " ".join(chunk_words_list).replace(" \n ", "\n").strip()
+
+            # --- METADATA INJECTION ---
+            # Find [FIGURE: slide_XXX_fig_Y.png] tags in this chunk
+            fig_tags = re.findall(r"\[FIGURE: (.*?)\]", chunk_text)
+            for fig_name in fig_tags:
+                if fig_name in fig_meta_map:
+                    # Append the semantic description to the chunk so FAISS can index it
+                    enrichment = f"\n[SEMANTIC ENRICHMENT]: {fig_meta_map[fig_name]}"
+                    chunk_text += enrichment
 
             slide_matches = re.findall(r"--- SLIDE (\d+) ---", chunk_text)
             slide_no = int(slide_matches[0]) if slide_matches else None
