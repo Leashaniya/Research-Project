@@ -1,27 +1,32 @@
 [
   {
-    "qno": 1,
+    "question_id": 1,
     "marks": 20,
-    "text": "Consider the following schema of a database developed for an airport. Customer (customerId: integer, name: varchar (30), age: int, phone: char (10)) Reservations (flno: char (6), custId: integer) Flights (flno: char (6), from: varchar (30), to: varchar (30), departs: datetime, arrives: datetime, regNo: char (8), pilotId: integer) Aircraft (regNo: char (8), model: varchar (15), capacity: integer, Pilots (id: integer, name: varchar (30), salary: float, flyingHours: integer) The Aircraft table stores the registration number (regNo), model (model) and the number of passengers who can travel in the aircraft (capacity) for each aircraft type. The Flights table stores the flight number (flno), the departing airport (from), destination airport (to), departing time (departs), arrival time (arrives), the registration number of the aircraft (regNo) and the id of the pilot (pilot) related to all flights. Reservations table stores the flight number (flno) and the customer number (custId) for each customer who has reserved a flight. Pilots table stores the id (id), name (name), salary (salary) and the number of hours the pilot have flown (flyingHours) for each pilot. Primary keys of the tables are underlined."
+    "text": "Consider the following schema of a database developed for an airport. Customer (customerId: integer, name: varchar (30), age: int, phone: char (10)) Reservations (flno: char (6), custId: integer) Flights (flno: char (6), from: varchar (30), to: varchar (30), departs: datetime, arrives: datetime, regNo: char (8), pilotId: integer) Aircraft (regNo: char (8), model: varchar (15), capacity: integer, Pilots (id: integer, name: varchar (30), salary: float, flyingHours: integer) The Aircraft table stores the registration number (regNo), model (model) and the number of passengers who can travel in the aircraft (capacity) for each aircraft type. The Flights table stores the flight number (flno), the departing airport (from), destination airport (to), departing time (departs), arrival time (arrives), the registration number of the aircraft (regNo) and the id of the pilot (pilot) related to all flights. Reservations table stores the flight number (flno) and the customer number (custId) for each customer who has reserved a flight. Pilots table stores the id (id), name (name), salary (salary) and the number of hours the pilot have flown (flyingHours) for each pilot. Primary keys of the tables are underlined.",
+    "pdf_stem": "2016"
   },
   {
-    "qno": 2,
+    "question_id": 2,
     "marks": 20,
-    "text": ""
+    "text": "[DIAGRAM: page_003_diagram_1.png]",
+    "pdf_stem": "2016"
   },
   {
-    "qno": 3,
+    "question_id": 3,
     "marks": 22,
-    "text": ""
+    "text": "[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_004_diagram_2.png]",
+    "pdf_stem": "2016"
   },
   {
-    "qno": 4,
+    "question_id": 4,
     "marks": 13,
-    "text": ""
+    "text": "",
+    "pdf_stem": "2016"
   },
   {
-    "qno": 5,
+    "question_id": 5,
     "marks": 25,
-    "text": ""
+    "text": "[DIAGRAM: page_006_diagram_1.png]\n[DIAGRAM: page_007_diagram_1.png]",
+    "pdf_stem": "2016"
   }
 ]

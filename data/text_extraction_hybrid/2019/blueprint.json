@@ -1,24 +1,26 @@
 [
   {
-    "qno": 1,
+    "question_id": 1,
     "marks": 20,
-    "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
-    "diagram": "[DIAGRAM: page_002_diagram_1.png]"
+    "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly. ISA Constraints: Permanent and Visiting covers Doctor\n[DIAGRAM: page_002_diagram_1.png]",
+    "pdf_stem": "2019"
   },
   {
-    "qno": 2,
+    "question_id": 2,
     "marks": 15,
-    "text": "Consider a relation R (A, B, C, D, E) with the following set of functional dependencies over R: F={B->D,D>E,AB~>C,B~>E}"
+    "text": "Consider a relation R (A, B, C, D, E) with the following set of functional dependencies over R: F={B->D,D>E,AB~>C,B~>E}",
+    "pdf_stem": "2019"
   },
   {
-    "qno": 3,
+    "question_id": 3,
     "marks": 25,
-    "text": "Consider the following relations relate to patient management system database.",
-    "diagram": "[DIAGRAM: page_003_diagram_1.png]"
+    "text": "Consider the following relations relate to patient management system database.  The Doctor relation has attributes Social Security Number (SSN), first and last names, specialty, the number of experience years, and the phone number. The Patient relation has attributes SSN, first and last names, address, date of birth (DOB), and the SSN of the patient's primary doctor (pDocSSN). Prescription relation has attributes id, the date in which the prescription is written, the SSN of the doctor who wrote the prescription, and the SSN of the patient to whom the prescription is written. The Medicine relation has attributes trade name, unit price, and whether or not the medicine is generic (True or False). The Prescription_Medicine relation stores the medicines written in each prescription along with their quantities (NumOfUnits). Write the following queries in Relational Algebra.\n[DIAGRAM: page_003_diagram_1.png]",
+    "pdf_stem": "2019"
   },
   {
-    "qno": 4,
+    "question_id": 4,
     "marks": 40,
-    "text": "Consider the following relations in a Movie Database."
+    "text": "Consider the following relations in a Movie Database. Movie (mID: int, title: varchar(30), year: date, rank: real) Actor (aID: int, fname: varchar(30), lname: varchar(30), gender: char(10)) Director (dID: int, fname: varchar(30), lname: varchar(30), gender: char(10)) Casts (actorID: int, movieID: int, role: varchar(10)) Genre (genID: int, type: varchar(10)) DirectsMovie (directorID: int, movieID: int) MovieGenre (movieID: int, genID: int) Reviewer (reviewID: int, reviewName: varchar(20)) Rating (movieID: int, reviewID: int, reviewStars: int) The attributes of the Movie relation are id (mID), title, year it was made and the rank of the movies. The Actor relation has attributes to record the id (aID), first name (fname), last name (lname) and gender (M or F) of actors. The Director relation has attributes to store the id (dID), first name (fname), last name (lname) and gender (M or F) of directors. The Casts relation associates the movie with actors who had acted in them and contains the role (lead, support, or other) they played. The Genre relation stores information of movies types (such as Romantic, Horror, Action, Fiction, Documentary, Thriller, and Drama). The DirectsMovie relation stores information on movies and their directors. The MovieGenre relation stores information related to movies respective genre. A Rating system is carried out based on the Reviewers number of stars. The Reviewer relation has attributes to record the reviewer id, name. The Rating relation has attributes to store the movie id, reviewer id and reviewer\u2019s number of stars. Primary keys are underlined.",
+    "pdf_stem": "2019"
   }
 ]

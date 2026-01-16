@@ -1,269 +1,243 @@
 [
   {
-    "qno": 1,
+    "question_id": 1,
     "marks": 20,
     "text": "The Computer Science Students at SLIIT are planning to design a database to produce music albums. The students have come up with the following requirements. The students who have talent in music (i.e. singing, playing an instrument, etc..) are named as student musician. All student musicians are capable of singing songs. In addition, some of them play instruments and some of them act as producers when albums are produced. For each student musician a unique identification number, name and address are recorded. For those who play instruments, their specialization, and the duration that they play should be stored. For each instrument, a unique identification number and the name (e.g., guitar, violin, flute, etc.) are recorded. Each student capable of playing instruments may play several instruments, and a given instrument is played by one student. A student who plays instruments may supervise several other such students. Each album has a unique identification number, title, copyright date and a format (e.g., CD or MC). Each album has one student who acts as its producer. A student may produce several albums. Each album has several songs on it and a song appears on one album. The date that the songs are recorded on the album should be known. For each song a unique identification number, the title and the author are recorded. Each song is sung by one or more students, and a student sings several songs. The number of times that a song is sung should be recorded. Each song may have several melody types. For each melody type, the tempo, and the key for that song (e.g. C major, D minor etc.) are recorded. Different songs may have the same key.",
     "subquestions": [
       {
-        "label": "a)",
+        "question_id": 1,
         "marks": 3,
-        "text": "What are the entities that could be used for the above requirements?",
-        "subquestions": []
+        "text": "What are the entities that could be used for the above requirements?"
       },
       {
-        "label": "b)",
+        "question_id": 1,
         "marks": 3,
-        "text": "Identify suitable attributes and the primary key, if any, for each of the entities that you have identified.",
-        "subquestions": []
+        "text": "Identify suitable attributes and the primary key, if any, for each of the entities that you have identified."
       },
       {
-        "label": "c)",
+        "question_id": 1,
         "marks": 2,
-        "text": "Is there a recursive relationship? Justify your answer.",
-        "subquestions": []
+        "text": "Is there a recursive relationship? Justify your answer."
       },
       {
-        "label": "d)",
+        "question_id": 1,
         "marks": 2,
-        "text": "Is there any weak entity type? Justify your answer.",
-        "subquestions": []
+        "text": "Is there any weak entity type? Justify your answer."
       },
       {
-        "label": "e)",
+        "question_id": 1,
         "marks": 2,
-        "text": "Identify a likely superclass/subclass relationship. Justify your answer.",
-        "subquestions": []
+        "text": "Identify a likely superclass/subclass relationship. Justify your answer."
       },
       {
-        "label": "f)",
+        "question_id": 1,
         "marks": 8,
         "text": "Construct a suitable EER diagram for the above given requirements. State any assumptions you make. Note: You may avoid showing the attributes on the entity types, but any attributes on the relationships must be shown.",
-        "subquestions": []
+        "diagrams": []
       }
-    ]
+    ],
+    "pdf_stem": "2024 II"
   },
   {
-    "qno": 2,
+    "question_id": 2,
     "marks": 20,
     "text": "Consider the following relation schema Investment and the functional dependencies FD1, FD2 and FD3. Investment (A, W, O, L, S, D) Here: A - Agent W - Work station of Agent O - Land Owner L - Name of the land S - Size of the land owned by the owner, D - Dividend paid for the land FD1: L \u2192 D FD2: A \u2192 W FD3: {O,L} \u2192 {A,S}",
     "subquestions": [
       {
-        "label": "a)",
+        "question_id": 2,
         "marks": 2,
-        "text": "Draw the functional dependency diagram.",
-        "subquestions": []
+        "text": "Draw the functional dependency diagram."
       },
       {
-        "label": "b)",
+        "question_id": 2,
         "marks": 2,
-        "text": "Use the attribute closure and identify the primary key for the given relation.",
-        "subquestions": []
+        "text": "Use the attribute closure and identify the primary key for the given relation."
       },
       {
-        "label": "c)",
+        "question_id": 2,
         "marks": 2,
-        "text": "If we insert a row < Kamal, Colombo, null, Kurundu Wattha, null, 40> into the given relation, what is the update anomaly that is violated? Give reasons.",
-        "subquestions": []
+        "text": "If we insert a row < Kamal, Colombo, null, Kurundu Wattha, null, 40> into the given relation, what is the update anomaly that is violated? Give reasons."
       },
       {
-        "label": "d)",
+        "question_id": 2,
         "marks": 2,
-        "text": "Assume that the relation has a row, < Gamunu, Matara, Miris Wattha, A 5.5, 10>. If we remove the broker Gamunu, what is the possible update anomaly that can be violated? Give reasons.",
-        "subquestions": []
+        "text": "Assume that the relation has a row, < Gamunu, Matara, Miris Wattha, A 5.5, 10>. If we remove the broker Gamunu, what is the possible update anomaly that can be violated? Give reasons."
       },
       {
-        "label": "e)",
+        "question_id": 2,
         "marks": 5,
-        "text": "Using the above functional dependencies, design a set of 3NF relations for the above given relation. Show clearly each stage in deriving the 3NF relations. Also identify the normal form at each of these stages.",
-        "subquestions": []
+        "text": "Using the above functional dependencies, design a set of 3NF relations for the above given relation. Show clearly each stage in deriving the 3NF relations. Also identify the normal form at each of these stages."
       },
       {
-        "label": "f)",
+        "question_id": 2,
         "marks": 2,
-        "text": "Do the update anomalies of part (c) and (d) hold in the 3NF relations? Discuss briefly.",
-        "subquestions": []
+        "text": "Do the update anomalies of part (c) and (d) hold in the 3NF relations? Discuss briefly."
       },
       {
-        "label": "g)",
-        "marks": 5,
+        "question_id": 2,
+        "marks": 2,
         "text": "Assume that an additional functional dependency FD4: A \u2192 O is given.",
         "subquestions": [
           {
-            "label": "i.",
+            "question_id": 2,
             "marks": 2,
-            "text": "Are the 3NF relations derived in part (e) still in 3NF? Justify your answer.",
-            "subquestions": []
+            "text": "Are the 3NF relations derived in part (e) still in 3NF? Justify your answer."
           },
           {
-            "label": "ii.",
+            "question_id": 2,
             "marks": 3,
-            "text": "Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to BCNF.",
-            "subquestions": []
+            "text": "Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to BCNF."
           }
         ]
       }
-    ]
+    ],
+    "pdf_stem": "2024 II"
   },
   {
-    "qno": 3,
+    "question_id": 3,
     "marks": 20,
-    "text": "",
+    "text": "List the transaction properties that are required for the database system to ensure integrity of the data.\n[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_005_diagram_1.png]",
     "subquestions": [
       {
-        "label": "a)",
+        "question_id": 3,
         "marks": 2,
-        "text": "List the transaction properties that are required for the database system to ensure integrity of the data?",
-        "subquestions": []
+        "text": "Consider the following schedules S1 and S2: S1=RI1(X), W20, WI(X) S2 = W1(X), R2(X), W2(X), W3(X) Here Ri(X) means, read the item X of transaction Ti, Wi(X) means write item X of transaction Ti."
       },
       {
-        "label": "b)",
+        "question_id": 3,
         "marks": 2,
-        "text": "Consider the following schedules S1 and S2: S1=RI1(X), W20, WI(X) S2 = W1(X), R2(X), W2(X), W3(X) Here Ri(X) means, read the item X of transaction Ti, Wi(X) means write item X of transaction Ti.",
-        "subquestions": [
-          {
-            "label": "i.",
-            "marks": 2,
-            "text": "List all conflict operations of the schedules S1 and S2 separately.",
-            "subquestions": []
-          },
-          {
-            "label": "ii.",
-            "marks": 4,
-            "text": "Schedule S1 is not serializable and schedule 2 is conflict serializable. Justify this statement and give the equivalent serial schedule for the serializable schedule S2.",
-            "subquestions": []
-          }
-        ]
+        "text": "List all conflict operations of the schedules S1 and S2 separately."
       },
       {
-        "label": "c)",
+        "question_id": 3,
+        "marks": 4,
+        "text": "Schedule S1 is not serializable and schedule S2 is conflict serializable. Justify this statement and give the equivalent serial schedule for the serializable schedule S2."
+      },
+      {
+        "question_id": 3,
         "marks": 2,
         "text": "Let X and Y be two accounts that are accessed by transactions T1 and T2. Transaction T1 updates the balance of account X and transaction T2 gives a bonus for accounts X and Y.",
+        "diagrams": [],
         "subquestions": [
           {
-            "label": "i.",
+            "question_id": 3,
             "marks": 2,
-            "text": "Using the 2PL protocol, add the lock and unlock operations to T1 and T2 and rewrite the transactions T1 and T2.",
-            "subquestions": []
+            "text": "Using the 2PL protocol, add the lock and unlock operations to T1 and T2 and rewrite the transactions T1 and T2."
           },
           {
-            "label": "ii.",
+            "question_id": 3,
             "marks": 3,
-            "text": "Construct a concurrent execution for the transactions T1 and T2 given in (i) above, such that it prevents the lost update problem.",
-            "subquestions": []
+            "text": "Construct a concurrent execution for the transactions T1 and T2 given in (i) above, such that it prevents the lost update problem."
           },
           {
-            "label": "iii.",
+            "question_id": 3,
             "marks": 3,
-            "text": "A concurrent execution for the transactions T1 and T2 given in (i) above will not result in a dead lock. Justify this statement.",
-            "subquestions": []
+            "text": "A concurrent execution for the transactions T1 and T2 given in (i) above will not result in a dead lock. Justify this statement."
           },
           {
-            "label": "iv.",
+            "question_id": 3,
             "marks": 4,
-            "text": "Consider the following schedule. Apply the timestamp ordering algorithm for the transactions T1 and T2 and show the transaction that should be aborted and rolled back. Assume that TS(T1) < TS(T2) and the initial timestamps of read_TS(X) = 0, read_TS(Y) =0, write TS(X)=0 and write_TS(Y) = 0.",
-            "subquestions": []
+            "text": "Consider the following schedule. Apply the timestamp ordering algorithm for the transactions T1 and T2 and show the transaction that should be aborted and rolled back. Assume that TS(T1) < TS(T2) and the initial timestamps of read_TS(X) = 0, read_TS(Y) = 0, write_TS(X) = 0 and write_TS(Y) = 0."
           }
         ]
       }
-    ]
+    ],
+    "pdf_stem": "2024 II"
   },
   {
-    "qno": 4,
+    "question_id": 4,
     "marks": 20,
     "text": "Consider the following relational database schema containing airline flight information. Here the passenger relation gives the details of the passengers who book flights. The agency relation keeps the details of agent who books a flight for a passenger. The flight relation stores the details of each available flight. The booking relation stores required booking details. passenger (pid, pname, pgender, pcity) agency (aid, aname, acity) flight (fid, fdate, time, departs, arrives) booking (pid, aid, fid, fdate)",
     "subquestions": [
       {
-        "label": "a)",
+        "question_id": 4,
         "marks": 2,
         "text": "Express each of the following queries as expressions in relational algebra.",
         "subquestions": [
           {
-            "label": "i.",
+            "question_id": 4,
             "marks": 2,
-            "text": "Find the name of the agencies, such that they are located in the same city as passenger with passenger id 123.",
-            "subquestions": []
+            "text": "Find the name of the agencies, such that they are located in the same city as passenger with passenger id 123."
           },
           {
-            "label": "ii.",
+            "question_id": 4,
             "marks": 2,
-            "text": "Find the passenger names for those who do not have any bookings in any flights.",
-            "subquestions": []
+            "text": "Find the passenger names for those who do not have any bookings in any flights."
           },
           {
-            "label": "iii.",
+            "question_id": 4,
             "marks": 3,
-            "text": "Get the details of flights that are scheduled on both dates 01/12/2024 and 02/12/2024 at 16:00 hours.",
-            "subquestions": []
+            "text": "Get the details of flights that are scheduled on both dates 01/12/2024 and 02/12/2024 at 16:00 hours."
           },
           {
-            "label": "iv.",
+            "question_id": 4,
             "marks": 3,
-            "text": "Retrieve the names of the passengers who have booked all available flights.",
-            "subquestions": []
+            "text": "Retrieve the names of the passengers who have booked all available flights."
           },
           {
-            "label": "v.",
+            "question_id": 4,
             "marks": 2,
-            "text": "How many passengers have booked the flight f001?",
-            "subquestions": []
+            "text": "How many passengers have booked the flight f001?"
           }
         ]
       },
       {
-        "label": "b)",
+        "question_id": 4,
         "marks": 8,
-        "text": "Express the above queries (i) to (iv) in tuple calculus.",
-        "subquestions": []
+        "text": "Express the above queries (i) to (iv) in tuple calculus."
       }
-    ]
+    ],
+    "pdf_stem": "2024 II"
   },
   {
-    "qno": 5,
+    "question_id": 5,
     "marks": 20,
-    "text": "A file has r = 20,000 STUDENT records of fixed length. Each record has the following fields: Name (30 bytes), Stno (9 bytes), Address (40 bytes), Phone (10 bytes), Birth date (8 bytes), Gender (1 byte), Major_dept code (4 bytes), Minor_dept code (4 bytes), Class_code (4 bytes), and Degree program (3 bytes). An additional byte is used as a deletion marker. Assume that this file is stored on a disk with block size 512 bytes using an unspanned organization.",
+    "text": "A file has r = 20,000 STUDENT records of fixed length. Each record has the following fields: Name (30 bytes), Stno (9 bytes), Address (40 bytes), Phone (10 bytes), Birth date (8 bytes), Gender (1 byte), Major_dept code (4 bytes), Minor_dept code (4 bytes), Class_code (4 bytes), and Degree program (3 bytes). An additional byte is used as a deletion marker. Assume that this file is stored on a disk with block size 512 bytes using an unspanned organization.\n[DIAGRAM: page_006_diagram_1.png]",
     "subquestions": [
       {
-        "label": "a)",
+        "question_id": 5,
         "marks": 2,
-        "text": "Calculate the record size R in bytes.",
-        "subquestions": []
+        "text": "Calculate the record size R in bytes."
       },
       {
-        "label": "i.",
+        "question_id": 5,
         "marks": 2,
-        "text": "Calculate the blocking factor bfr and the number of file blocks b.",
-        "subquestions": []
+        "text": "Calculate the blocking factor bfr and the number of file blocks b."
       },
       {
-        "label": "iii.",
+        "question_id": 5,
         "marks": 4,
-        "text": "Calculate the average time it takes to find a record by doing a linear search on the file if A. the file blocks are stored contiguously, and double buffering is used; B. the file blocks are not stored contiguously.",
-        "subquestions": []
+        "text": "Calculate the average time it takes to find a record by doing a linear search on the file if A. the file blocks are stored contiguously, and double buffering is used; B. the file blocks are not stored contiguously."
       },
       {
-        "label": "iv.",
+        "question_id": 5,
         "marks": 2,
-        "text": "Assume that the file is ordered by Stno; by doing a binary search, calculate the time it takes to search for a record given its Stno value.",
-        "subquestions": []
+        "text": "Assume that the file is ordered by Stno; by doing a binary search, calculate the time it takes to search for a record given its Stno value. Note: Consider that 10g.5000 = 13."
       },
       {
-        "label": "b)",
+        "question_id": 5,
         "marks": 2,
-        "text": "List three properties of NoSQL databases.",
-        "subquestions": []
+        "text": "List three properties of NoSQL databases."
       },
       {
-        "label": "ii.",
+        "question_id": 5,
         "marks": 2,
-        "text": "Key-value stores, Column family databases, Document databases, Graph databases are the four types of NoSQL databases. Give two example databases for each of them.",
-        "subquestions": []
+        "text": "Key-value stores, Column family databases, Document databases, Graph databases are the four types of NoSQL databases. Give two example databases for each of them."
       },
       {
-        "label": "iii.",
+        "question_id": 5,
         "marks": 6,
-        "text": "Consider the following ER diagram [DIAGRAM: page_006_diagram_1.png] Map the above ER Model to A. Relational database schema B. Document database C. Graph database.",
-        "subquestions": []
+        "text": "Consider the following ER diagram.",
+        "diagrams": [],
+        "subquestions": [
+          {
+            "question_id": 5,
+            "marks": 6,
+            "text": "Map the above ER Model to A. Relational database schema B. Document database C. Graph database."
+          }
+        ]
       }
-    ]
+    ],
+    "pdf_stem": "2024 II"
   }
 ]

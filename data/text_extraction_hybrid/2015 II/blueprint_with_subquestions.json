@@ -1,245 +1,197 @@
 [
   {
-    "qno": 1,
+    "question_id": 1,
     "marks": 20,
-    "text": "Consider the following schema of a database used in a vehicle rental system. Customers (custld: integer, name: varchar (50), address: varachar (60), phone: char (10)) Vehicles (vehicleld: interger, mileage: double, fuel Type: varchar (10), transmission: varchar (15)) Reservations (cld: integer, vId: integer, startDate: datetime, endDate: datetime, returnDate: datetime) Payments (pld: integer, cId: integer, vId: integer, type: varchar (10), amount: real, date: datetime) Customers table contains attributes to store the id (custld), name, address and the phone number of customers. Vehicles table contains the id (vehicleld), milage, type of fuel and the type of transmission (transmission) for each vehicle. Fuel type attribute stores Petrol, Diesel or Hybrid. The transmission attribute stores either automatic or manual. Reservation table stores information about reservations of vehicles. The table contains information about the vehicles which have been rented (vId), the customers who have reserved vehicles (cId), start dates of the reservations (startDate), the end dates of the reservations (endDate) and the dates the vehicles have been returned by the customer (returnDate). For vehicles that are not returned yet, a null value is stored in the return date field. Payment table stores the payment details of the reservations. The table contains payment id (pId), customer id (cId), vehicle id (vId), type of the payment (type), amount paid and the and the paid date. When customers reserve vehicles they have to make the full payment or a partial payment. If the vehicle is returned late a fine has to be paid for the vehicle. The type attribute of the payment table stores Full, Partial or Fine to show the type of the payment as above. The primary keys of all relations are underlined.",
+    "text": "Consider the following schema of a database used in a vehicle rental system. Customers (custld: integer, name: varchar (50), address: varachar (60), phone: char (10)) Vehicles (vehicleld: interger, mileage: double, fuel Type: varchar (10), transmission: varchar (15)) Reservations (cld: integer, vId: integer, startDate: datetime, endDate: datetime, returnDate: datetime) Payments (pld: integer, cId: integer, vId: integer, type: varchar (10), amount: real, date: datetime) Customers table contains attributes to store the id (custld), name, address and the phone number of customers. Vehicles table contains the id (vehicleld), milage, type of fuel and the type of transmission (transmission) for each vehicle. Fuel type attribute stores Petrol, Diesel or Hybrid. The transmission attribute stores either automatic or manual. Reservation table stores information about reservations of vehicles. The table contains information about the vehicles which have been rented (vId), the customers who have reserved vehicles (cId), start dates of the reservations (startDate), the end dates of the reservations (endDate) and the dates the vehicles have been returned by the customer (returnDate). For vehicles that are not returned yet, a null value is stored in the return date field. Payment table stores the payment details of the reservations. The table contains payment id (pId), customer id (cId), vehicle id (vId), type of the payment (type), amount paid and the and the paid date. When customers reserve vehicles they have to make the full payment or a partial payment. If the vehicle is returned late a fine has to be paid for the vehicle. The type attribute of the payment table stores Full, Partial or Fine to show the type of the payment as above. The primary keys of all relations are under!ined.",
     "subquestions": [
       {
-        "label": "a",
-        "marks": null,
-        "text": "Use SQL queries to answer following questions.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 2,
-            "text": "Find the names of the customers who are late to return the vehicles they have rented."
-          },
-          {
-            "label": "ii",
-            "marks": 4,
-            "text": "Find the vehicle ids of vehicles with mileage over 80000km which have not been rented since 1% May 2015."
-          },
-          {
-            "label": "iii",
-            "marks": 5,
-            "text": "Find the ids and the names of customers who have paid the most amount of fines."
-          }
-        ]
+        "question_id": 1.1,
+        "marks": 2,
+        "text": "Find the names of the customers who are late to return the vehicles they have rented."
       },
       {
-        "label": "b",
+        "question_id": 1.2,
+        "marks": 4,
+        "text": "Find the vehicle ids of vehicles with mileage over 80000km which have not been rented since 1% May 2015."
+      },
+      {
+        "question_id": 1.3,
+        "marks": 5,
+        "text": "Find the ids and the names of customers who have paid the most amount of fines."
+      },
+      {
+        "question_id": 1.4,
         "marks": 3,
-        "text": "Create a view which contains customer id, name and phone number of customers who have outstanding fines.",
-        "subquestions": []
+        "text": "Create a view which contains customer id, name and phone number of customers who have outstanding fines."
       },
       {
-        "label": "c",
+        "question_id": 1.5,
         "marks": 6,
-        "text": "Create a trigger to insert an entry to the payment table to indicate that a fine is to be paid when a vehicle is returned late. A fine of Rs. 3000 is to be paid for each day late. (Assume that the pid is set using the identity property and that the Reservation table is updated only to enter the return date of a vehicle. DATEDIFF(dd, daiel,date2) function returns the number of days between datel and date 2).",
-        "subquestions": []
+        "text": "Create a trigger to insert an entry to the payment table to indicate that a fine is to be paid when a vehicle is returned late. A fine of Rs. 3000 is to be paid for each day late. (Assume that the pid is set using the identity property and that the Reservation table is updated only to enter the return date of a vehicle. DATEDIFF(dd, daiel,date2) function returns the number of days between datel and date 2)."
       }
-    ]
+    ],
+    "pdf_stem": "2015 II"
   },
   {
-    "qno": 2,
+    "question_id": 2,
     "marks": 20,
-    "text": "",
+    "text": "[DIAGRAM: page_003_diagram_1.png]",
     "subquestions": [
       {
-        "label": "a",
+        "question_id": 2.1,
         "marks": 3,
-        "text": "Explain two methods that could be used to improve the reliability of data stored in disks.",
-        "subquestions": []
+        "text": "Explain two methods that could be used to improve the reliability of data stored in disks."
       },
       {
-        "label": "b",
-        "marks": null,
-        "text": "Consider a disk with a sector size of 512 bytes, 400 tracks per surface, 20 sectors per track, 5 single-sided platters and an average seek time of 10 msec. Suppose that a block size of 1,024 bytes is chosen. The disk spins at 2400 revolutions per minute. Assume that the average rotational delay is % revolution. The Disk Space Manager is requested to read blocks A, B and C stored as follows. Block A is in platter 1 track 20 Block B is in platter 1 track 25 Block C is in platter 1 track 30.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 6,
-            "text": "Find the total time taken to read blocks A, B, and C stored as above."
-          },
-          {
-            "label": "ii",
-            "marks": 5,
-            "text": "Find the total cost for reading blocks A, B and C, if they are placed next to each other on the same track."
-          }
-        ]
+        "question_id": 2.2,
+        "marks": 6,
+        "text": "Consider a disk with a sector size of 512 bytes, 400 tracks per surface, 20 sectors per track, 5 single-sided platters and an average seek time of 10 msec. Suppose that a block size of 1,024 bytes is chosen. The disk spins at 2400 revolutions per minute. Assume that the average rotational delay is % revolution. The Disk Space Manager is requested to read blocks A, B and C stored as follows. Block A is in platter 1 track 20 Block B is in platter 1 track 25 Block C is in platter 1 track 30. Find the total time taken to read blocks A, B, and C stored as above."
       },
       {
-        "label": "c",
-        "marks": 3,
-        "text": "Consider the following buffer pool with 5 frames. [DIAGRAM: page_003_diagram_1.png] Each frame has a frame number (Frame No), page id (PageID) of page in buffer pool, pin count (PinCount) and a dirty bit (Dirty). Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 11:15 am Frame number 1 at 11:35 am Frame number 2 at 10:57 am Frame number 3 at 11:12 am Frame number 4 at 11:26 am. Describe the steps involved when a page request for the page with PageID 50 occurs if LRU (least-recently-used) policy is used as the replacement policy.",
-        "subquestions": []
+        "question_id": 2.3,
+        "marks": 5,
+        "text": "Find the total cost for reading blocks A, B and C, if they are placed next to each other on the same track."
       },
       {
-        "label": "d",
+        "question_id": 2.4,
         "marks": 3,
-        "text": "What happens if there is a page request when all pages in the buffer pool are dirty?",
-        "subquestions": []
+        "text": "Consider the following buffer pool with 5 frames.  Each frame has a frame number (Frame No), page id (PageID) of page in buffer pool, pin count (PinCount) and a dirty bit (Dirty). Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 11:15 am Frame number 1 at 11:35 am Frame number 2 at 10:57 am Frame number 3 at 11:12 am Frame number 4 at 11:26 am. Describe the steps involved when a page request for the page with PageID 50 occurs if LRU (least-recently-used) policy is used as the replacement policy."
+      },
+      {
+        "question_id": 2.5,
+        "marks": 3,
+        "text": "What happens if there is a page request when all pages in the buffer pool are dirty?"
       }
-    ]
+    ],
+    "pdf_stem": "2015 II"
   },
   {
-    "qno": 3,
+    "question_id": 3,
     "marks": 20,
-    "text": "",
+    "text": "[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_004_diagram_2.png]",
     "subquestions": [
       {
-        "label": "a",
+        "question_id": 3.1,
         "marks": 3,
-        "text": "Briefly explain the three main file organizations.",
-        "subquestions": []
+        "text": "Briefly explain the three main file organizations."
       },
       {
-        "label": "b",
+        "question_id": 3.2,
         "marks": 3,
-        "text": "Updating a record in sorted file organization is always efficient than the heap file accept or refute the above statement providing reasons.",
-        "subquestions": []
+        "text": "Updating a record in sorted file organization is always efficient than the heap file accept or refute the above statement providing reasons."
       },
       {
-        "label": "c",
+        "question_id": 3.3,
         "marks": 4,
-        "text": "Briefly explain the two alternatives used in DBMS for managing the fixed length records. Provide one limitation of each alternative.",
-        "subquestions": []
+        "text": "Briefly explain the two alternatives used in DBMS for managing the fixed length records. Provide one limitation of each alternative."
       },
       {
-        "label": "d",
-        "marks": null,
-        "text": "Consider the following B+ tree of order 2. [DIAGRAM: page_004_diagram_1.png]",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 3,
-            "text": "Illustrate B+ tree after inserting 13 to the tree above."
-          },
-          {
-            "label": "ii",
-            "marks": 3,
-            "text": "Illustrate the B+ tree after deleting 21 from the original tree."
-          }
-        ]
+        "question_id": 3.4,
+        "marks": 3,
+        "text": "Consider the following B+ tree of order 2.  Illustrate B+ tree after inserting 13 to the tree above."
       },
       {
-        "label": "e",
+        "question_id": 3.5,
+        "marks": 3,
+        "text": "Illustrate the B+ tree after deleting 21 from the original tree."
+      },
+      {
+        "question_id": 3.6,
         "marks": 4,
-        "text": "Show the extendible hashed file after inserting 6. [DIAGRAM: page_004_diagram_2.png]",
-        "subquestions": []
+        "text": "Show the extendible hashed file after inserting 6."
       }
-    ]
+    ],
+    "pdf_stem": "2015 II"
   },
   {
-    "qno": 4,
+    "question_id": 4,
     "marks": 15,
     "text": "",
     "subquestions": [
       {
-        "label": "a",
+        "question_id": 4.1,
         "marks": 3,
-        "text": "Briefly explain the major steps in Query Processing?",
-        "subquestions": []
+        "text": "Briefly explain the major steps in Query Processing?"
       },
       {
-        "label": "b",
+        "question_id": 4.2,
         "marks": 3,
-        "text": "Briefly explain why it is often advantageous to do selections before joins in a query plan. How do early projections help during the query execution?",
-        "subquestions": []
+        "text": "Briefly explain why it is often advantageous to do selections before joins in a query plan. How do early projections help during the query execution?"
       },
       {
-        "label": "c",
+        "question_id": 4.3,
         "marks": 2,
-        "text": "What is a clustered index?",
-        "subquestions": []
+        "text": "What is a clustered index?"
       },
       {
-        "label": "d",
-        "marks": null,
-        "text": "Consider the following relational schema: Dept (dno, dname, location, budget) Works (eno, dno, pct_time) Assume that Dept relation consists of 80 pages with 50 tuples per page, Works relation contains 200 pages with 100 tuples per page. Assume equal-size fields in each relation and uniform distribution for Works relation. Assume that 52 buffer pages are available. There exists a Hash index on Works<dno> using Altl. Consider the following query: Select w.eno From Dept d, Works w Where d.dno=w.dno.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 1,
-            "text": "Draw query tree for the above query."
-          },
-          {
-            "label": "ii",
-            "marks": 2,
-            "text": "Estimate the cost for the best plan if Block-nested loops join algorithm is used to perform joining of tables."
-          },
-          {
-            "label": "iii",
-            "marks": 2,
-            "text": "Estimate the cost for the best plan if Index-nested loops join algorithm is used to perform joining of tables."
-          },
-          {
-            "label": "iv",
-            "marks": 2,
-            "text": "Consider the query given below. Select dname, budget From Dept Where budget>5000000 Assume that only 5 % of the tuples satisfy the selection condition. What will be the cost for evaluating the above query?"
-          }
-        ]
+        "question_id": 4.4,
+        "marks": 1,
+        "text": "Consider the following relational schema: Dept (dno, dname, location, budget) Works (eno, dno, pct_time) Assume that Dept relation consists of 80 pages with 50 tuples per page, Works relation contains 200 pages with 100 tuples per page. Assume equal-size ficlds in each relation and uniform distribution for Works relation. Assume that 52 buffer pages are available. There exists a Hash index on Works<dno> using Altl. Consider the following query: Select w.eno From Dept d, Works w Where d.dno=w.dno. Draw query tree for the above query."
+      },
+      {
+        "question_id": 4.5,
+        "marks": 2,
+        "text": "Estimate the cost for the best plan if Block-nested loops join algorithm is used to perform joining of tables."
+      },
+      {
+        "question_id": 4.6,
+        "marks": 2,
+        "text": "Estimate the cost for the best plan if Index-nested loops join algorithm is used to perform joining of tables."
+      },
+      {
+        "question_id": 4.7,
+        "marks": 2,
+        "text": "Consider the query given below. Select dname, budget From Dept Where budget>5000000 Assume that only 5 % of the tuples satisfy the selection condition. What will be the cost for evaluating the above query?"
       }
-    ]
+    ],
+    "pdf_stem": "2015 II"
   },
   {
-    "qno": 5,
+    "question_id": 5,
     "marks": 25,
-    "text": "",
+    "text": "[DIAGRAM: page_006_diagram_1.png]\n[DIAGRAM: page_006_diagram_2.png]",
     "subquestions": [
       {
-        "label": "a",
+        "question_id": 5.1,
         "marks": 4,
-        "text": "Explain the four properties of a transaction.",
-        "subquestions": []
+        "text": "Explain the four properties of a transaction."
       },
       {
-        "label": "b",
+        "question_id": 5.2,
         "marks": 2,
-        "text": "Why do DBMSs interleave actions of multiple transactions?",
-        "subquestions": []
+        "text": "Why do DBMSs interleave actions of multiple transactions?"
       },
       {
-        "label": "c",
+        "question_id": 5.3,
         "marks": 2,
-        "text": "What is a dirty read?",
-        "subquestions": []
+        "text": "What is a dirty read?"
       },
       {
-        "label": "d",
+        "question_id": 5.4,
         "marks": 4,
-        "text": "Explain what is an unrecoverable schedule? What are the root causes for the unrecoverable schedule?",
-        "subquestions": []
+        "text": "Explain what is an unrecoverable schedule? What are the root causes for the unrecoverable schedule?"
       },
       {
-        "label": "e",
+        "question_id": 5.5,
         "marks": 4,
-        "text": "Briefly explain the wound-wait and wait-die approaches used for deadlock prevention using suitable transaction schedules.",
-        "subquestions": []
+        "text": "Briefly explain the wound-wait and wait-die approaches used for deadlock prevention using suitable transaction schedules."
       },
       {
-        "label": "f",
-        "marks": null,
-        "text": "Consider the transaction schedule below. [DIAGRAM: page_006_diagram_1.png] Assume that Transaction Ti is higher priority than transaction Ti+i(i.e. transaction Ty has higher priority than T2; and T2 has higher priority than Ts).",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 2,
-            "text": "Draw a Wait-For-Graph for the schedule given above."
-          },
-          {
-            "label": "ii",
-            "marks": 3,
-            "text": "Draw the above schedule considering deadlock prevention algorithm: Wound-wait approach."
-          }
-        ]
+        "question_id": 5.6,
+        "marks": 2,
+        "text": "Consider the transaction schedule below.  Assume that Transaction Ti is higher priority than transaction Ti+i(i.e. transaction Ty has higher priority than T2; and T2 has higher priority than Ts). Draw a Wait-For-Graph for the schedule given above."
       },
       {
-        "label": "g",
+        "question_id": 5.7,
+        "marks": 3,
+        "text": "Draw the above schedule considering deadlock prevention algorithm: Wound-wait approach."
+      },
+      {
+        "question_id": 5.8,
         "marks": 4,
-        "text": "Consider the following scenario: [DIAGRAM: page_006_diagram_2.png] Database D contains a relation R. Relation R contains 1000 pages. Assume that multiple granularity locking scheme is used. Describe the locks acquired when updating a tuple t in page P of relation R.",
-        "subquestions": []
+        "text": "Consider the following scenario:  Database D contains a relation R. Relation R contains 1000 pages. Assume that multiple granularity locking scheme is used. Describe the locks acquired when updating a tuple t in page P of relation R."
       }
-    ]
+    ],
+    "pdf_stem": "2015 II"
   }
 ]

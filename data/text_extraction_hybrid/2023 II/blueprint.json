@@ -1,22 +1,26 @@
 [
   {
-    "qno": 1,
+    "question_id": 1,
     "marks": 20,
-    "text": "Consider the following EER Model."
+    "text": "Consider the following EER Model.\n[DIAGRAM: page_002_diagram_1.png]",
+    "pdf_stem": "2023 II"
   },
   {
-    "qno": 2,
+    "question_id": 2,
     "marks": 15,
-    "text": "Consider a relation R (A, B, C, D, E, F, G) with the following set of functional dependencies over R: F = {A->BC, B->D, C->EF, AC->G}"
+    "text": "Consider a relation R (A, B, C, D, E, F, G) with the following set of functional dependencies over R: F = {A->BC, B->D, C->EF, AC->G}",
+    "pdf_stem": "2023 II"
   },
   {
-    "qno": 3,
+    "question_id": 3,
     "marks": 25,
-    "text": ""
+    "text": "[DIAGRAM: page_003_diagram_1.png]",
+    "pdf_stem": "2023 II"
   },
   {
-    "qno": 4,
+    "question_id": 4,
     "marks": 40,
-    "text": "Consider the following schema of a database designed for a university: Students (studentId: int, name: varchar(40), email: varchar(30), dob: date, specialization: int, GPA: real) Courses (courseId: int, name: varchar(40), credits: int) Offer (specialization: int, courseId: int, acYear: int, semester: int) Grades (studentId: int, courseId: int, acYear: int, calYear: int, semester: int, status: varchar(10), CAMarks: int, finalMark: int, grade: char(1)) GradePoints (grade: char(1), gradePoint: real) Enrollment (studentId: int, courseId: int, calYear: int, semester: int, basis: varchar(30))"
+    "text": "Consider the following schema of a database designed for a university: Students (studentId: int, name: varchar(40), email: varchar(30), dob: date, specialization: int, GPA: real) Courses (courseId: int, name: varchar(40), credits: int) Offer (specialization: int, courseId: int, acYear: int, semester: int) Grades (studentId: int, courseId: int, acYear: int, calYear: int, semester: int, status: varchar(10), CAMarks: int, finalMark: int, grade: char(1)) GradePoints (grade: char(1), gradePoint: real) Enrollment (studentId: int, courseId: int, calYear: int, semester: int, basis: varchar(30))",
+    "pdf_stem": "2023 II"
   }
 ]

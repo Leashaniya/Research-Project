@@ -1,127 +1,131 @@
 [
   {
-    "qno": 1,
+    "question_id": 1,
     "marks": 20,
-    "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly. [DIAGRAM: page_002_diagram_1.png]",
-    "subquestions": []
+    "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.\n[DIAGRAM: page_002_diagram_1.png]",
+    "subquestions": [],
+    "pdf_stem": "2018 II"
   },
   {
-    "qno": 2,
+    "question_id": 2,
     "marks": 15,
     "text": "Consider a relation R (A, B, C, D, E, F) with the following set of functional dependencies: F={AB C,A D,B EF,F->B }",
     "subquestions": [
       {
-        "label": "a)",
+        "question_id": 2.1,
         "marks": 6,
-        "text": "Find all the keys that follow from the given FDs using Amstrong Axioms, showing how you found them.",
+        "text": "a) Find all the keys that follow from the given FDs using Amstrong Axioms, showing how you found them.",
         "subquestions": []
       },
       {
-        "label": "b)",
+        "question_id": 2.2,
         "marks": 3,
-        "text": "Is R in 3NF? Give reasons for your conclusion.",
+        "text": "b) Is R in 3NF? Give reasons for your conclusion.",
         "subquestions": []
       },
       {
-        "label": "c)",
+        "question_id": 2.3,
         "marks": 6,
-        "text": "Is R in BCNF? If R is not in BCNF convert it to a set of BCNF relations.",
+        "text": "c) ls R in BCNF? If R is not in BCNF convert it to a set of BCNF relations.",
         "subquestions": []
       }
-    ]
+    ],
+    "pdf_stem": "2018 II"
   },
   {
-    "qno": 3,
+    "question_id": 3,
     "marks": 25,
-    "text": "Consider the database of a library which rents books and CDs with the following schema: Books (accessNo: int, title: varchar(40), author: varchar(20), publisher: varchar(30)) CDs (accessNo: int, title: varchar(40), publisher: varchar(30)) Member (memNo: int, name: varchar(40), phone: char(10)) Rental (accessNo: int, memNo: int, dateRented: date, dueDate: date, dateReturned: date) Books table stores access number(accessNo), title, author and the publisher of the each Book. CDs table stores the access number (accessNo), title and the publisher of each CD. Member table stores member number (memNo), name and phone number (phone) of each member of the library. Rental table stores the rental details including access number of book/CD (accessNo), member number of the member who had borrowed the book/CD (memNo), the date he/she has rented the book/CD (dateRented), the date on which the book/CD should be returned (dueDate) and the date on which the book is actually returned (dateReturned). Write relational algebra statements to answer the following queries.",
+    "text": "Consider the database of a library which rents books and CDs with the following schema: Books (accessNo: int, title: varchar(40), author: varchar(20), publisher: varchar(30)) CDs (accessNo: int, title: varchar(40), publisher: varchar(30)) Member (memNo: int, name: varchar(40), phone: char(10)) Rental (accessNo: int, memNo: int, dateRented: date, dueDate: date, dateReturned: date) Books table stores access number(accessNo), title, author and the publisher of the each Book. CDs table stores the access number (accessNo), title and the publisher of each CD. Member table stores member number (memNo), name and phone number (phone) of each member of the library. Rental table stores the rental details including access number of book/CD (accessNo), member number of the member who had borrowed the book/CD (memNo), the date he/she has rented the book/CD (dateRented), the date on which the book/CD should be returned (dueDate) and the date on which the book is actually returned (dateReturned). Write relational algebra statements, to answer the following queries.",
     "subquestions": [
       {
-        "label": "a)",
+        "question_id": 3.1,
         "marks": 2,
-        "text": "Find the title and author of all books published by McGraw-Hill.",
+        "text": "a) Find the title and author of all books published by McGraw-Hill.",
         "subquestions": []
       },
       {
-        "label": "b)",
+        "question_id": 3.2,
         "marks": 4,
-        "text": "Find title of books and the name of the member who had borrowed the book for books returned late than they are to be returned.",
+        "text": "b) Find title of books and the name of the member who had borrowed the book for books returned late than they are to be returned.",
         "subquestions": []
       },
       {
-        "label": "c)",
+        "question_id": 3.3,
         "marks": 5,
-        "text": "Find the names of members who had rented both books and CDs.",
+        "text": "c) Find the names of members who had rented both books and CDs.",
         "subquestions": []
       },
       {
-        "label": "d)",
+        "question_id": 3.4,
         "marks": 6,
-        "text": "Find the names and the phone numbers of members who have more than 5 CDs which are returned late.",
+        "text": "d) Find the names and the phone numbers of members who have more than 5 CDs which are returned late.",
         "subquestions": []
       },
       {
-        "label": "e)",
+        "question_id": 3.5,
         "marks": 8,
-        "text": "Find the title and publisher of the CD which is rented the most.",
+        "text": "e) Find the title and publisher of the CD which is rented the most.",
         "subquestions": []
       }
-    ]
+    ],
+    "pdf_stem": "2018 II"
   },
   {
-    "qno": 4,
+    "question_id": 4,
     "marks": 40,
     "text": "Consider the following relations in a database created for an online store: Products (pid: int, productName: varchar (15), UnitPrice: real, unitsInStock: int, type: varchar (30)) Suppliers (sid:int, supplierName:varchar(15), phone:char(10),address:varchar(50)) Supplies (sid:int, pid:int, suppliedDate:date,amount:int,purchasePrice:real) SupplierPayments (sid:int, dateToPay:date ,amount:real) The Products table contains id (pid), name (productName) unit price (UnitPrice), units in stock (unitsInStock) and type of product such as dairy and poultry for each product in the store. Suppliers table stores a unique id (sid), name (supplierName), phone and address of each supplier supplying products to the store. Supplies table stores information on supplies made by suppliers. For each supply, the table stores id of the supplier (sid), id of the product supplied (pid), supplied date (suppliedDate), amount of product supplied and the price at which the supplied item is purchased by the store (purchasePrice). SupplierPayment table stores information on payments made to suppliers. For supplies made by the suppliers per day, the SupplierPayment table stores the id of the supplier (sid), date on which the supply is made (suppliedDate) and amount of payment to be made for supplies made within that date. Primary keys of the tables are underlined.",
     "subquestions": [
       {
-        "label": "a)",
-        "marks": null,
-        "text": "Use SQL queries to answer following questions.",
+        "question_id": 4.1,
+        "marks": 4,
+        "text": "a) Use SQL queries to answer following questions.",
         "subquestions": [
           {
-            "label": "i.",
+            "question_id": 4.11,
             "marks": 4,
-            "text": "Find the names and phone numbers of the suppliers living in Malabe who supplies at least one product which are sold at the store with a price more than Rs. 100.",
+            "text": "i. Find the names and phone numbers of the suppliers living in Malabe who supplies at least one product which are sold at the store with a price more than Rs. 100.",
             "subquestions": []
           },
           {
-            "label": "ii.",
+            "question_id": 4.1,
             "marks": 5,
-            "text": "Assuming that the Unit Price of products are fixed, find the names of products which are always sold with a profit margin. Note that the items sold with a profit margin have a unit price for a product greater than the price it is purchased at.",
+            "text": "ii. Assuming that the Unit Price of products are fixed, find the names of products which are always sold with a profit margin. Note that the items sold with a profit margin have a unit price for a product greater than the price it is purchased at.",
             "subquestions": []
           },
           {
-            "label": "iii.",
+            "question_id": 4.1,
             "marks": 7,
-            "text": "Find the names and phone numbers of customers who supply dairy products but do not supply Poultry products.",
+            "text": "iii. Find the names and phone numbers of customers who supply dairy products but do not supply Poultry products.",
             "subquestions": []
           }
         ]
       },
       {
-        "label": "b)",
+        "question_id": 4.2,
         "marks": 9,
-        "text": "Create a function named CalcPayment which calculates and returns the total payment to be made to a supplier for supplies made in a particular date, given the id of the supplier and the date the supplies are made.",
+        "text": "b) Create a function named CalcPayment which calculates and returns the total payment to be made to a supplier for supplies made in a particular date, given the id of the supplier and the date the supplies are made.",
         "subquestions": []
       },
       {
-        "label": "c)",
+        "question_id": 4.3,
         "marks": 15,
-        "text": "Create a trigger named updateSupplyInfo to do the following when a supply is made.",
+        "text": "c) Create a trigger named updateSupplyInfo to do the following when a supply is made.",
         "subquestions": [
           {
-            "label": "i.",
+            "question_id": 4.3,
             "marks": null,
-            "text": "Update the units in stock for the relevant product in the product table.",
+            "text": "i. Update the units in stock for the relevant product in the product table.",
             "subquestions": []
           },
           {
-            "label": "ii.",
+            "question_id": 4.3,
             "marks": null,
-            "text": "If there is no row already in the supplierPayment table related to the supplier id and the date the supply is made, insert a row with supplier id, supplied date and amount to be paid to the SupplierPayment Table. If a row is already exist with the relevant supplier id and the day the payment should be paid, update only the amount of payment to be made. (Hint: Use the function you have created in b) in order to calculate the payment).",
+            "text": "ii. If there is no row already in the supplierPayment table related to the supplier id and the date the supply is made, insert a row with supplier id, supplied date and amount to be paid to the SupplierPayment Table. If a row is already exist with the relevant supplier id and the day the payment should be paid, update only the amount of payment to be made. (Hint: Use the function you have created in b) in order to calculate the payment).",
             "subquestions": []
           }
         ]
       }
-    ]
+    ],
+    "pdf_stem": "2018 II"
   }
 ]

@@ -1,27 +1,32 @@
 [
   {
-    "qno": 1,
+    "question_id": 1,
     "marks": 20,
-    "text": "Consider a database schema consisting of the following relations for recording information on the clients of a stock broking firm: Clients (cIno, name, phone) Stocks (scode, sname, price, dividend, eps) BuySell (clno. trdate, trtype, scode, qty, price) StocksOwned (clno, scode, totalgty, totalcost, currval) A tuple in the Clients table consists of a unique client number, name and phone number. Each tuple of Stocks table contains unique stock code, stock name, the current price of a share, dividend per share, and earning per share (eps). Each transaction of a client which may be a buy or a sell of a stock is recorded a tuple in the BuySell table. It contains the client number, transaction date and time, type of transaction (B for buy or S for sell), stock code, number of shares (qty) and price per share for the transaction. The StocksOwned table contains a tuple for each stock a client currently owns, along with the total quantity of the stock, the total cost of purchasing the stock, and its current value. The primary key of each table is underlined."
+    "text": "Consider a database schema consisting of the following relations for recording information on the clients of a stock broking firm: Clients (cIno, name, phone) Stocks (scode, sname, price, dividend, eps) BuySell (clno. trdate, trtype, scode, qty, price) StocksOwned (clno, scode, totalgty, totalcost, currval) A tuple in the Clients table consists of a unique client number, name and phone number. Each tuple of Stocks table contains unique stock code, stock name, the current price of a share, dividend per share, and earning per share (eps). Each transaction of a client which may be a buy or a sell of a stock is recorded a tuple in the BuySell table. It contains the client number, transaction date and time, type of transaction (B for buy or S for sell), stock code, number of shares (qty) and price per share for the transaction. The StocksOwned table contains a tuple for each stock a client currently owns, along with the total quantity of the stock, the total cost of purchasing the stock, and its current value. The primary key of each table is underlined.",
+    "pdf_stem": "2015"
   },
   {
-    "qno": 2,
+    "question_id": 2,
     "marks": 20,
-    "text": ""
+    "text": "a) The time spent in accessing a data block in a disk, Access time = Seek time + Rotational delay + Data transfer time Briefly explain two solutions to minimize the access time.\n[DIAGRAM: page_003_diagram_1.png]",
+    "pdf_stem": "2015"
   },
   {
-    "qno": 3,
+    "question_id": 3,
     "marks": 18,
-    "text": ""
+    "text": "a) Compare heap file against the sorted file organization.\n[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_004_diagram_2.png]",
+    "pdf_stem": "2015"
   },
   {
-    "qno": 4,
+    "question_id": 4,
     "marks": 18,
-    "text": ""
+    "text": "a) Consider the following statement; Indexes speed up selections but may slow down updates. Briefly explain how indexes can slow down update operations.",
+    "pdf_stem": "2015"
   },
   {
-    "qno": 5,
+    "question_id": 5,
     "marks": 24,
-    "text": ""
+    "text": "a) Briefly explain the properties of a transaction.\n[DIAGRAM: page_006_diagram_1.png]\n[DIAGRAM: page_007_diagram_1.png]",
+    "pdf_stem": "2015"
   }
 ]

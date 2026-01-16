@@ -1,27 +1,38 @@
 [
   {
-    "qno": 1,
+    "question_id": 1,
     "marks": 20,
-    "text": "Consider the following relations in a database created for a taxi service Vehicle (vehiclelD : char(4), type : varchar(10), fielType: varchar(6), mileage: real) Driver (driverID : char(4), name : varchar(50), phone : char(10)) Customer (customerID : char(4), name: varchar(5), phone :char(10)) Booking (bookingID: int, vehicleID: char(4), driverID: char(4), customerID: char(4), date: datetime, from : varchar(15), to: varchar(15), distance: real) Payment (bookingID: int, fee: real) The database stores information on vehicles owned by the service in the Vehicle table. The table stores a unique vehicle ID (vehicleID), type ( Hatchback ,  Sedan  or  Van ), firel type ( Petrol  or  Diesel ) and the total distance the vehicle have travelled so far (mileage) for each vehicle owned by the service. Information of drivers working at the taxi service is stored in the Driver table. The table stores a unique ID (driverID), name and the phone number of each driver working at the service. For each customer, the service stores a customer ID (customerID) in the Customer table in the database along with the name of the customer and his/her phone number. When a customer books a taxi, the service assigns a unique ID (bookingID) for the booking, and stores the booking ID along with the ID of the driver assigned (driverID), ID of vehicle assigned (vehicleID), customer ID of the customer (customerID), booked date (date), from where the customer is taking the taxi from (from) and the destination the customer want to reach (o) in the Booking table. Once the customer has completed the journey, the distance of the journey is updated in kilometers in the Booking table. Payment table stores the booking ID and the payment to be made for each booking. Use SQL queries to answer following questions."
+    "text": "Consider the following relations in a database created for a taxi service Vehicle (vehiclelD : char(4), type : varchar(10), fielType: varchar(6), mileage: real) Driver (driverID : char(4), name : varchar(50), phone : char(10)) Customer (customerID : char(4), name: varchar(5), phone :char(10)) Booking (bookingID: int, vehicleID: char(4), driverID: char(4), customerID: char(4), date: datetime, from : varchar(15), to: varchar(15), distance: real) Payment (bookingID: int, fee: real) The database stores information on vehicles owned by the service in the Vehicle table. The table stores a unique vehicle ID (vehicleID), type ( Hatchback ,  Sedan  or  Van ), firel type ( Petrol  or  Diesel ) and the total distance the vehicle have travelled so far (mileage) for each vehicle owned by the service. Information of drivers working at the taxi service is stored in the Driver table. The table stores a unique ID (driverID), name and the phone number of each driver working at the service. For each customer, the service stores a customer ID (customerID) in the Customer table in the database along with the name of the customer and his/her phone number. When a customer books a taxi, the service assigns a unique ID (bookingID) for the booking, and stores the booking ID along with the ID of the driver assigned (driverID), ID of vehicle assigned (vehicleID), customer ID of the customer (customerID), booked date (date), from where the customer is taking the taxi from (from) and the destination the customer want to reach (o) in the Booking table. Once the customer has completed the journey, the distance of the journey is updated in kilometers in the Booking table. Payment table stores the booking ID and the payment to be made for each booking. Use SQL queries to answer following questions.",
+    "pdf_stem": "2017 II"
   },
   {
-    "qno": 2,
+    "question_id": 2,
     "marks": 20,
-    "text": "Briefly explain an approach that could be used to minimize seek time and rotational delay in accessing a data file stored in a disk."
+    "text": "Briefly explain an approach that could be used to minimize seek time and rotational delay in accessing a data file stored in a disk.\n[DIAGRAM: page_003_diagram_1.png]",
+    "pdf_stem": "2017 II"
   },
   {
-    "qno": 3,
+    "question_id": 3,
     "marks": 20,
-    "text": ""
+    "text": "Briefly explain the three main file organizations.\n[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_004_diagram_2.png]",
+    "pdf_stem": "2017 II"
   },
   {
-    "qno": 4,
+    "question_id": 4,
     "marks": 15,
-    "text": ""
+    "text": "Briefly explain how the query evaluation engine performs query optimization.",
+    "pdf_stem": "2017 II"
   },
   {
-    "qno": 5,
+    "question_id": 5,
     "marks": 25,
-    "text": ""
+    "text": "Briefly explain the properties of a transaction.\n[DIAGRAM: page_006_diagram_1.png]\n[DIAGRAM: page_007_diagram_1.png]",
+    "pdf_stem": "2017 II"
+  },
+  {
+    "question_id": 6,
+    "marks": 0,
+    "text": "Consider the following scenario:  Database D contains a relation R. Relation R contains 1000 pages. Assume that multiple granularity locking scheme is used. Describe the locks acquired when all rows in page P are modified.",
+    "pdf_stem": "2017 II"
   }
 ]

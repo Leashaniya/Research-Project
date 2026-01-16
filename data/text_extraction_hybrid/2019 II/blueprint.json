@@ -1,22 +1,26 @@
 [
   {
-    "qno": 1,
+    "question_id": 1,
     "marks": 20,
-    "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly."
+    "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.\n[DIAGRAM: page_002_diagram_1.png]",
+    "pdf_stem": "2019 II"
   },
   {
-    "qno": 2,
+    "question_id": 2,
     "marks": 15,
-    "text": "Consider a relation R (A, B, C, D, E, F) with the following set of functional dependencies over R: F={A > BEF,B> E,C > D,AC > B}"
+    "text": "Consider a relation R (A, B, C, D, E, F) with the following set of functional dependencies over R: F={A > BEF,B> E,C > D,AC > B}\n[DIAGRAM: page_003_diagram_1.png]",
+    "pdf_stem": "2019 II"
   },
   {
-    "qno": 3,
+    "question_id": 3,
     "marks": 25,
-    "text": "Consider the database of a printing company, which prints books according to the requests of authors with the following schema:"
+    "text": "Consider the database of a printing company, which prints books according to the requests of authors with the following schema:  Book table stores the book ID, title, publisher of each book and the year the book is published. Author table stores the author ID, first name and last name of all authors. WrittenBy table stores the author ID of the author, book ID of the book and the position of the author (such as first author, second author) for each book written. Publisher table stores the name of the publisher and country and the city the book is published. Write relational algebra statements to answer the following queries",
+    "pdf_stem": "2019 II"
   },
   {
-    "qno": 4,
+    "question_id": 4,
     "marks": 40,
-    "text": "Consider the following relations in a database created for a university."
+    "text": "Consider the following relations in a database created for a university. Module (mCode: char(6), mName: varchar (50), credits: int, specialization: char(4), year: int, semester: int) Student (sld: char(10), sName: varchar(50), age: int, gpa: int, address: varchar(50)) Follow (sld: char(10), mCode: char(6), semester: int, academicYear: int, grade: char(1)) Class (cld: int, mCode: char(6), sld: Char(10), type: varchar(10), day: char(3), time:time, len: int, hld: char(4)) Hall (hld: char(4), building: varchar(15), floorNo: int, capacity: int) Module relation stores the code (mCode), name (mName), number of credits (credits) and the specialization the module belongs to (such as IT, SE, CSN), year and the semester the module is offered for each module offered. Student relation stores the ID (s/d), name(sName), age, cumulative gpa (gpa) and address of all students. For each student following a module in the university the Follow relation stores the ID of the student (sId), code of the module (mCode), the semester the module is offered (such as 1 and 2), the academic year the student has followed the module (such as 2018 and 2019) and the grade he received for the module. The Class relation stores the id(c/d), code(mCode), type of the class (such as lecture and tutorial), day the class is conducted such as (Mon, Tue, Wed), start time of the class (time), length of the class in hours (/en) and the id of the hall the class is conducted (h/d) for each Class. Hall relation stores the ID (h/d), name of the building the hall is in, floor number the hall is in (floorNo) and capacity of each Hall.",
+    "pdf_stem": "2019 II"
   }
 ]

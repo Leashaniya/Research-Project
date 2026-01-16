@@ -1,116 +1,111 @@
 [
   {
-    "qno": 1,
+    "question_id": 1,
     "marks": 20,
-    "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
+    "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly. ISA Constraints: Permanent and Visiting covers Doctor\n[DIAGRAM: page_002_diagram_1.png]",
     "subquestions": [],
-    "diagram": "[DIAGRAM: page_002_diagram_1.png]"
+    "pdf_stem": "2019"
   },
   {
-    "qno": 2,
+    "question_id": 2,
     "marks": 15,
     "text": "Consider a relation R (A, B, C, D, E) with the following set of functional dependencies over R: F={B->D,D>E,AB~>C,B~>E}",
     "subquestions": [
       {
-        "label": "a)",
+        "question_id": 2.1,
         "marks": 6,
         "text": "Find all the keys that follow from the given FDs using attribute closure.",
         "subquestions": []
       },
       {
-        "label": "b)",
+        "question_id": 2.2,
         "marks": 3,
         "text": "Is R in 3NF? Give reasons for your conclusion.",
         "subquestions": []
       },
       {
-        "label": "c)",
+        "question_id": 2.3,
         "marks": 6,
         "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
         "subquestions": []
       }
-    ]
+    ],
+    "pdf_stem": "2019"
   },
   {
-    "qno": 3,
+    "question_id": 3,
     "marks": 25,
-    "text": "Consider the following relations relate to patient management system database.",
+    "text": "Consider the following relations relate to patient management system database.  The Doctor relation has attributes Social Security Number (SSN), first and last names, specialty, the number of experience years, and the phone number. The Patient relation has attributes SSN, first and last names, address, date of birth (DOB), and the SSN of the patient's primary doctor (pDocSSN). Prescription relation has attributes id, the date in which the prescription is written, the SSN of the doctor who wrote the prescription, and the SSN of the patient to whom the prescription is written. The Medicine relation has attributes trade name, unit price, and whether or not the medicine is generic (True or False). The Prescription_Medicine relation stores the medicines written in each prescription along with their quantities (NumOfUnits). Write the following queries in Relational Algebra.\n[DIAGRAM: page_003_diagram_1.png]",
     "subquestions": [
       {
-        "label": "a)",
+        "question_id": 3.1,
         "marks": 2,
         "text": "List the trade names of generic medicine with unit price less than Rs.1000.",
         "subquestions": []
       },
       {
-        "label": "b)",
+        "question_id": 3.2,
         "marks": 4,
         "text": "List the first and last name of patients whose primary doctor is 'John Smith'.",
         "subquestions": []
       },
       {
-        "label": "c)",
+        "question_id": 3.3,
         "marks": 5,
         "text": "List the first and last name of doctors who are not primary doctors to any patient.",
         "subquestions": []
       },
       {
-        "label": "d)",
+        "question_id": 3.4,
         "marks": 5,
-        "text": "List the prescription IDs which contain both 'Vitamin C' and 'Aspirin' as trade name.",
+        "text": "List the prescription IDs which contain both Vitamin C and Aspirin as trade name.",
         "subquestions": []
       },
       {
-        "label": "e)",
+        "question_id": 3.5,
         "marks": 9,
         "text": "List the trade name of medicines that appears in the most of the prescriptions.",
         "subquestions": []
       }
     ],
-    "diagram": "[DIAGRAM: page_003_diagram_1.png]"
+    "pdf_stem": "2019"
   },
   {
-    "qno": 4,
+    "question_id": 4,
     "marks": 40,
-    "text": "Consider the following relations in a Movie Database.",
+    "text": "Consider the following relations in a Movie Database. Movie (mID: int, title: varchar(30), year: date, rank: real) Actor (aID: int, fname: varchar(30), lname: varchar(30), gender: char(10)) Director (dID: int, fname: varchar(30), lname: varchar(30), gender: char(10)) Casts (actorID: int, movieID: int, role: varchar(10)) Genre (genID: int, type: varchar(10)) DirectsMovie (directorID: int, movieID: int) MovieGenre (movieID: int, genID: int) Reviewer (reviewID: int, reviewName: varchar(20)) Rating (movieID: int, reviewID: int, reviewStars: int) The attributes of the Movie relation are id (mID), title, year it was made and the rank of the movies. The Actor relation has attributes to record the id (aID), first name (fname), last name (lname) and gender (M or F) of actors. The Director relation has attributes to store the id (dID), first name (fname), last name (lname) and gender (M or F) of directors. The Casts relation associates the movie with actors who had acted in them and contains the role (lead, support, or other) they played. The Genre relation stores information of movies types (such as Romantic, Horror, Action, Fiction, Documentary, Thriller, and Drama). The DirectsMovie relation stores information on movies and their directors. The MovieGenre relation stores information related to movies respective genre. A Rating system is carried out based on the Reviewers number of stars. The Reviewer relation has attributes to record the reviewer id, name. The Rating relation has attributes to store the movie id, reviewer id and reviewer\u2019s number of stars. Primary keys are underlined.",
     "subquestions": [
       {
-        "label": "a)",
-        "marks": null,
-        "text": "Use SQL queries to answer following questions.",
-        "subquestions": [
-          {
-            "label": "i.",
-            "marks": 5,
-            "text": "Display names of all the Actors in the movie 'The Princess Bride'.",
-            "subquestions": []
-          },
-          {
-            "label": "ii.",
-            "marks": 6,
-            "text": "Display all directors who directed 500 movies or more, in descending order of the number of movies they directed. List the directors' names and the number of movies each of them directed.",
-            "subquestions": []
-          }
-        ]
-      },
-      {
-        "label": "b)",
-        "marks": 8,
-        "text": "Create a view named movieDirection that contains movie title, movie genre type, year, director's first name, last name and actors for those movies.",
+        "question_id": 4.1,
+        "marks": 5,
+        "text": "Display names of all the Actors in the movie The Princess Bride.",
         "subquestions": []
       },
       {
-        "label": "c)",
+        "question_id": 4.2,
+        "marks": 6,
+        "text": "Display all directors who directed 500 movies or more, in descending order of the number of movies they directed. List the directors' names and the number of movies each of them directed.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.3,
+        "marks": 8,
+        "text": "Create a view named movieDirection that contains movie title, movie genre type, year, director\u2019s first name, last name and actors for those movies.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.4,
         "marks": 9,
         "text": "Create a function named as getActorCount, which takes movie title as the input and returns the number of actors that acted in that particular movie.",
         "subquestions": []
       },
       {
-        "label": "d)",
+        "question_id": 4.5,
         "marks": 12,
         "text": "Assume that rank of the Movie are based on the number of stars the reviewers have rewarded. Write a trigger to update the rank when the reviewer places stars in a new movie.",
         "subquestions": []
       }
-    ]
+    ],
+    "pdf_stem": "2019"
   }
 ]
