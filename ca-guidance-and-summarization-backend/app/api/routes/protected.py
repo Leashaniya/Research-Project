@@ -7,6 +7,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
 from pydantic import BaseModel
 from app.core.dependencies import get_current_user
+from app.core.config import settings
 from app.models.schemas import UserInfo, SummarizeRequest
 from app.ca_guidance.crew import create_guidance_crew, create_summarization_crew
 from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR
@@ -284,6 +285,10 @@ class CheckGuidanceAccuracyRequest(BaseModel):
     assignment_topic: Optional[str] = None
 
 
+class FlashcardRequest(BaseModel):
+    topic: str
+
+
 @router.post("/check-summary-accuracy")
 async def check_summary_accuracy(
     request: CheckSummaryAccuracyRequest,
@@ -367,4 +372,56 @@ async def check_guidance_accuracy(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to check guidance accuracy: {e}"
+        )
+
+
+@router.post("/generate-flashcards")
+async def generate_flashcards(
+    request: FlashcardRequest,
+    user: UserInfo = Depends(get_current_user)
+):
+    """
+    Generate Bloom's Taxonomy-based flashcards for a given topic.
+    
+    Returns:
+        JSON response with flashcards organized by Bloom's taxonomy levels
+    """
+    topic = request.topic.strip()
+    logger.info(f"=== Starting flashcard generation for topic: {topic} ===")
+    
+    if not topic:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Topic is required and cannot be empty."
+        )
+    
+    try:
+        from langchain_openai import ChatOpenAI
+        from app.ca_guidance.agents.flashcard_agent import FlashcardAgent
+        
+        # Initialize LLM for flashcard generation
+        # Use GPT model explicitly for flashcard generation
+        model_name = "gpt-4o-mini"  # Use GPT model for flashcard generation
+        llm = ChatOpenAI(
+            model=model_name,
+            api_key=settings.OPENAI_API_KEY,
+            temperature=0.3,  # Lower temperature for more consistent flashcard generation
+        )
+        
+        # Create flashcard agent
+        agent = FlashcardAgent(llm=llm)
+        
+        logger.info("Step 1: Generating flashcards using FlashcardAgent")
+        result = agent.generate_flashcards(topic)
+        
+        logger.info(f"Successfully generated flashcards for topic: {topic}")
+        logger.info("=== Flashcard generation completed ===")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error generating flashcards: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate flashcards: {str(e)}"
         )

@@ -457,6 +457,13 @@
   opacity: 0.5;
 }
 
+/* Dark Theme */
+@media (prefers-color-scheme: dark) {
+  .app-container {
+    background: #0a1929;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .app-container {

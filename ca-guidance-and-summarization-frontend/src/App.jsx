@@ -32,6 +32,7 @@ function App() {
   const [flashcardTopic, setFlashcardTopic] = useState('');
   const [flashcards, setFlashcards] = useState(null);
   const [flashLoading, setFlashLoading] = useState(false);
+  const [selectedBloomLevel, setSelectedBloomLevel] = useState(null);
   const [summaryAccuracy, setSummaryAccuracy] = useState(null);
   const [summaryAccuracyLoading, setSummaryAccuracyLoading] = useState(false);
   const [guidanceAccuracy, setGuidanceAccuracy] = useState(null);
@@ -260,6 +261,7 @@ function App() {
     e.preventDefault();
     setFlashLoading(true);
     setFlashcards(null);
+    setSelectedBloomLevel(null);
 
     if (!flashcardTopic || !flashcardTopic.trim()) {
       setFlashcards({ error: 'Please enter a topic to generate flashcards.' });
@@ -267,15 +269,27 @@ function App() {
       return;
     }
 
-    // Temporary client-side flashcard generation (placeholder)
-    const t = flashcardTopic.trim();
-    const cards = Array.from({ length: 5 }).map((_, i) => ({
-      q: `Q${i + 1}: What is ${t}?`,
-      a: `A${i + 1}: A short explanation of ${t} (concept ${i + 1}).`,
-    }));
+    try {
+      const response = await fetch(`${API_URL}/protected/generate-flashcards`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ topic: flashcardTopic.trim() }),
+      });
 
-    setFlashcards({ topic: t, cards });
-    setFlashLoading(false);
+      if (response.ok) {
+        const result = await response.json();
+        setFlashcards(result);
+      } else {
+        const errorData = await response.json().catch(() => ({ detail: 'Failed to generate flashcards' }));
+        setFlashcards({ error: errorData.detail || 'Failed to generate flashcards. Make sure you are logged in.' });
+      }
+    } catch (error) {
+      console.error('Error generating flashcards:', error);
+      setFlashcards({ error: 'An error occurred while generating flashcards.' });
+    } finally {
+      setFlashLoading(false);
+    }
   };
 
   // Custom component for rendering code blocks and images
@@ -715,19 +729,119 @@ function App() {
                     ) : (
                       <div>
                         {flashcards.topic && (
-                          <h2 style={{ marginBottom: '12px', color: '#495057' }}>
+                          <h2 style={{ marginBottom: '20px', color: '#495057' }}>
                             <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Flashcards: <span style={{ color: '#336db0' }}>{flashcards.topic}</span>
                           </h2>
                         )}
 
-                        <div className="report-content">
-                          {flashcards.cards.map((c, i) => (
-                            <div key={i} style={{ marginBottom: '12px' }}>
-                              <div><strong>Q:</strong> {c.q}</div>
-                              <div><strong>A:</strong> {c.a}</div>
+                        {flashcards.flashcards && (
+                          <div>
+                            {/* Bloom's Taxonomy Level Buttons */}
+                            <div style={{ 
+                              display: 'flex', 
+                              flexWrap: 'wrap', 
+                              gap: '12px', 
+                              marginBottom: '24px',
+                              padding: '16px',
+                              backgroundColor: '#f8f9fa',
+                              borderRadius: '8px',
+                              border: '1px solid #dee2e6'
+                            }}>
+                              {['remember', 'understand', 'apply', 'analyze', 'evaluate', 'create'].map((level) => (
+                                <button
+                                  key={level}
+                                  onClick={() => setSelectedBloomLevel(selectedBloomLevel === level ? null : level)}
+                                  style={{
+                                    padding: '12px 20px',
+                                    fontSize: '1rem',
+                                    fontWeight: '600',
+                                    textTransform: 'capitalize',
+                                    backgroundColor: selectedBloomLevel === level ? '#336db0' : '#fff',
+                                    color: selectedBloomLevel === level ? '#fff' : '#495057',
+                                    border: `2px solid ${selectedBloomLevel === level ? '#336db0' : '#dee2e6'}`,
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease',
+                                    boxShadow: selectedBloomLevel === level ? '0 4px 8px rgba(51, 109, 176, 0.3)' : '0 2px 4px rgba(0,0,0,0.1)',
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (selectedBloomLevel !== level) {
+                                      e.target.style.backgroundColor = '#e9ecef';
+                                    }
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    if (selectedBloomLevel !== level) {
+                                      e.target.style.backgroundColor = '#fff';
+                                    }
+                                  }}
+                                >
+                                  {level}
+                                </button>
+                              ))}
                             </div>
-                          ))}
-                        </div>
+
+                            {/* Display flashcards for selected level */}
+                            {selectedBloomLevel && flashcards.flashcards[selectedBloomLevel] && (
+                              <div style={{ marginTop: '20px' }}>
+                                <h3 style={{ 
+                                  marginBottom: '16px', 
+                                  color: '#495057',
+                                  textTransform: 'capitalize',
+                                  fontSize: '1.3rem'
+                                }}>
+                                  {selectedBloomLevel} Level Flashcards
+                                </h3>
+                                <div className="report-content">
+                                  {flashcards.flashcards[selectedBloomLevel].map((card, i) => (
+                                    <div 
+                                      key={i} 
+                                      style={{ 
+                                        marginBottom: '20px',
+                                        padding: '16px',
+                                        backgroundColor: '#fff',
+                                        borderRadius: '8px',
+                                        border: '1px solid #dee2e6',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                      }}
+                                    >
+                                      <div style={{ 
+                                        marginBottom: '12px',
+                                        fontSize: '1.1rem',
+                                        fontWeight: '600',
+                                        color: '#336db0'
+                                      }}>
+                                        <strong>Q{i + 1}:</strong> {card.question}
+                                      </div>
+                                      <div style={{ 
+                                        fontSize: '1rem',
+                                        color: '#495057',
+                                        lineHeight: '1.6'
+                                      }}>
+                                        <strong style={{ color: '#28a745' }}>Answer:</strong> {card.answer}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Show message if no level is selected */}
+                            {!selectedBloomLevel && (
+                              <div style={{ 
+                                padding: '20px',
+                                textAlign: 'center',
+                                color: '#6c757d',
+                                backgroundColor: '#f8f9fa',
+                                borderRadius: '8px',
+                                border: '1px solid #dee2e6'
+                              }}>
+                                <p style={{ fontSize: '1rem', margin: 0 }}>
+                                  Select a Bloom's Taxonomy level above to view the flashcards.
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

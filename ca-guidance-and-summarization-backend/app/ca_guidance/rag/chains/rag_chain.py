@@ -27,8 +27,6 @@ except ImportError:
 def create_rag_chain(
     vectorstore: FAISS,
     model_name: str = "gpt-4o-mini",
-    provider: str = "openai",
-    base_url: str | None = None,
 ):
     """
     Create a RAG chain from a vectorstore with robust image retrieval.
@@ -42,19 +40,11 @@ def create_rag_chain(
         image_retriever = vectorstore.as_retriever(search_kwargs={"k": 80})
 
         # ---------------- LLM ----------------
-        if provider == "ollama":
-            llm = ChatOpenAI(
-                model=model_name,
-                base_url=base_url or settings.OLLAMA_BASE_URL,
-                api_key="ollama",  # dummy key
-                temperature=0.2,
-            )
-        else:
-            llm = ChatOpenAI(
-                model=model_name,
-                api_key=settings.OPENAI_API_KEY,
-                temperature=0.2,
-            )
+        llm = ChatOpenAI(
+            model=model_name,
+            api_key=settings.OPENAI_API_KEY,
+            temperature=0.2,
+        )
 
         # ---------------- Prompt ----------------
         prompt = ChatPromptTemplate.from_template(

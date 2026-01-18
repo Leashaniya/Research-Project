@@ -18,9 +18,7 @@ class Settings:
     # OpenAI API Key
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
 
-    # Local LLM / Ollama
-    OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
-    RAG_SUMMARY_PROVIDER: str = os.getenv("RAG_SUMMARY_PROVIDER", "openai")
+    # OpenAI Model Configuration
     RAG_SUMMARY_MODEL: str = os.getenv("RAG_SUMMARY_MODEL", "gpt-4o-mini") 
 
 settings = Settings()

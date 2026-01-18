@@ -44,11 +44,16 @@ def _get_rag_chain():
                 logger.warning("No vectorstore found. RAG tool will not work until vectorstore is built.")
                 return None
             
+            # Use GPT model for RAG chain (override if environment variable is set to a non-GPT model)
+            model_name = settings.RAG_SUMMARY_MODEL
+            # If model name contains "llama" or doesn't start with "gpt", use gpt-4o-mini
+            if "llama" in model_name.lower() or not model_name.startswith("gpt"):
+                model_name = "gpt-4o-mini"
+                logger.info(f"RAG chain model overridden to {model_name} (original: {settings.RAG_SUMMARY_MODEL})")
+            
             _rag_chain_cache = create_rag_chain(
                 vectorstore, 
-                model_name=settings.RAG_SUMMARY_MODEL,
-                provider=settings.RAG_SUMMARY_PROVIDER,
-                base_url=settings.OLLAMA_BASE_URL,
+                model_name=model_name,
                 )
 
             logger.info("RAG chain initialized successfully")
