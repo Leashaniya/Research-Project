@@ -111,6 +111,19 @@ class BlueprintAnalyst(BaseAgent):
                 slot["question_no"] = f"Q{idx + 1}"
                 slot["slot_id"] = f"Q{idx + 1}"
                 has_invalid = True
+
+            # Ensure slot has 'type'
+            if "type" not in slot:
+                # Infer type from topics or default to conceptual
+                topics = slot.get("topics", [])
+                if any("sql" in t.lower() for t in topics):
+                    slot["type"] = "sql_coding"
+                elif any("design" in t.lower() or "diagram" in t.lower() or "er" in t.lower() for t in topics):
+                    slot["type"] = "design"
+                elif any("normalization" in t.lower() for t in topics):
+                    slot["type"] = "derivation"
+                else:
+                    slot["type"] = "conceptual"
             
             repaired_slots.append(slot)
         
@@ -207,7 +220,8 @@ class BlueprintAnalyst(BaseAgent):
             slots.append({
                 "question_no": f"Q{idx + 1}",  # Sequential ID only (identifier, not mark source)
                 "target_marks": marks_per_slot,  # From stats/config, NOT from question number
-                "topics": ["General"]
+                "topics": ["General"],
+                "type": "conceptual" # Default type
             })
         
         return {

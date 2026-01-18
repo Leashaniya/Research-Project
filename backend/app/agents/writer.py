@@ -49,6 +49,8 @@ class QuestionWriter(BaseAgent):
         
         # Select Prompt Strategy
         if mode == "generate":
+            if needs_diagram:
+                print(f"    [WRITER DEBUG] needs_diagram=True for {slot.get('question_no')}. Requesting Mermaid code.")
             prompt = self._build_generation_prompt(slot, template, context, global_context, feedback, needs_diagram, diagram_type)
             self.log(f"Drafting question for {slot.get('question_no')} (Mode: GEN-FROM-SCRATCH)...")
         else:
@@ -64,6 +66,16 @@ class QuestionWriter(BaseAgent):
             content = response.choices[0].message.content
             parsed = json.loads(content)
             
+            # --- V2 DIAGRAM FALLBACK ---
+            if needs_diagram and not parsed.get("mermaid_code"):
+                print(f"    ⚠️ Writer failed to generate Mermaid code. Injecting fallback.")
+                parsed["mermaid_code"] = """graph TD
+    Error[Diagram Missing] -->|Writer failed| Fallback
+    Fallback[Placeholder Diagram]
+    style Error fill:#f9f,stroke:#333,stroke-width:4px
+"""
+            # ---------------------------
+
             # Validation: Check for empty stem
             if not parsed.get("text") or len(parsed.get("text", "").strip()) < 20:
                 raise ValueError("Generated empty or too-short question stem (text field)")
@@ -89,9 +101,29 @@ class QuestionWriter(BaseAgent):
         structure_str = "\n".join([f"- Part {s.get('label', '?')}: {s.get('marks')} marks" for s in structure_fingerprint])
         
         # Determine if ER/EER or Normalization question
-        is_er_question = "er" in pattern_label or "eer" in pattern_label or "diagram" in pattern_label
+        is_er_question = "er" in pattern_label or "eer" in pattern_label or "diagram" in pattern_label or "schema" in pattern_label
         is_norm_question = "normalization" in pattern_label or "normal form" in pattern_label
         
+        
+        diagram_instructions = ""
+        if needs_diagram:
+             diagram_instructions = """
+        9. VITAL: DIAGRAM GENERATION (STRICT ENFORCEMENT)
+        If needs_diagram is TRUE, you MUST generate valid MermaidJS code that visualizes the scenario described in your question text.
+        For ER/EER Diagrams, use this syntax:
+        "mermaid_code": "erDiagram\\n    CUSTOMER ||--o{ ORDER : places\\n    ORDER ||--|{ LINE-ITEM : contains"
+        For other diagrams, use 'graph TD' or 'classDiagram'.
+        IMPORTANT: The code must be VALID MermaidJS. Keep it simple. Do NOT use substring syntax that breaks JSON.
+        """
+        
+        er_context = ""
+        if is_er_question:
+             er_context = "Include a scenario describing entities, relationships, and attributes."
+        elif is_norm_question:
+             er_context = "Include a relation schema and functional dependencies."
+        else:
+             er_context = "Include relevant context and background information."
+
         prompt = f"""
         You are an expert Exam Setter for a Database Management Systems course.
         Create a NEW, ORIGINAL exam question based on the following constraints.
@@ -100,7 +132,12 @@ class QuestionWriter(BaseAgent):
         - Question No: {slot.get('question_no', '?')}
         - Total Marks: {slot.get('target_marks')}
         - Primary Topic: {template.get('pattern_label', topic)}
+        - Primary Topic: {template.get('pattern_label', topic)}
         - Module Context: {context[:500]}...
+        
+        GLOBAL ANTI-REPETITION CONSTRAINTS (DO NOT REUSE):
+        - USED QUESTION TYPES: {global_context.get('used_question_types', [])} (You MUST generate a DIFFERENT type)
+        - USED SCENARIOS: {global_context.get('used_scenarios', [])} (You MUST use a completely different scenario)
         
         REQUIRED STRUCTURE:
 {structure_str}
@@ -133,17 +170,24 @@ class QuestionWriter(BaseAgent):
         - **Authenticity**: Write a real, solvable problem with specific details.
         - **Database Systems Only**: All content must be relevant to Database Management Systems.
         
+        
+
+
         OUTPUT JSON FORMAT (STRICT SCHEMA):
         {{
             "question_no": "{slot.get('question_no')}",
             "marks": {slot.get('target_marks')},
-            "text": "Question stem text here (minimum 50 characters). This is the main scenario/context for all subquestions. {"Include a scenario describing entities, relationships, and attributes." if is_er_question else "Include a relation schema and functional dependencies." if is_norm_question else "Include relevant context and background information."}",
+            "mermaid_code": "erDiagram\\n    ENTITY1 ||--o{{ ENTITY2 : relates_to..." (REQUIRED STRING if needs_diagram=True. Use \\n for newlines.),
+            "text": "Question stem text here (minimum 50 characters). This is the main scenario/context for all subquestions. {er_context}",
             "subquestions": [
                 {{ "label": "a", "text": "Complete question text here (minimum 20 characters, no placeholders)", "marks": 5 }}
             ]
         }}
         
+        {diagram_instructions}
+        
         REMEMBER:
+        - {"If needs_diagram=True, 'mermaid_code' field is MANDATORY. Do not omit it." if needs_diagram else ""}
         - Every "text" field must be at least 20 characters and contain no placeholders.
         - Marks must sum exactly to {slot.get('target_marks')}.
         - All subquestions must be semantically distinct.
@@ -154,11 +198,29 @@ class QuestionWriter(BaseAgent):
             
         return prompt
 
+    
     def _build_paraphrase_prompt(self, slot, template, context, global_context, feedback=None, needs_diagram=False, diagram_type=None) -> str:
         """Mode 2: Paraphrasing (Keep structure, change content)."""
         pattern_label = template.get('pattern_label', '').lower()
-        is_er_question = "er" in pattern_label or "eer" in pattern_label or "diagram" in pattern_label
+        is_er_question = "er" in pattern_label or "eer" in pattern_label or "diagram" in pattern_label or "schema" in pattern_label
         is_norm_question = "normalization" in pattern_label or "normal form" in pattern_label
+        
+        diagram_block = ""
+        if needs_diagram:
+            diagram_block = f"""
+        10. **DIAGRAM REQUIREMENT**:
+        You MUST generate valid MermaidJS code for the {diagram_type} diagram. Put it in a field called 'mermaid_code'.
+        Example for ERD: 'erDiagram\\n    CUSTOMER ||--o{{ ORDER : places'
+        Keep it simple and use \\n for line breaks.
+            """
+
+        er_context = ""
+        if is_er_question:
+             er_context = "Include a scenario describing entities, relationships, and attributes."
+        elif is_norm_question:
+             er_context = "Include a relation schema and functional dependencies."
+        else:
+             er_context = "Include relevant context and background information."
         
         base_prompt = f"""
         Generate ONE high-quality university exam question for a Database Systems course.
@@ -183,6 +245,7 @@ class QuestionWriter(BaseAgent):
         
         GLOBAL UNIQUENESS (DO NOT REUSE THESE):
         - Topics already used: {global_context.get('used_topics', [])}
+        - USED QUESTION TYPES: {global_context.get('used_question_types', [])}
         - PREVIOUS SCENARIOS (DO NOT REUSE): {global_context.get('used_scenarios', [])}
         
         CRITICAL CONTENT RULES (ZERO TOLERANCE - VIOLATIONS WILL CAUSE REJECTION):
@@ -199,13 +262,12 @@ class QuestionWriter(BaseAgent):
         
         {"9. **NORMALIZATION QUESTION REQUIREMENTS**: " if is_norm_question else ""}{"The question stem MUST include a relation schema (e.g., R(A,B,C)) and functional dependencies. Then subquestions should ask for normalization steps to 3NF/BCNF and final decomposition." if is_norm_question else ""}
         
-        {"10. **DIAGRAM PLACEHOLDER**: " if needs_diagram else ""}{f"If a {diagram_type} diagram is required, include: '[DIAGRAM PLACEHOLDER: Draw the {diagram_type} diagram for the scenario in the answer booklet.]' Do NOT use Mermaid code." if needs_diagram else ""}
-        
         Output valid JSON (STRICT SCHEMA):
         {{
             "question_no": "{slot.get('question_no')}",
             "marks": {slot.get('target_marks')},
-            "text": "Question stem text here (minimum 50 characters). This is the main scenario/context for all subquestions. {"Include a scenario describing entities, relationships, and attributes." if is_er_question else "Include a relation schema and functional dependencies." if is_norm_question else "Include relevant context and background information."}",
+            "mermaid_code": "erDiagram\\n    ENTITY..." (MANDATORY if needs_diagram=True),
+            "text": "Question stem text here (minimum 50 characters). This is the main scenario/context for all subquestions. {er_context}",
             "subquestions": [
                 {{
                     "label": "a",
@@ -215,12 +277,13 @@ class QuestionWriter(BaseAgent):
             ]
         }}
         
+        {diagram_block}
+        
         REMEMBER:
+        - {"If needs_diagram=True, 'mermaid_code' field is MANDATORY." if needs_diagram else ""}
         - Every "text" field must be at least 20 characters and contain no placeholders.
         - Marks must sum exactly to {slot.get('target_marks')}.
         - All subquestions must be semantically distinct.
-        - If ER/EER question: include scenario in stem.
-        - If Normalization question: include schema and FDs in stem.
         """
 
         if feedback:

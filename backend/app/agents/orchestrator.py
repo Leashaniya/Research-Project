@@ -258,8 +258,7 @@ class AgentOrchestrator:
                 stem = "Given a relation schema R(A, B, C, D) with functional dependencies: A → B, B → C, C → D."
             elif "sql" in intent_lower:
                 stem = "Given a database with tables: Customers (id, name, email), Orders (id, customer_id, date), Products (id, name, price)."
-        else:
-                stem = f"Consider a database management system scenario related to {pattern_label}."
+
         # If stem exists but is too short for ER/Normalization, ensure required content is present
         elif len(stem.strip()) < 50:
             if ("er" in intent_lower or "eer" in intent_lower) and ("entity" not in stem.lower() and "student" not in stem.lower()):
@@ -583,6 +582,12 @@ class AgentOrchestrator:
             draft["needs_diagram"] = True
             draft["diagram_type"] = diagram_type
             draft["diagram_placeholder_text"] = f"[DIAGRAM PLACEHOLDER: Draw the {diagram_type} diagram for the scenario in the answer booklet.]"
+            
+            # INJECT FALLBACK MERMAID CODE (V2)
+            if diagram_type == "ER" or diagram_type == "EER":
+                draft["mermaid_code"] = "erDiagram\n    ENTITY1 ||--o{ ENTITY2 : relates_to\n    ENTITY2 ||--|{ ENTITY3 : contains"
+            else:
+                draft["mermaid_code"] = "graph TD\n    Error[Diagram Missing] -->|Fallback Draft| Generated\n    Generated[Check Logs]"
         
         return draft
 
@@ -785,13 +790,13 @@ class AgentOrchestrator:
                     # Try to find alternative template with different intent
                     template = await self._select_template(q_no, target_marks, used_modules, used_intents, used_template_ids)
                 else:
-                template = {
+                    template = {
                         "pattern_label": canonical_intent,  # ← TOPIC FROM DATA
-                    "full_text": f"Reference: {canonical.get('source_paper', 'Unknown')}",
-                    "marks": canonical.get("total_marks", target_marks),
+                        "full_text": f"Reference: {canonical.get('source_paper', 'Unknown')}",
+                        "marks": canonical.get("total_marks", target_marks),
                         "required_structure": canonical.get("subquestion_structure", []),  # ← STRUCTURE FROM DATA
                         "_id": canonical.get("_id")  # Preserve template ID
-                }
+                    }
                     # Don't track canonical template here - will be tracked after logging
             else:
                 # Fallback to smart selection (still data-driven, not position-based)
@@ -838,537 +843,125 @@ class AgentOrchestrator:
             feedback = None
             draft = None
             
-            # Identify forbidden topics for this specific slot
-            forbidden_topics = []
+            # 2c. WRITER: Set global context for anti-repetition
+            global_context = {
+                "used_topics": list(used_topics),
+                "used_scenarios": list(used_scenarios),
+                "used_question_types": list(used_question_types),  # NEW: Pass used types
+                "exam_title": exam_title
+            }
             
             # --- STRICT ANTI-REPETITION LOGIC ---
-            # If we already have an ER diagram, forbid another one
+            forbidden_topics = []
             if "er_diagram" in used_question_types:
                 forbidden_topics.append("Draw an ER diagram")
                 forbidden_topics.append("Draw an EER diagram")
-            
-            # If we already have ER → Relational Mapping, forbid another one
-            if "er_to_relational_mapping" in used_question_types:
-                forbidden_topics.append("Map the ER diagram to relational")
-                forbidden_topics.append("Map ER to relational schema")
-                forbidden_topics.append("Convert ER diagram to relational model")
-                forbidden_topics.append("Design relational schema from ER diagram")
-            
-            # If we just asked about Normalization, restrict it
             if "normalization" in used_question_types:
-                forbidden_topics.append("Normalization")
-                
-            print(f"    ⛔ Forbidden Topics: {forbidden_topics}")
-
-            # DIAGRAM PLACEHOLDER LOGIC (No preprocessing/extraction)
-            # Check if question type requires diagram
+                forbidden_topics.append("Normalize the relation")
+            
+            # Determine if we need a diagram (Fresh Policy)
             needs_diagram = False
             diagram_type = None
-            pattern_label_lower = template.get("pattern_label", "").lower()
-            if "er" in pattern_label_lower or "eer" in pattern_label_lower or "diagram" in pattern_label_lower:
+            if "diagram" in template.get("pattern_label", "").lower() or "schema" in template.get("pattern_label", "").lower() or "[PLACEHOLDER FIGURE]" in template.get("full_text", ""):
+                # V2 Policy: Generate fresh diagram later
                 needs_diagram = True
-                if "eer" in pattern_label_lower:
+                if "er" in template.get("pattern_label", "").lower():
+                    diagram_type = "ER"
+                elif "eer" in template.get("pattern_label", "").lower():
                     diagram_type = "EER"
                 else:
-                    diagram_type = "ER"
-
-            # Track if Writer failed due to API/config errors
-            writer_api_error = None
-            writer_api_error_str = None
-
-            for attempt in range(MAX_RETRIES + 1):
-                # IMPROVEMENT B: DUAL-MODE WRITER
-                # Attempts 0, 1: Pure Generation (High Quality, Original)
-                # Attempts 2, 3: Paraphrase Fallback (Safe, Guaranteed Structure)
-                writer_mode = "generate"
-                if attempt >= 2:
-                    writer_mode = "paraphrase"
+                    diagram_type = "Generic"
                 
-                # Writer
+                # Double check if we already used this diagram type
+                # if diagram_type == "ER" and "er_diagram" in used_question_types:
+                #    print("    ⚠️  Skipping diagram generation (ER diagram already used)")
+                #    needs_diagram = False
+                #    diagram_type = None
+
+            print(f"    ✍️  Writer drafting question... (Anti-repetition: {len(used_question_types)} types used)")
+            
+            # Attempt loop (Writer + Critic)
+            for attempt in range(MAX_RETRIES):
                 try:
-                    draft = await self.writer.run({
+                    writer_input = {
                         "slot": slot,
                         "template": template,
                         "context": context,
                         "feedback": feedback,
-                        "global_context": {
-                            "used_topics": list(used_topics),
-                            "used_scenarios": list(used_scenarios),
-                            "forbidden_topics": forbidden_topics
-                        },
+                        "mode": "generate" if attempt == 0 else "paraphrase", # Switch mode on retry for variety
+                        "global_context": global_context,
                         "needs_diagram": needs_diagram,
-                        "diagram_type": diagram_type,
-                        "mode": writer_mode
-                    })
-                    # Reset API error flag on success
-                    writer_api_error = None
-                    writer_api_error_str = None
-                except Exception as e:
-                    error_str = str(e)
-                    # Check if it's an API/config error (not a validation error)
-                    is_api_error = (
-                        "404" in error_str or 
-                        "DeploymentNotFound" in error_str or 
-                        "API" in error_str or 
-                        "LLM Client not initialized" in error_str or
-                        "not initialized" in error_str.lower() or
-                        "connection" in error_str.lower() or
-                        "timeout" in error_str.lower() or
-                        "authentication" in error_str.lower() or
-                        "unauthorized" in error_str.lower()
-                    )
-                    
-                    if is_api_error:
-                        writer_api_error = e
-                        writer_api_error_str = error_str
-                        print(f"⚠️ Writer failed on attempt {attempt} due to API/config error: {error_str}. Retrying...")
-                    else:
-                    print(f"⚠️ Writer failed on attempt {attempt}: {e}. Retrying...")
-                    
-                    feedback = f"Previous generation failed with error: {e}. Ensure all fields are filled."
-                    continue
-                
-                # Critic
-                review = await self.critic.run({
-                    "draft": draft,
-                    "context": context,
-                    "template": template,
-                    "q_no": q_no  # Pass q_no to fix "None" label
-                })
-                
-                is_approved = review.get("approved", False)  # Default to False - require explicit approval
-                feedback_code = review.get("feedback_code", "UNKNOWN")
-                feedback = review.get("feedback", "No feedback")
-                
-                if is_approved:
-                    print(f"✅ {q_no} Approved!")
-                    approved = True
-                    
-                    # NORMALIZE LABELS (Strictly a, b, c...)
-                    import string, re
-                    for idx, sq in enumerate(draft.get("subquestions", [])):
-                        sq["label"] = string.ascii_lowercase[idx % 26]
-                        # Remove redundant label prefixes from text (e.g., "a) What is..." -> "What is...")
-                        sq["text"] = re.sub(r"^\(?[a-iA-I]\)?[\.\)]\s*", "", sq.get("text", "")).strip()
-                    
-                    # Add diagram placeholder if needed
-                    if needs_diagram:
-                        draft["needs_diagram"] = True
-                        draft["diagram_type"] = diagram_type
-                        draft["diagram_placeholder_text"] = f"[DIAGRAM PLACEHOLDER: Draw the {diagram_type} diagram for the scenario in the answer booklet.]"
-                    
-                    # Update global tracking: store topic and a snippet of the scenario
-                    used_topics.add(template.get("pattern_label", "General"))
-                    # Track template ID and intent for diversity (already tracked above, but ensure it's set)
-                    template_id = str(template.get("_id", ""))
-                    template_intent = template.get("pattern_label", "General")
-                    if template_id:
-                        used_template_ids.add(template_id)
-                    if template_intent:
-                        used_intents.add(template_intent)
-                    
-                    # Detect Question Type from Text (Heuristic)
-                    q_text_lower = draft.get("text", "").lower()
-                    if ("draw" in q_text_lower or "design" in q_text_lower or "construct" in q_text_lower) and ("er diagram" in q_text_lower or "eer diagram" in q_text_lower):
-                        used_question_types.add("er_diagram")
-                        print("      📌 Marked type: er_diagram")
-                    if "normalization" in q_text_lower or "normal form" in q_text_lower:
-                        used_question_types.add("normalization")
-                    if "write a query" in q_text_lower or "sql" in q_text_lower:
-                        used_question_types.add("sql_query")
-                    # Detect ER → Relational Mapping
-                    if ("map" in q_text_lower or "convert" in q_text_lower or "transform" in q_text_lower) and ("er diagram" in q_text_lower or "eer diagram" in q_text_lower) and ("relational" in q_text_lower or "relational schema" in q_text_lower or "relational model" in q_text_lower):
-                        used_question_types.add("er_to_relational_mapping")
-                        print("      📌 Marked type: er_to_relational_mapping")
-                    # Also detect "Design relational schema" as mapping (if ER mentioned in question)
-                    if "design" in q_text_lower and "relational schema" in q_text_lower and ("er" in q_text_lower or "entity" in q_text_lower):
-                        used_question_types.add("er_to_relational_mapping")
-                        print("      📌 Marked type: er_to_relational_mapping")
-                    
-                    # Store a snippet of the scenario for global uniqueness
-                    # Combine subquestion texts to get a good proxy for the scenario
-                    scenario_proxy = " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])])
-                    if scenario_proxy:
-                        used_scenarios.add(scenario_proxy[:200]) # Store first 200 chars as a signature
-                    
-                    # Log successful generation
-                    print(f"    📝 Generation Log: {q_no} | Attempt: {attempt} | Mode: {writer_mode} | Status: APPROVED")
-                    break
-                else:
-                    if isinstance(feedback, list):
-                        feedback = "; ".join(feedback)
-                    print(f"❌ {q_no} Rejected (Attempt {attempt}/{MAX_RETRIES}). Code: {feedback_code} | Feedback: {feedback}")
-                    
-                    # IF it is a MATH ERROR, fallback immediately (no retries)
-                    if feedback_code == "MATH_ERROR" or "MATH ERROR" in feedback.upper():
-                        print(f"🛑 Math mismatch detected. Skipping retries and applying fallback logic.")
-                        break
-            
-            if not approved:
-                # Check if Writer failed due to API/config errors - trigger TEMPLATE_COPY_SAFE_MODE
-                if writer_api_error is not None:
-                    print(f"\n🛡️ TEMPLATE_COPY_SAFE_MODE activated for {q_no}")
-                    print(f"   Reason: LLM_ERROR - {writer_api_error_str}")
-                    
-                    # Build draft directly from template (template-copy safe mode)
-                    safe_draft = self._build_template_copy_draft(q_no, target_marks, template, needs_diagram, diagram_type)
-                    
-                    # Run deterministic critic on template-copy draft
-                    safe_review = await self.critic.run({
-                        "draft": safe_draft,
-                        "context": context,
-                        "template": template,
-                        "q_no": q_no
-                    })
-                    
-                    if safe_review.get("approved", False):
-                        print(f"  ✅ Template-copy draft approved")
-                        draft = safe_draft
-                        approved = True
-                        print(f"  📝 SAFE_MODE_TEMPLATE_COPY: {q_no} | Reason=LLM_ERROR | Error={writer_api_error_str[:100]}")
-                else:
-                        # Critic rejected - sanitize and retry
-                        print(f"  ⚠️ Template-copy draft rejected: {safe_review.get('feedback', 'Unknown')}")
-                        safe_draft = self._sanitize_template_copy_draft(safe_draft, template)
-                        
-                        # Final validation
-                        final_safe_review = await self.critic.run({
-                            "draft": safe_draft,
-                            "context": context,
-                            "template": template,
-                            "q_no": q_no
-                        })
-                        
-                        if final_safe_review.get("approved", False):
-                            print(f"  ✅ Sanitized template-copy draft approved")
-                            draft = safe_draft
-                            approved = True
-                        else:
-                            print(f"  ⚠️ Sanitized template-copy draft still rejected, but accepting to prevent infinite loop")
-                            draft = safe_draft
-                            approved = True  # Force accept to prevent infinite loop
-                        
-                        print(f"  📝 SAFE_MODE_TEMPLATE_COPY: {q_no} | Reason=LLM_ERROR | Error={writer_api_error_str[:100]} | Sanitized=True")
-                    
-                    if approved:
-                        # Continue with normal flow (add diagram placeholder, etc.)
-                        if needs_diagram:
-                            draft["needs_diagram"] = True
-                            draft["diagram_type"] = diagram_type
-                            draft["diagram_placeholder_text"] = f"[DIAGRAM PLACEHOLDER: Draw the {diagram_type} diagram for the scenario in the answer booklet.]"
-                        
-                    # Update global tracking
-                    used_topics.add(template.get("pattern_label", "General"))
-                    # Track template ID and intent for diversity
-                    template_id = str(template.get("_id", ""))
-                    template_intent = template.get("pattern_label", "General")
-                    if template_id:
-                        used_template_ids.add(template_id)
-                    if template_intent:
-                        used_intents.add(template_intent)
-                        
-                        # Render and add to final_questions (same as normal flow)
-                        draft["question_no"] = q_no
-                        draft["text"] = self._render_question(draft)
-                        final_questions.append(draft)
-                        total_marks += int(draft.get("marks") or 0)
-                        
-                        # Save checkpoint
-                        with open(self.checkpoint_path, "w", encoding="utf-8") as f:
-                            json.dump({"questions": final_questions}, f, indent=2)
-                        
-                        print(f"    📝 Generation Log: {q_no} | Mode: SAFE_MODE_TEMPLATE_COPY | Status: APPROVED")
-                        continue  # Skip regular fallback logic and move to next question
-                
-                # REGULAR FALLBACK LOGIC: Never force-approve invalid drafts
-                # Build a fresh fallback draft from template structure
-                # Then validate it before accepting
-                # Preserve template intent (topic/type) - do not downgrade to "General Theory"
-                
-                # Extract template intent (topic/type from pattern_label)
-                # GOLDEN RULE: Topic decides structure, structure decides validation.
-                # Preserve the intent from the chosen template - do not downgrade to "General Theory".
-                # The intent (ER, Normalization, SQL, etc.) comes from past-paper data analysis, not hardcoded.
-                template_intent = template.get("pattern_label", "General")
-                if template_intent == "General Theory":
-                    # Try to infer intent from template structure or context
-                    # This is a fallback only - normally intent comes from pattern_label (data analysis)
-                    struct_source = template.get("required_structure") or template.get("subquestions", [])
-                    if struct_source:
-                        # Check structure types to infer intent
-                        struct_types = [item.get("type", "").lower() for item in struct_source]
-                        if any("er" in t or "diagram" in t for t in struct_types):
-                            template_intent = "ER/EER Diagrams"
-                        elif any("normal" in t or "normalize" in t for t in struct_types):
-                            template_intent = "Normalization"
-                        elif any("sql" in t or "query" in t for t in struct_types):
-                            template_intent = "SQL Queries"
-                    else:
-                        print(f"  ⚠️ Template intent unknown, using generic fallback for {q_no}")
-                
-                # Log fallback trigger with intent
-                final_feedback_code = review.get("feedback_code", "UNKNOWN") if 'review' in locals() else "NO_REVIEW"
-                print(f"\n🔄 FALLBACK TRIGGERED for {q_no}")
-                print(f"   Reason: {final_feedback_code}")
-                print(f"   Attempts: {attempt + 1}/{MAX_RETRIES + 1}")
-                print(f"   Final Mode: {writer_mode}")
-                print(f"   Template Intent: {template_intent}")
-                print(f"   Feedback: {feedback}")
-                
-                # FALLBACK: Build a fresh draft from template structure
-                # This ensures marks sum up correctly (as they come from a real paper)
-                
-                # 1. Determine the source of truth for structure
-                # 'required_structure' (Canonical) or 'subquestions' (Raw Template)
-                struct_source = template.get("required_structure") or template.get("subquestions", [])
-                
-                if struct_source:
-                    # Build stem text based on intent (preserve template intent)
-                    intent_lower = template_intent.lower()
-                    is_er = "er" in intent_lower or "eer" in intent_lower or "diagram" in intent_lower
-                    is_norm = "normalization" in intent_lower or "normal form" in intent_lower
-                    is_sql = "sql" in intent_lower or "query" in intent_lower
-                    
-                    stem_parts = []
-                    if is_er:
-                        stem_parts.append("Consider a university database system with students, courses, and enrollments.")
-                        stem_parts.append("Each student has student ID, name, and email.")
-                        stem_parts.append("Each course has course code, title, and credits.")
-                        stem_parts.append("Students enroll in courses, and each enrollment has a grade.")
-                    elif is_norm:
-                        stem_parts.append("Given a relation schema R(A, B, C, D) with functional dependencies:")
-                        stem_parts.append("A → B, B → C, C → D.")
-                    elif is_sql:
-                        stem_parts.append("Given a database with tables: Customers (id, name, email), Orders (id, customer_id, date), Products (id, name, price).")
-                    else:
-                        stem_parts.append(f"Consider a database management system scenario related to {template_intent}.")
-                    
-                    # Try to salvage stem from failed draft if it's valid
-                    salvaged_stem = draft.get("text", "") if draft else ""
-                    if not salvaged_stem or self._is_placeholder(salvaged_stem) or len(salvaged_stem.strip()) < 20:
-                        stem_text = " ".join(stem_parts)
-                    else:
-                        stem_text = salvaged_stem
-                    
-                    fallback_draft = {
-                        "question_no": q_no,
-                        "marks": target_marks,
-                        "text": stem_text,
-                        "subquestions": []
+                        "diagram_type": diagram_type
                     }
                     
-                    if draft is None: draft = {}
-                    failed_sub_qs = draft.get("subquestions", [])
+                    draft = await self.writer.run(writer_input)
                     
-                    # --- SCALING LOGIC ---
-                    # 1. Calculate Template Total to see if we need to scale
-                    template_total = sum(int(item.get("marks") or 0) for item in struct_source)
-                    current_sum = 0
+                    # 2d. CRITIC: Review
+                    critic_input = {
+                        "draft": draft,
+                        "slot": slot,
+                        "context": context,
+                        "template": template,
+                        "global_context": global_context
+                    }
                     
-                    # 2. Prepare the list
-                    final_subqs = []
+                    review = await self.critic.run(critic_input)
                     
-                    for idx, item in enumerate(struct_source):
-                        import string, re
-                        t_label = string.ascii_lowercase[idx % 26]
-                        raw_t_marks = int(item.get("marks") or 0)
+                    if review["approved"]:
+                        approved = True
+                        print(f"    ✅ Critic Approved (Attempt {attempt+1})")
+                        break
+                    else:
+                        feedback = review["feedback"]
+                        print(f"    ❌ Critic Rejected (Attempt {attempt+1}): {feedback}")
+                        time.sleep(1) # Backoff
                         
-                        # Scale marks if template differs from target
-                        if template_total > 0 and template_total != target_marks:
-                            ratio = target_marks / template_total
-                            new_marks = int(round(raw_t_marks * ratio))
-                            if raw_t_marks > 0 and new_marks == 0: new_marks = 1
-                        else:
-                            new_marks = raw_t_marks
+                except Exception as e:
+                    print(f"    ⚠️  Error in generation loop: {e}")
+                    feedback = f"System Error: {str(e)}. Please retry."
+                    time.sleep(1)
 
-                        # Try to salvage text from failed draft
-                        salvaged_text = None
-                        if draft and idx < len(draft.get("subquestions", [])):
-                            salvaged_text = draft.get("subquestions", [])[idx].get("text", "")
-                        
-                        # Clean salvaged text
-                        if salvaged_text:
-                        salvaged_text = re.sub(r"^\(?[a-iA-I]\)?[\.\)]\s*", "", salvaged_text).strip()
-                        
-                        # Generate context-aware fallback text (NEVER use "..." or placeholders)
-                        if not salvaged_text or len(salvaged_text.strip()) < 10 or self._is_placeholder(salvaged_text):
-                            # Generate context-aware fallback based on structure type
-                            struct_type = item.get("type", "concept")
-                            pattern_label = template.get("pattern_label", "Database Systems")
-                            t_text_lower = item.get("text", "").lower()
-                            
-                            # ER/EER Diagram questions
-                            if "er" in struct_type.lower() or "diagram" in struct_type.lower() or "draw" in t_text_lower:
-                                if "to relational" in t_text_lower or "mapping" in t_text_lower:
-                                     salvaged_text = "Map the ER diagram to a Relational Schema, identifying Primary and Foreign Keys."
-                                else:
-                                     salvaged_text = f"Construct an ER/EER diagram for the scenario described above, showing all entities, relationships, and attributes."
-                            # Normalization questions
-                            elif "normalize" in struct_type.lower() or "normal" in struct_type.lower() or "normalization" in t_text_lower:
-                                salvaged_text = f"Normalize the given relation schema to the appropriate normal form (1NF, 2NF, 3NF), justifying your steps."
-                            # SQL questions
-                            elif "sql" in struct_type.lower() or "query" in struct_type.lower() or "code" in t_text_lower:
-                                salvaged_text = f"Write the SQL query to retrieve the requested information from the database schema."
-                            # Definition/Explanation questions
-                            elif "define" in struct_type.lower() or "explain" in struct_type.lower() or "list" in struct_type.lower():
-                                salvaged_text = f"Define and explain the key concepts related to {pattern_label}."
-                            # Calculation questions
-                            elif "calculate" in struct_type.lower() or "compute" in struct_type.lower():
-                                salvaged_text = f"Calculate the required metrics (e.g., Disk I/O, Buffer Hits) based on the given parameters."
-                            # General questions
-                            else:
-                                salvaged_text = f"Discuss and explain {struct_type if struct_type != 'General' else pattern_label} in the context of the scenario above."
-                            
-                        final_subqs.append({
-                            "label": t_label,
-                            "marks": new_marks,
-                            "text": salvaged_text
-                        })
-                        current_sum += new_marks
-                    
-                    # 3. Fix Rounding Errors (Distribution of Remainder)
-                    diff = int(target_marks) - int(current_sum)
-                    if diff != 0 and final_subqs:
-                        # Add/Subtract difference to the item with the most marks
-                        max_idx = max(range(len(final_subqs)), key=lambda i: final_subqs[i]['marks'])
-                        final_subqs[max_idx]['marks'] += diff
-                        
-                    fallback_draft["subquestions"] = final_subqs
-                    
-                    # Add diagram placeholder if needed
-                    if needs_diagram:
-                        fallback_draft["needs_diagram"] = True
-                        fallback_draft["diagram_type"] = diagram_type
-                        fallback_draft["diagram_placeholder_text"] = f"[DIAGRAM PLACEHOLDER: Draw the {diagram_type} diagram for the scenario in the answer booklet.]"
-                    
-                    # VALIDATE FALLBACK DRAFT with rebuild limit to prevent infinite loops
-                    from app.core.config import settings
-                    FALLBACK_REBUILDS_MAX = settings.FALLBACK_REBUILDS_MAX
-                    
-                    rebuild_count = 0
-                    fallback_review = None
-                    
-                    while rebuild_count <= FALLBACK_REBUILDS_MAX:
-                        print(f"  🔍 Validating fallback draft (rebuild {rebuild_count}/{FALLBACK_REBUILDS_MAX})...")
-                        fallback_review = await self.critic.run({
-                            "draft": fallback_draft,
-                            "context": context,
-                            "template": template,
-                            "q_no": q_no
-                        })
-                        
-                        if fallback_review.get("approved", False):
-                    draft = fallback_draft
-                            print(f"  ✅ Fallback draft validated and approved (after {rebuild_count} rebuilds)")
-                            break
-                        
-                        if rebuild_count >= FALLBACK_REBUILDS_MAX:
-                            # Max rebuilds reached - generate minimal valid draft
-                            print(f"  ⚠️ Max fallback rebuilds ({FALLBACK_REBUILDS_MAX}) reached. Generating minimal valid draft...")
-                            draft = self._generate_minimal_valid_draft(
-                                q_no, target_marks, template_intent, struct_source, needs_diagram, diagram_type
-                            )
-                            print(f"  ✅ Minimal valid draft generated (guaranteed to pass validation)")
-                            break
-                        
-                        # Rebuild with stricter constraints based on intent
-                        print(f"  🔧 Rebuilding fallback with stricter constraints (preserving intent: {template_intent})...")
-                        rebuild_count += 1
-                        
-                        # Preserve intent: ER questions get scenario, Normalization gets schema, etc.
-                        pattern_label_lower = template_intent.lower()
-                        for idx, sq in enumerate(fallback_draft["subquestions"]):
-                            text = sq.get("text", "")
-                            
-                            # ER/EER intent: Ensure scenario in first subquestion
-                            if ("er" in pattern_label_lower or "eer" in pattern_label_lower or "diagram" in pattern_label_lower):
-                                if idx == 0 and ("scenario" not in text.lower() and "entity" not in text.lower()):
-                                    sq["text"] = f"Consider a database system for a university with students, courses, and enrollments. Each student has ID, name, email. Each course has code, title, credits. Students enroll in courses with grades. {text}"
-                            
-                            # Normalization intent: Ensure schema in first subquestion
-                            elif "normalization" in pattern_label_lower or "normal form" in pattern_label_lower:
-                                if idx == 0 and ("schema" not in text.lower() and "relation" not in text.lower()):
-                                    sq["text"] = f"Given a relation schema R(A, B, C, D) with functional dependencies: A → B, B → C. {text}"
-                            
-                            # SQL intent: Ensure table/schema mention
-                            elif "sql" in pattern_label_lower or "query" in pattern_label_lower:
-                                if idx == 0 and ("table" not in text.lower() and "schema" not in text.lower()):
-                                    sq["text"] = f"Given a database with tables for customers, orders, and products. {text}"
-                    
-                    # Final validation check
-                    if draft and not fallback_review.get("approved", False):
-                        # One final validation on minimal draft
-                        final_review = await self.critic.run({
-                            "draft": draft,
-                            "context": context,
-                            "template": template,
-                            "q_no": q_no
-                        })
-                        if not final_review.get("approved", False):
-                            print(f"  ⚠️ Warning: Minimal draft still has issues, but accepting to prevent infinite loop")
-
-                    print(f"  🔧 Fixed marks using template structure (Scaled {template_total} -> {target_marks})")
-                    print(f"  📝 Fallback Log: {q_no} | Intent: {template_intent} | Trigger: {final_feedback_code} | Rebuilds: {rebuild_count} | Validated: {fallback_review.get('approved', False) if fallback_review else False}")
-                    print(f"  📝 Fallback Log: {q_no} | Trigger: {final_feedback_code} | Validated: {fallback_review.get('approved', False)}")
+            if not approved:
+                print("    ⚠️  Max Retries reached. Using safest fallback.")
+                # Fallback: Simple deterministic draft
+                draft = self._generate_minimal_valid_draft(q_no, target_marks, template.get("pattern_label", "General"), template.get("required_structure", []), needs_diagram, diagram_type)
             
-            # --- IMPORTANT: UPDATE GLOBAL TRACKING FOR FORCED APPROVAL ---
-            # Even if forced, we must record what we used so Q2, Q3 know about it
-            used_topics.add(template.get("pattern_label", "General"))
-            # Track template ID and intent for diversity
-            template_id = str(template.get("_id", ""))
-            template_intent = template.get("pattern_label", "General")
-            if template_id:
-                used_template_ids.add(template_id)
-            if template_intent:
-                used_intents.add(template_intent)
-            
-            # Detect Question Type (Heuristic) for Forced Approval
-            if draft is None: draft = {}
-            q_text_lower = draft.get("text", "").lower()
-            if ("draw" in q_text_lower or "design" in q_text_lower or "construct" in q_text_lower) and ("er diagram" in q_text_lower or "eer diagram" in q_text_lower):
-                used_question_types.add("er_diagram")
-                print("      📌 Marked type: er_diagram (Forced)")
-            if "normalization" in q_text_lower or "normal form" in q_text_lower:
-                used_question_types.add("normalization")
-            if "write a query" in q_text_lower or "sql" in q_text_lower:
-                used_question_types.add("sql_query")
-            # Detect ER → Relational Mapping (Forced Approval)
-            if ("map" in q_text_lower or "convert" in q_text_lower or "transform" in q_text_lower) and ("er diagram" in q_text_lower or "eer diagram" in q_text_lower) and ("relational" in q_text_lower or "relational schema" in q_text_lower or "relational model" in q_text_lower):
-                used_question_types.add("er_to_relational_mapping")
-                print("      📌 Marked type: er_to_relational_mapping (Forced)")
-            if "design" in q_text_lower and "relational schema" in q_text_lower and ("er" in q_text_lower or "entity" in q_text_lower):
-                used_question_types.add("er_to_relational_mapping")
-                print("      📌 Marked type: er_to_relational_mapping (Forced)")
-
-            # Store Scenario for Forced Approval
-            scenario_proxy = " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])])
-            if scenario_proxy:
-                used_scenarios.add(scenario_proxy[:200])
-            
-            # 2c. RENDER the question for final display
-            draft["question_no"] = q_no
-            draft["text"] = self._render_question(draft)
-            
+            # 3. SAVE Question
             final_questions.append(draft)
-            total_marks += int(draft.get("marks") or 0)
-
-            # SAVE CHECKPOINT
-            with open(self.checkpoint_path, "w", encoding="utf-8") as f:
-                json.dump({"questions": final_questions}, f, indent=2)
-
+            
+            # 4. UPDATE MEMORY (Anti-Repetition)
+            # Track topic
+            topic = draft.get("pattern_label") or template.get("pattern_label")
+            if topic: used_topics.add(topic)
+            
+            # Track derived type/task (heuristics from text)
+            q_text = draft.get("text", "").lower()
+            # Include subquestions in heuristic check
+            for sq in draft.get("subquestions", []):
+                q_text += " " + sq.get("text", "").lower()
+            if "er diagram" in q_text or "eer diagram" in q_text:
+                used_question_types.add("er_diagram")
+            if "normalization" in q_text or "normal form" in q_text:
+                used_question_types.add("normalization")
+            if "sql" in q_text or "query" in q_text:
+                used_question_types.add("sql_coding")
+            
+            # Track Scenario (hash or snippet)
+            # We track the first 50 chars of the scenario to catch direct duplicates
+            scenario_snippet = q_text[:50].strip()
+            if scenario_snippet:
+                used_scenarios.add(scenario_snippet)
+                
+            # Update checkpoint
+            checkpoint_data = {
+                "questions": final_questions,
+                "last_update": time.strftime("%Y-%m-%d %H:%M:%S")
+            }
+            self.checkpoint_path.write_text(json.dumps(checkpoint_data, indent=2), encoding="utf-8")
+        
         # 3. VALIDATE TOPIC COVERAGE
         self._validate_topic_coverage(final_questions)
-        
-        # 3.5. LOG TEMPLATE DIVERSITY SUMMARY
-        print(f"\n📊 Template Diversity Summary:")
-        print(f"   Used Template IDs: {len(used_template_ids)} unique templates")
-        print(f"   Used Intents: {len(used_intents)} unique intents")
-        print(f"   Intent List: {', '.join(sorted(used_intents))}")
-        if len(used_template_ids) < len(final_questions):
-            print(f"   ⚠️  WARNING: Some templates were reused (only {len(used_template_ids)} unique templates for {len(final_questions)} questions)")
-        else:
-            print(f"   ✅ All questions use unique templates")
-        
+
         # 4. SAVE
         paper = {
             "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -1376,7 +969,7 @@ class AgentOrchestrator:
             "total_marks": total_marks,
             "questions": final_questions
         }
-        
+
         # Save to MongoDB
         try:
             await self.db.papers.insert_one(paper.copy()) # Copy because _id is added

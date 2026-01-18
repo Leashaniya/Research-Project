@@ -1,31 +1,32 @@
 {
-  "generated_at": "2026-01-14 01:12:21",
+  "generated_at": "2026-01-18 12:37:19",
   "mode": "AGENTIC_V1",
-  "total_marks": 100,
+  "total_marks": 0,
   "questions": [
     {
-      "question_no": "Q1",
+      "question_no": "1",
       "marks": 20,
-      "text": "a) Identify and list all entities in the library scenario. (5 marks)\nb) List all attributes for the identified entities, ensuring to specify any unique constraints. (5 marks)\nc) Draw the ER diagram for the library scenario, including any relationships and cardinalities between the entities: sections, books, and members. [DIAGRAM PLACEHOLDER: Draw the ER diagram for the scenario in the answer booklet.] (5 marks)\nd) Describe the relationships between the library entities and map them to a relational schema including primary and foreign keys. (5 marks)",
+      "mermaid_code": "erDiagram\n    CUSTOMER ||--o{ ORDER : places\n    ORDER ||--|{ PRODUCT : includes\n    CUSTOMER }|--o{ ADDRESS : has\n    PRODUCT }|--|{ CATEGORY : belongs_to",
+      "text": "A retail company manages information regarding customers, orders, products, and categories. Each customer has a unique identifier, name, and may have multiple addresses. An order is associated with one customer and can include multiple products. Each product has a product ID, name, price, and belongs to a specific category.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Identify and list all entities in the library scenario.",
+          "text": "Identify all the main entities and their attributes from the given scenario.",
           "marks": 5
         },
         {
           "label": "b",
-          "text": "List all attributes for the identified entities, ensuring to specify any unique constraints.",
+          "text": "Determine the relationships between the identified entities and specify their cardinalities.",
           "marks": 5
         },
         {
           "label": "c",
-          "text": "Draw the ER diagram for the library scenario, including any relationships and cardinalities between the entities: sections, books, and members. [DIAGRAM PLACEHOLDER: Draw the ER diagram for the scenario in the answer booklet.]",
+          "text": "Draw the ER diagram representing the entities and their relationships detailed in the scenario. [DIAGRAM PLACEHOLDER: Draw the ER diagram for the scenario in the answer booklet.]",
           "marks": 5
         },
         {
           "label": "d",
-          "text": "Describe the relationships between the library entities and map them to a relational schema including primary and foreign keys.",
+          "text": "Map the identified entities and relationships to a relational schema.",
           "marks": 5
         }
       ]
@@ -33,91 +34,91 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "a) Identify the key concepts and definitions related to frame bytes time. (2 marks)\nb) Explain the main components and their relationships related to frame bytes time. (1 marks)\nc) Describe the advantages and disadvantages related to frame bytes time. (2 marks)\nd) Analyze the implementation approach related to frame bytes time. (3 marks)\ne) Design the real-world applications related to frame bytes time. (2 marks)\nf) Calculate the key concepts and definitions related to frame bytes time. (2 marks)\ng) List the main components and their relationships related to frame bytes time. (3 marks)",
+      "text": "Consider a database management system scenario.",
       "subquestions": [
         {
           "label": "a",
           "marks": 2,
-          "text": "Identify the key concepts and definitions related to frame bytes time."
+          "text": "Define the key concepts and their importance related to frame bytes time."
         },
         {
           "label": "b",
           "marks": 1,
-          "text": "Explain the main components and their relationships related to frame bytes time."
+          "text": "Describe the main components and how they interact related to frame bytes time."
         },
         {
           "label": "c",
           "marks": 2,
-          "text": "Describe the advantages and disadvantages related to frame bytes time."
+          "text": "Analyze the advantages and disadvantages of different approaches related to frame bytes time."
         },
         {
           "label": "d",
           "marks": 3,
-          "text": "Analyze the implementation approach related to frame bytes time."
+          "text": "Compare different implementation strategies and their trade-offs related to frame bytes time."
         },
         {
           "label": "e",
           "marks": 2,
-          "text": "Design the real-world applications related to frame bytes time."
+          "text": "Evaluate the effectiveness of the proposed solution related to frame bytes time."
         },
         {
           "label": "f",
           "marks": 2,
-          "text": "Calculate the key concepts and definitions related to frame bytes time."
+          "text": "Explain the real-world applications and use cases related to frame bytes time."
         },
         {
           "label": "g",
           "marks": 3,
-          "text": "List the main components and their relationships related to frame bytes time."
+          "text": "List the key features and their benefits related to frame bytes time."
         }
       ]
     },
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "a) Draw an ER diagram representing the library system, illustrating sections, books, copies, and members. Be sure to include all necessary relationships and constraints. (4 marks)\nb) List at least five attributes for the 'Book' entity in your ER diagram, ensuring you include identifiers. (2 marks)\nc) Define the primary key for the 'Section' entity and explain its significance in this database design. (3 marks)\nd) Provide a basic SQL schema for the 'Book' and 'Section' entities including relationships. Ensure all primary keys and foreign keys are specified. (5 marks)\ne) Discuss two potential concurrency issues that may arise when members concurrently attempt to borrow the same book copy and propose solutions for each. (5 marks)\nf) Construct an ER/EER diagram for the scenario described above, showing all entities, relationships, and attributes. (3 marks)\ng) Identify and explain the importance of maintaining a history table for borrowed books and how it will facilitate data auditing. (3 marks)",
+      "text": "Consider a database management system scenario.",
       "subquestions": [
         {
           "label": "a",
           "marks": 4,
-          "text": "Draw an ER diagram representing the library system, illustrating sections, books, copies, and members. Be sure to include all necessary relationships and constraints."
+          "text": "Define the key concepts and their importance related to Transaction Management and Concurrency."
         },
         {
           "label": "b",
           "marks": 2,
-          "text": "List at least five attributes for the 'Book' entity in your ER diagram, ensuring you include identifiers."
+          "text": "Describe the main components and how they interact related to Transaction Management and Concurrency."
         },
         {
           "label": "c",
           "marks": 3,
-          "text": "Define the primary key for the 'Section' entity and explain its significance in this database design."
+          "text": "Analyze the advantages and disadvantages of different approaches related to Transaction Management and Concurrency."
         },
         {
           "label": "d",
           "marks": 5,
-          "text": "Provide a basic SQL schema for the 'Book' and 'Section' entities including relationships. Ensure all primary keys and foreign keys are specified."
+          "text": "Compare different implementation strategies and their trade-offs related to Transaction Management and Concurrency."
         },
         {
           "label": "e",
           "marks": 5,
-          "text": "Discuss two potential concurrency issues that may arise when members concurrently attempt to borrow the same book copy and propose solutions for each."
+          "text": "Evaluate the effectiveness of the proposed solution related to Transaction Management and Concurrency."
         },
         {
           "label": "f",
           "marks": 3,
-          "text": "Construct an ER/EER diagram for the scenario described above, showing all entities, relationships, and attributes."
+          "text": "Explain the real-world applications and use cases related to Transaction Management and Concurrency."
         },
         {
           "label": "g",
           "marks": 3,
-          "text": "Identify and explain the importance of maintaining a history table for borrowed books and how it will facilitate data auditing."
+          "text": "List the key features and their benefits related to Transaction Management and Concurrency."
         }
       ]
     },
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "a) Identify the main entities and their attributes. (9 marks)\nb) Explain the relationships between entities and their cardinalities. (5 marks)\nc) Describe how to map the ER diagram to a relational schema. (3 marks)\nd) Analyze the primary and foreign keys in the relational model. (5 marks)\ne) Design the constraints and integrity rules. (5 marks)\nf) Calculate the main entities and their attributes. (8 marks)\ng) List the relationships between entities and their cardinalities. (5 marks)",
+      "text": "Consider a university database system with students, courses, and enrollments. Each student has student ID, name, and email. Each course has course code, title, and credits. Students enroll in courses, and each enrollment has a grade.",
       "subquestions": [
         {
           "label": "a",
@@ -127,37 +128,38 @@
         {
           "label": "b",
           "marks": 5,
-          "text": "Explain the relationships between entities and their cardinalities."
+          "text": "Draw the ER/EER diagram showing relationships and cardinalities."
         },
         {
           "label": "c",
           "marks": 3,
-          "text": "Describe how to map the ER diagram to a relational schema."
+          "text": "Map the ER diagram to a relational schema with primary and foreign keys."
         },
         {
           "label": "d",
           "marks": 5,
-          "text": "Analyze the primary and foreign keys in the relational model."
+          "text": "Explain the relationships between entities and their cardinality constraints."
         },
         {
           "label": "e",
           "marks": 5,
-          "text": "Design the constraints and integrity rules."
+          "text": "Describe the attributes of each entity and their data types."
         },
         {
           "label": "f",
           "marks": 8,
-          "text": "Calculate the main entities and their attributes."
+          "text": "List the primary keys, foreign keys, and integrity constraints."
         },
         {
           "label": "g",
           "marks": 5,
-          "text": "List the relationships between entities and their cardinalities."
+          "text": "Design the complete relational schema based on the ER diagram."
         }
       ],
       "needs_diagram": true,
       "diagram_type": "ER",
-      "diagram_placeholder_text": "[DIAGRAM PLACEHOLDER: Draw the ER diagram for the scenario in the answer booklet.]"
+      "diagram_placeholder_text": "[DIAGRAM PLACEHOLDER: Draw the ER diagram for the scenario in the answer booklet.]",
+      "mermaid_code": "erDiagram\n    ENTITY1 ||--o{ ENTITY2 : relates_to\n    ENTITY2 ||--|{ ENTITY3 : contains"
     }
   ]
 }

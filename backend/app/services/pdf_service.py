@@ -123,40 +123,61 @@ class PDFService:
                 pdf.multi_cell(0, 7, text)
                 pdf.ln(5)
 
-            # --- DIAGRAM PLACEHOLDER RENDERING ---
-            # Check if the Question object needs a diagram placeholder
+            # --- DIAGRAM RENDERING (V2) ---
+            # Check if we have mermaid code to render
+            mermaid_code = q.get("mermaid_code")
             needs_diagram = q.get("needs_diagram", False)
-            diagram_placeholder_text = q.get("diagram_placeholder_text")
-            diagram_type = q.get("diagram_type", "Diagram")
             
-            if needs_diagram and diagram_placeholder_text:
+            # Decide: Render if mermaid code exists
+            if mermaid_code:
+                try:
+                    from app.services.diagram_service import DiagramService
+                    import os
+                    
+                    # Generate temporary path
+                    timestamp = int(datetime.now().timestamp())
+                    temp_img_path = str(Path(output_path).parent / "temp_images" / f"q_{q_no}_{timestamp}.png")
+                    
+                    print(f"    🎨 Rendering diagram for {q_no}...")
+                    success = DiagramService.render_mermaid_to_image(mermaid_code, temp_img_path)
+                    
+                    if success and os.path.exists(temp_img_path):
+                        pdf.ln(5)
+                        pdf.set_font("helvetica", "B", 10)
+                        diagram_type = q.get("diagram_type", "Diagram")
+                        pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
+                        
+                        # Calculate available width (A4 width - margins)
+                        avail_width = 180 
+                        # Embed image (auto-scale)
+                        pdf.image(temp_img_path, w=avail_width)
+                        pdf.ln(5)
+                    else:
+                        # Fallback to text if rendering failed
+                        raise Exception("Rendering failed")
+                        
+                except Exception as e:
+                    print(f"    ⚠️ Diagram rendering failed: {e}. Using placeholder.")
+                    # Fallback Placeholder
+                    pdf.ln(5)
+                    pdf.set_fill_color(240, 240, 240)
+                    pdf.rect(20, pdf.get_y(), 170, 30, 'FD')
+                    pdf.set_xy(25, pdf.get_y()+10)
+                    pdf.set_font("helvetica", "I", 10)
+                    pdf.multi_cell(160, 5, f"[Diagram Generation Failed: {str(e)[:50]}...]\nMermaid code available in JSON.")
+                    pdf.ln(20)
+            
+            # Legacy/Placeholder check (if no mermaid code but needs_diagram was set)
+            elif needs_diagram:
+                 # Standard Placeholder
+                diagram_type = q.get("diagram_type", "Diagram")
                 pdf.ln(5)
-                pdf.set_font("helvetica", "B", 10)
-                pdf.cell(0, 10, PDFService._sanitize_text(f"Diagram Placeholder ({diagram_type})"), ln=True)
-                
-                # Draw a boxed placeholder
-                pdf.set_fill_color(250, 250, 250)  # Light gray background
-                pdf.set_draw_color(200, 200, 200)  # Border color
-                pdf.set_line_width(0.5)
-                
-                # Calculate box dimensions
-                box_x = 20
-                box_y = pdf.get_y()
-                box_width = 170
-                box_height = 40
-                
-                # Draw box
-                pdf.rect(box_x, box_y, box_width, box_height, style='FD')  # Filled and drawn
-                
-                # Add placeholder text inside box
+                pdf.set_fill_color(250, 250, 250)
+                pdf.rect(20, pdf.get_y(), 170, 40, 'FD')
+                pdf.set_xy(25, pdf.get_y()+15)
                 pdf.set_font("helvetica", "I", 10)
-                pdf.set_text_color(100, 100, 100)  # Gray text
-                pdf.set_xy(box_x + 5, box_y + box_height / 2 - 3)
-                pdf.multi_cell(box_width - 10, 6, PDFService._sanitize_text(diagram_placeholder_text), align="C")
-                
-                # Reset text color
-                pdf.set_text_color(0, 0, 0)
-                pdf.ln(5)
+                pdf.multi_cell(160, 6, f"[DIAGRAM PLACEHOLDER: Draw the {diagram_type} diagram in the answer booklet.]", align="C")
+                pdf.ln(25)
             
             # Legacy support: If mermaid_code exists but no placeholder, render as code (for backward compatibility)
             mermaid_code = q.get("mermaid_code")
