@@ -19,7 +19,11 @@ class Settings:
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
 
     # OpenAI Model Configuration
-    RAG_SUMMARY_MODEL: str = os.getenv("RAG_SUMMARY_MODEL", "gpt-4o-mini") 
+    RAG_SUMMARY_MODEL: str = os.getenv("RAG_SUMMARY_MODEL", "gpt-4o-mini")
+    
+    # MongoDB Configuration
+    MONGO_URI: str = os.getenv("MONGO_URI", "")
+    MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "ca_guidance_db")
 
 settings = Settings()
 

@@ -8,7 +8,14 @@ from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
 from pydantic import BaseModel
 from app.core.dependencies import get_current_user
 from app.core.config import settings
-from app.models.schemas import UserInfo, SummarizeRequest
+from app.models.schemas import (
+    UserInfo, 
+    SummarizeRequest,
+    SummaryFeedbackRequest,
+    ReinforceSummaryRequest,
+    SummaryResponse,
+    FeedbackResponse
+)
 from app.ca_guidance.crew import create_guidance_crew, create_summarization_crew
 from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR
 from app.ca_guidance.tools.tts_tool import text_to_speech_wav  # ✅ AUDIO
@@ -198,12 +205,18 @@ async def summarize_topic(
 ):
     """
     Create a comprehensive summary of a topic from lecture materials.
-
+    
+    Behavior:
+    - Checks for existing reinforced summary first (returns if found)
+    - Otherwise checks for latest base summary (returns if found)
+    - Otherwise generates new summary and stores it
+    
     Returns:
-        JSON response with summary, related images, and audio_url
+        JSON response with summary, related images, audio_url, and summary_id
     """
     topic = request.topic.strip()
-    logger.info(f"=== Starting summarization for topic: {topic} ===")
+    force = request.force
+    logger.info(f"=== Starting summarization for topic: {topic} (force={force}) ===")
 
     if not topic:
         raise HTTPException(
@@ -211,8 +224,31 @@ async def summarize_topic(
             detail="Topic is required and cannot be empty."
         )
 
-    logger.info("Step 1: Creating and running summarization crew")
     try:
+        from app.services.summary_reinforcement_service import SummaryReinforcementService
+        
+        service = SummaryReinforcementService()
+        
+        # Check for existing summary if not forcing regeneration
+        if not force:
+            existing_summary = service.get_latest_summary(topic, prefer_reinforced=True, user_email=user.email)
+            
+            if existing_summary:
+                logger.info(f"Found existing {existing_summary['summary_type']} summary for topic '{topic}'")
+                return {
+                    "summary": existing_summary["summary_text"],
+                    "images": existing_summary.get("images", []),
+                    "topic": topic,
+                    "audio_url": existing_summary.get("audio_url"),
+                    "summary_id": existing_summary["_id"],
+                    "summary_type": existing_summary["summary_type"],
+                    "created_at": existing_summary.get("created_at").isoformat() if existing_summary.get("created_at") else None,
+                    "audio_duration_seconds": existing_summary.get("audio_duration_seconds"),
+                    "from_cache": True
+                }
+        
+        # Generate new summary
+        logger.info("Step 1: Creating and running summarization crew")
         crew = create_summarization_crew(topic=topic)
 
         logger.info("Step 2: Executing summarization task")
@@ -249,6 +285,7 @@ async def summarize_topic(
 
         # ✅ Generate audio from cleaned content
         audio_url = None
+        audio_path = None
         try:
             audio_path = text_to_speech_wav(final_content)  # outputs/audio/xxx.wav
             audio_url = f"/audio/{Path(audio_path).name}"
@@ -256,15 +293,54 @@ async def summarize_topic(
         except Exception as tts_err:
             logger.error(f"TTS generation failed: {tts_err}", exc_info=True)
 
-        logger.info(f"Successfully created summary (length: {len(final_content)})")
+        # Store base summary in MongoDB (only if doesn't exist, unless force=True)
+        summary_id = service.store_base_summary(
+            topic=topic,
+            summary_text=final_content,
+            images=image_paths,
+            audio_url=audio_url,
+            force=force,
+            user_email=user.email,
+        )
+        
+        # summary_id should always be returned (either existing ID or new/updated ID)
+        if not summary_id:
+            logger.error(f"Failed to store base summary for topic '{topic}'")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to store summary"
+            )
+
+        logger.info(f"Successfully created and stored summary (length: {len(final_content)})")
         logger.info(f"Found {len(image_paths)} image(s) in summary")
         logger.info("=== Summarization completed ===")
 
+        # Persist audio blob + duration metadata (optional)
+        audio_duration_seconds = None
+        if audio_path and audio_url and summary_id:
+            attach = service.attach_audio_to_summary(
+                summary_id=summary_id,
+                topic=topic,
+                summary_type="base",
+                audio_path=audio_path,
+                user_email=user.email,
+            )
+            audio_duration_seconds = attach.get("audio_duration_seconds")
+
+        # Get the stored summary to get created_at (+ possibly duration)
+        from bson.objectid import ObjectId
+        stored_summary = service.summaries_collection.find_one({"_id": ObjectId(summary_id)})
+        
         return {
             "summary": final_content,
             "images": image_paths,
             "topic": topic,
-            "audio_url": audio_url
+            "audio_url": audio_url,
+            "summary_id": summary_id,
+            "summary_type": "base",
+            "created_at": stored_summary.get("created_at").isoformat() if stored_summary and stored_summary.get("created_at") else None,
+            "audio_duration_seconds": stored_summary.get("audio_duration_seconds") if stored_summary else audio_duration_seconds,
+            "from_cache": False
         }
 
     except Exception as e:
@@ -424,4 +500,257 @@ async def generate_flashcards(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate flashcards: {str(e)}"
+        )
+
+
+@router.post("/summaries/feedback")
+async def submit_summary_feedback(
+    request: SummaryFeedbackRequest,
+    user: UserInfo = Depends(get_current_user)
+):
+    """
+    Submit feedback for a summary.
+    
+    Returns:
+        JSON response with feedback_id
+    """
+    logger.info(f"=== Submitting feedback for summary {request.summary_id} ===")
+    
+    try:
+        from app.services.summary_reinforcement_service import SummaryReinforcementService
+        
+        service = SummaryReinforcementService()
+        
+        feedback_id = service.store_feedback(
+            topic=request.topic,
+            summary_id=request.summary_id,
+            rating=request.rating,
+            confused_concept=request.confused_concept,
+            comment=request.comment,
+            user_email=user.email,
+            session_id=request.session_id,
+        )
+        
+        logger.info(f"Feedback stored successfully (id: {feedback_id})")
+        
+        return {
+            "feedback_id": feedback_id,
+            "message": "Feedback submitted successfully"
+        }
+        
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        logger.error(f"Error storing feedback: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to store feedback: {e}"
+        )
+
+
+@router.post("/summaries/reinforce")
+async def reinforce_summary(
+    request: ReinforceSummaryRequest,
+    user: UserInfo = Depends(get_current_user)
+):
+    """
+    Generate a reinforced summary based on feedback.
+    
+    Returns:
+        JSON response with reinforced summary, images, audio_url, and summary_id
+    """
+    logger.info(f"=== Generating reinforced summary for topic: {request.topic} (force={request.force}) ===")
+    
+    try:
+        from bson.objectid import ObjectId
+        from app.services.summary_reinforcement_service import SummaryReinforcementService
+        
+        service = SummaryReinforcementService()
+        
+        # Check if reinforced summary exists and force=False
+        if not request.force:
+            existing_reinforced = service.get_latest_summary(request.topic, prefer_reinforced=True, user_email=user.email)
+            if existing_reinforced and existing_reinforced.get("summary_type") == "reinforced":
+                logger.info(f"Found existing reinforced summary for topic '{request.topic}'")
+                return {
+                    "summary": existing_reinforced["summary_text"],
+                    "images": existing_reinforced.get("images", []),
+                    "topic": request.topic,
+                    "audio_url": existing_reinforced.get("audio_url"),
+                    "summary_id": existing_reinforced["_id"],
+                    "summary_type": "reinforced",
+                    "created_at": existing_reinforced.get("created_at").isoformat() if existing_reinforced.get("created_at") else None,
+                    "audio_duration_seconds": existing_reinforced.get("audio_duration_seconds"),
+                    "from_cache": True
+                }
+        
+        # Get the base summary
+        try:
+            summary_obj_id = ObjectId(request.summary_id)
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid summary_id format: {request.summary_id}"
+            )
+        
+        base_summary_doc = service.summaries_collection.find_one({"_id": summary_obj_id})
+        
+        if not base_summary_doc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Summary with id {request.summary_id} not found"
+            )
+        
+        base_summary_text = base_summary_doc["summary_text"]
+        
+        # Get feedback - prioritize feedback_id if provided, otherwise get latest for this summary
+        feedback = {}
+        feedback_id_to_store = None
+        
+        if request.feedback_id:
+            try:
+                feedback_obj_id = ObjectId(request.feedback_id)
+                feedback_doc = service.feedback_collection.find_one({"_id": feedback_obj_id})
+                if feedback_doc:
+                    feedback = {
+                        "rating": feedback_doc.get("rating", "not_helpful"),
+                        "confused_concept": feedback_doc.get("confused_concept"),
+                        "comment": feedback_doc.get("comment")
+                    }
+                    feedback_id_to_store = str(feedback_obj_id)
+                    logger.info(f"Using specific feedback_id: {feedback_id_to_store}")
+            except Exception as e:
+                logger.warning(f"Invalid feedback_id format: {request.feedback_id}, error: {e}")
+        
+        # If no feedback_id provided or invalid, get latest feedback for this summary
+        if not feedback:
+            latest_feedback = service.get_latest_feedback_for_summary(
+                request.summary_id, user_email=user.email, session_id=request.session_id
+            )
+            if latest_feedback:
+                feedback = {
+                    "rating": latest_feedback.get("rating", "not_helpful"),
+                    "confused_concept": latest_feedback.get("confused_concept"),
+                    "comment": latest_feedback.get("comment")
+                }
+                feedback_id_to_store = latest_feedback.get("_id")
+                logger.info(f"Using latest feedback for summary: {feedback_id_to_store}")
+        
+        # Default feedback if none found
+        if not feedback:
+            feedback = {"rating": "not_helpful"}  # Default
+            logger.warning("No feedback found, using default 'not_helpful'")
+        
+        # Generate reinforced summary
+        logger.info("Generating reinforced summary using LLM...")
+        reinforced_text = service.generate_reinforced_summary(
+            topic=request.topic,
+            base_summary_text=base_summary_text,
+            feedback=feedback
+        )
+        
+        # Generate audio for reinforced summary
+        audio_url = None
+        audio_path = None
+        try:
+            audio_path = text_to_speech_wav(reinforced_text)
+            audio_url = f"/audio/{Path(audio_path).name}"
+            logger.info(f"✅ Audio generated for reinforced summary: {audio_url}")
+        except Exception as tts_err:
+            logger.error(f"TTS generation failed: {tts_err}", exc_info=True)
+        
+        # Extract images from base summary (reuse them)
+        images = base_summary_doc.get("images", [])
+        
+        # Store reinforced summary (use feedback_id_to_store if we found one)
+        reinforced_summary_id = service.store_reinforced_summary(
+            topic=request.topic,
+            summary_text=reinforced_text,
+            base_summary_id=request.summary_id,
+            feedback_id=feedback_id_to_store or request.feedback_id,
+            images=images,
+            audio_url=audio_url,
+            user_email=user.email,
+            session_id=request.session_id,
+        )
+
+        # Persist audio blob + duration metadata (optional)
+        audio_duration_seconds = None
+        if audio_path and audio_url and reinforced_summary_id:
+            attach = service.attach_audio_to_summary(
+                summary_id=reinforced_summary_id,
+                topic=request.topic,
+                summary_type="reinforced",
+                audio_path=audio_path,
+                user_email=user.email,
+                session_id=request.session_id,
+            )
+            audio_duration_seconds = attach.get("audio_duration_seconds")
+        
+        logger.info(f"Reinforced summary generated and stored (id: {reinforced_summary_id})")
+        
+        # Get the stored reinforced summary to get created_at
+        stored_reinforced = service.summaries_collection.find_one({"_id": ObjectId(reinforced_summary_id)})
+        
+        return {
+            "summary": reinforced_text,
+            "images": images,
+            "topic": request.topic,
+            "audio_url": audio_url,
+            "summary_id": reinforced_summary_id,
+            "summary_type": "reinforced",
+            "base_summary_id": request.summary_id,
+            "feedback_id": request.feedback_id,
+            "created_at": stored_reinforced.get("created_at").isoformat() if stored_reinforced and stored_reinforced.get("created_at") else None,
+            "audio_duration_seconds": stored_reinforced.get("audio_duration_seconds") if stored_reinforced else audio_duration_seconds,
+            "from_cache": False
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating reinforced summary: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate reinforced summary: {e}"
+        )
+
+
+@router.get("/summaries/topic/{topic}")
+async def get_summaries_for_topic(
+    topic: str,
+    user: UserInfo = Depends(get_current_user)
+):
+    """
+    Get all summaries (base and reinforced) for a topic.
+    
+    Returns:
+        JSON response with both base and reinforced summaries
+    """
+    logger.info(f"=== Getting all summaries for topic: {topic} ===")
+    
+    try:
+        from app.services.summary_reinforcement_service import SummaryReinforcementService
+        
+        service = SummaryReinforcementService()
+        summaries = service.get_all_summaries_for_topic(topic, user_email=user.email)
+        
+        # Format response
+        result = {
+            "topic": topic,
+            "base": summaries["base"],
+            "reinforced": summaries["reinforced"]
+        }
+        
+        logger.info(f"Retrieved summaries for topic '{topic}'")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error getting summaries: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get summaries: {e}"
         )

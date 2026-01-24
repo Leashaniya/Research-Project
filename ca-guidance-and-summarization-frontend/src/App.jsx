@@ -37,6 +37,24 @@ function App() {
   const [summaryAccuracyLoading, setSummaryAccuracyLoading] = useState(false);
   const [guidanceAccuracy, setGuidanceAccuracy] = useState(null);
   const [guidanceAccuracyLoading, setGuidanceAccuracyLoading] = useState(false);
+  // Feedback and reinforcement state
+  const [feedbackRating, setFeedbackRating] = useState(null);
+  const [confusedConcept, setConfusedConcept] = useState('');
+  const [feedbackComment, setFeedbackComment] = useState('');
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [reinforceLoading, setReinforceLoading] = useState(false);
+  const [feedbackError, setFeedbackError] = useState(null);
+  const [reinforceError, setReinforceError] = useState(null);
+  const [reinforceSuccess, setReinforceSuccess] = useState(false);
+  const [reinforcementVisible, setReinforcementVisible] = useState(false);
+  const [loadedTopic, setLoadedTopic] = useState('');
+  const [sessionId, setSessionId] = useState(null);
+  const [baseSummary, setBaseSummary] = useState(null);
+  const [reinforcedSummary, setReinforcedSummary] = useState(null);
+  const [activeSummaryView, setActiveSummaryView] = useState('base'); // 'base' or 'reinforced'
+  const [forceRegenerate, setForceRegenerate] = useState(false);
+  const [lastFeedbackId, setLastFeedbackId] = useState(null); // Store feedback_id after submission
 
   // ✅ Helper: make a path absolute using API_URL
   const toAbsoluteUrl = (maybeRelativeUrl) => {
@@ -51,6 +69,39 @@ function App() {
 
     if (url.startsWith('/')) return `${base}${url}`;
     return `${base}/${url}`;
+  };
+
+  // ✅ Helper: normalize summary ids (API sometimes returns `_id`)
+  const getSummaryId = (s) => s?.summary_id || s?._id || null;
+
+  const normalizeTopic = (t) => String(t || '').trim().toLowerCase();
+  const isSameTopic = (a, b) => normalizeTopic(a) && normalizeTopic(a) === normalizeTopic(b);
+
+  const createSessionId = () => {
+    try {
+      // modern browsers
+      if (globalThis?.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+    } catch {
+      // ignore
+    }
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  };
+
+  const formatColomboDateTime = (isoString) => {
+    try {
+      return new Date(isoString).toLocaleString(undefined, { timeZone: 'Asia/Colombo' });
+    } catch {
+      return '';
+    }
+  };
+
+  const formatDurationMss = (seconds) => {
+    const s = Number(seconds);
+    if (!Number.isFinite(s) || s < 0) return null;
+    const total = Math.round(s);
+    const m = Math.floor(total / 60);
+    const rem = total % 60;
+    return `${m}:${String(rem).padStart(2, '0')}`;
   };
 
   // ✅ (AUDIO CHANGE) Remove markdown audio parsing - backend now returns audio_url separately
@@ -139,6 +190,16 @@ function App() {
   const handleSummarize = async (e) => {
     e.preventDefault();
     setSummaryLoading(true);
+    // New topic load: clear any previous topic reinforcement UI/state
+    setReinforcedSummary(null);
+    setReinforcementVisible(false);
+    setReinforceSuccess(false);
+    setReinforceError(null);
+    setFeedbackError(null);
+    setFeedbackRating(null);
+    setConfusedConcept('');
+    setFeedbackComment('');
+    setLastFeedbackId(null);
     setSummary(null);
     setSummaryAudio(null); // ✅ clear old audio immediately
     setSummaryAccuracy(null); // Clear previous accuracy results
@@ -149,12 +210,20 @@ function App() {
       return;
     }
 
+    const requestedTopic = summaryTopic.trim();
+    const newSessionId = createSessionId();
+    setLoadedTopic(requestedTopic);
+    setSessionId(newSessionId);
+
     try {
       const response = await fetch(`${API_URL}/protected/summarize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ topic: summaryTopic.trim() }),
+        body: JSON.stringify({ 
+          topic: requestedTopic,
+          force: forceRegenerate
+        }),
       });
 
       if (response.ok) {
@@ -166,13 +235,60 @@ function App() {
         // ✅ (AUDIO CHANGE) Use backend-provided audio_url directly
         const audioUrl = toAbsoluteUrl(result.audio_url);
 
-        setSummary({
-          content: result.summary || '',
-          images: result.images || [],
-          topic: result.topic
-        });
+        // Fetch summaries and ALWAYS load/show ONLY the base summary for this topic
+        try {
+          const allSummariesResponse = await fetch(`${API_URL}/protected/summaries/topic/${encodeURIComponent(requestedTopic)}`, {
+            method: 'GET',
+            credentials: 'include',
+          });
+          
+          if (allSummariesResponse.ok) {
+            const allSummaries = await allSummariesResponse.json();
+            const base = allSummaries.base ? {
+              ...allSummaries.base,
+              content: allSummaries.base.summary_text,
+              summary_id: allSummaries.base.summary_id || allSummaries.base._id,
+              audio_url: toAbsoluteUrl(allSummaries.base.audio_url),
+              created_at: allSummaries.base.created_at,
+              audio_duration_seconds: allSummaries.base.audio_duration_seconds ?? null
+            } : null;
 
-        setSummaryAudio(audioUrl);
+            // Never show/load reinforcement summary on topic load
+            setReinforcedSummary(null);
+            setReinforcementVisible(false);
+
+            if (base) setBaseSummary(base);
+
+            // Always show Base summary by default (if available)
+            if (base) {
+              setActiveSummaryView('base');
+              setSummary(base);
+              setSummaryAudio(base.audio_url);
+            } else {
+              // Fallback: show the response as base-like if base missing
+              const fallback = {
+                content: result.summary || '',
+                images: result.images || [],
+                topic: requestedTopic,
+                summary_id: result.summary_id,
+                summary_type: 'base',
+                created_at: result.created_at,
+                from_cache: result.from_cache || false,
+                audio_url: audioUrl,
+                audio_duration_seconds: result.audio_duration_seconds ?? null
+              };
+              setBaseSummary(fallback);
+              setActiveSummaryView('base');
+              setSummary(fallback);
+              setSummaryAudio(audioUrl);
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching all summaries:', err);
+        }
+        
+        // If we didn't set audio yet, keep audio from initial response
+        setSummaryAudio((prev) => prev || audioUrl);
       } else {
         const errorData = await response.json().catch(() => ({ detail: 'Failed to create summary' }));
         setSummary({ error: errorData.detail || 'Failed to create summary. Make sure you are logged in.' });
@@ -182,6 +298,227 @@ function App() {
       setSummary({ error: 'An error occurred while creating the summary.' });
     } finally {
       setSummaryLoading(false);
+    }
+  };
+
+  const handleSubmitFeedback = async () => {
+    const summaryId = getSummaryId(summary);
+    if (!summary || !summaryId) {
+      alert('No summary available to provide feedback on.');
+      return;
+    }
+
+    if (!feedbackRating) {
+      alert('Please select whether the summary was helpful or not.');
+      return;
+    }
+
+    setFeedbackLoading(true);
+    setFeedbackError(null);
+
+    try {
+      const response = await fetch(`${API_URL}/protected/summaries/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          topic: summary.topic,
+          summary_id: summaryId,
+          rating: feedbackRating,
+          confused_concept: confusedConcept.trim() || null,
+          comment: feedbackComment.trim() || null
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setFeedbackSubmitted(true);
+        setFeedbackError(null);
+        // Store feedback_id so we can use it for reinforcement
+        if (result.feedback_id) {
+          setLastFeedbackId(result.feedback_id);
+        }
+        // Keep feedback rating visible so user can generate reinforced summary
+        // Show success message
+        setTimeout(() => {
+          // Don't reset feedbackSubmitted immediately - keep it so button stays visible
+        }, 3000);
+      } else {
+        const errorData = await response.json().catch(() => ({ detail: 'Failed to submit feedback' }));
+        setFeedbackError(errorData.detail || 'Failed to submit feedback.');
+      }
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      setFeedbackError('An error occurred while submitting feedback.');
+    } finally {
+      setFeedbackLoading(false);
+    }
+  };
+
+  const handleSubmitFeedbackAndReinforce = async () => {
+    const baseId = getSummaryId(baseSummary);
+    if (!baseSummary || !baseId || !loadedTopic) {
+      alert('No summary available to provide feedback on.');
+      return;
+    }
+
+    if (!feedbackRating) {
+      alert('Please select whether the summary was helpful or not.');
+      return;
+    }
+
+    setFeedbackLoading(true);
+    setReinforceLoading(true);
+    setFeedbackError(null);
+    setReinforceError(null);
+    setReinforceSuccess(false);
+
+    try {
+      // 1) Save feedback
+      const feedbackResp = await fetch(`${API_URL}/protected/summaries/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          topic: loadedTopic,
+          summary_id: baseId,
+          rating: feedbackRating,
+          confused_concept: confusedConcept.trim() || null,
+          comment: feedbackComment.trim() || null,
+          session_id: sessionId
+        }),
+      });
+
+      if (!feedbackResp.ok) {
+        const errorData = await feedbackResp.json().catch(() => ({ detail: 'Failed to submit feedback' }));
+        setFeedbackError(errorData.detail || 'Failed to submit feedback.');
+        return;
+      }
+
+      const feedbackResult = await feedbackResp.json().catch(() => ({}));
+      if (feedbackResult.feedback_id) setLastFeedbackId(feedbackResult.feedback_id);
+
+      // 2) Generate reinforced summary using latest feedback (force=true)
+      const reinforceResp = await fetch(`${API_URL}/summaries/reinforce`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          topic: loadedTopic,
+          force: true,
+          summary_id: baseId,
+          session_id: sessionId
+        }),
+      });
+
+      if (!reinforceResp.ok) {
+        const errorData = await reinforceResp.json().catch(() => ({ detail: 'Failed to generate reinforced summary' }));
+        setReinforceError(errorData.detail || 'Failed to generate reinforced summary.');
+        return;
+      }
+
+      const result = await reinforceResp.json();
+      const audioUrl = toAbsoluteUrl(result.audio_url);
+
+      const reinforcedData = {
+        content: result.summary || '',
+        images: result.images || [],
+        topic: result.topic,
+        summary_id: result.summary_id,
+        summary_type: 'reinforced',
+        created_at: result.created_at,
+        from_cache: result.from_cache || false,
+        audio_url: audioUrl,
+        audio_duration_seconds: result.audio_duration_seconds ?? null,
+        session_id: sessionId
+      };
+
+      setReinforcedSummary(reinforcedData);
+      setSummary(reinforcedData);
+      setSummaryAudio(audioUrl);
+      setActiveSummaryView('reinforced'); // Switch to reinforced view
+      setReinforcementVisible(true);
+
+      setReinforceSuccess(true);
+      setTimeout(() => setReinforceSuccess(false), 4000);
+
+      // Reset feedback inputs after successful generation
+      setFeedbackRating(null);
+      setConfusedConcept('');
+      setFeedbackComment('');
+      setFeedbackSubmitted(false);
+      setLastFeedbackId(null);
+    } catch (error) {
+      console.error('Error submitting feedback and generating reinforced summary:', error);
+      setReinforceError('An error occurred while generating reinforced summary.');
+    } finally {
+      setFeedbackLoading(false);
+      setReinforceLoading(false);
+    }
+  };
+
+  const handleReinforceSummary = async () => {
+    if (!summary || !summary.topic) {
+      alert('No summary available to reinforce from feedback.');
+      return;
+    }
+
+    setReinforceLoading(true);
+    setReinforceError(null);
+
+    try {
+      const response = await fetch(`${API_URL}/summaries/reinforce`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          topic: summary.topic,
+          force: true
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+
+        // Update reinforced summary
+        const audioUrl = toAbsoluteUrl(result.audio_url);
+        
+        const reinforcedData = {
+          content: result.summary || '',
+          images: result.images || [],
+          topic: result.topic,
+          summary_id: result.summary_id,
+          summary_type: 'reinforced',
+          created_at: result.created_at,
+          from_cache: result.from_cache || false,
+          audio_url: audioUrl
+        };
+        
+        setReinforcedSummary(reinforcedData);
+        setSummary(reinforcedData);
+        setSummaryAudio(audioUrl);
+        setActiveSummaryView('reinforced'); // Switch to reinforced view
+        
+        // Update base summary reference if needed
+        if (baseSummary && baseSummary.summary_id === summary.summary_id) {
+          // Keep base summary reference
+        }
+        
+        // Reset feedback state after successful reinforcement
+        setFeedbackRating(null);
+        setConfusedConcept('');
+        setFeedbackComment('');
+        setFeedbackSubmitted(false);
+        setLastFeedbackId(null);
+      } else {
+        const errorData = await response.json().catch(() => ({ detail: 'Failed to generate reinforced summary' }));
+        setReinforceError(errorData.detail || 'Failed to generate reinforced summary.');
+      }
+    } catch (error) {
+      console.error('Error generating reinforced summary:', error);
+      setReinforceError('An error occurred while generating reinforced summary.');
+    } finally {
+      setReinforceLoading(false);
     }
   };
 
@@ -573,6 +910,18 @@ function App() {
                     <p style={{ marginTop: '8px', fontSize: '0.9rem', color: '#6c757d' }}>
                       Enter a topic from your lecture materials to get a comprehensive summary with relevant diagrams.
                     </p>
+                    <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <input
+                        type="checkbox"
+                        id="force-regenerate"
+                        checked={forceRegenerate}
+                        onChange={(e) => setForceRegenerate(e.target.checked)}
+                        disabled={summaryLoading}
+                      />
+                      <label htmlFor="force-regenerate" style={{ fontSize: '0.9rem', color: '#495057', cursor: 'pointer' }}>
+                        Force regenerate (ignore saved summaries)
+                      </label>
+                    </div>
                   </div>
                   <button type="submit" className="btn btn-primary" disabled={summaryLoading}>
                     {summaryLoading ? (
@@ -592,10 +941,108 @@ function App() {
                 {summary && (
                   <div style={{ marginTop: '30px' }}>
                     {summary.topic && (
-                      <h2 style={{ marginBottom: '20px', color: '#495057' }}>
-                        <FaBookOpen style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Summary:{' '}
-                        <span style={{ color: '#336db0' }}>{summary.topic}</span>
-                      </h2>
+                      <div style={{ marginBottom: '20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                          <h2 style={{ margin: 0, color: '#495057' }}>
+                            <FaBookOpen style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Summary:{' '}
+                            <span style={{ color: '#336db0' }}>{summary.topic}</span>
+                          </h2>
+                        {summary.summary_type && (
+                          <span style={{
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            fontWeight: '600',
+                            backgroundColor: summary.summary_type === 'reinforced' ? '#28a745' : '#6c757d',
+                            color: '#fff',
+                            textTransform: 'capitalize'
+                          }}>
+                            {summary.summary_type === 'reinforced' ? 'Reinforced' : 'Base'}
+                          </span>
+                        )}
+                        {summary.summary_type === 'reinforced' && summary.audio_duration_seconds != null ? (
+                          <span style={{
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            color: '#6c757d',
+                            backgroundColor: '#f8f9fa',
+                            border: '1px solid #dee2e6'
+                          }} title={summary.created_at ? `Created: ${formatColomboDateTime(summary.created_at)}` : 'Audio duration'}>
+                            {formatDurationMss(summary.audio_duration_seconds) || '0:00'}
+                          </span>
+                        ) : summary.created_at ? (
+                          <span style={{
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            color: '#6c757d',
+                            backgroundColor: '#f8f9fa',
+                            border: '1px solid #dee2e6'
+                          }} title="Created timestamp">
+                            {formatColomboDateTime(summary.created_at)}
+                          </span>
+                        ) : null}
+                        {summary.from_cache && (
+                          <span style={{
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            fontSize: '0.85rem',
+                            color: '#6c757d',
+                            backgroundColor: '#e7f3ff',
+                            border: '1px solid #b3d9ff'
+                          }}>
+                            Cached
+                          </span>
+                        )}
+                        </div>
+                        
+                        {/* Summary Type Switcher - Show reinforced ONLY after feedback→generate for THIS topic/session */}
+                        {baseSummary && reinforcementVisible && reinforcedSummary && isSameTopic(reinforcedSummary.topic, loadedTopic) && reinforcedSummary.session_id === sessionId && (
+                          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                            <button
+                              onClick={() => {
+                                setActiveSummaryView('base');
+                                setSummary(baseSummary);
+                                setSummaryAudio(baseSummary.audio_url);
+                              }}
+                              style={{
+                                padding: '8px 16px',
+                                fontSize: '0.9rem',
+                                fontWeight: '600',
+                                backgroundColor: activeSummaryView === 'base' ? '#336db0' : '#fff',
+                                color: activeSummaryView === 'base' ? '#fff' : '#495057',
+                                border: `2px solid ${activeSummaryView === 'base' ? '#336db0' : '#dee2e6'}`,
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease'
+                              }}
+                            >
+                              Base Summary
+                            </button>
+                            <button
+                              onClick={() => {
+                                setActiveSummaryView('reinforced');
+                                setSummary(reinforcedSummary);
+                                setSummaryAudio(reinforcedSummary.audio_url);
+                              }}
+                              style={{
+                                padding: '8px 16px',
+                                fontSize: '0.9rem',
+                                fontWeight: '600',
+                                backgroundColor: activeSummaryView === 'reinforced' ? '#28a745' : '#fff',
+                                color: activeSummaryView === 'reinforced' ? '#fff' : '#495057',
+                                border: `2px solid ${activeSummaryView === 'reinforced' ? '#28a745' : '#dee2e6'}`,
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease'
+                              }}
+                            >
+                              Reinforced Summary
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     )}
 
                     {summary.error ? (
@@ -620,6 +1067,145 @@ function App() {
                             <div className="info-message" style={{ marginTop: '8px' }}>
                               No audio available.
                             </div>
+                          )}
+                        </div>
+
+                        {/* Feedback Section */}
+                        <div style={{ marginTop: '30px', padding: '20px', border: '1px solid #dee2e6', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
+                          <h3 style={{ marginBottom: '16px', color: '#495057', fontSize: '1.1rem' }}>
+                            Was this summary helpful?
+                          </h3>
+                          
+                          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                            <button
+                              onClick={() => setFeedbackRating('helpful')}
+                              disabled={feedbackLoading || reinforceLoading}
+                              style={{
+                                padding: '10px 20px',
+                                fontSize: '1rem',
+                                fontWeight: '600',
+                                backgroundColor: feedbackRating === 'helpful' ? '#28a745' : '#fff',
+                                color: feedbackRating === 'helpful' ? '#fff' : '#495057',
+                                border: `2px solid ${feedbackRating === 'helpful' ? '#28a745' : '#dee2e6'}`,
+                                borderRadius: '8px',
+                                cursor: feedbackLoading || reinforceLoading ? 'not-allowed' : 'pointer',
+                                opacity: feedbackLoading || reinforceLoading ? 0.6 : 1,
+                                transition: 'all 0.3s ease'
+                              }}
+                            >
+                              👍 Helpful
+                            </button>
+                            <button
+                              onClick={() => setFeedbackRating('not_helpful')}
+                              disabled={feedbackLoading || reinforceLoading}
+                              style={{
+                                padding: '10px 20px',
+                                fontSize: '1rem',
+                                fontWeight: '600',
+                                backgroundColor: feedbackRating === 'not_helpful' ? '#dc3545' : '#fff',
+                                color: feedbackRating === 'not_helpful' ? '#fff' : '#495057',
+                                border: `2px solid ${feedbackRating === 'not_helpful' ? '#dc3545' : '#dee2e6'}`,
+                                borderRadius: '8px',
+                                cursor: feedbackLoading || reinforceLoading ? 'not-allowed' : 'pointer',
+                                opacity: feedbackLoading || reinforceLoading ? 0.6 : 1,
+                                transition: 'all 0.3s ease'
+                              }}
+                            >
+                              👎 Not Helpful
+                            </button>
+                          </div>
+
+                          {feedbackRating && (
+                            <>
+                              <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#495057' }}>
+                                  Confused about (optional):
+                                </label>
+                                <input
+                                  type="text"
+                                  value={confusedConcept}
+                                  onChange={(e) => setConfusedConcept(e.target.value)}
+                                  placeholder="e.g., normalization steps, ER diagram relationships..."
+                                  disabled={feedbackLoading || reinforceLoading}
+                                  style={{
+                                    width: '100%',
+                                    padding: '10px',
+                                    border: '1px solid #dee2e6',
+                                    borderRadius: '6px',
+                                    fontSize: '0.95rem',
+                                    opacity: feedbackLoading || reinforceLoading ? 0.6 : 1
+                                  }}
+                                />
+                              </div>
+
+                              <div style={{ marginBottom: '16px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#495057' }}>
+                                  Comment (optional):
+                                </label>
+                                <textarea
+                                  value={feedbackComment}
+                                  onChange={(e) => setFeedbackComment(e.target.value)}
+                                  placeholder="Any additional feedback..."
+                                  disabled={feedbackLoading || reinforceLoading}
+                                  rows={3}
+                                  style={{
+                                    width: '100%',
+                                    padding: '10px',
+                                    border: '1px solid #dee2e6',
+                                    borderRadius: '6px',
+                                    fontSize: '0.95rem',
+                                    fontFamily: 'inherit',
+                                    resize: 'vertical',
+                                    opacity: feedbackLoading || reinforceLoading ? 0.6 : 1
+                                  }}
+                                />
+                              </div>
+
+                              <button
+                                onClick={handleSubmitFeedbackAndReinforce}
+                                disabled={feedbackLoading || reinforceLoading}
+                                className="btn btn-primary"
+                                style={{ marginBottom: '12px' }}
+                              >
+                                {feedbackLoading || reinforceLoading ? (
+                                  <>
+                                    <span className="loading-spinner"></span>
+                                    Submitting & Generating...
+                                  </>
+                                ) : (
+                                  <>
+                                    <HiMiniSparkles style={{ marginRight: '8px' }} />
+                                    Feedback → Generate
+                                  </>
+                                )}
+                              </button>
+
+                              {reinforceSuccess && (
+                                <div style={{ 
+                                  marginTop: '12px', 
+                                  padding: '10px', 
+                                  backgroundColor: '#d4edda', 
+                                  border: '1px solid #c3e6cb',
+                                  borderRadius: '6px',
+                                  color: '#155724',
+                                  fontSize: '0.9rem'
+                                }}>
+                                  Reinforcement summary generated successfully ✅
+                                </div>
+                              )}
+                              
+                              {feedbackError && (
+                                <div className="error-message" style={{ marginTop: '12px' }}>
+                                  {feedbackError}
+                                </div>
+                              )}
+
+                              {reinforceError && (
+                                <div className="error-message" style={{ marginTop: '12px' }}>
+                                  {reinforceError}
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
 

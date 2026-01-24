@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from app.core.config import settings
-from app.api.routes import auth, public, protected
+from app.api.routes import auth, public, protected, summaries
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
@@ -56,4 +56,5 @@ app.add_middleware(
 app.include_router(public.router)
 app.include_router(auth.router)
 app.include_router(protected.router)
+app.include_router(summaries.router)
 

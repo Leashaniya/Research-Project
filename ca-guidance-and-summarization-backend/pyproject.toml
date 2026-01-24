@@ -43,4 +43,5 @@ dependencies = [
     "requests>=2.32.0",
     "opencv-python>=4.8.0",
     "rouge-score>=0.1.2",
+    "pymongo>=4.6.0",
 ]
