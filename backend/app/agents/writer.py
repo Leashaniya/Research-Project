@@ -44,17 +44,14 @@ class QuestionWriter(BaseAgent):
         mode = input_data.get("mode", "generate") # Default to Generation Mode
 
         global_context = input_data.get("global_context", {})
-        needs_diagram = input_data.get("needs_diagram", False)
-        diagram_type = input_data.get("diagram_type", None)
+        banned_topics = input_data.get("banned_topics", []) or global_context.get("banned_topics", []) or []
         
         # Select Prompt Strategy
         if mode == "generate":
-            if needs_diagram:
-                print(f"    [WRITER DEBUG] needs_diagram=True for {slot.get('question_no')}. Requesting Mermaid code.")
-            prompt = self._build_generation_prompt(slot, template, context, global_context, feedback, needs_diagram, diagram_type)
+            prompt = self._build_generation_prompt(slot, template, context, global_context, feedback, banned_topics=banned_topics)
             self.log(f"Drafting question for {slot.get('question_no')} (Mode: GEN-FROM-SCRATCH)...")
         else:
-            prompt = self._build_paraphrase_prompt(slot, template, context, global_context, feedback, needs_diagram, diagram_type)
+            prompt = self._build_paraphrase_prompt(slot, template, context, global_context, feedback, banned_topics=banned_topics)
             self.log(f"Drafting question for {slot.get('question_no')} (Mode: TEMPLATE-PARAPHRASE)...")
         
         try:
@@ -65,16 +62,6 @@ class QuestionWriter(BaseAgent):
             )
             content = response.choices[0].message.content
             parsed = json.loads(content)
-            
-            # --- V2 DIAGRAM FALLBACK ---
-            if needs_diagram and not parsed.get("mermaid_code"):
-                print(f"    ⚠️ Writer failed to generate Mermaid code. Injecting fallback.")
-                parsed["mermaid_code"] = """graph TD
-    Error[Diagram Missing] -->|Writer failed| Fallback
-    Fallback[Placeholder Diagram]
-    style Error fill:#f9f,stroke:#333,stroke-width:4px
-"""
-            # ---------------------------
 
             # Validation: Check for empty stem
             if not parsed.get("text") or len(parsed.get("text", "").strip()) < 20:
@@ -90,7 +77,7 @@ class QuestionWriter(BaseAgent):
             self.log(f"Error drafting question: {e}")
             raise e
 
-    def _build_generation_prompt(self, slot, template, context, global_context, feedback=None, needs_diagram=False, diagram_type=None) -> str:
+    def _build_generation_prompt(self, slot, template, context, global_context, feedback=None, *, banned_topics=None) -> str:
         """Mode 1: Pure Generation from Constraints (No past text shown)."""
         
         topic = slot.get('topics', ['General'])[0]
@@ -105,17 +92,6 @@ class QuestionWriter(BaseAgent):
         is_norm_question = "normalization" in pattern_label or "normal form" in pattern_label
         
         
-        diagram_instructions = ""
-        if needs_diagram:
-             diagram_instructions = """
-        9. VITAL: DIAGRAM GENERATION (STRICT ENFORCEMENT)
-        If needs_diagram is TRUE, you MUST generate valid MermaidJS code that visualizes the scenario described in your question text.
-        For ER/EER Diagrams, use this syntax:
-        "mermaid_code": "erDiagram\\n    CUSTOMER ||--o{ ORDER : places\\n    ORDER ||--|{ LINE-ITEM : contains"
-        For other diagrams, use 'graph TD' or 'classDiagram'.
-        IMPORTANT: The code must be VALID MermaidJS. Keep it simple. Do NOT use substring syntax that breaks JSON.
-        """
-        
         er_context = ""
         if is_er_question:
              er_context = "Include a scenario describing entities, relationships, and attributes."
@@ -127,6 +103,11 @@ class QuestionWriter(BaseAgent):
         prompt = f"""
         You are an expert Exam Setter for a Database Management Systems course.
         Create a NEW, ORIGINAL exam question based on the following constraints.
+
+        TOOLING RULES (STRICT):
+        - Do NOT output Mermaid, Graphviz, Kroki links, or any external-diagram syntax.
+        - Do NOT include code fences like ```mermaid.
+        - If a diagram would normally be required, phrase it as a normal exam instruction in plain text (e.g., "Draw an ER diagram...") without any generated diagram code.
         
         METADATA:
         - Question No: {slot.get('question_no', '?')}
@@ -134,6 +115,10 @@ class QuestionWriter(BaseAgent):
         - Primary Topic: {template.get('pattern_label', topic)}
         - Primary Topic: {template.get('pattern_label', topic)}
         - Module Context: {context[:500]}...
+
+        TOPIC UNIQUENESS (STRICT):
+        - This question's topic MUST be: {template.get('pattern_label', topic)}
+        - BANNED TOPICS (must NOT be used): {banned_topics or []}
         
         GLOBAL ANTI-REPETITION CONSTRAINTS (DO NOT REUSE):
         - USED QUESTION TYPES: {global_context.get('used_question_types', [])} (You MUST generate a DIFFERENT type)
@@ -160,10 +145,6 @@ class QuestionWriter(BaseAgent):
         {"   - Functional dependencies (FDs) in standard notation" if is_norm_question else ""}
         {"   Then subquestions should ask for normalization steps to 3NF/BCNF and final decomposition." if is_norm_question else ""}
         
-        {"7. **DIAGRAM PLACEHOLDER**: " if needs_diagram else ""}{f"If a {diagram_type} diagram is required, include in the appropriate subquestion:" if needs_diagram else ""}
-        {"   '[DIAGRAM PLACEHOLDER: Draw the {diagram_type} diagram for the scenario in the answer booklet.]'" if needs_diagram else ""}
-        {"   Do NOT use Mermaid code or image references." if needs_diagram else ""}
-        
         ADDITIONAL CONSTRAINTS:
         - **Bloom's Taxonomy**: Ensure a mix of Recall (Define/List) and Application (Design/Analyze).
         - **Single Scenario**: Use ONE cohesive scenario for all parts.
@@ -177,17 +158,13 @@ class QuestionWriter(BaseAgent):
         {{
             "question_no": "{slot.get('question_no')}",
             "marks": {slot.get('target_marks')},
-            "mermaid_code": "erDiagram\\n    ENTITY1 ||--o{{ ENTITY2 : relates_to..." (REQUIRED STRING if needs_diagram=True. Use \\n for newlines.),
             "text": "Question stem text here (minimum 50 characters). This is the main scenario/context for all subquestions. {er_context}",
             "subquestions": [
                 {{ "label": "a", "text": "Complete question text here (minimum 20 characters, no placeholders)", "marks": 5 }}
             ]
         }}
         
-        {diagram_instructions}
-        
         REMEMBER:
-        - {"If needs_diagram=True, 'mermaid_code' field is MANDATORY. Do not omit it." if needs_diagram else ""}
         - Every "text" field must be at least 20 characters and contain no placeholders.
         - Marks must sum exactly to {slot.get('target_marks')}.
         - All subquestions must be semantically distinct.
@@ -199,20 +176,11 @@ class QuestionWriter(BaseAgent):
         return prompt
 
     
-    def _build_paraphrase_prompt(self, slot, template, context, global_context, feedback=None, needs_diagram=False, diagram_type=None) -> str:
+    def _build_paraphrase_prompt(self, slot, template, context, global_context, feedback=None, *, banned_topics=None) -> str:
         """Mode 2: Paraphrasing (Keep structure, change content)."""
         pattern_label = template.get('pattern_label', '').lower()
         is_er_question = "er" in pattern_label or "eer" in pattern_label or "diagram" in pattern_label or "schema" in pattern_label
         is_norm_question = "normalization" in pattern_label or "normal form" in pattern_label
-        
-        diagram_block = ""
-        if needs_diagram:
-            diagram_block = f"""
-        10. **DIAGRAM REQUIREMENT**:
-        You MUST generate valid MermaidJS code for the {diagram_type} diagram. Put it in a field called 'mermaid_code'.
-        Example for ERD: 'erDiagram\\n    CUSTOMER ||--o{{ ORDER : places'
-        Keep it simple and use \\n for line breaks.
-            """
 
         er_context = ""
         if is_er_question:
@@ -242,6 +210,15 @@ class QuestionWriter(BaseAgent):
         - Question Number: {slot.get('question_no') or slot.get('slot_id') or "Q?"}
         - Total Marks: {slot.get('target_marks')}
         - Topic Context: {context[:500]}...
+
+        TOOLING RULES (STRICT):
+        - Do NOT output Mermaid, Graphviz, Kroki links, or any external-diagram syntax.
+        - Do NOT include code fences like ```mermaid.
+        - If a diagram would normally be required, phrase it as a normal exam instruction in plain text (e.g., "Draw an ER diagram...") without any generated diagram code.
+
+        TOPIC UNIQUENESS (STRICT):
+        - This question's topic MUST be: {template.get('pattern_label', '')}
+        - BANNED TOPICS (must NOT be used): {banned_topics or []}
         
         GLOBAL UNIQUENESS (DO NOT REUSE THESE):
         - Topics already used: {global_context.get('used_topics', [])}
@@ -266,7 +243,6 @@ class QuestionWriter(BaseAgent):
         {{
             "question_no": "{slot.get('question_no')}",
             "marks": {slot.get('target_marks')},
-            "mermaid_code": "erDiagram\\n    ENTITY..." (MANDATORY if needs_diagram=True),
             "text": "Question stem text here (minimum 50 characters). This is the main scenario/context for all subquestions. {er_context}",
             "subquestions": [
                 {{
@@ -276,11 +252,8 @@ class QuestionWriter(BaseAgent):
                 }}
             ]
         }}
-        
-        {diagram_block}
-        
+
         REMEMBER:
-        - {"If needs_diagram=True, 'mermaid_code' field is MANDATORY." if needs_diagram else ""}
         - Every "text" field must be at least 20 characters and contain no placeholders.
         - Marks must sum exactly to {slot.get('target_marks')}.
         - All subquestions must be semantically distinct.

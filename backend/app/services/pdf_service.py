@@ -90,20 +90,7 @@ class PDFService:
                     pdf.set_x(15)
                     
                     # Use multi_cell for the full text (handles wrapping)
-                    if "```mermaid" in text:
-                        # Split text into description and mermaid code
-                        parts = text.split("```mermaid")
-                        desc = parts[0].strip()
-                        mermaid = "```mermaid" + parts[1]
-                        
-                        pdf.multi_cell(155, 6, f"{label})  {desc}")
-                        pdf.set_font("courier", "I", 9)
-                        pdf.ln(2)
-                        pdf.set_x(25)
-                        pdf.multi_cell(145, 5, mermaid)
-                        pdf.set_font("helvetica", "", 11)
-                    else:
-                        pdf.multi_cell(155, 6, f"{label})  {text}")
+                    pdf.multi_cell(155, 6, f"{label})  {text}")
                     
                     # Now place the marks on the right side of the LAST line
                     # We need to go back up to align with the last line of text
@@ -121,83 +108,6 @@ class PDFService:
                 text = PDFService._sanitize_text(q.get("text", "No content available."))
                 pdf.set_font("helvetica", "", 11)
                 pdf.multi_cell(0, 7, text)
-                pdf.ln(5)
-
-            # --- DIAGRAM RENDERING (V2) ---
-            # Check if we have mermaid code to render
-            mermaid_code = q.get("mermaid_code")
-            needs_diagram = q.get("needs_diagram", False)
-            
-            # Decide: Render if mermaid code exists
-            if mermaid_code:
-                try:
-                    from app.services.diagram_service import DiagramService
-                    import os
-                    
-                    # Generate temporary path
-                    timestamp = int(datetime.now().timestamp())
-                    temp_img_path = str(Path(output_path).parent / "temp_images" / f"q_{q_no}_{timestamp}.png")
-                    
-                    print(f"    🎨 Rendering diagram for {q_no}...")
-                    success = DiagramService.render_mermaid_to_image(mermaid_code, temp_img_path)
-                    
-                    if success and os.path.exists(temp_img_path):
-                        pdf.ln(5)
-                        pdf.set_font("helvetica", "B", 10)
-                        diagram_type = q.get("diagram_type", "Diagram")
-                        pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
-                        
-                        # Calculate available width (A4 width - margins)
-                        avail_width = 180 
-                        # Embed image (auto-scale)
-                        pdf.image(temp_img_path, w=avail_width)
-                        pdf.ln(5)
-                    else:
-                        # Fallback to text if rendering failed
-                        raise Exception("Rendering failed")
-                        
-                except Exception as e:
-                    print(f"    ⚠️ Diagram rendering failed: {e}. Using placeholder.")
-                    # Fallback Placeholder
-                    pdf.ln(5)
-                    pdf.set_fill_color(240, 240, 240)
-                    pdf.rect(20, pdf.get_y(), 170, 30, 'FD')
-                    pdf.set_xy(25, pdf.get_y()+10)
-                    pdf.set_font("helvetica", "I", 10)
-                    pdf.multi_cell(160, 5, f"[Diagram Generation Failed: {str(e)[:50]}...]\nMermaid code available in JSON.")
-                    pdf.ln(20)
-            
-            # Legacy/Placeholder check (if no mermaid code but needs_diagram was set)
-            elif needs_diagram:
-                 # Standard Placeholder
-                diagram_type = q.get("diagram_type", "Diagram")
-                pdf.ln(5)
-                pdf.set_fill_color(250, 250, 250)
-                pdf.rect(20, pdf.get_y(), 170, 40, 'FD')
-                pdf.set_xy(25, pdf.get_y()+15)
-                pdf.set_font("helvetica", "I", 10)
-                pdf.multi_cell(160, 6, f"[DIAGRAM PLACEHOLDER: Draw the {diagram_type} diagram in the answer booklet.]", align="C")
-                pdf.ln(25)
-            
-            # Legacy support: If mermaid_code exists but no placeholder, render as code (for backward compatibility)
-            mermaid_code = q.get("mermaid_code")
-            if mermaid_code and not needs_diagram:
-                caption = q.get("image_caption", "Figure")
-                pdf.ln(5)
-                pdf.set_font("helvetica", "B", 10)
-                pdf.cell(0, 10, PDFService._sanitize_text(caption), ln=True)
-                
-                pdf.set_fill_color(245, 245, 245) # Light gray background
-                pdf.set_font("courier", "", 9)
-                
-                # Split lines for rendering
-                code_lines = mermaid_code.split("\n")
-                for line in code_lines:
-                    # Sanitize line
-                    safe_line = PDFService._sanitize_text(line)
-                    pdf.set_x(20)
-                    pdf.cell(0, 5, safe_line, ln=True, fill=True)
-                
                 pdf.ln(5)
         
         # Final Save

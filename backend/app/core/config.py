@@ -22,6 +22,12 @@ else:
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()  # Strip whitespace
 OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "").strip() if os.getenv("OPENAI_BASE_URL") else None  # Optional: For Local LLM
 
+# =========================
+# Hard constraints (do not infer from artifacts)
+# =========================
+# Single source of truth: model paper must ALWAYS have exactly 4 questions.
+MODEL_PAPER_QUESTION_COUNT = 4
+
 class Settings:
     OPENAI_API_KEY = OPENAI_API_KEY
     OPENAI_BASE_URL = OPENAI_BASE_URL
@@ -46,6 +52,9 @@ class Settings:
     # Blueprint Validation Config
     MIN_SLOTS = int(os.getenv("MIN_SLOTS", 4))  # Minimum question slots in blueprint
     DEFAULT_SLOT_MARKS = int(os.getenv("DEFAULT_SLOT_MARKS", 25))  # Default marks per slot
+
+    # Hard constraint for generation (do NOT infer from blueprint/template artifacts)
+    MODEL_PAPER_QUESTION_COUNT = MODEL_PAPER_QUESTION_COUNT
     
     # Critic Validation Config
     MIN_SCENARIO_CHARS = int(os.getenv("MIN_SCENARIO_CHARS", 120))  # Minimum scenario length in characters

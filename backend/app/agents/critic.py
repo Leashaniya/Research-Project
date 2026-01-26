@@ -364,6 +364,21 @@ class QualityCritic(BaseAgent):
         draft_str = json.dumps(draft).lower()
         # EXCEPTION: We explicitly ALLOW "[DIAGRAM PLACEHOLDER]" as per new rule.
         clean_draft_str = draft_str.replace("[diagram placeholder]", "").replace("[placeholder figure]", "")
+
+        # Diagrams/tooling are disabled by updated rules (text-only model).
+        # Reject any Mermaid/Graphviz/Kroki output or mermaid_code fields.
+        diagram_tooling_markers = [
+            "```mermaid",
+            "mermaid_code",
+            "erdiagram",
+            "graph td",
+            "graphviz",
+            "kroki.io",
+        ]
+        if any(m in clean_draft_str for m in diagram_tooling_markers):
+            err_msg = "DIAGRAM_TOOLING_DISABLED: Mermaid/Graphviz/Kroki/diagram code is not allowed. Use plain text only."
+            self.log(f"❌ Deterministic Reject: {err_msg}")
+            return {"approved": False, "feedback": err_msg, "feedback_code": "DIAGRAM_TOOLING_DISABLED"}
         
         hallucination_keywords = ["[figure:", "slide ", "slide_", "fig_", "page ", "page_", "refer to figure", "shown in figure"]
         

@@ -54,10 +54,89 @@ TEMPLATES_PER_CLUSTER = 3
 
 MIN_WORDS_QUESTION_TEXT = 5
 
+# Trend mining MUST use only the most recent K papers (deterministic sort: year + semester)
+NUM_RECENT_PAPERS_FOR_TRENDS = 6
+
 
 # -------------------------------
 # Helpers
 # -------------------------------
+def _parse_year_and_semester(stem: str) -> tuple[int, int]:
+    """
+    Deterministic recency parsing from pdf_stem.
+    Supports stems like: "2023", "2023 I", "2023 II", "2023-II", etc.
+    Returns: (year, semester_rank) where semester_rank: II=2, I=1, else 0
+    """
+    s = (stem or "").strip()
+    match = re.search(r"(20\d{2})", s)
+    year = int(match.group(1)) if match else 0
+    s_upper = s.upper()
+    sem_rank = 0
+    # Prefer II > I when present
+    if re.search(r"\bII\b", s_upper) or re.search(r"[-_\s]II\b", s_upper):
+        sem_rank = 2
+    elif re.search(r"\bI\b", s_upper) or re.search(r"[-_\s]I\b", s_upper):
+        sem_rank = 1
+    return year, sem_rank
+
+def select_recent_papers(all_papers: list[dict], k: int = NUM_RECENT_PAPERS_FOR_TRENDS) -> list[dict]:
+    """
+    Select the most recent k papers, deterministically sorted by (year, semester).
+    """
+    papers_sorted = sorted(
+        all_papers,
+        key=lambda p: (_parse_year_and_semester(p.get("pdf_stem", ""))[0], _parse_year_and_semester(p.get("pdf_stem", ""))[1], p.get("pdf_stem", "")),
+        reverse=True,
+    )
+    return papers_sorted[:k]
+
+def _aggregate_question_text(q: dict) -> str:
+    """
+    Deterministically assemble question text for classification when main stem is too short.
+    """
+    txt = clean_for_vector(q.get("text", ""))
+    if len(txt.split()) >= MIN_WORDS_QUESTION_TEXT:
+        return txt
+    subqs = q.get("subquestions", []) or []
+    if not subqs:
+        return txt
+
+    def collect_subq_texts(subqs_list):
+        texts = []
+        for sq in subqs_list:
+            sq_text = (sq.get("text", "") or "").strip()
+            if sq_text:
+                texts.append(sq_text)
+            nested = sq.get("subquestions", []) or []
+            if nested:
+                texts.extend(collect_subq_texts(nested))
+        return texts
+
+    all_subq_texts = collect_subq_texts(subqs)
+    return clean_for_vector(" ".join(all_subq_texts))
+
+def compute_topic_frequencies(recent_papers: list[dict]) -> dict:
+    """
+    Compute topic frequency using pattern labels from the latest papers.
+    Topic definition here is the stable pattern classifier (e.g., SQL_DDL_DML, ER_EER_MODELING).
+    """
+    counts = Counter()
+    for p in recent_papers:
+        for q in p.get("questions", []):
+            txt = _aggregate_question_text(q)
+            if len(txt.split()) < MIN_WORDS_QUESTION_TEXT:
+                continue
+            counts[classify_pattern(txt)] += 1
+
+    # Deterministic top topic selection: highest count, then alphabetically
+    items = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    top_topic = items[0][0] if items else "GENERAL_THEORY"
+    return {
+        "top_topic": top_topic,
+        "topic_frequencies": dict(counts),
+        "total_questions_counted": int(sum(counts.values())),
+    }
+
 def safe_int(x):
     try:
         if x is None:
@@ -209,17 +288,29 @@ def main():
 
     papers_good = [p for p in papers if p["pdf_stem"] in good_stems]
 
-    # SELECT LATEST PAPERS FOR BLUEPRINT CONSTRUCTION (e.g. Last 3 Years / 6 papers)
-    # Extract year from stem and sort
-    def get_year(stem):
-        match = re.search(r"20\d{2}", stem)
-        return int(match.group()) if match else 0
+    # ----------------------------------------------------------
+    # Trend mining + blueprint MUST use ONLY latest K papers
+    # Deterministic sort: year + semester
+    # ----------------------------------------------------------
+    recent_papers = select_recent_papers(papers_good, k=NUM_RECENT_PAPERS_FOR_TRENDS)
+    blueprint_papers = recent_papers  # Blueprint already uses latest papers; now trend mining matches.
 
-    papers_good_sorted = sorted(papers_good, key=lambda x: (get_year(x["pdf_stem"]), "II" in x["pdf_stem"]), reverse=True)
-    blueprint_papers = papers_good_sorted[:6]
-    print(f"\nUsing latest {len(blueprint_papers)} papers for structural blueprint (Probabilistic Marking Matrix):")
+    print(f"\nUsing latest {len(blueprint_papers)} papers (deterministic year+semester) for blueprint + trends:")
     for bp in blueprint_papers:
         print(f" - {bp['pdf_stem']}")
+
+    # Persist trend summary (used downstream by orchestrator/template analyzer)
+    trend = compute_topic_frequencies(recent_papers)
+    trend_summary = {
+        "num_recent_papers_for_trends": NUM_RECENT_PAPERS_FOR_TRENDS,
+        "recent_papers_used": [p["pdf_stem"] for p in recent_papers],
+        **trend,
+    }
+    (OUT_ROOT / "trend_summary.json").write_text(
+        json.dumps(trend_summary, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    print(f"✅ Saved trend_summary.json (top_topic={trend_summary['top_topic']})")
 
 
     # ==========================================================
@@ -281,7 +372,7 @@ def main():
         "note": {
             "good_papers_available": len(papers_good),
             "blueprint_papers_used": [p["pdf_stem"] for p in blueprint_papers],
-            "rule": "Blueprint derived from latest 3 years; Clustering uses all historical data."
+            "rule": f"Blueprint + trend mining derived ONLY from latest {NUM_RECENT_PAPERS_FOR_TRENDS} papers (deterministic year+semester)."
         },
         "question_slots": [
             {
@@ -313,29 +404,10 @@ def main():
     question_texts = []
     question_meta = []
 
-    for p in papers_good:
+    # Trend mining MUST use ONLY recent papers (latest K)
+    for p in recent_papers:
         for pos, q in enumerate(p["questions"], start=1):
-            txt = clean_for_vector(q.get("text", ""))
-            
-            # If main text is empty or too short, aggregate sub-question texts
-            if len(txt.split()) < MIN_WORDS_QUESTION_TEXT:
-                subqs = q.get("subquestions", [])
-                if subqs:
-                    # Recursively collect all sub-question texts
-                    def collect_subq_texts(subqs_list):
-                        texts = []
-                        for sq in subqs_list:
-                            sq_text = sq.get("text", "").strip()
-                            if sq_text:
-                                texts.append(sq_text)
-                            # Handle nested sub-questions
-                            nested = sq.get("subquestions", [])
-                            if nested:
-                                texts.extend(collect_subq_texts(nested))
-                        return texts
-                    
-                    all_subq_texts = collect_subq_texts(subqs)
-                    txt = clean_for_vector(" ".join(all_subq_texts))
+            txt = _aggregate_question_text(q)
             
             # Final check after aggregation
             if len(txt.split()) < MIN_WORDS_QUESTION_TEXT:
@@ -450,7 +522,8 @@ def main():
     # STEP 6 — TEMPLATE QUESTION SELECTION
     # ==========================================================
     blueprint_index = {}
-    for p in papers_good:
+    # Templates MUST be mined from recent papers only (latest K)
+    for p in recent_papers:
         for q in p["questions"]:
             blueprint_index[(p["pdf_stem"], str(q.get("question_id")))] = q
 

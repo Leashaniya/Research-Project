@@ -58,7 +58,7 @@ class BlueprintAnalyst(BaseAgent):
         """
         slots = blueprint.get("question_slots", [])
         
-        # Check minimum slots requirement
+        # Check minimum slots requirement (structural). Generation question-count is enforced separately.
         if len(slots) < settings.MIN_SLOTS:
             self.log(f"[WARN] Blueprint has {len(slots)} slots, minimum is {settings.MIN_SLOTS}. Using default blueprint.")
             return self._default_blueprint()
@@ -127,9 +127,36 @@ class BlueprintAnalyst(BaseAgent):
             
             repaired_slots.append(slot)
         
+        # ------------------------------
+        # HARD CONSTRAINT: EXACT QUESTION COUNT (Q1–Q4 only)
+        # ------------------------------
+        # Single source of truth: settings.MODEL_PAPER_QUESTION_COUNT (hard-coded to 4).
+        target_count = int(getattr(settings, "MODEL_PAPER_QUESTION_COUNT", 4))
+
+        # Force deterministic Q1..Q4 identifiers and ignore any extra slots.
+        trimmed = repaired_slots[:target_count]
+
+        # If blueprint had fewer than required slots, pad with generic slots.
+        if len(trimmed) < target_count:
+            missing = target_count - len(trimmed)
+            self.log(f"[WARN] Blueprint has only {len(trimmed)} usable slots. Padding {missing} slots to reach {target_count}.")
+            for i in range(len(trimmed), target_count):
+                trimmed.append({
+                    "question_no": f"Q{i+1}",
+                    "slot_id": f"Q{i+1}",
+                    "target_marks": settings.DEFAULT_SLOT_MARKS,
+                    "topics": ["General"],
+                    "type": "conceptual",
+                })
+
+        # Re-number slots sequentially Q1..Q4 (identifier only; does not decide topic).
+        for idx, slot in enumerate(trimmed):
+            slot["question_no"] = f"Q{idx + 1}"
+            slot["slot_id"] = f"Q{idx + 1}"
+
         # Update blueprint
-        blueprint["question_slots"] = repaired_slots
-        total_marks = sum(slot.get("target_marks", 0) for slot in repaired_slots)
+        blueprint["question_slots"] = trimmed
+        total_marks = sum(slot.get("target_marks", 0) for slot in trimmed)
         
         # TOTAL-MARKS RECONCILIATION: Ensure sum matches canonical_total_marks
         # This prevents papers ending up with totals like 80, 95, 105 accidentally
@@ -140,9 +167,9 @@ class BlueprintAnalyst(BaseAgent):
                 
                 # Distribute difference across slots
                 # Strategy: Add/subtract to highest-mark slots or recently repaired ones
-                if repaired_slots:
+                if trimmed:
                     # Sort slots by marks (descending) to prioritize high-mark slots
-                    sorted_slots = sorted(repaired_slots, key=lambda s: s.get("target_marks", 0), reverse=True)
+                    sorted_slots = sorted(trimmed, key=lambda s: s.get("target_marks", 0), reverse=True)
                     
                     # Distribute difference
                     remaining_diff = diff
@@ -162,13 +189,13 @@ class BlueprintAnalyst(BaseAgent):
                                 remaining_diff += 1
                     
                     # If still have remainder, adjust the first slot
-                    if remaining_diff != 0 and repaired_slots:
-                        repaired_slots[0]["target_marks"] += remaining_diff
-                        if repaired_slots[0]["target_marks"] < 1:
-                            repaired_slots[0]["target_marks"] = 1
+                    if remaining_diff != 0 and trimmed:
+                        trimmed[0]["target_marks"] += remaining_diff
+                        if trimmed[0]["target_marks"] < 1:
+                            trimmed[0]["target_marks"] = 1
                     
                     # Recalculate total
-                    total_marks = sum(slot.get("target_marks", 0) for slot in repaired_slots)
+                    total_marks = sum(slot.get("target_marks", 0) for slot in trimmed)
                     self.log(f"[INFO] Total marks reconciled: {total_marks} (canonical: {blueprint_total})")
         
         # Log validation results
