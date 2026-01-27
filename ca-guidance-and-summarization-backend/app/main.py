@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from app.core.config import settings
-from app.api.routes import auth, public, protected, summaries
+from app.api.routes import auth, er, public, protected, summaries
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
@@ -39,6 +39,8 @@ allowed_origins = [
     "https://ca.vuedapt.com",
     "http://localhost:3000",
     "http://localhost:3333",  # Vite dev server port
+    "http://localhost:5173",  # Vite default dev server port
+    "http://localhost:5174",  # Vite alternate port (common when 5173 is busy)
 ]
 
 # Remove None/empty values
@@ -57,4 +59,5 @@ app.include_router(public.router)
 app.include_router(auth.router)
 app.include_router(protected.router)
 app.include_router(summaries.router)
+app.include_router(er.router)
 

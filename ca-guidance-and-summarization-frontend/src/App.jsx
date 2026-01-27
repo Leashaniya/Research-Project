@@ -16,6 +16,7 @@ import {
 } from 'react-icons/fa';
 import { HiMiniSparkles } from 'react-icons/hi2';
 import './App.css';
+import ERDiagramGeneratorPage from './er/ERDiagramGeneratorPage';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -762,6 +763,12 @@ function App() {
               >
                 <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Flashcard Generator
               </button>
+              <button
+                onClick={() => setActiveTab('er')}
+                className={`tab-button ${activeTab === 'er' ? 'active' : ''}`}
+              >
+                <FaBookOpen style={{ marginRight: '8px', verticalAlign: 'middle' }} /> ER Diagram Generator
+              </button>
             </div>
 
             {/* Guidance Tab */}
@@ -1432,6 +1439,13 @@ function App() {
                     )}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* ER Diagram Generator Tab */}
+            {activeTab === 'er' && (
+              <div className="content-area">
+                <ERDiagramGeneratorPage />
               </div>
             )}
           </div>

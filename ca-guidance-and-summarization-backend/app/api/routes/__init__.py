@@ -1,3 +1,3 @@
 # API route modules
 
-from . import auth, protected, public, summaries  # noqa: F401
+from . import auth, er, protected, public, summaries  # noqa: F401
