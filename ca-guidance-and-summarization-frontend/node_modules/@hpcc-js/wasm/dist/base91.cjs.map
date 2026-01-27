@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/base91.ts"],
+  "sourcesContent": ["export * from \"@hpcc-js/wasm-base91\";"],
+  "mappings": "iaAAA,IAAAA,EAAA,kBAAAC,EAAAD,GAAAE,EAAAF,EAAc,gCAAd",
+  "names": ["base91_exports", "__toCommonJS", "__reExport"]
+}

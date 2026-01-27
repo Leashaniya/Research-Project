@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import "./er.css";
 
-import type { Attribute, Cardinality, ERModel, Entity, Relationship, Selection, ValidationMessage } from "./types";
+import type { Attribute, Cardinality, ERModel, Entity, Relationship, Selection, ValidationMessage, RenderPlan, ValidationOutput } from "./types";
 import { createId } from "./id";
 import { validateModel } from "./validation";
+import { validateModelAPI, getRenderPlanAPI } from "./api";
 
 import { EntityList } from "./components/EntityList";
 import { RelationshipList } from "./components/RelationshipList";
@@ -11,6 +12,10 @@ import { EntityEditor } from "./components/EntityEditor";
 import { RelationshipEditor } from "./components/RelationshipEditor";
 import { JsonPreview } from "./components/JsonPreview";
 import { ValidationPanel } from "./components/ValidationPanel";
+import { ERDiagramSvg } from "./components/ERDiagramSvg";
+import { GraphvizDiagram } from "./components/GraphvizDiagram";
+import { DotPreview } from "./components/DotPreview";
+import { erModelToDot } from "./graphviz";
 
 const DEFAULT_CARD: Cardinality = "0..*";
 
@@ -39,9 +44,19 @@ export default function ERDiagramGeneratorPage() {
   const [model, setModel] = useState<ERModel>({ entities: [], relationships: [] });
   const [selection, setSelection] = useState<Selection>(null);
 
-  // Validation state (only populated after user clicks Validate Model)
+  // Validation state
   const [hasValidated, setHasValidated] = useState(false);
   const [validationMessages, setValidationMessages] = useState<ValidationMessage[]>([]);
+  const [backendValidation, setBackendValidation] = useState<ValidationOutput | null>(null);
+
+  // Render plan state
+  const [renderPlan, setRenderPlan] = useState<RenderPlan | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
+
+  // Graphviz state
+  const [diagramMode, setDiagramMode] = useState<"chen" | "graphviz">("graphviz");
+  const [dotText, setDotText] = useState<string | null>(null);
 
   const selectedEntity = useMemo(() => {
     if (selection?.type !== "entity") return null;
@@ -110,16 +125,79 @@ export default function ERDiagramGeneratorPage() {
     });
   };
 
-  const runValidation = () => {
-    const res = validateModel(model);
-    setHasValidated(true);
-    setValidationMessages(res.messages);
+  const runValidation = async () => {
+    try {
+      setHasValidated(true);
+      // Call backend validation API
+      const backendResult = await validateModelAPI(model);
+      setBackendValidation(backendResult);
+      
+      // Also run frontend validation for immediate feedback
+      const frontendResult = validateModel(model);
+      setValidationMessages(frontendResult.messages);
+    } catch (error) {
+      console.error("Validation API error:", error);
+      // Fallback to frontend validation
+      const frontendResult = validateModel(model);
+      setValidationMessages(frontendResult.messages);
+      setBackendValidation(null);
+      alert(`Validation API error: ${error instanceof Error ? error.message : String(error)}`);
+    }
   };
 
-  const generateDiagram = () => {
-    // Placeholder only (no backend, no rendering yet)
-    alert("Diagram generation will be added next (Figma MCP)");
+  const generateDiagram = async () => {
+    setIsGenerating(true);
+    setGenerationError(null);
+    setRenderPlan(null);
+    setDotText(null);
+
+    try {
+      // First validate
+      const validationResult = await validateModelAPI(model);
+      setBackendValidation(validationResult);
+      setHasValidated(true);
+
+      // Check if there are errors
+      if (validationResult.errors.length > 0) {
+        setGenerationError("Model has validation errors. Fix them before generating a diagram.");
+        setIsGenerating(false);
+        return;
+      }
+
+      if (diagramMode === "chen") {
+        // Get render plan for Chen SVG
+        const plan = await getRenderPlanAPI(model);
+        setRenderPlan(plan);
+        setGenerationError(null);
+      } else {
+        // Generate DOT for Graphviz
+        try {
+          const dot = erModelToDot(model);
+          setDotText(dot);
+          setGenerationError(null);
+        } catch (err) {
+          setGenerationError(`Failed to generate DOT: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+    } catch (error: any) {
+      console.error("Render plan API error:", error);
+      
+      // If 400, backend returned validation output
+      if (error.status === 400 && error.validation) {
+        setBackendValidation(error.validation);
+        setGenerationError("Model has validation errors. Fix them before generating a diagram.");
+      } else {
+        setGenerationError(`Failed to generate diagram: ${error instanceof Error ? error.message : String(error)}`);
+      }
+      setRenderPlan(null);
+      setDotText(null);
+    } finally {
+      setIsGenerating(false);
+    }
   };
+
+  // Check if backend validation has errors
+  const backendHasErrors = backendValidation ? backendValidation.errors.length > 0 : false;
 
   return (
     <div className="er-page">
@@ -162,22 +240,74 @@ export default function ERDiagramGeneratorPage() {
         <div className="er-panel">
           <h3 className="er-section-title">Actions</h3>
           <div className="er-actions">
-            <button className="er-btn primary" type="button" onClick={runValidation}>
+            <button className="er-btn primary" type="button" onClick={runValidation} disabled={isGenerating}>
               Validate Model
             </button>
-            <button className="er-btn" type="button" onClick={generateDiagram} disabled={hasErrors}>
-              Generate Diagram
+            <button
+              className="er-btn"
+              type="button"
+              onClick={generateDiagram}
+              disabled={hasErrors || backendHasErrors || isGenerating}
+            >
+              {isGenerating ? "Generating..." : "Generate Diagram"}
             </button>
           </div>
-          <div className="er-muted" style={{ marginTop: 8 }}>
-            Generate Diagram is disabled until there are no errors (warnings are allowed).
+          
+          {/* Diagram mode toggle */}
+          <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}>
+            <label style={{ fontSize: "0.875rem", color: "#6c757d" }}>Layout:</label>
+            <button
+              className={`er-btn ${diagramMode === "chen" ? "primary" : ""}`}
+              type="button"
+              onClick={() => setDiagramMode("chen")}
+              style={{ fontSize: "0.875rem", padding: "4px 12px" }}
+            >
+              Chen (SVG)
+            </button>
+            <button
+              className={`er-btn ${diagramMode === "graphviz" ? "primary" : ""}`}
+              type="button"
+              onClick={() => setDiagramMode("graphviz")}
+              style={{ fontSize: "0.875rem", padding: "4px 12px" }}
+            >
+              Graphviz (Auto)
+            </button>
           </div>
+          
+          <div className="er-muted" style={{ marginTop: 8 }}>
+            {hasErrors || backendHasErrors
+              ? "Fix validation errors before generating a diagram."
+              : diagramMode === "chen"
+              ? "Generate Diagram creates a visual Chen ER diagram with manual layout."
+              : "Generate Diagram creates a visual ER diagram using Graphviz automatic layout."}
+          </div>
+          {generationError && (
+            <div style={{ marginTop: 8, color: "#842029", fontSize: "0.9rem" }}>
+              {generationError}
+            </div>
+          )}
         </div>
 
+        {/* Validation Results */}
+        <ValidationPanel
+          messages={validationMessages}
+          backendValidation={backendValidation || undefined}
+          hasRun={hasValidated}
+        />
+
+        {/* Diagram Preview */}
+        {diagramMode === "chen" ? (
+          <ERDiagramSvg plan={renderPlan} model={model} />
+        ) : (
+          <>
+            <GraphvizDiagram model={model} dotText={dotText} />
+            {dotText && <DotPreview dotText={dotText} />}
+          </>
+        )}
+
+        {/* JSON Preview (collapsible) */}
         <JsonPreview model={model} />
-        <ValidationPanel messages={validationMessages} hasRun={hasValidated} />
       </div>
     </div>
   );
 }
-

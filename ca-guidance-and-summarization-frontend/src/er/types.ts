@@ -43,3 +43,49 @@ export interface ValidationMessage {
   detail?: string;
 }
 
+// Render plan types (matching backend response)
+export interface RenderNode {
+  id: string;
+  type: "entity" | "relationship";
+  label: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export interface RenderEdge {
+  id: string;
+  from: string;
+  to: string;
+  labelNearFrom: string;
+  labelNearTo: string;
+}
+
+export interface AttributeNode {
+  id: string;
+  ownerId: string;
+  label: string;
+  x: number;
+  y: number;
+}
+
+export interface RenderPlan {
+  nodes: RenderNode[];
+  edges: RenderEdge[];
+  attributeNodes: AttributeNode[];
+}
+
+// Backend validation response
+export interface ValidationIssue {
+  code: string;
+  message: string;
+  path: string;
+}
+
+export interface ValidationOutput {
+  errors: ValidationIssue[];
+  warnings: ValidationIssue[];
+  info: ValidationIssue[];
+}
+
