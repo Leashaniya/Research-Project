@@ -100,20 +100,7 @@ class PDFService:
                     pdf.set_x(15)
                     
                     # Use multi_cell for the full text (handles wrapping)
-                    if "```mermaid" in text:
-                        # Split text into description and mermaid code
-                        parts = text.split("```mermaid")
-                        desc = parts[0].strip()
-                        mermaid = "```mermaid" + parts[1]
-                        
-                        pdf.multi_cell(155, 6, f"{label})  {desc}")
-                        pdf.set_font("courier", "I", 9)
-                        pdf.ln(2)
-                        pdf.set_x(25)
-                        pdf.multi_cell(145, 5, mermaid)
-                        pdf.set_font("helvetica", "", 11)
-                    else:
-                        pdf.multi_cell(155, 6, f"{label})  {text}")
+                    pdf.multi_cell(155, 6, f"{label})  {text}")
                     
                     # Now place the marks on the right side of the LAST line
                     # We need to go back up to align with the last line of text

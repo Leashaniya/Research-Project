@@ -1,17 +1,98 @@
 import time
 import json
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Tuple
 from app.agents import BlueprintAnalyst, ContentResearcher, QuestionWriter, QualityCritic
 from app.services.pdf_service import PDFService
 import random
 from app.core.paths import OUTPUTS_DIR, ARTIFACTS_DIR
+from app.core.config import settings
 
 # Config
 # Config
 MAX_RETRIES = 3
+MAX_PAPER_REPAIR_RETRIES = 3
 
 from app.core.db import db
 from sentence_transformers import SentenceTransformer, util
+
+
+NUM_RECENT_PAPERS_FOR_TRENDS = 6  # single source of truth for trend artifacts
+
+
+def enforce_top_topic_constraint(slots: List[dict], top_topic: str) -> List[dict]:
+    """
+    Ensure at least one slot is forced to use top_topic.
+
+    This function is intentionally simple and deterministic: if no slot has
+    'forced_pattern_label' set already, force the first slot.
+    """
+    if not slots or not top_topic:
+        return slots
+
+    if any(s.get("forced_pattern_label") == top_topic for s in slots):
+        return slots
+
+    # Deterministic: force Q1 slot
+    slots[0]["forced_pattern_label"] = top_topic
+    return slots
+
+
+def validate_model_paper(paper_json: dict, *, top_topic: Optional[str] = None, expected_q_count: int = 4) -> List[str]:
+    """
+    Strict validator for final model paper constraints.
+
+    Returns a list of error codes/strings. Empty list means valid.
+    """
+    errors: List[str] = []
+
+    questions = paper_json.get("questions") or []
+    if len(questions) != expected_q_count:
+        errors.append(f"QUESTION_COUNT_ERROR: expected={expected_q_count} got={len(questions)}")
+
+    # Numbering must be Q1..Q4
+    expected_qnos = [f"Q{i+1}" for i in range(expected_q_count)]
+    got_qnos = [str(q.get("question_no", "")).strip() for q in questions]
+    if got_qnos != expected_qnos:
+        errors.append(f"NUMBERING_ERROR: expected={expected_qnos} got={got_qnos}")
+
+    # Topic uniqueness + top topic inclusion
+    topics = []
+    for q in questions:
+        t = q.get("pattern_label") or q.get("main_topic")
+        topics.append(t)
+
+    if any(t is None or str(t).strip() == "" for t in topics):
+        errors.append("TOPIC_MISSING_ERROR: one or more questions missing pattern_label/main_topic")
+    else:
+        uniq = set(topics)
+        if len(uniq) != expected_q_count:
+            errors.append(f"TOPIC_DUPLICATE_ERROR: unique={len(uniq)} expected={expected_q_count} topics={topics}")
+        if top_topic and top_topic not in uniq:
+            errors.append(f"TOP_TOPIC_MISSING_ERROR: top_topic={top_topic} topics={topics}")
+
+    # Marks validation (basic safety)
+    total_marks = 0
+    for q in questions:
+        q_marks = int(q.get("marks") or 0)
+        if q_marks <= 0:
+            errors.append(f"MARKS_ERROR: {q.get('question_no')} has marks<=0")
+        sub = q.get("subquestions") or []
+        if sub:
+            sub_sum = sum(int(sq.get("marks") or 0) for sq in sub)
+            if sub_sum != q_marks:
+                errors.append(f"MATH_ERROR: {q.get('question_no')} sub_sum={sub_sum} expected={q_marks}")
+        total_marks += q_marks
+
+    paper_total = int(paper_json.get("total_marks") or 0)
+    if paper_total != total_marks:
+        errors.append(f"PAPER_TOTAL_MISMATCH: paper_total={paper_total} computed_total={total_marks}")
+
+    # Most projects assume 100; enforce unless explicitly changed elsewhere
+    if total_marks != 100:
+        errors.append(f"TOTAL_MARKS_ERROR: expected=100 got={total_marks}")
+
+    return errors
 
 class SyllabusClassifier:
     """Classifies text into Database Modules."""
@@ -121,7 +202,17 @@ class AgentOrchestrator:
         self.diagrams = []
         # ... (diagram loading code remains)
 
-    async def _select_template(self, q_no, marks, used_modules=None, used_intents=None, used_template_ids=None):
+    async def _select_template(
+        self,
+        q_no,
+        marks,
+        used_modules=None,
+        used_intents=None,
+        used_template_ids=None,
+        *,
+        required_pattern_label: Optional[str] = None,
+        banned_pattern_labels: Optional[Set[str]] = None,
+    ):
         """
         Smart Syllabus-Aware Template Selection with Diversity Enforcement.
         1. Filter by Structure (Marks)
@@ -145,6 +236,12 @@ class AgentOrchestrator:
         pipeline = [
             { "$match": { "full_text": { "$exists": True, "$ne": "" } } }
         ]
+
+        # 0. Hard filter: required/banned pattern labels (topics)
+        if required_pattern_label:
+            pipeline[0]["$match"]["pattern_label"] = required_pattern_label
+        elif banned_pattern_labels:
+            pipeline[0]["$match"]["pattern_label"] = { "$nin": list(banned_pattern_labels) }
         
         # 1. Broad Filtering by Marks (within +/- 5 range)
         if marks:
@@ -165,6 +262,13 @@ class AgentOrchestrator:
         candidates = await cursor.to_list(length=20)
         
         if not candidates:
+            # If a specific topic was required, preserve it even when templates are missing.
+            # This ensures top_topic enforcement can still succeed without "blind regeneration".
+            if required_pattern_label:
+                forced_fallback = fallback.copy()
+                forced_fallback["pattern_label"] = required_pattern_label
+                forced_fallback["full_text"] = f"(Fallback) No templates found for required topic: {required_pattern_label}."
+                return forced_fallback
             return fallback
 
         # 3. Score candidates with diversity bonuses/penalties
@@ -707,6 +811,170 @@ class AgentOrchestrator:
         else:
             print(f"✅ Topic Coverage: {unique_topics} distinct topics covered")
 
+    def _load_trend_summary(self) -> dict:
+        """
+        Loads the trend summary produced by preprocessing (latest 6 papers only).
+        """
+        path = ARTIFACTS_DIR / "trend_summary.json"
+        if not path.exists():
+            return {}
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except Exception as e:
+            print(f"⚠️ Failed to read trend_summary.json: {e}")
+            return {}
+
+    async def _count_templates_for_topic(self, marks: int, pattern_label: str) -> int:
+        """
+        Count MongoDB templates matching a topic and approximate marks.
+        Used to choose the best slot to force top_topic into.
+        """
+        if not pattern_label or not marks:
+            return 0
+        match = {
+            "full_text": { "$exists": True, "$ne": "" },
+            "pattern_label": pattern_label,
+            "marks": { "$gte": int(marks) - 5, "$lte": int(marks) + 5 },
+        }
+        cursor = self.db.templates.aggregate([{ "$match": match }, { "$count": "n" }])
+        rows = await cursor.to_list(length=1)
+        return int(rows[0]["n"]) if rows else 0
+
+    async def _preview_slot_intents(self, slots: List[dict]) -> Dict[str, str]:
+        """
+        Preview canonical intent/pattern_label per slot (Q1..Q4) for top-topic enforcement planning.
+        """
+        out: Dict[str, str] = {}
+        for slot in slots:
+            q_no = slot.get("question_no") or slot.get("slot_id")
+            if not q_no:
+                continue
+            canonical = await self._get_canonical_template(q_no)
+            if isinstance(canonical, dict):
+                out[str(q_no)] = canonical.get("pattern_label") or canonical.get("dominant_topic") or "GENERAL_THEORY"
+        return out
+
+    async def repair_model_paper(self, paper_json: dict, errors: List[str], *, top_topic: Optional[str] = None) -> dict:
+        """
+        Repair ONLY what violates constraints.
+        Uses existing Researcher/Writer/Critic (no new agents).
+        """
+        # Structural repairs are deterministic
+        expected_q_count = int(getattr(settings, "MODEL_PAPER_QUESTION_COUNT", 4))
+        questions = paper_json.get("questions") or []
+
+        # Trim if too many (shouldn't happen, but safe)
+        if len(questions) > expected_q_count:
+            questions = questions[:expected_q_count]
+
+        # Enforce numbering Q1..Q4 deterministically
+        for i, q in enumerate(questions[:expected_q_count]):
+            q["question_no"] = f"Q{i+1}"
+
+        # Build current topic sets
+        topics = [q.get("pattern_label") or q.get("main_topic") for q in questions]
+        used = [t for t in topics if t]
+        used_set = set(used)
+
+        # Helper: regenerate a single question with required/banned topics
+        async def regenerate_question(idx: int, *, required: Optional[str] = None, banned: Optional[Set[str]] = None):
+            q = questions[idx]
+            q_no = q.get("question_no") or f"Q{idx+1}"
+            target_marks = int(q.get("marks") or 0) or 25
+
+            template = await self._select_template(
+                q_no,
+                target_marks,
+                used_modules=set(),
+                used_intents=set(),
+                used_template_ids=set(),
+                required_pattern_label=required,
+                banned_pattern_labels=banned,
+            )
+            # Context
+            query = f"Model Paper {template.get('pattern_label','')}"
+            context = await self.researcher.run({"query": query})
+
+            # Draft/review loop (reuse the same constraints; no diagram generation)
+            feedback = None
+            draft = None
+            for attempt in range(MAX_RETRIES):
+                writer_input = {
+                    "slot": {"question_no": q_no, "target_marks": target_marks, "topics": [template.get("pattern_label", "General")]},
+                    "template": template,
+                    "context": context,
+                    "feedback": feedback,
+                    "mode": "generate" if attempt == 0 else "paraphrase",
+                    "global_context": {
+                        "used_topics": list(banned or set()),
+                        "used_scenarios": [],
+                        "used_question_types": [],
+                        "exam_title": "Model Paper",
+                        "banned_topics": list(banned or set()),
+                    },
+                    "needs_diagram": False,
+                    "diagram_type": None,
+                }
+                draft = await self.writer.run(writer_input)
+                draft["question_no"] = q_no
+                draft["marks"] = target_marks
+                draft["pattern_label"] = template.get("pattern_label")
+                draft["main_topic"] = template.get("pattern_label")
+
+                review = await self.critic.run(
+                    {"draft": draft, "slot": writer_input["slot"], "context": context, "template": template, "global_context": writer_input["global_context"]}
+                )
+                if review.get("approved"):
+                    return draft
+                feedback = review.get("feedback")
+
+            # Fallback: deterministic minimal draft (keeps constraints best-effort)
+            fallback = self._generate_minimal_valid_draft(
+                q_no,
+                target_marks,
+                template.get("pattern_label", "GENERAL_THEORY"),
+                template.get("required_structure", []),
+                False,
+                None,
+            )
+            fallback["pattern_label"] = template.get("pattern_label")
+            fallback["main_topic"] = template.get("pattern_label")
+            return fallback
+
+        # If top topic missing, repair one slot to be top_topic
+        if top_topic and any("TOP_TOPIC_MISSING_ERROR" in e for e in errors):
+            # Prefer repairing a duplicate-topic slot (if any), otherwise last question
+            counts = {}
+            for t in used:
+                counts[t] = counts.get(t, 0) + 1
+            dup_topics = {t for t, c in counts.items() if c > 1}
+            repair_idx = next((i for i, t in enumerate(used) if t in dup_topics), len(questions) - 1)
+            banned = set(used_set) - {top_topic}
+            questions[repair_idx] = await regenerate_question(repair_idx, required=top_topic, banned=banned)
+
+        # If duplicates exist, repair duplicates (keep first occurrence)
+        if any("TOPIC_DUPLICATE_ERROR" in e for e in errors):
+            seen: Set[str] = set()
+            for i, q in enumerate(questions):
+                t = q.get("pattern_label") or q.get("main_topic")
+                if not t:
+                    continue
+                if t in seen:
+                    banned = set(seen)
+                    if top_topic:
+                        banned.discard(top_topic)
+                    questions[i] = await regenerate_question(i, required=None, banned=banned)
+                    t2 = questions[i].get("pattern_label") or questions[i].get("main_topic")
+                    if t2:
+                        seen.add(t2)
+                else:
+                    seen.add(t)
+
+        # Recompute total marks field
+        paper_json["questions"] = questions[:expected_q_count]
+        paper_json["total_marks"] = sum(int(q.get("marks") or 0) for q in paper_json["questions"])
+        return paper_json
+
     async def run_pipeline(self):
         print("\n--- AGENTIC PIPELINE STARTED ---\n")
         
@@ -714,6 +982,37 @@ class AgentOrchestrator:
         blueprint = await self.analyst.run()
         exam_title = blueprint.get("exam_title", "Model Paper")
         slots = blueprint.get("question_slots", [])
+
+        # HARD CONSTRAINT: Model paper ALWAYS has exactly 4 questions.
+        target_q_count = int(getattr(settings, "MODEL_PAPER_QUESTION_COUNT", 4))
+        if len(slots) > target_q_count:
+            print(f"🧱 Hard constraint: trimming blueprint slots {len(slots)} → {target_q_count}")
+        slots = slots[:target_q_count]
+
+        # Load trends (computed ONLY from latest 6 papers in preprocessing)
+        trend = self._load_trend_summary()
+        top_topic = trend.get("top_topic") or "GENERAL_THEORY"
+        recent_used = trend.get("recent_papers_used") or []
+        print(f"📈 Trend summary: top_topic={top_topic} recent_papers={len(recent_used)}")
+
+        # Plan top-topic enforcement BEFORE generation
+        slot_previews = await self._preview_slot_intents(slots)
+        if any(intent == top_topic for intent in slot_previews.values()):
+            print("✅ Top-topic already covered by canonical intents (no forcing needed).")
+        else:
+            # Choose slot with the most available templates for top_topic (deterministic)
+            best_idx = 0
+            best_count = -1
+            for i, s in enumerate(slots):
+                c = await self._count_templates_for_topic(int(s.get("target_marks") or 0), top_topic)
+                if c > best_count:
+                    best_idx = i
+                    best_count = c
+            slots[best_idx]["forced_pattern_label"] = top_topic
+            print(f"🧱 Enforcing top_topic={top_topic} on slot {slots[best_idx].get('question_no')} (candidates={best_count})")
+
+        # Required function hook (ensures at least one forced slot exists)
+        slots = enforce_top_topic_constraint(slots, top_topic)
         
         # 1.5 CHECKPOINT: Load existing progress if any
         checkpoint_data = {}
@@ -785,11 +1084,15 @@ class AgentOrchestrator:
             # The canonical template contains the most frequent topic for this position from past papers.
             # If Q1 appears as ER in 60% of papers, it becomes ER. If SQL in 60%, it becomes SQL.
             canonical = await self._get_canonical_template(q_no)
+
+            # Hard topic constraints for this slot
+            forced_topic = slot.get("forced_pattern_label")
+            banned_topics: Set[str] = set(used_intents)  # No repeats across the 4 generated questions
             
             # Build template dict for backward compatibility
             if isinstance(canonical, dict) and "subquestion_structure" in canonical:
                 # It's a canonical template (topic and structure from data analysis)
-                canonical_intent = canonical.get("dominant_topic", "General")
+                canonical_intent = canonical.get("pattern_label") or canonical.get("dominant_topic") or "GENERAL_THEORY"
                 canonical_id = str(canonical.get("_id", ""))
                 
                 # Check if canonical template is already used
@@ -797,7 +1100,15 @@ class AgentOrchestrator:
                     print(f"    ⚠️  Canonical template for {q_no} already used (intent: {canonical_intent}, id: {canonical_id})")
                     print(f"       Searching for alternative template with different intent...")
                     # Try to find alternative template with different intent
-                    template = await self._select_template(q_no, target_marks, used_modules, used_intents, used_template_ids)
+                    template = await self._select_template(
+                        q_no,
+                        target_marks,
+                        used_modules,
+                        used_intents,
+                        used_template_ids,
+                        required_pattern_label=forced_topic if (forced_topic and forced_topic not in used_intents) else None,
+                        banned_pattern_labels=banned_topics,
+                    )
                 else:
                     template = {
                         "pattern_label": canonical_intent,  # ← TOPIC FROM DATA
@@ -810,7 +1121,15 @@ class AgentOrchestrator:
             else:
                 # Fallback to smart selection (still data-driven, not position-based)
                 # Pass used_modules, used_intents, and used_template_ids to ensure diversity
-                template = canonical if canonical else await self._select_template(q_no, target_marks, used_modules, used_intents, used_template_ids)
+                template = canonical if canonical else await self._select_template(
+                    q_no,
+                    target_marks,
+                    used_modules,
+                    used_intents,
+                    used_template_ids,
+                    required_pattern_label=forced_topic if (forced_topic and forced_topic not in used_intents) else None,
+                    banned_pattern_labels=banned_topics,
+                )
             
             # Record the module choice
             current_module = self.classifier.classify(template.get("full_text", "")) if self.classifier else "General"
@@ -869,18 +1188,9 @@ class AgentOrchestrator:
             if "normalization" in used_question_types:
                 forbidden_topics.append("Normalize the relation")
             
-            # Determine if we need a diagram (Fresh Policy)
+            # Diagrams are disabled by updated rules (text-only generation).
             needs_diagram = False
             diagram_type = None
-            if "diagram" in template.get("pattern_label", "").lower() or "schema" in template.get("pattern_label", "").lower() or "[PLACEHOLDER FIGURE]" in template.get("full_text", ""):
-                # V2 Policy: Generate fresh diagram later
-                needs_diagram = True
-                if "er" in template.get("pattern_label", "").lower():
-                    diagram_type = "ER"
-                elif "eer" in template.get("pattern_label", "").lower():
-                    diagram_type = "EER"
-                else:
-                    diagram_type = "Generic"
                 
                 # Double check if we already used this diagram type
                 # if diagram_type == "ER" and "er_diagram" in used_question_types:
@@ -900,11 +1210,18 @@ class AgentOrchestrator:
                         "feedback": feedback,
                         "mode": "generate" if attempt == 0 else "paraphrase", # Switch mode on retry for variety
                         "global_context": global_context,
+                        "banned_topics": list(banned_topics),
                         "needs_diagram": needs_diagram,
                         "diagram_type": diagram_type
                     }
                     
                     draft = await self.writer.run(writer_input)
+                    # Force stable topic label onto draft (single source of truth for validators)
+                    draft["pattern_label"] = template_intent
+                    draft["main_topic"] = template_intent
+                    draft["intent"] = template_intent
+                    if template_id:
+                        draft["template_id"] = template_id
                     
                     # 2d. CRITIC: Review
                     critic_input = {
@@ -1042,6 +1359,16 @@ class AgentOrchestrator:
         # 3. VALIDATE TOPIC COVERAGE
         self._validate_topic_coverage(final_questions)
 
+        # Ensure deterministic ordering: Q1..Q4
+        def _qno_key(q: dict) -> int:
+            s = str(q.get("question_no", "")).replace("Q", "").strip()
+            try:
+                return int(s)
+            except Exception:
+                return 999
+
+        final_questions = sorted(final_questions, key=_qno_key)
+
         # 4. SAVE
         # Add topic summary to paper
         topic_summary = {}
@@ -1065,6 +1392,26 @@ class AgentOrchestrator:
             "topic_distribution": topic_summary,  # NEW: Topic labels and marks for each slot
             "questions": final_questions
         }
+
+        # STRICT VALIDATOR → REPAIR LOOP (max 3)
+        expected_q_count = int(getattr(settings, "MODEL_PAPER_QUESTION_COUNT", 4))
+        for attempt in range(MAX_PAPER_REPAIR_RETRIES + 1):
+            errors = validate_model_paper(paper, top_topic=top_topic, expected_q_count=expected_q_count)
+            if not errors:
+                break
+            print(f"🛠️ Validation failed (attempt {attempt+1}/{MAX_PAPER_REPAIR_RETRIES+1}):")
+            for e in errors:
+                print(f"   - {e}")
+            if attempt >= MAX_PAPER_REPAIR_RETRIES:
+                raise RuntimeError(f"Model paper invalid after {MAX_PAPER_REPAIR_RETRIES} repairs: {errors}")
+            paper = await self.repair_model_paper(paper, errors, top_topic=top_topic)
+
+        # Required sanity checks (assert/log)
+        final_topics = [q.get("pattern_label") or q.get("main_topic") for q in paper.get("questions", [])]
+        print(f"✅ Sanity: questions={len(paper.get('questions', []))} unique_topics={len(set(final_topics))} top_topic_included={top_topic in set(final_topics)}")
+        assert len(paper.get("questions", [])) == expected_q_count, "Sanity check failed: not exactly 4 questions"
+        assert len(set(final_topics)) == expected_q_count, "Sanity check failed: repeated topics"
+        assert top_topic in set(final_topics), "Sanity check failed: top_topic missing"
 
         # Save to MongoDB
         try:

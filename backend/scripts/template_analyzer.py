@@ -3,9 +3,13 @@ import sys
 import os
 from pathlib import Path
 from collections import Counter, defaultdict
+import re
 
 # Add backend to path
 sys.path.append(os.getcwd())
+
+# Trend mining MUST use only the most recent K papers (deterministic year + semester)
+NUM_RECENT_PAPERS_FOR_TRENDS = 6
 
 # Helper function to map keywords to topic names
 # Note: Using KeyBERT if available, otherwise fallback to heuristics
@@ -57,6 +61,34 @@ def keywords_to_topic(keywords, full_text=None):
     else:
         return " ".join(keywords[:3]).title()  # Fallback to keywords
 
+def _parse_year_and_semester(stem: str) -> tuple[int, int]:
+    """
+    Deterministic recency parsing from pdf_stem.
+    Supports stems like: "2023", "2023 I", "2023 II", "2023-II", etc.
+    Returns: (year, semester_rank) where semester_rank: II=2, I=1, else 0
+    """
+    s = (stem or "").strip()
+    match = re.search(r"(20\d{2})", s)
+    year = int(match.group(1)) if match else 0
+    s_upper = s.upper()
+    sem_rank = 0
+    if re.search(r"\bII\b", s_upper) or re.search(r"[-_\s]II\b", s_upper):
+        sem_rank = 2
+    elif re.search(r"\bI\b", s_upper) or re.search(r"[-_\s]I\b", s_upper):
+        sem_rank = 1
+    return year, sem_rank
+
+def select_recent_papers(all_papers: list[str], k: int = NUM_RECENT_PAPERS_FOR_TRENDS) -> list[str]:
+    """
+    Select most recent k pdf_stem strings using deterministic year+semester sorting.
+    """
+    stems_sorted = sorted(
+        set(all_papers),
+        key=lambda s: (_parse_year_and_semester(s)[0], _parse_year_and_semester(s)[1], s),
+        reverse=True,
+    )
+    return stems_sorted[:k]
+
 def analyze_templates():
     """
     Analyzes template_questions.json to find:
@@ -70,6 +102,7 @@ def analyze_templates():
     PROJECT_ROOT = Path(__file__).resolve().parents[2]
     template_path = PROJECT_ROOT / "data" / "artifacts" / "template_questions.json"
     output_path = PROJECT_ROOT / "data" / "artifacts" / "canonical_templates.json"
+    trend_summary_path = PROJECT_ROOT / "data" / "artifacts" / "trend_summary.json"
     
     if not template_path.exists():
         print(f"❌ Error: Could not find {template_path}")
@@ -78,6 +111,24 @@ def analyze_templates():
     print("📊 Loading templates...")
     with open(template_path, "r", encoding="utf-8") as f:
         templates = json.load(f)
+
+    # Filter to recent papers ONLY (latest K) for canonical dominance
+    recent_stems = None
+    if trend_summary_path.exists():
+        try:
+            trend = json.loads(trend_summary_path.read_text(encoding="utf-8"))
+            recent_stems = set(trend.get("recent_papers_used", []))
+            print(f"🧭 Using recent papers from trend_summary.json: {len(recent_stems)} stems")
+        except Exception as e:
+            print(f"⚠️ Failed to read trend_summary.json: {e}")
+            recent_stems = None
+
+    if recent_stems is None:
+        recent_stems = set(select_recent_papers([t.get("pdf_stem", "") for t in templates], k=NUM_RECENT_PAPERS_FOR_TRENDS))
+        print(f"🧭 Derived recent stems from templates: {len(recent_stems)} stems")
+
+    templates = [t for t in templates if t.get("pdf_stem") in recent_stems]
+    print(f"📌 Templates kept after recent-6 filter: {len(templates)}")
     
     # Group by question position
     by_position = defaultdict(list)
@@ -90,38 +141,33 @@ def analyze_templates():
     for q_id, questions in sorted(by_position.items()):
         print(f"\n🔍 Analyzing Q{q_id}...")
         
-        # Count topic frequency (using cluster_label_keywords as proxy)
+        # Count topic frequency using stable pattern labels (canonical dominance)
         topic_counter = Counter()
         topic_to_papers = defaultdict(list)
         
         for q in questions:
-            # Use first 3 keywords as topic signature
-            keywords = q.get("cluster_label_keywords", [])[:3]
-            topic_sig = " ".join(keywords) if keywords else "General"
+            pattern_label = q.get("pattern_label") or "GENERAL_THEORY"
             
-            topic_counter[topic_sig] += 1
-            topic_to_papers[topic_sig].append(q)
+            topic_counter[pattern_label] += 1
+            topic_to_papers[pattern_label].append(q)
         
         # Get most frequent topic
         if not topic_counter:
             print(f"  ⚠️ No topics found for Q{q_id}")
             continue
             
-        dominant_topic, frequency = topic_counter.most_common(1)[0]
-        print(f"  ✅ Dominant topic: '{dominant_topic}' ({frequency}/{len(questions)} papers)")
+        # Deterministic choice on ties: highest count then alphabetical
+        topic_items = sorted(topic_counter.items(), key=lambda kv: (-kv[1], kv[0]))
+        dominant_pattern_label, frequency = topic_items[0]
+        print(f"  ✅ Dominant pattern_label: '{dominant_pattern_label}' ({frequency}/{len(questions)} papers)")
         
         # Get most recent paper with that topic
-        papers_with_topic = topic_to_papers[dominant_topic]
-        
-        # Sort by year (extract from pdf_stem like "2023 II" or "2023")
-        def extract_year(paper):
-            stem = paper.get("pdf_stem", "0")
-            try:
-                return int(stem.split()[0])
-            except:
-                return 0
-        
-        papers_with_topic.sort(key=extract_year, reverse=True)
+        papers_with_topic = topic_to_papers[dominant_pattern_label]
+
+        papers_with_topic.sort(
+            key=lambda p: (_parse_year_and_semester(p.get("pdf_stem", ""))[0], _parse_year_and_semester(p.get("pdf_stem", ""))[1], p.get("pdf_stem", "")),
+            reverse=True,
+        )
         most_recent = papers_with_topic[0]
         
         source_year = most_recent.get("pdf_stem", "Unknown")
@@ -170,14 +216,15 @@ def analyze_templates():
         total_marks = sum(s["marks"] for s in structure)
         print(f"  📝 Structure: {len(structure)} sub-questions, {total_marks} marks")
         
-        # Convert keywords to readable topic name
+        # Keep a human-friendly topic name too (optional), but canonical dominance is pattern_label
         keywords = most_recent.get("cluster_label_keywords", [])
         full_text = most_recent.get("full_text", "")
-        readable_topic = keywords_to_topic(keywords, full_text)
+        readable_topic = keywords_to_topic(keywords, full_text) if (keywords or full_text) else dominant_pattern_label
         print(f"  🏷️ Topic name: {readable_topic}")
         
         canonical[f"Q{q_id}"] = {
-            "dominant_topic": readable_topic,
+            "dominant_topic": readable_topic,             # human-friendly
+            "pattern_label": dominant_pattern_label,      # stable intent label (used by orchestrator)
             "source_paper": source_year,
             "total_marks": total_marks,
             "subquestion_count": len(structure),
