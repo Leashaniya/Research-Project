@@ -243,25 +243,41 @@ def main():
             })
     df = pd.DataFrame(rows)
 
-    num_qs = [len(p["questions"]) for p in blueprint_papers]
-    canonical_num_questions = int(pd.Series(num_qs).mode()[0])
+    # FORCE: Always generate exactly 4 questions (Q1-Q4)
+    canonical_num_questions = 4
     canonical_total_marks = int(EXPECTED_TOTAL_MARKS)
+    
+    print(f"\n📌 FORCED: canonical_num_questions = {canonical_num_questions} (regardless of historical paper counts)")
 
+    # Calculate slot stats for positions 1-4 (Q1-Q4) only
+    # But use data from ALL positions (Q1-Q5+) for topic frequency analysis
     slot_stats = {}
-    for qpos in range(1, canonical_num_questions + 1):
+    for qpos in range(1, canonical_num_questions + 1):  # Only Q1-Q4
         slot_df = df[df["question_pos"] == qpos].copy()
         marks_vals = pd.to_numeric(slot_df["main_marks"], errors="coerce").dropna().astype(int).tolist()
         if not marks_vals:
-            continue
+            # If no data for this position, use average from all positions or default
+            all_marks = pd.to_numeric(df["main_marks"], errors="coerce").dropna().astype(int).tolist()
+            if all_marks:
+                marks_vals = [int(median(all_marks))]  # Use median from all positions
+            else:
+                marks_vals = [canonical_total_marks // canonical_num_questions]  # Even distribution
             
         # Modal Sub-question Split (Structural Fingerprint)
         split_counts = Counter([tuple(s) for s in slot_df["subq_split"].tolist() if s])
         modal_split = list(split_counts.most_common(1)[0][0]) if split_counts else []
+        
+        # If no subquestion data, use average from all positions
+        if not modal_split:
+            all_splits = [tuple(s) for s in df["subq_split"].tolist() if s]
+            if all_splits:
+                split_counts_all = Counter(all_splits)
+                modal_split = list(split_counts_all.most_common(1)[0][0]) if split_counts_all else []
 
         slot_stats[qpos] = {
             "position": qpos,
             "target_marks": int(median(marks_vals)),
-            "typical_num_subquestions": int(Counter(slot_df["num_subqs"]).most_common(1)[0][0]),
+            "typical_num_subquestions": int(Counter(slot_df["num_subqs"]).most_common(1)[0][0]) if len(slot_df) > 0 else 3,
             "structural_fingerprint": modal_split,
             "num_samples": int(len(marks_vals))
         }
@@ -273,6 +289,7 @@ def main():
         last_pos = sorted(slot_stats)[-1]
         slot_stats[last_pos]["target_marks"] = max(1, slot_stats[last_pos]["target_marks"] + delta)
 
+    # ENSURE: Only create exactly 4 slots (Q1-Q4)
     exam_blueprint = {
         "component": "model_exam_paper",
         "canonical_total_marks": canonical_total_marks,
@@ -281,20 +298,23 @@ def main():
         "note": {
             "good_papers_available": len(papers_good),
             "blueprint_papers_used": [p["pdf_stem"] for p in blueprint_papers],
-            "rule": "Blueprint derived from latest 3 years; Clustering uses all historical data."
+            "rule": "Blueprint always generates exactly 4 questions (Q1-Q4). Topic frequency analyzed across ALL positions (Q1-Q5+) from latest 6 papers. Most frequent topic forced into Q1."
         },
         "question_slots": [
             {
                 "slot_id": f"Q{pos}",
+                "question_no": f"Q{pos}",  # Add for compatibility
                 "position": pos,
-                "target_marks": slot_stats[pos]["target_marks"],
-                "typical_num_subquestions": slot_stats[pos]["typical_num_subquestions"],
-                "structural_fingerprint": slot_stats[pos]["structural_fingerprint"],
-                "num_samples": slot_stats[pos]["num_samples"],
+                "target_marks": slot_stats.get(pos, {}).get("target_marks", canonical_total_marks // canonical_num_questions),
+                "typical_num_subquestions": slot_stats.get(pos, {}).get("typical_num_subquestions", 3),
+                "structural_fingerprint": slot_stats.get(pos, {}).get("structural_fingerprint", []),
+                "num_samples": slot_stats.get(pos, {}).get("num_samples", 0),
                 "topics": ["General"], # Updated in Step 4
-                "topic_probabilities": {} # Updated in Step 4
+                "topic_probabilities": {}, # Updated in Step 4
+                "forced_topic": False,  # Updated in Step 4
+                "topic_source": "pending"  # Updated in Step 4
             }
-            for pos in sorted(slot_stats)
+            for pos in range(1, canonical_num_questions + 1)  # Force Q1-Q4 only
         ]
     }
 
@@ -385,30 +405,122 @@ def main():
     )
     print("✅ Saved topic_assignments.json")
 
+    # ==========================================================
+    # TOPIC FREQUENCY ANALYSIS (Across ALL Positions Q1-Q5+)
+    # ==========================================================
+    # Calculate topic frequency across ALL question positions from latest 6 papers
+    all_positions_cluster_counts = Counter()
+    for meta, label in zip(question_meta, labels):
+        # Count clusters across ALL positions (Q1-Q5+)
+        all_positions_cluster_counts[int(label)] += 1
+    
+    # Find the MOST FREQUENT TOPIC across all positions
+    if all_positions_cluster_counts:
+        most_frequent_cluster_id, most_frequent_count = all_positions_cluster_counts.most_common(1)[0]
+        most_frequent_keywords = cluster_terms[most_frequent_cluster_id][:3]
+        most_frequent_topic_name = ", ".join(most_frequent_keywords) if most_frequent_keywords else "General"
+        print(f"\n🏆 MOST FREQUENT TOPIC (across all positions): Cluster {most_frequent_cluster_id} - '{most_frequent_topic_name}' (appears {most_frequent_count} times)")
+    else:
+        most_frequent_cluster_id = 0
+        most_frequent_keywords = ["General"]
+        most_frequent_topic_name = "General"
+    
     # UPDATE BLUEPRINT WITH TOPICS
-    # Find most common cluster for each position
+    # Find most common cluster for each position (Q1-Q4 only)
     pos_clusters = {}
     for meta, label in zip(question_meta, labels):
         pos = meta["question_pos"]
         if pos not in pos_clusters: pos_clusters[pos] = []
         pos_clusters[pos].append(int(label))
+    
+    # Track used topics to ensure uniqueness
+    used_cluster_ids = set()
+    
     for slot in exam_blueprint["question_slots"]:
         pos = slot["position"]
-        if pos in pos_clusters:
-            # Topic-Slot Correlation (Probabilistic Matrix)
-            counts = Counter(pos_clusters[pos])
-            total_samples = len(pos_clusters[pos])
+        
+        # FORCE: Q1 must have the most frequent topic
+        if pos == 1:
+            forced_cluster_id = most_frequent_cluster_id
+            forced_keywords = cluster_terms[forced_cluster_id][:3]
+            slot["topics"] = forced_keywords if forced_keywords else ["General"]
+            slot["forced_topic"] = True  # Mark as forced
+            slot["topic_source"] = "most_frequent_across_all_positions"
+            used_cluster_ids.add(forced_cluster_id)
             
-            # Modal Cluster
-            most_common_cluster = counts.most_common(1)[0][0]
-            keywords = cluster_terms[most_common_cluster][:3]
-            slot["topics"] = keywords if keywords else ["General"]
-            
-            # Fully probabilistic breakdown
+            # Calculate probabilities for Q1 (from all positions, not just Q1)
             slot["topic_probabilities"] = {
-                ", ".join(cluster_terms[cid][:3]): round(count / total_samples, 2)
-                for cid, count in counts.items()
+                ", ".join(cluster_terms[cid][:3]): round(count / sum(all_positions_cluster_counts.values()), 2)
+                for cid, count in all_positions_cluster_counts.items()
             }
+            print(f"  ✅ Q1 FORCED to most frequent topic: {most_frequent_topic_name}")
+        else:
+            # For Q2-Q4: Use position-specific data, but avoid duplicates
+            if pos in pos_clusters:
+                # Get clusters for this position
+                position_clusters = pos_clusters[pos]
+                counts = Counter(position_clusters)
+                
+                # Filter out already-used clusters
+                available_clusters = [(cid, count) for cid, count in counts.items() if cid not in used_cluster_ids]
+                
+                if available_clusters:
+                    # Select most common available cluster for this position
+                    selected_cluster_id, selected_count = max(available_clusters, key=lambda x: x[1])
+                    selected_keywords = cluster_terms[selected_cluster_id][:3]
+                    slot["topics"] = selected_keywords if selected_keywords else ["General"]
+                    slot["forced_topic"] = False
+                    slot["topic_source"] = f"position_{pos}_most_common"
+                    used_cluster_ids.add(selected_cluster_id)
+                    
+                    # Probabilistic breakdown for this position
+                    total_samples = len(position_clusters)
+                    slot["topic_probabilities"] = {
+                        ", ".join(cluster_terms[cid][:3]): round(count / total_samples, 2)
+                        for cid, count in counts.items()
+                    }
+                else:
+                    # Fallback: Use any available cluster (shouldn't happen with 7 clusters and 4 slots)
+                    all_cluster_ids = set(range(NUM_CLUSTERS))
+                    available = all_cluster_ids - used_cluster_ids
+                    if available:
+                        fallback_cluster_id = min(available)  # Pick first available
+                        fallback_keywords = cluster_terms[fallback_cluster_id][:3]
+                        slot["topics"] = fallback_keywords if fallback_keywords else ["General"]
+                        slot["forced_topic"] = False
+                        slot["topic_source"] = "fallback_unique"
+                        used_cluster_ids.add(fallback_cluster_id)
+                        slot["topic_probabilities"] = {}
+                    else:
+                        # Last resort
+                        slot["topics"] = ["General"]
+                        slot["forced_topic"] = False
+                        slot["topic_source"] = "last_resort"
+                        slot["topic_probabilities"] = {}
+            else:
+                # No data for this position, use fallback
+                all_cluster_ids = set(range(NUM_CLUSTERS))
+                available = all_cluster_ids - used_cluster_ids
+                if available:
+                    fallback_cluster_id = min(available)
+                    fallback_keywords = cluster_terms[fallback_cluster_id][:3]
+                    slot["topics"] = fallback_keywords if fallback_keywords else ["General"]
+                    slot["forced_topic"] = False
+                    slot["topic_source"] = "fallback_no_data"
+                    used_cluster_ids.add(fallback_cluster_id)
+                    slot["topic_probabilities"] = {}
+                else:
+                    slot["topics"] = ["General"]
+                    slot["forced_topic"] = False
+                    slot["topic_source"] = "last_resort"
+                    slot["topic_probabilities"] = {}
+    
+    # Verify uniqueness
+    topic_names = [", ".join(slot["topics"][:3]) for slot in exam_blueprint["question_slots"]]
+    unique_topics = len(set(topic_names))
+    print(f"\n✅ Topic Uniqueness Check: {unique_topics} unique topics across 4 questions")
+    if unique_topics < 4:
+        print(f"  ⚠️  WARNING: Only {unique_topics} unique topics found (expected 4)")
     
     # Re-save blueprint with topics
     (OUT_ROOT / "exam_blueprint_template.json").write_text(

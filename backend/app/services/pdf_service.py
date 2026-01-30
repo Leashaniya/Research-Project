@@ -75,6 +75,16 @@ class PDFService:
             pdf.line(pdf.get_x(), pdf.get_y(), pdf.get_x() + 190, pdf.get_y())
             pdf.ln(2)
             
+            # Question Stem/Text (if exists and no subquestions, or as intro)
+            question_stem = q.get("text", "")
+            if question_stem and question_stem.strip():
+                # Only show stem if it's substantial and not just a placeholder
+                if len(question_stem.strip()) > 20:  # Substantial text
+                    pdf.set_font("helvetica", "", 11)
+                    pdf.ln(3)
+                    pdf.multi_cell(0, 6, PDFService._sanitize_text(question_stem))
+                    pdf.ln(3)
+            
             # Sub-questions
             subquestions = q.get("subquestions", [])
             if subquestions:
@@ -123,13 +133,38 @@ class PDFService:
                 pdf.multi_cell(0, 7, text)
                 pdf.ln(5)
 
-            # --- DIAGRAM RENDERING (V2) ---
-            # Check if we have mermaid code to render
+            # --- DIAGRAM RENDERING (V3: DALL·E + Mermaid Fallback) ---
+            # Priority 1: DALL·E generated image
+            # Priority 2: Mermaid code rendering
+            # Priority 3: Text placeholder
+            
+            diagram_image_path = q.get("diagram_image_path")
+            diagram_image_url = q.get("diagram_image_url")
             mermaid_code = q.get("mermaid_code")
             needs_diagram = q.get("needs_diagram", False)
+            diagram_placeholder = q.get("diagram_placeholder")
             
-            # Decide: Render if mermaid code exists
-            if mermaid_code:
+            # Priority 1: DALL·E generated image
+            if diagram_image_path and os.path.exists(diagram_image_path):
+                try:
+                    pdf.ln(5)
+                    pdf.set_font("helvetica", "B", 10)
+                    diagram_type = q.get("diagram_type", "Diagram")
+                    pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
+                    
+                    # Calculate available width (A4 width - margins)
+                    avail_width = 180
+                    # Embed DALL·E generated image
+                    pdf.image(diagram_image_path, w=avail_width)
+                    pdf.ln(5)
+                    print(f"    ✅ Embedded DALL·E image: {diagram_image_path}")
+                except Exception as e:
+                    print(f"    ⚠️ Failed to embed DALL·E image: {e}")
+                    # Fall through to Mermaid or placeholder
+                    diagram_image_path = None
+            
+            # Priority 2: Mermaid code rendering (fallback)
+            elif mermaid_code:
                 try:
                     from app.services.diagram_service import DiagramService
                     import os
@@ -138,7 +173,7 @@ class PDFService:
                     timestamp = int(datetime.now().timestamp())
                     temp_img_path = str(Path(output_path).parent / "temp_images" / f"q_{q_no}_{timestamp}.png")
                     
-                    print(f"    🎨 Rendering diagram for {q_no}...")
+                    print(f"    🎨 Rendering Mermaid diagram for {q_no}...")
                     success = DiagramService.render_mermaid_to_image(mermaid_code, temp_img_path)
                     
                     if success and os.path.exists(temp_img_path):
@@ -154,10 +189,10 @@ class PDFService:
                         pdf.ln(5)
                     else:
                         # Fallback to text if rendering failed
-                        raise Exception("Rendering failed")
+                        raise Exception("Mermaid rendering failed")
                         
                 except Exception as e:
-                    print(f"    ⚠️ Diagram rendering failed: {e}. Using placeholder.")
+                    print(f"    ⚠️ Mermaid diagram rendering failed: {e}. Using placeholder.")
                     # Fallback Placeholder
                     pdf.ln(5)
                     pdf.set_fill_color(240, 240, 240)
@@ -167,8 +202,13 @@ class PDFService:
                     pdf.multi_cell(160, 5, f"[Diagram Generation Failed: {str(e)[:50]}...]\nMermaid code available in JSON.")
                     pdf.ln(20)
             
-            # Legacy/Placeholder check (if no mermaid code but needs_diagram was set)
-            elif needs_diagram:
+            # Priority 3: Text placeholder (if DALL·E and Mermaid both failed or not available)
+            elif diagram_placeholder or needs_diagram:
+                pdf.ln(5)
+                pdf.set_font("helvetica", "I", 10)
+                placeholder_text = diagram_placeholder or f"[DIAGRAM PLACEHOLDER: Draw the diagram as described in the question]"
+                pdf.multi_cell(0, 5, PDFService._sanitize_text(placeholder_text))
+                pdf.ln(3)
                  # Standard Placeholder
                 diagram_type = q.get("diagram_type", "Diagram")
                 pdf.ln(5)

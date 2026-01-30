@@ -96,20 +96,19 @@ def analyze_exam_diagram(image_path, context_text: str = "") -> dict:
 
 def analyze_slide_diagram(image_path) -> dict:
     """
-    Analyzes a lecture slide diagram to extract Logic (Mermaid) and Knowledge (Caption).
-    Returns: { "mermaid_code": str|null, "caption": str }
+    Analyzes a lecture slide diagram to extract detailed caption and description.
+    Returns: { "caption": str }
     """
     base64_image = encode_image(image_path)
     
     prompt = """
     Analyze this lecture slide diagram. 
-    1. If it represents a process, flowchart, or hierarchy, convert it to valid Mermaid.js code.
-    2. Provide a "Dense Caption" - a detailed textual description of the concepts and relationships shown, optimized for search.
+    Provide a "Dense Caption" - a detailed textual description of the concepts, relationships, and key information shown in the diagram. 
+    The description should be optimized for semantic search and should capture all important details that would help someone understand what the diagram illustrates.
     
     Return strict JSON:
     {
-        "mermaid_code": "graph TD; A-->B; ... (or null if not applicable)",
-        "caption": "Detailed description of the visualization..."
+        "caption": "Detailed description of the visualization, concepts, relationships, and key information shown..."
     }
     """
     
@@ -118,4 +117,4 @@ def analyze_slide_diagram(image_path) -> dict:
         return _call_vlm(prompt, base64_image, detail="high", max_tokens=500)
     except Exception as e:
         print(f"Slide vision analysis failed after retries: {e}")
-        return {"mermaid_code": None, "caption": "Analysis failed"}
+        return {"caption": "Analysis failed"}

@@ -58,10 +58,10 @@ class BlueprintAnalyst(BaseAgent):
         """
         slots = blueprint.get("question_slots", [])
         
-        # Check minimum slots requirement
-        if len(slots) < settings.MIN_SLOTS:
-            self.log(f"[WARN] Blueprint has {len(slots)} slots, minimum is {settings.MIN_SLOTS}. Using default blueprint.")
-            return self._default_blueprint()
+        # ENFORCE: Exactly 4 slots required
+        if len(slots) != 4:
+            self.log(f"[WARN] Blueprint has {len(slots)} slots, expected exactly 4. Limiting to first 4 slots.")
+            slots = slots[:4]  # Hard limit to 4
         
         if not slots:
             self.log("[WARN] Blueprint has no question slots. Using default blueprint.")
@@ -202,7 +202,8 @@ class BlueprintAnalyst(BaseAgent):
             except Exception:
                 pass
         
-        num_slots = settings.MIN_SLOTS
+        # ENFORCE: Always exactly 4 slots (Q1-Q4)
+        num_slots = 4
         
         # Determine marks per slot (NOT based on question number)
         if canonical_total_marks and canonical_total_marks > 0:
@@ -214,11 +215,13 @@ class BlueprintAnalyst(BaseAgent):
             marks_per_slot = settings.DEFAULT_SLOT_MARKS
             self.log(f"Using configurable default: {marks_per_slot} marks per slot")
         
-        # Create slots with evenly distributed marks (derived from stats/config, not position)
+        # Create exactly 4 slots with evenly distributed marks (derived from stats/config, not position)
         slots = []
         for idx in range(num_slots):
             slots.append({
                 "question_no": f"Q{idx + 1}",  # Sequential ID only (identifier, not mark source)
+                "slot_id": f"Q{idx + 1}",  # Add for compatibility
+                "position": idx + 1,  # Add for compatibility
                 "target_marks": marks_per_slot,  # From stats/config, NOT from question number
                 "topics": ["General"],
                 "type": "conceptual" # Default type

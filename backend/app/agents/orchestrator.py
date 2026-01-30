@@ -729,11 +729,20 @@ class AgentOrchestrator:
         
         # Track already used content for uniqueness
         used_topics = set()
+        banned_topics = set()  # NEW: Track topics that must not be repeated
         used_scenarios = set()
         used_question_types = set()
         used_modules = set() # NEW: Track syllabus modules
         used_intents = set() # Track used pattern_label/intent to avoid duplicates
         used_template_ids = set() # Track used template _id to never reuse exact same template
+        
+        # ENFORCE: Only process exactly 4 slots (Q1-Q4)
+        slots = slots[:4]  # Hard limit to 4 questions
+        if len(slots) > 4:
+            print(f"⚠️  WARNING: Blueprint has {len(slots)} slots, limiting to 4 (Q1-Q4)")
+            slots = slots[:4]
+        elif len(slots) < 4:
+            print(f"⚠️  WARNING: Blueprint has only {len(slots)} slots, expected 4")
         
         # Pre-populate based on checkpoint
         for q in final_questions:
@@ -846,6 +855,7 @@ class AgentOrchestrator:
             # 2c. WRITER: Set global context for anti-repetition
             global_context = {
                 "used_topics": list(used_topics),
+                "banned_topics": list(banned_topics),  # NEW: Pass banned topics for uniqueness
                 "used_scenarios": list(used_scenarios),
                 "used_question_types": list(used_question_types),  # NEW: Pass used types
                 "exam_title": exam_title
@@ -926,13 +936,83 @@ class AgentOrchestrator:
                 # Fallback: Simple deterministic draft
                 draft = self._generate_minimal_valid_draft(q_no, target_marks, template.get("pattern_label", "General"), template.get("required_structure", []), needs_diagram, diagram_type)
             
+            # --- DALL·E IMAGE GENERATION (after approval) ---
+            if approved and needs_diagram and draft.get("needs_diagram"):
+                try:
+                    from app.services.image_generation_service import generate_diagram_for_question
+                    from app.core.paths import OUTPUTS_DIR
+                    
+                    # Prepare image output directory
+                    images_dir = OUTPUTS_DIR / "model_papers" / "images"
+                    images_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    # Find sub-question that mentions diagram
+                    diagram_subq_text = None
+                    for sq in draft.get("subquestions", []):
+                        sq_text = sq.get("text", "").lower()
+                        if "draw" in sq_text or "diagram" in sq_text or "illustrate" in sq_text or "sketch" in sq_text:
+                            diagram_subq_text = sq.get("text")
+                            break
+                    
+                    # If no specific sub-question found, use main question text
+                    if not diagram_subq_text:
+                        diagram_subq_text = draft.get("text", "")
+                    
+                    # Generate image using DALL·E
+                    question_text = draft.get("text", "")
+                    q_no = slot.get("question_no") or slot.get("slot_id") or "Q?"
+                    
+                    print(f"    🎨 Generating diagram image with DALL·E 3 for {q_no}...")
+                    image_result = generate_diagram_for_question(
+                        question_text=question_text,
+                        subquestion_text=diagram_subq_text,
+                        diagram_type=diagram_type,
+                        question_no=q_no,
+                        output_dir=images_dir
+                    )
+                    
+                    if image_result.get("success"):
+                        # Add image reference to draft
+                        draft["diagram_image_url"] = image_result.get("image_url")
+                        draft["diagram_image_path"] = image_result.get("image_path")
+                        draft["diagram_generated"] = True
+                        draft["diagram_prompt_used"] = image_result.get("prompt_used")
+                        print(f"    ✅ DALL·E image generated successfully: {image_result.get('image_path')}")
+                    else:
+                        # Fallback to text placeholder
+                        error_msg = image_result.get("error", "Unknown error")
+                        print(f"    ⚠️ DALL·E image generation failed: {error_msg}")
+                        draft["diagram_image_url"] = None
+                        draft["diagram_image_path"] = None
+                        draft["diagram_generated"] = False
+                        draft["diagram_placeholder"] = f"[DIAGRAM PLACEHOLDER: {diagram_subq_text or 'Draw the diagram as described in the question'}]"
+                        
+                except Exception as e:
+                    print(f"    ⚠️ DALL·E integration error: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    # Fallback to placeholder
+                    draft["diagram_image_url"] = None
+                    draft["diagram_image_path"] = None
+                    draft["diagram_generated"] = False
+                    draft["diagram_placeholder"] = f"[DIAGRAM PLACEHOLDER: Draw the {diagram_type or 'diagram'} as described in the question]"
+            # -----------------------------------------
+            
             # 3. SAVE Question
+            # Add topic label to draft for output
+            topic_label = template.get("pattern_label") or slot.get("topics", ["General"])[0]
+            draft["main_topic"] = topic_label
+            draft["topic_label"] = topic_label  # For output clarity
+            
             final_questions.append(draft)
             
             # 4. UPDATE MEMORY (Anti-Repetition)
-            # Track topic
-            topic = draft.get("pattern_label") or template.get("pattern_label")
-            if topic: used_topics.add(topic)
+            # Track topic and add to banned list for uniqueness
+            topic = draft.get("main_topic") or template.get("pattern_label") or slot.get("topics", ["General"])[0]
+            if topic: 
+                used_topics.add(topic)
+                banned_topics.add(topic)  # Ban this topic for remaining questions
+                print(f"    📌 Topic '{topic}' added to banned list (ensuring uniqueness)")
             
             # Track derived type/task (heuristics from text)
             q_text = draft.get("text", "").lower()
@@ -963,10 +1043,26 @@ class AgentOrchestrator:
         self._validate_topic_coverage(final_questions)
 
         # 4. SAVE
+        # Add topic summary to paper
+        topic_summary = {}
+        for q in final_questions:
+            q_no = q.get("question_no", "?")
+            topic = q.get("topic_label") or q.get("main_topic") or "Unknown"
+            marks = q.get("marks", 0)
+            topic_summary[q_no] = {
+                "topic": topic,
+                "marks": marks
+            }
+        
+        # Recalculate total_marks from final questions (in case of updates)
+        total_marks = sum(int(q.get("marks") or 0) for q in final_questions)
+        
         paper = {
             "generated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
             "mode": "AGENTIC_V1",
             "total_marks": total_marks,
+            "num_questions": len(final_questions),
+            "topic_distribution": topic_summary,  # NEW: Topic labels and marks for each slot
             "questions": final_questions
         }
 

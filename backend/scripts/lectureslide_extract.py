@@ -256,7 +256,7 @@ def process_slides_pdf(pdf_path: Path, dpi=DPI):
             fig_name = f"slide_{pno+1:03d}_fig_{i}.png"
             cv2.imwrite(str(figs_out / fig_name), crop)
 
-            # --- VLM ANALYSIS (Green Box - Logic & Knowledge) ---
+            # --- VLM ANALYSIS (Green Box - Knowledge Extraction) ---
             # We treat every green box as a potential knowledge source
             if USE_CLOUD_AI:
                 print(f"   🤖 Analyzing slide figure {fig_name}...")
@@ -266,7 +266,6 @@ def process_slides_pdf(pdf_path: Path, dpi=DPI):
                     "pdf_stem": stem,
                     "slide_no": pno + 1,
                     "fig_id": fig_name,
-                    "mermaid_code": analysis.get("mermaid_code"),
                     "caption": analysis.get("caption")
                 }
                 
@@ -318,7 +317,7 @@ def build_slides_chunks(chunk_words=CHUNK_WORDS, overlap_words=OVERLAP_WORDS):
     global_chunks = []
     csv_rows = []
 
-    # 1. Load Figure Metadata Map (Filename -> Caption/Mermaid)
+    # 1. Load Figure Metadata Map (Filename -> Caption)
     fig_meta_map = {}
     for meta_file in OUT_ROOT.glob("*/figures_metadata.jsonl"):
         try:
@@ -328,14 +327,10 @@ def build_slides_chunks(chunk_words=CHUNK_WORDS, overlap_words=OVERLAP_WORDS):
                         data = json.loads(line)
                         # key = "slide_001_fig_1.png"
                         fid = data.get("fig_id")
-                        content = []
-                        if data.get("caption"):
-                            content.append(f"Figure Description: {data['caption']}")
-                        if data.get("mermaid_code"):
-                            content.append(f"Diagram Logic: {data['mermaid_code']}")
+                        caption = data.get("caption")
                         
-                        if fid and content:
-                            fig_meta_map[fid] = " | ".join(content)
+                        if fid and caption:
+                            fig_meta_map[fid] = f"Figure Description: {caption}"
         except Exception:
             pass
 
