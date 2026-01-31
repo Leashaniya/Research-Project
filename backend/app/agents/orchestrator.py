@@ -467,12 +467,8 @@ class AgentOrchestrator:
                 "text": text
             })
         
-        # Fix rounding errors
-        current_sum = sum(sq["marks"] for sq in subquestions)
-        diff = target_marks - current_sum
-        if diff != 0 and subquestions:
-            max_idx = max(range(len(subquestions)), key=lambda i: subquestions[i]['marks'])
-            subquestions[max_idx]['marks'] += diff
+        # Normalize marks proportionally to ensure sum equals target_marks
+        subquestions = self._normalize_subquestion_marks(subquestions, target_marks)
         
         draft = {
             "question_no": q_no,
@@ -489,6 +485,90 @@ class AgentOrchestrator:
         
         return draft
     
+    def _normalize_subquestion_marks(self, subquestions: list, target_marks: int) -> list:
+        """
+        Normalize subquestion marks to ensure they sum exactly to target_marks.
+        Uses proportional distribution based on relative weightage.
+        
+        Args:
+            subquestions: List of subquestion dicts with 'marks' field
+            target_marks: Target total marks for all subquestions
+            
+        Returns:
+            List of subquestions with normalized marks that sum to target_marks
+        """
+        if not subquestions or target_marks <= 0:
+            return subquestions
+        
+        # Get current marks (default to 0 if missing)
+        current_marks = [int(sq.get("marks", 0)) for sq in subquestions]
+        current_sum = sum(current_marks)
+        
+        # If sum is already correct, return as-is
+        if current_sum == target_marks:
+            return subquestions
+        
+        # If all marks are 0 or invalid, distribute evenly
+        if current_sum == 0 or all(m == 0 for m in current_marks):
+            marks_per_subq = target_marks // len(subquestions)
+            remainder = target_marks % len(subquestions)
+            normalized = []
+            for idx, sq in enumerate(subquestions):
+                marks = marks_per_subq + (1 if idx < remainder else 0)
+                normalized.append({**sq, "marks": marks})
+            return normalized
+        
+        # Proportional distribution: scale each mark by the ratio
+        ratio = target_marks / current_sum
+        normalized_marks = [int(round(m * ratio)) for m in current_marks]
+        
+        # Fix rounding errors: ensure sum equals target_marks exactly
+        normalized_sum = sum(normalized_marks)
+        diff = target_marks - normalized_sum
+        
+        if diff != 0:
+            # Distribute the difference to the largest subquestions first
+            # This preserves the relative weightage better
+            sorted_indices = sorted(
+                range(len(normalized_marks)), 
+                key=lambda i: normalized_marks[i], 
+                reverse=True
+            )
+            
+            # Add/subtract the difference
+            for i in sorted_indices:
+                if diff == 0:
+                    break
+                if diff > 0:
+                    normalized_marks[i] += 1
+                    diff -= 1
+                else:
+                    if normalized_marks[i] > 1:  # Don't go below 1
+                        normalized_marks[i] -= 1
+                        diff += 1
+        
+        # Update subquestions with normalized marks
+        normalized = []
+        for idx, sq in enumerate(subquestions):
+            normalized.append({**sq, "marks": normalized_marks[idx]})
+        
+        # Final verification
+        final_sum = sum(sq["marks"] for sq in normalized)
+        if final_sum != target_marks:
+            # Last resort: adjust the last subquestion
+            if normalized:
+                normalized[-1]["marks"] = target_marks - sum(sq["marks"] for sq in normalized[:-1])
+                # Ensure it's at least 1
+                if normalized[-1]["marks"] < 1:
+                    normalized[-1]["marks"] = 1
+                    # Adjust another subquestion
+                    for sq in normalized[:-1]:
+                        if sq["marks"] > 1:
+                            sq["marks"] -= 1
+                            break
+        
+        return normalized
+
     def _sanitize_template_copy_draft(self, draft: dict, template: dict) -> dict:
         """
         Sanitize template-copy draft by:
@@ -667,12 +747,8 @@ class AgentOrchestrator:
                 
                 subquestions.append({"label": label, "marks": marks, "text": text})
             
-            # Fix rounding
-            current_sum = sum(sq["marks"] for sq in subquestions)
-            diff = target_marks - current_sum
-            if diff != 0 and subquestions:
-                max_idx = max(range(len(subquestions)), key=lambda i: subquestions[i]['marks'])
-                subquestions[max_idx]['marks'] += diff
+            # Normalize marks proportionally to ensure sum equals target_marks
+            subquestions = self._normalize_subquestion_marks(subquestions, target_marks)
         
         draft = {
             "question_no": q_no,
@@ -1154,9 +1230,12 @@ class AgentOrchestrator:
             if template_intent and template_intent not in used_intents:
                 used_intents.add(template_intent)
             
-            # 2a.2 SIMPLIFY TEMPLATE (User Request: Realistic Flow)
-            # If template has > 5 parts, crush it down to 5
-            template = self._simplify_template(template, target_marks)
+            # 2a.2 TEMPLATE STRUCTURE ENFORCEMENT
+            # CRITICAL: Do NOT simplify templates - use exact structure from template
+            # If template has 9 parts, generate exactly 9 sub-questions
+            # If template has 7 parts, generate exactly 7 sub-questions
+            # No simplification or deviation allowed
+            # template = self._simplify_template(template, target_marks)  # DISABLED: Must match template exactly
 
             # 2b. RESEARCHER: Get context
             # E.g. if template is "SQL_DDL_DML", we might want to research "SQL DDL scenarios"

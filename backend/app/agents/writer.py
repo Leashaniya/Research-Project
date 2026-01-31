@@ -46,6 +46,10 @@ class QuestionWriter(BaseAgent):
         global_context = input_data.get("global_context", {})
         banned_topics = input_data.get("banned_topics", []) or global_context.get("banned_topics", []) or []
         
+        # Extract diagram flags from input_data
+        needs_diagram = input_data.get("needs_diagram", False)
+        diagram_type = input_data.get("diagram_type", None)
+        
         # Select Prompt Strategy
         if mode == "generate":
             prompt = self._build_generation_prompt(slot, template, context, global_context, feedback, banned_topics=banned_topics)
@@ -62,6 +66,37 @@ class QuestionWriter(BaseAgent):
             )
             content = response.choices[0].message.content
             parsed = json.loads(content)
+            
+            # --- ENFORCE STRUCTURE COUNT AND NORMALIZE MARKS ---
+            # CRITICAL: Ensure subquestion count matches template exactly
+            target_marks = slot.get("target_marks", 0)
+            required_structure = template.get("required_structure") or []
+            required_count = len(required_structure) if required_structure else 0
+            
+            if target_marks > 0 and parsed.get("subquestions"):
+                generated_subquestions = parsed["subquestions"]
+                generated_count = len(generated_subquestions)
+                
+                # Fix count if it doesn't match template
+                if required_count > 0 and generated_count != required_count:
+                    print(f"    ⚠️  Structure count mismatch: Generated {generated_count}, required {required_count}. Fixing...")
+                    generated_subquestions = self._fix_subquestion_count(
+                        generated_subquestions,
+                        required_structure,
+                        required_count,
+                        target_marks,
+                        template
+                    )
+                    parsed["subquestions"] = generated_subquestions
+                
+                # Normalize marks to ensure they sum correctly
+                parsed["subquestions"] = self._normalize_subquestion_marks(
+                    parsed["subquestions"], 
+                    target_marks
+                )
+                # Update main question marks to match (in case LLM got it wrong)
+                parsed["marks"] = target_marks
+            # -----------------------------------------------------
             
             # --- DIAGRAM HANDLING (DALL·E Integration) ---
             # Note: DALL·E image generation happens AFTER question approval in orchestrator
@@ -90,6 +125,154 @@ class QuestionWriter(BaseAgent):
             self.log(f"Error drafting question: {e}")
             raise e
 
+    def _normalize_subquestion_marks(self, subquestions: list, target_marks: int) -> list:
+        """
+        Normalize subquestion marks to ensure they sum exactly to target_marks.
+        Uses proportional distribution based on relative weightage.
+        
+        Args:
+            subquestions: List of subquestion dicts with 'marks' field
+            target_marks: Target total marks for all subquestions
+            
+        Returns:
+            List of subquestions with normalized marks that sum to target_marks
+        """
+        if not subquestions or target_marks <= 0:
+            return subquestions
+        
+        # Get current marks (default to 0 if missing)
+        current_marks = [int(sq.get("marks", 0)) for sq in subquestions]
+        current_sum = sum(current_marks)
+        
+        # If sum is already correct, return as-is
+        if current_sum == target_marks:
+            return subquestions
+        
+        # If all marks are 0 or invalid, distribute evenly
+        if current_sum == 0 or all(m == 0 for m in current_marks):
+            marks_per_subq = target_marks // len(subquestions)
+            remainder = target_marks % len(subquestions)
+            normalized = []
+            for idx, sq in enumerate(subquestions):
+                marks = marks_per_subq + (1 if idx < remainder else 0)
+                normalized.append({**sq, "marks": marks})
+            return normalized
+        
+        # Proportional distribution: scale each mark by the ratio
+        ratio = target_marks / current_sum
+        normalized_marks = [int(round(m * ratio)) for m in current_marks]
+        
+        # Fix rounding errors: ensure sum equals target_marks exactly
+        normalized_sum = sum(normalized_marks)
+        diff = target_marks - normalized_sum
+        
+        if diff != 0:
+            # Distribute the difference to the largest subquestions first
+            # This preserves the relative weightage better
+            sorted_indices = sorted(
+                range(len(normalized_marks)), 
+                key=lambda i: normalized_marks[i], 
+                reverse=True
+            )
+            
+            # Add/subtract the difference
+            for i in sorted_indices:
+                if diff == 0:
+                    break
+                if diff > 0:
+                    normalized_marks[i] += 1
+                    diff -= 1
+                else:
+                    if normalized_marks[i] > 1:  # Don't go below 1
+                        normalized_marks[i] -= 1
+                        diff += 1
+        
+        # Update subquestions with normalized marks
+        normalized = []
+        for idx, sq in enumerate(subquestions):
+            normalized.append({**sq, "marks": normalized_marks[idx]})
+        
+        # Final verification
+        final_sum = sum(sq["marks"] for sq in normalized)
+        if final_sum != target_marks:
+            # Last resort: adjust the last subquestion
+            if normalized:
+                normalized[-1]["marks"] = target_marks - sum(sq["marks"] for sq in normalized[:-1])
+                # Ensure it's at least 1
+                if normalized[-1]["marks"] < 1:
+                    normalized[-1]["marks"] = 1
+                    # Adjust another subquestion
+                    for sq in normalized[:-1]:
+                        if sq["marks"] > 1:
+                            sq["marks"] -= 1
+                            break
+        
+        return normalized
+
+    def _fix_subquestion_count(self, subquestions: list, required_structure: list, required_count: int, target_marks: int, template: dict) -> list:
+        """
+        Fix subquestion count to match required structure exactly.
+        If too few, add new ones. If too many, remove excess.
+        
+        Args:
+            subquestions: Generated subquestions from LLM
+            required_structure: Template structure with required parts
+            required_count: Exact number of subquestions required
+            target_marks: Total marks for the question
+            template: Template dict for pattern_label reference
+            
+        Returns:
+            List of subquestions with correct count
+        """
+        current_count = len(subquestions)
+        
+        # If count is correct, return as-is
+        if current_count == required_count:
+            return subquestions
+        
+        # If too few, add new subquestions
+        if current_count < required_count:
+            import string
+            # Use existing subquestions as base
+            fixed = list(subquestions)
+            
+            # Add missing subquestions based on required structure
+            for idx in range(current_count, required_count):
+                if idx < len(required_structure):
+                    struct_item = required_structure[idx]
+                    label = string.ascii_lowercase[idx % 26]
+                    marks = struct_item.get("marks", target_marks // required_count)
+                    
+                    # Generate text based on structure or use generic
+                    text = struct_item.get("text", "")
+                    if not text or len(text.strip()) < 10:
+                        pattern_label = template.get("pattern_label", "the topic")
+                        text = f"Complete the task related to {pattern_label}."
+                    
+                    fixed.append({
+                        "label": label,
+                        "marks": marks,
+                        "text": text
+                    })
+                else:
+                    # Fallback if structure doesn't have enough items
+                    label = string.ascii_lowercase[idx % 26]
+                    marks = target_marks // required_count
+                    pattern_label = template.get("pattern_label", "the topic")
+                    fixed.append({
+                        "label": label,
+                        "marks": marks,
+                        "text": f"Complete the task related to {pattern_label}."
+                    })
+            
+            return fixed
+        
+        # If too many, remove excess (keep first N)
+        if current_count > required_count:
+            return subquestions[:required_count]
+        
+        return subquestions
+
     def _build_generation_prompt(self, slot, template, context, global_context, feedback=None, *, banned_topics=None) -> str:
         """Mode 1: Pure Generation from Constraints (No past text shown)."""
         
@@ -99,6 +282,9 @@ class QuestionWriter(BaseAgent):
         
         # Calculate sub-question breakdown string
         structure_str = "\n".join([f"- Part {s.get('label', '?')}: {s.get('marks')} marks" for s in structure_fingerprint])
+        
+        # CRITICAL: Get exact count required
+        required_count = len(structure_fingerprint)
         
         # Determine if ER/EER or Normalization question
         is_er_question = "er" in pattern_label or "eer" in pattern_label or "diagram" in pattern_label or "schema" in pattern_label
@@ -138,8 +324,14 @@ class QuestionWriter(BaseAgent):
         - USED QUESTION TYPES: {global_context.get('used_question_types', [])} (You MUST generate a DIFFERENT type)
         - USED SCENARIOS: {global_context.get('used_scenarios', [])} (You MUST use a completely different scenario)
         
-        REQUIRED STRUCTURE:
+        REQUIRED STRUCTURE (MANDATORY - NO EXCEPTIONS):
 {structure_str}
+        
+        ⚠️ CRITICAL: You MUST generate EXACTLY {required_count} sub-questions matching this structure.
+        - If template shows 9 parts, you MUST generate 9 sub-questions
+        - If template shows 7 parts, you MUST generate 7 sub-questions
+        - Any other count will be REJECTED immediately
+        - The number of sub-questions MUST match the template structure EXACTLY
         
         CRITICAL CONSTRAINTS (ZERO TOLERANCE - VIOLATIONS WILL CAUSE REJECTION):
         1. **NO PLACEHOLDERS**: Never use "...", "TBD", "[insert", "[placeholder", or any placeholder text. Every field must have complete, valid content.
@@ -195,6 +387,11 @@ class QuestionWriter(BaseAgent):
         pattern_label = template.get('pattern_label', '').lower()
         is_er_question = "er" in pattern_label or "eer" in pattern_label or "diagram" in pattern_label or "schema" in pattern_label
         is_norm_question = "normalization" in pattern_label or "normal form" in pattern_label
+        
+        # Get required structure and count
+        structure_fingerprint = template.get("required_structure") or [{"label": "a", "marks": slot.get("target_marks")}]
+        structure_str = "\n".join([f"- Part {s.get('label', '?')}: {s.get('marks')} marks" for s in structure_fingerprint])
+        required_count = len(structure_fingerprint)
 
         er_context = ""
         if is_er_question:
@@ -214,8 +411,17 @@ class QuestionWriter(BaseAgent):
         REFERENCE QUESTION:
         {template.get('full_text', '')}
         
+        REQUIRED STRUCTURE (MANDATORY - NO EXCEPTIONS):
+{structure_str}
+        
+        ⚠️ CRITICAL: You MUST generate EXACTLY {required_count} sub-questions matching this structure.
+        - If template shows 9 parts, you MUST generate 9 sub-questions
+        - If template shows 7 parts, you MUST generate 7 sub-questions
+        - Any other count will be REJECTED immediately
+        - The number of sub-questions MUST match the template structure EXACTLY
+        
         CONSTRAINTS:
-        1. **Keep Structure**: If original has 3 parts (a,b,c) with 5,5,10 marks, you MUST keep that EXACTLY.
+        1. **Keep Structure EXACTLY**: You MUST generate EXACTLY {required_count} sub-questions matching the structure above. If template shows 9 parts, generate 9. If 7 parts, generate 7. NO DEVIATION.
         2. **Change Scenario**: If original is about a Bank, you write about a Library or Hospital (completely different).
         3. **Keep Topic**: If original asks to Draw ERD, you ask to Draw ERD (but for the new scenario).
         4. **NO PLAGIARISM**: Do not copy the text. Re-invent it completely.

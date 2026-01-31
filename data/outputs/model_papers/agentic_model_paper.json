@@ -1,35 +1,58 @@
 {
-  "generated_at": "2026-01-18 12:37:19",
+  "generated_at": "2026-01-31 19:51:50",
   "mode": "AGENTIC_V1",
-  "total_marks": 0,
+  "total_marks": 100,
+  "num_questions": 4,
+  "topic_distribution": {
+    "Q1": {
+      "topic": "ER and EER Diagrams",
+      "marks": 20
+    },
+    "Q2": {
+      "topic": "frame bytes time",
+      "marks": 15
+    },
+    "Q3": {
+      "topic": "Transaction Management and Concurrency",
+      "marks": 25
+    },
+    "Q4": {
+      "topic": "SQL Database Schema and Queries",
+      "marks": 40
+    }
+  },
   "questions": [
     {
-      "question_no": "1",
+      "question_no": "Q1",
       "marks": 20,
-      "mermaid_code": "erDiagram\n    CUSTOMER ||--o{ ORDER : places\n    ORDER ||--|{ PRODUCT : includes\n    CUSTOMER }|--o{ ADDRESS : has\n    PRODUCT }|--|{ CATEGORY : belongs_to",
-      "text": "A retail company manages information regarding customers, orders, products, and categories. Each customer has a unique identifier, name, and may have multiple addresses. An order is associated with one customer and can include multiple products. Each product has a product ID, name, price, and belongs to a specific category.",
+      "text": "A bookstore manages its inventory, customers, and sales. The main entities are 'Book', which has attributes like title, author, and ISBN; 'Customer', which has attributes like customerID, name, and contactNumber; and 'Sale', which records interactions between customers and books with attributes such as saleID, saleDate, and quantity. The relationships include 'purchases' where a customer can purchase multiple books and each book can be purchased by many customers.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Identify all the main entities and their attributes from the given scenario.",
+          "text": "Identify the entities and their attributes in the given scenario.",
           "marks": 5
         },
         {
           "label": "b",
-          "text": "Determine the relationships between the identified entities and specify their cardinalities.",
+          "text": "Specify the relationships and their cardinalities between the identified entities.",
           "marks": 5
         },
         {
           "label": "c",
-          "text": "Draw the ER diagram representing the entities and their relationships detailed in the scenario. [DIAGRAM PLACEHOLDER: Draw the ER diagram for the scenario in the answer booklet.]",
+          "text": "Draw an ER diagram representing the entities, their attributes, and relationships.",
           "marks": 5
         },
         {
           "label": "d",
-          "text": "Map the identified entities and relationships to a relational schema.",
+          "text": "Map the ER diagram to a relational schema, including appropriate primary and foreign keys.",
           "marks": 5
         }
-      ]
+      ],
+      "pattern_label": "ER and EER Diagrams",
+      "main_topic": "ER and EER Diagrams",
+      "intent": "ER and EER Diagrams",
+      "template_id": "696d2a8334b588bc4896aae7",
+      "topic_label": "ER and EER Diagrams"
     },
     {
       "question_no": "Q2",
@@ -38,7 +61,7 @@
       "subquestions": [
         {
           "label": "a",
-          "marks": 2,
+          "marks": 3,
           "text": "Define the key concepts and their importance related to frame bytes time."
         },
         {
@@ -53,7 +76,7 @@
         },
         {
           "label": "d",
-          "marks": 3,
+          "marks": 2,
           "text": "Compare different implementation strategies and their trade-offs related to frame bytes time."
         },
         {
@@ -71,7 +94,9 @@
           "marks": 3,
           "text": "List the key features and their benefits related to frame bytes time."
         }
-      ]
+      ],
+      "main_topic": "frame bytes time",
+      "topic_label": "frame bytes time"
     },
     {
       "question_no": "Q3",
@@ -113,53 +138,38 @@
           "marks": 3,
           "text": "List the key features and their benefits related to Transaction Management and Concurrency."
         }
-      ]
+      ],
+      "main_topic": "Transaction Management and Concurrency",
+      "topic_label": "Transaction Management and Concurrency"
     },
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider a university database system with students, courses, and enrollments. Each student has student ID, name, and email. Each course has course code, title, and credits. Students enroll in courses, and each enrollment has a grade.",
+      "text": "In a local bookstore, three primary entities are involved: Books, Authors, and Publishers. Each Book has attributes such as ISBN, title, and price. Authors have names, birthdates, and nationality, while Publishers encompass a name and address. A Book can have multiple Authors and is published by one Publisher. An Author can write multiple Books, and a Publisher can publish multiple Books. Define several aspects of this scenario as you analyze its database structure.",
       "subquestions": [
         {
           "label": "a",
-          "marks": 9,
-          "text": "Identify the main entities and their attributes."
+          "text": "Identify the primary entities in the bookstore scenario and list their key attributes.",
+          "marks": 10
         },
         {
           "label": "b",
-          "marks": 5,
-          "text": "Draw the ER/EER diagram showing relationships and cardinalities."
+          "text": "Analyze the relationships between Books, Authors, and Publishers, indicating their cardinalities.",
+          "marks": 10
         },
         {
           "label": "c",
-          "marks": 3,
-          "text": "Map the ER diagram to a relational schema with primary and foreign keys."
+          "text": "Describe the specialization and generalization concepts that might apply to the Authors entity, considering possible subtypes like 'Fiction' and 'Non-Fiction' writers.",
+          "marks": 10
         },
         {
           "label": "d",
-          "marks": 5,
-          "text": "Explain the relationships between entities and their cardinality constraints."
-        },
-        {
-          "label": "e",
-          "marks": 5,
-          "text": "Describe the attributes of each entity and their data types."
-        },
-        {
-          "label": "f",
-          "marks": 8,
-          "text": "List the primary keys, foreign keys, and integrity constraints."
-        },
-        {
-          "label": "g",
-          "marks": 5,
-          "text": "Design the complete relational schema based on the ER diagram."
+          "text": "Discuss a potential ternary relationship in this scenario and explain its significance in capturing shared attributes among the entities.",
+          "marks": 10
         }
       ],
-      "needs_diagram": true,
-      "diagram_type": "ER",
-      "diagram_placeholder_text": "[DIAGRAM PLACEHOLDER: Draw the ER diagram for the scenario in the answer booklet.]",
-      "mermaid_code": "erDiagram\n    ENTITY1 ||--o{ ENTITY2 : relates_to\n    ENTITY2 ||--|{ ENTITY3 : contains"
+      "pattern_label": "GENERAL_THEORY",
+      "main_topic": "GENERAL_THEORY"
     }
   ]
 }
