@@ -5,7 +5,8 @@ import { erModelToDot } from "../graphviz";
 
 interface Props {
   model: ERModel | null;
-  dotText?: string; // Optional: if provided, use this instead of generating from model
+  dotText?: string | null; // Optional: if provided, use this instead of generating from model
+  onSvgReady?: (svg: string | null) => void; // Callback when SVG is ready
 }
 
 /**
@@ -13,7 +14,7 @@ interface Props {
  * 
  * Uses @hpcc-js/wasm to render DOT -> SVG in the browser.
  */
-export function GraphvizDiagram({ model, dotText }: Props) {
+export function GraphvizDiagram({ model, dotText, onSvgReady }: Props) {
   const [svgContent, setSvgContent] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isRendering, setIsRendering] = useState(false);
@@ -56,16 +57,18 @@ export function GraphvizDiagram({ model, dotText }: Props) {
         const svg = graphviz.dot(dot);
         setSvgContent(svg);
         setError(null);
+        onSvgReady?.(svg);
       })
       .catch((err: unknown) => {
         console.error("Graphviz rendering error:", err);
         setError(`Failed to render diagram: ${err instanceof Error ? err.message : String(err)}`);
         setSvgContent(null);
+        onSvgReady?.(null);
       })
       .finally(() => {
         setIsRendering(false);
       });
-  }, [dot]);
+  }, [dot, onSvgReady]);
 
   if (!model || model.entities.length === 0) {
     return (

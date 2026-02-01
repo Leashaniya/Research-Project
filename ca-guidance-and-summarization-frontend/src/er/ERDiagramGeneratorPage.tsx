@@ -1,21 +1,19 @@
 import { useMemo, useState } from "react";
 import "./er.css";
 
-import type { Attribute, Cardinality, ERModel, Entity, Relationship, Selection, ValidationMessage, RenderPlan, ValidationOutput } from "./types";
+import type { Attribute, Cardinality, ERModel, Entity, Relationship, Selection, ValidationMessage, ValidationOutput } from "./types";
 import { createId } from "./id";
 import { validateModel } from "./validation";
-import { validateModelAPI, getRenderPlanAPI } from "./api";
+import { validateModelAPI } from "./api";
 
 import { EntityList } from "./components/EntityList";
 import { RelationshipList } from "./components/RelationshipList";
 import { EntityEditor } from "./components/EntityEditor";
 import { RelationshipEditor } from "./components/RelationshipEditor";
-import { JsonPreview } from "./components/JsonPreview";
 import { ValidationPanel } from "./components/ValidationPanel";
-import { ERDiagramSvg } from "./components/ERDiagramSvg";
 import { GraphvizDiagram } from "./components/GraphvizDiagram";
-import { DotPreview } from "./components/DotPreview";
 import { erModelToDot } from "./graphviz";
+import { downloadSvgStringAsPng } from "./pngExport";
 
 const DEFAULT_CARD: Cardinality = "0..*";
 
@@ -49,14 +47,13 @@ export default function ERDiagramGeneratorPage() {
   const [validationMessages, setValidationMessages] = useState<ValidationMessage[]>([]);
   const [backendValidation, setBackendValidation] = useState<ValidationOutput | null>(null);
 
-  // Render plan state
-  const [renderPlan, setRenderPlan] = useState<RenderPlan | null>(null);
+  // Diagram generation state
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
   // Graphviz state
-  const [diagramMode, setDiagramMode] = useState<"chen" | "graphviz">("graphviz");
   const [dotText, setDotText] = useState<string | null>(null);
+  const [currentSvg, setCurrentSvg] = useState<string | null>(null);
 
   const selectedEntity = useMemo(() => {
     if (selection?.type !== "entity") return null;
@@ -145,11 +142,11 @@ export default function ERDiagramGeneratorPage() {
     }
   };
 
-  const generateDiagram = async () => {
+  const generateDiagram = async (): Promise<string> => {
     setIsGenerating(true);
     setGenerationError(null);
-    setRenderPlan(null);
     setDotText(null);
+    setCurrentSvg(null);
 
     try {
       // First validate
@@ -159,45 +156,79 @@ export default function ERDiagramGeneratorPage() {
 
       // Check if there are errors
       if (validationResult.errors.length > 0) {
-        setGenerationError("Model has validation errors. Fix them before generating a diagram.");
+        const errorMsg = "Model has validation errors. Fix them before generating a diagram.";
+        setGenerationError(errorMsg);
         setIsGenerating(false);
-        return;
+        throw new Error(errorMsg);
       }
 
-      if (diagramMode === "chen") {
-        // Get render plan for Chen SVG
-        const plan = await getRenderPlanAPI(model);
-        setRenderPlan(plan);
+      // Generate DOT for Graphviz
+      let dot: string;
+      try {
+        dot = erModelToDot(model);
+        setDotText(dot);
         setGenerationError(null);
-      } else {
-        // Generate DOT for Graphviz
-        try {
-          const dot = erModelToDot(model);
-          setDotText(dot);
-          setGenerationError(null);
-        } catch (err) {
-          setGenerationError(`Failed to generate DOT: ${err instanceof Error ? err.message : String(err)}`);
-        }
+      } catch (err) {
+        const errorMsg = `Failed to generate DOT: ${err instanceof Error ? err.message : String(err)}`;
+        setGenerationError(errorMsg);
+        setIsGenerating(false);
+        throw new Error(errorMsg);
       }
+
+      // Render DOT to SVG using Graphviz
+      const { Graphviz } = await import("@hpcc-js/wasm");
+      const graphviz = await Graphviz.load();
+      const svg = graphviz.dot(dot);
+      
+      // Update state for preview
+      setCurrentSvg(svg);
+      setIsGenerating(false);
+      
+      return svg;
     } catch (error: any) {
-      console.error("Render plan API error:", error);
+      console.error("Validation error:", error);
       
       // If 400, backend returned validation output
       if (error.status === 400 && error.validation) {
         setBackendValidation(error.validation);
-        setGenerationError("Model has validation errors. Fix them before generating a diagram.");
+        const errorMsg = "Model has validation errors. Fix them before generating a diagram.";
+        setGenerationError(errorMsg);
+        setIsGenerating(false);
+        throw new Error(errorMsg);
+      } else if (error.message) {
+        // Already handled error with message
+        throw error;
       } else {
-        setGenerationError(`Failed to generate diagram: ${error instanceof Error ? error.message : String(error)}`);
+        const errorMsg = `Failed to generate diagram: ${error instanceof Error ? error.message : String(error)}`;
+        setGenerationError(errorMsg);
+        setDotText(null);
+        setCurrentSvg(null);
+        setIsGenerating(false);
+        throw new Error(errorMsg);
       }
-      setRenderPlan(null);
-      setDotText(null);
-    } finally {
-      setIsGenerating(false);
     }
   };
 
   // Check if backend validation has errors
   const backendHasErrors = backendValidation ? backendValidation.errors.length > 0 : false;
+
+  // Download PNG handler
+  const handleDownloadPng = async () => {
+    // Check validation errors
+    if (hasErrors || backendHasErrors) {
+      alert("Please fix validation errors before downloading the diagram.");
+      return;
+    }
+
+    try {
+      // Use current SVG if available, otherwise generate diagram
+      const svg = currentSvg ?? await generateDiagram();
+      await downloadSvgStringAsPng(svg, "er-diagram.png");
+    } catch (error) {
+      console.error("PNG download error:", error);
+      alert(`Failed to download PNG: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
 
   return (
     <div className="er-page">
@@ -251,35 +282,21 @@ export default function ERDiagramGeneratorPage() {
             >
               {isGenerating ? "Generating..." : "Generate Diagram"}
             </button>
-          </div>
-          
-          {/* Diagram mode toggle */}
-          <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}>
-            <label style={{ fontSize: "0.875rem", color: "#6c757d" }}>Layout:</label>
             <button
-              className={`er-btn ${diagramMode === "chen" ? "primary" : ""}`}
+              className="er-btn"
               type="button"
-              onClick={() => setDiagramMode("chen")}
-              style={{ fontSize: "0.875rem", padding: "4px 12px" }}
+              onClick={handleDownloadPng}
+              disabled={hasErrors || backendHasErrors || isGenerating}
+              style={{ marginLeft: 8 }}
             >
-              Chen (SVG)
-            </button>
-            <button
-              className={`er-btn ${diagramMode === "graphviz" ? "primary" : ""}`}
-              type="button"
-              onClick={() => setDiagramMode("graphviz")}
-              style={{ fontSize: "0.875rem", padding: "4px 12px" }}
-            >
-              Graphviz (Auto)
+              Download PNG
             </button>
           </div>
           
           <div className="er-muted" style={{ marginTop: 8 }}>
             {hasErrors || backendHasErrors
-              ? "Fix validation errors before generating a diagram."
-              : diagramMode === "chen"
-              ? "Generate Diagram creates a visual Chen ER diagram with manual layout."
-              : "Generate Diagram creates a visual ER diagram using Graphviz automatic layout."}
+              ? "Fix validation errors before generating or downloading a diagram."
+              : "Generate Diagram creates a visual ER diagram using Graphviz automatic layout. Download PNG exports the current diagram as an image."}
           </div>
           {generationError && (
             <div style={{ marginTop: 8, color: "#842029", fontSize: "0.9rem" }}>
@@ -296,17 +313,7 @@ export default function ERDiagramGeneratorPage() {
         />
 
         {/* Diagram Preview */}
-        {diagramMode === "chen" ? (
-          <ERDiagramSvg plan={renderPlan} model={model} />
-        ) : (
-          <>
-            <GraphvizDiagram model={model} dotText={dotText} />
-            {dotText && <DotPreview dotText={dotText} />}
-          </>
-        )}
-
-        {/* JSON Preview (collapsible) */}
-        <JsonPreview model={model} />
+        <GraphvizDiagram model={model} dotText={dotText ?? undefined} onSvgReady={setCurrentSvg} />
       </div>
     </div>
   );
