@@ -12,7 +12,11 @@ import {
   FaBookOpen,
   FaCheck,
   FaCopy,
-  FaChartLine
+  FaChartLine,
+  FaThumbsUp,
+  FaThumbsDown,
+  FaEdit,
+  FaSpinner
 } from 'react-icons/fa';
 import { HiMiniSparkles } from 'react-icons/hi2';
 import './App.css';
@@ -34,6 +38,14 @@ function App() {
   const [flashcards, setFlashcards] = useState(null);
   const [flashLoading, setFlashLoading] = useState(false);
   const [selectedBloomLevel, setSelectedBloomLevel] = useState(null);
+  // Flashcard feedback state
+  const [flashcardSetId, setFlashcardSetId] = useState(null);
+  const [flashcardFeedbackOpen, setFlashcardFeedbackOpen] = useState({}); // {cardId: true/false}
+  const [flashcardFeedbackType, setFlashcardFeedbackType] = useState({}); // {cardId: 'add_examples' | 'simplify' | etc}
+  const [flashcardFeedbackComment, setFlashcardFeedbackComment] = useState({}); // {cardId: 'comment'}
+  const [flashcardFeedbackLoading, setFlashcardFeedbackLoading] = useState({}); // {cardId: true/false}
+  const [flashcardImproving, setFlashcardImproving] = useState({}); // {cardId: true/false}
+  const [flashcardLiked, setFlashcardLiked] = useState({}); // {cardId: true/false} - tracks "Yes" clicks
   const [summaryAccuracy, setSummaryAccuracy] = useState(null);
   const [summaryAccuracyLoading, setSummaryAccuracyLoading] = useState(false);
   const [guidanceAccuracy, setGuidanceAccuracy] = useState(null);
@@ -600,6 +612,11 @@ function App() {
     setFlashLoading(true);
     setFlashcards(null);
     setSelectedBloomLevel(null);
+    setFlashcardSetId(null);
+    setFlashcardFeedbackOpen({});
+    setFlashcardFeedbackType({});
+    setFlashcardFeedbackComment({});
+    setFlashcardLiked({});
 
     if (!flashcardTopic || !flashcardTopic.trim()) {
       setFlashcards({ error: 'Please enter a topic to generate flashcards.' });
@@ -608,6 +625,24 @@ function App() {
     }
 
     try {
+      // First check if we have saved flashcards for this topic
+      const existingResponse = await fetch(`${API_URL}/protected/flashcards/topic/${encodeURIComponent(flashcardTopic.trim())}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (existingResponse.ok) {
+        const existingData = await existingResponse.json();
+        if (existingData.found) {
+          // Use existing (possibly improved) flashcards
+          setFlashcards({ topic: existingData.topic, flashcards: existingData.flashcards });
+          setFlashcardSetId(existingData._id);
+          setFlashLoading(false);
+          return;
+        }
+      }
+
+      // Generate new flashcards
       const response = await fetch(`${API_URL}/protected/generate-flashcards`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -617,7 +652,45 @@ function App() {
 
       if (response.ok) {
         const result = await response.json();
-        setFlashcards(result);
+        
+        // Add unique IDs to flashcards and save to database
+        const flashcardsWithIds = {};
+        for (const level of Object.keys(result.flashcards)) {
+          flashcardsWithIds[level] = result.flashcards[level].map((card, i) => ({
+            id: `${level}-${i}-${Date.now()}`,
+            question: card.question,
+            answer: card.answer
+          }));
+        }
+
+        // Save to database
+        try {
+          const saveResponse = await fetch(`${API_URL}/protected/flashcards/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ 
+              topic: result.topic,
+              flashcards: flashcardsWithIds 
+            }),
+          });
+
+          if (saveResponse.ok) {
+            const savedData = await saveResponse.json();
+            console.log('Flashcards saved successfully:', savedData.flashcard_set_id);
+            setFlashcardSetId(savedData.flashcard_set_id);
+            setFlashcards({ topic: result.topic, flashcards: savedData.flashcards });
+          } else {
+            const saveError = await saveResponse.json().catch(() => ({}));
+            console.warn('Failed to save flashcards:', saveError);
+            // If save fails, still show flashcards but without feedback capability
+            setFlashcards({ topic: result.topic, flashcards: flashcardsWithIds });
+          }
+        } catch (saveErr) {
+          console.warn('Error saving flashcards:', saveErr);
+          // If save fails, still show flashcards but without feedback capability
+          setFlashcards({ topic: result.topic, flashcards: flashcardsWithIds });
+        }
       } else {
         const errorData = await response.json().catch(() => ({ detail: 'Failed to generate flashcards' }));
         setFlashcards({ error: errorData.detail || 'Failed to generate flashcards. Make sure you are logged in.' });
@@ -627,6 +700,122 @@ function App() {
       setFlashcards({ error: 'An error occurred while generating flashcards.' });
     } finally {
       setFlashLoading(false);
+    }
+  };
+
+  // Submit flashcard feedback (thumbs up/down)
+  const handleFlashcardFeedback = async (cardId, bloomLevel, rating) => {
+    if (!flashcardSetId) {
+      console.error('No flashcard set ID available');
+      return;
+    }
+
+    setFlashcardFeedbackLoading(prev => ({ ...prev, [cardId]: true }));
+    
+    // Immediately show visual feedback for "Yes" clicks
+    if (rating === 'thumbs_up') {
+      setFlashcardLiked(prev => ({ ...prev, [cardId]: true }));
+    }
+
+    try {
+      const feedbackType = flashcardFeedbackType[cardId] || null;
+      const comment = flashcardFeedbackComment[cardId] || null;
+
+      const response = await fetch(`${API_URL}/protected/flashcards/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          flashcard_set_id: flashcardSetId,
+          flashcard_id: cardId,
+          bloom_level: bloomLevel,
+          rating: rating,
+          feedback_type: feedbackType,
+          comment: comment
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // If thumbs down with feedback, automatically improve the card
+        if (rating === 'thumbs_down' && (feedbackType || comment)) {
+          await handleImproveFlashcard(cardId, bloomLevel, result.feedback_id);
+        }
+
+        // Close the feedback form
+        setFlashcardFeedbackOpen(prev => ({ ...prev, [cardId]: false }));
+        setFlashcardFeedbackType(prev => ({ ...prev, [cardId]: null }));
+        setFlashcardFeedbackComment(prev => ({ ...prev, [cardId]: '' }));
+      } else {
+        console.error('Failed to submit feedback');
+        // Revert the like if the API call failed
+        if (rating === 'thumbs_up') {
+          setFlashcardLiked(prev => ({ ...prev, [cardId]: false }));
+        }
+      }
+    } catch (error) {
+      console.error('Error submitting flashcard feedback:', error);
+      // Revert the like if the API call failed
+      if (rating === 'thumbs_up') {
+        setFlashcardLiked(prev => ({ ...prev, [cardId]: false }));
+      }
+    } finally {
+      setFlashcardFeedbackLoading(prev => ({ ...prev, [cardId]: false }));
+    }
+  };
+
+  // Improve a flashcard based on feedback
+  const handleImproveFlashcard = async (cardId, bloomLevel, feedbackId) => {
+    if (!flashcardSetId) return;
+
+    setFlashcardImproving(prev => ({ ...prev, [cardId]: true }));
+
+    try {
+      const response = await fetch(`${API_URL}/protected/flashcards/improve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          flashcard_set_id: flashcardSetId,
+          flashcard_id: cardId,
+          bloom_level: bloomLevel,
+          feedback_id: feedbackId
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Update the flashcard in state immediately (real-time update)
+        setFlashcards(prev => {
+          if (!prev || !prev.flashcards) return prev;
+          
+          const updatedFlashcards = { ...prev.flashcards };
+          if (updatedFlashcards[bloomLevel]) {
+            updatedFlashcards[bloomLevel] = updatedFlashcards[bloomLevel].map(card => {
+              if (card.id === cardId) {
+                return {
+                  ...card,
+                  question: result.updated_question,
+                  answer: result.updated_answer,
+                  improved: true,
+                  improvement_notes: result.improvement_notes
+                };
+              }
+              return card;
+            });
+          }
+          
+          return { ...prev, flashcards: updatedFlashcards };
+        });
+      } else {
+        console.error('Failed to improve flashcard');
+      }
+    } catch (error) {
+      console.error('Error improving flashcard:', error);
+    } finally {
+      setFlashcardImproving(prev => ({ ...prev, [cardId]: false }));
     }
   };
 
@@ -1387,16 +1576,34 @@ function App() {
                                 <div className="report-content">
                                   {flashcards.flashcards[selectedBloomLevel].map((card, i) => (
                                     <div 
-                                      key={i} 
+                                      key={card.id || i} 
                                       style={{ 
                                         marginBottom: '20px',
                                         padding: '16px',
-                                        backgroundColor: '#fff',
+                                        backgroundColor: card.improved ? '#e8f5e9' : '#fff',
                                         borderRadius: '8px',
-                                        border: '1px solid #dee2e6',
-                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                        border: card.improved ? '2px solid #4caf50' : '1px solid #dee2e6',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                        position: 'relative'
                                       }}
                                     >
+                                      {/* Improved badge */}
+                                      {card.improved && (
+                                        <div style={{
+                                          position: 'absolute',
+                                          top: '-8px',
+                                          right: '16px',
+                                          backgroundColor: '#4caf50',
+                                          color: 'white',
+                                          padding: '2px 8px',
+                                          borderRadius: '4px',
+                                          fontSize: '0.75rem',
+                                          fontWeight: 'bold'
+                                        }}>
+                                          Improved
+                                        </div>
+                                      )}
+                                      
                                       <div style={{ 
                                         marginBottom: '12px',
                                         fontSize: '1.1rem',
@@ -1408,10 +1615,249 @@ function App() {
                                       <div style={{ 
                                         fontSize: '1rem',
                                         color: '#495057',
-                                        lineHeight: '1.6'
+                                        lineHeight: '1.6',
+                                        marginBottom: '16px'
                                       }}>
                                         <strong style={{ color: '#28a745' }}>Answer:</strong> {card.answer}
                                       </div>
+                                      
+                                      {/* Improvement notes if available */}
+                                      {card.improvement_notes && (
+                                        <div style={{
+                                          backgroundColor: '#e3f2fd',
+                                          padding: '8px 12px',
+                                          borderRadius: '4px',
+                                          fontSize: '0.85rem',
+                                          color: '#1565c0',
+                                          marginBottom: '12px'
+                                        }}>
+                                          <strong>Improvement:</strong> {card.improvement_notes}
+                                        </div>
+                                      )}
+                                      
+                                      {/* Feedback section */}
+                                      <div style={{ 
+                                        borderTop: '1px solid #dee2e6',
+                                        paddingTop: '12px',
+                                        marginTop: '8px'
+                                      }}>
+                                        {/* Show confirmed state if user clicked "Yes" */}
+                                        {flashcardLiked[card.id] && !flashcardFeedbackOpen[card.id] && !flashcardImproving[card.id] && (
+                                          <div style={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            gap: '8px',
+                                            padding: '8px 12px',
+                                            backgroundColor: '#e8f5e9',
+                                            borderRadius: '6px',
+                                            border: '1px solid #4caf50'
+                                          }}>
+                                            <FaCheck style={{ color: '#2e7d32' }} />
+                                            <span style={{ color: '#2e7d32', fontWeight: '500', fontSize: '0.9rem' }}>
+                                              Thanks for your feedback!
+                                            </span>
+                                            <button
+                                              onClick={() => setFlashcardFeedbackOpen(prev => ({ ...prev, [card.id]: true }))}
+                                              style={{
+                                                marginLeft: 'auto',
+                                                padding: '4px 8px',
+                                                backgroundColor: 'transparent',
+                                                border: '1px solid #6c757d',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer',
+                                                fontSize: '0.75rem',
+                                                color: '#6c757d'
+                                              }}
+                                            >
+                                              Still want to improve?
+                                            </button>
+                                          </div>
+                                        )}
+                                        
+                                        {/* Quick feedback buttons - only show if not yet liked */}
+                                        {!flashcardLiked[card.id] && !flashcardFeedbackOpen[card.id] && !flashcardImproving[card.id] && (
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <span style={{ fontSize: '0.85rem', color: '#6c757d' }}>Was this helpful?</span>
+                                            <button
+                                              onClick={() => flashcardSetId ? handleFlashcardFeedback(card.id, selectedBloomLevel, 'thumbs_up') : alert('Feedback requires saving flashcards. Please try regenerating.')}
+                                              disabled={flashcardFeedbackLoading[card.id]}
+                                              style={{
+                                                padding: '6px 12px',
+                                                backgroundColor: flashcardFeedbackLoading[card.id] ? '#c8e6c9' : '#e8f5e9',
+                                                border: '1px solid #4caf50',
+                                                borderRadius: '4px',
+                                                cursor: flashcardSetId && !flashcardFeedbackLoading[card.id] ? 'pointer' : 'not-allowed',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                color: '#2e7d32',
+                                                opacity: flashcardSetId ? 1 : 0.6,
+                                                transition: 'all 0.2s ease'
+                                              }}
+                                            >
+                                              {flashcardFeedbackLoading[card.id] ? (
+                                                <>
+                                                  <FaSpinner size={14} style={{ animation: 'spin 1s linear infinite' }} />
+                                                  Saving...
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <FaThumbsUp size={14} /> Yes
+                                                </>
+                                              )}
+                                            </button>
+                                            <button
+                                              onClick={() => flashcardSetId ? setFlashcardFeedbackOpen(prev => ({ ...prev, [card.id]: true })) : alert('Feedback requires saving flashcards. Please try regenerating.')}
+                                              disabled={flashcardFeedbackLoading[card.id]}
+                                              style={{
+                                                padding: '6px 12px',
+                                                backgroundColor: '#ffebee',
+                                                border: '1px solid #f44336',
+                                                borderRadius: '4px',
+                                                cursor: flashcardSetId && !flashcardFeedbackLoading[card.id] ? 'pointer' : 'not-allowed',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                color: '#c62828',
+                                                opacity: flashcardSetId ? 1 : 0.6
+                                              }}
+                                            >
+                                              <FaThumbsDown size={14} /> Improve
+                                            </button>
+                                            {!flashcardSetId && (
+                                              <span style={{ fontSize: '0.75rem', color: '#dc3545', marginLeft: '8px' }}>
+                                                (Save required for feedback)
+                                              </span>
+                                            )}
+                                          </div>
+                                        )}
+                                          
+                                          {/* Improving indicator */}
+                                          {flashcardImproving[card.id] && (
+                                            <div style={{ 
+                                              display: 'flex', 
+                                              alignItems: 'center', 
+                                              gap: '8px',
+                                              color: '#1976d2',
+                                              fontSize: '0.9rem'
+                                            }}>
+                                              <FaSpinner className="loading-spinner" style={{ animation: 'spin 1s linear infinite' }} />
+                                              Improving flashcard based on your feedback...
+                                            </div>
+                                          )}
+                                          
+                                          {/* Expanded feedback form */}
+                                          {flashcardFeedbackOpen[card.id] && !flashcardImproving[card.id] && (
+                                            <div style={{ 
+                                              backgroundColor: '#f8f9fa',
+                                              padding: '12px',
+                                              borderRadius: '8px',
+                                              marginTop: '8px'
+                                            }}>
+                                              <p style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '8px' }}>
+                                                How can we improve this flashcard?
+                                              </p>
+                                              
+                                              {/* Feedback type buttons */}
+                                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                                                {[
+                                                  { id: 'add_examples', label: 'Add Examples' },
+                                                  { id: 'simplify', label: 'Simplify Language' },
+                                                  { id: 'more_detail', label: 'More Detail' },
+                                                  { id: 'clarify', label: 'Clarify' }
+                                                ].map(type => (
+                                                  <button
+                                                    key={type.id}
+                                                    onClick={() => setFlashcardFeedbackType(prev => ({
+                                                      ...prev,
+                                                      [card.id]: flashcardFeedbackType[card.id] === type.id ? null : type.id
+                                                    }))}
+                                                    style={{
+                                                      padding: '6px 12px',
+                                                      backgroundColor: flashcardFeedbackType[card.id] === type.id ? '#336db0' : '#fff',
+                                                      color: flashcardFeedbackType[card.id] === type.id ? '#fff' : '#495057',
+                                                      border: `1px solid ${flashcardFeedbackType[card.id] === type.id ? '#336db0' : '#dee2e6'}`,
+                                                      borderRadius: '16px',
+                                                      cursor: 'pointer',
+                                                      fontSize: '0.85rem'
+                                                    }}
+                                                  >
+                                                    {type.label}
+                                                  </button>
+                                                ))}
+                                              </div>
+                                              
+                                              {/* Comment input */}
+                                              <textarea
+                                                placeholder="Add specific feedback (optional)..."
+                                                value={flashcardFeedbackComment[card.id] || ''}
+                                                onChange={(e) => setFlashcardFeedbackComment(prev => ({
+                                                  ...prev,
+                                                  [card.id]: e.target.value
+                                                }))}
+                                                style={{
+                                                  width: '100%',
+                                                  padding: '8px',
+                                                  borderRadius: '4px',
+                                                  border: '1px solid #dee2e6',
+                                                  minHeight: '60px',
+                                                  fontSize: '0.9rem',
+                                                  marginBottom: '12px',
+                                                  resize: 'vertical'
+                                                }}
+                                              />
+                                              
+                                              {/* Action buttons */}
+                                              <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button
+                                                  onClick={() => handleFlashcardFeedback(card.id, selectedBloomLevel, 'thumbs_down')}
+                                                  disabled={flashcardFeedbackLoading[card.id] || (!flashcardFeedbackType[card.id] && !flashcardFeedbackComment[card.id])}
+                                                  style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#336db0',
+                                                    color: '#fff',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: flashcardFeedbackLoading[card.id] || (!flashcardFeedbackType[card.id] && !flashcardFeedbackComment[card.id]) ? 'not-allowed' : 'pointer',
+                                                    opacity: flashcardFeedbackLoading[card.id] || (!flashcardFeedbackType[card.id] && !flashcardFeedbackComment[card.id]) ? 0.6 : 1,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px'
+                                                  }}
+                                                >
+                                                  {flashcardFeedbackLoading[card.id] ? (
+                                                    <>
+                                                      <FaSpinner className="loading-spinner" style={{ animation: 'spin 1s linear infinite' }} />
+                                                      Submitting...
+                                                    </>
+                                                  ) : (
+                                                    <>
+                                                      <FaEdit size={14} />
+                                                      Submit & Improve
+                                                    </>
+                                                  )}
+                                                </button>
+                                                <button
+                                                  onClick={() => {
+                                                    setFlashcardFeedbackOpen(prev => ({ ...prev, [card.id]: false }));
+                                                    setFlashcardFeedbackType(prev => ({ ...prev, [card.id]: null }));
+                                                    setFlashcardFeedbackComment(prev => ({ ...prev, [card.id]: '' }));
+                                                  }}
+                                                  style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#fff',
+                                                    color: '#495057',
+                                                    border: '1px solid #dee2e6',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer'
+                                                  }}
+                                                >
+                                                  Cancel
+                                                </button>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
                                     </div>
                                   ))}
                                 </div>
