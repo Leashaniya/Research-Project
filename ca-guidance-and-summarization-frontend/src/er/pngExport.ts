@@ -1,107 +1,145 @@
 /**
- * Converts SVG string to PNG and triggers download.
+ * Utility to convert SVG string to PNG and trigger download.
  */
-export async function downloadSvgStringAsPng(svgString: string, filename: string = "er-diagram.png"): Promise<void> {
+
+/**
+ * Parse dimension value, handling units like "pt", "px", "em", etc.
+ * Graphviz often uses "pt" (points) where 1pt = 1.333px
+ */
+function parseDimension(value: string | null): number | null {
+  if (!value) return null;
+  
+  const match = value.match(/^([\d.]+)(pt|px|em|%)?$/);
+  if (!match) return null;
+  
+  const num = parseFloat(match[1]);
+  const unit = match[2] || "px";
+  
+  // Convert to pixels
+  switch (unit) {
+    case "pt":
+      return num * 1.333; // 1pt = 1.333px
+    case "em":
+      return num * 16; // Assume 16px base font
+    case "%":
+      return null; // Can't convert percentage without context
+    default:
+      return num;
+  }
+}
+
+export async function downloadSvgStringAsPng(
+  svgString: string,
+  filename: string = "diagram.png"
+): Promise<void> {
   return new Promise((resolve, reject) => {
     try {
-      // Create blob from SVG
-      const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+      // Parse SVG to get and fix dimensions
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
+      const svgElement = svgDoc.documentElement;
+
+      // Get dimensions from width/height attributes (Graphviz uses these)
+      let width = parseDimension(svgElement.getAttribute("width"));
+      let height = parseDimension(svgElement.getAttribute("height"));
+
+      // Try viewBox if width/height not available
+      const viewBox = svgElement.getAttribute("viewBox");
+      if (viewBox) {
+        const parts = viewBox.split(/[\s,]+/).map(Number).filter(n => !isNaN(n));
+        if (parts.length >= 4) {
+          // viewBox format: minX minY width height
+          if (!width) width = parts[2];
+          if (!height) height = parts[3];
+        }
+      }
+
+      // Fallback defaults
+      if (!width || width <= 0) width = 800;
+      if (!height || height <= 0) height = 600;
+
+      // Add padding
+      const padding = 20;
+      width += padding * 2;
+      height += padding * 2;
+
+      // Modify SVG to have explicit pixel dimensions for proper rendering
+      svgElement.setAttribute("width", `${width}px`);
+      svgElement.setAttribute("height", `${height}px`);
+      
+      // Ensure viewBox covers the content
+      if (!viewBox) {
+        svgElement.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      }
+
+      // Serialize the modified SVG
+      const serializer = new XMLSerializer();
+      const modifiedSvgString = serializer.serializeToString(svgElement);
+
+      // Create a Blob from the modified SVG string
+      const svgBlob = new Blob([modifiedSvgString], { type: "image/svg+xml;charset=utf-8" });
       const url = URL.createObjectURL(svgBlob);
 
-      // Create image element
+      // Create an Image to load the SVG
       const img = new Image();
       
       img.onload = () => {
-        try {
-          // Create canvas
-          const canvas = document.createElement("canvas");
-          
-          // Extract dimensions from SVG viewBox or use image dimensions
-          const parser = new DOMParser();
-          const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
-          const svgElement = svgDoc.documentElement;
-          
-          let width = img.width || 800;
-          let height = img.height || 600;
-          
-          // Try to get viewBox dimensions (more accurate)
-          const viewBox = svgElement.getAttribute("viewBox");
-          if (viewBox) {
-            const parts = viewBox.split(/\s+/);
-            if (parts.length >= 4) {
-              const vw = parseFloat(parts[2]);
-              const vh = parseFloat(parts[3]);
-              if (!isNaN(vw) && !isNaN(vh) && vw > 0 && vh > 0) {
-                width = vw;
-                height = vh;
-              }
-            }
-          } else {
-            // Fallback to width/height attributes
-            const svgWidth = svgElement.getAttribute("width");
-            const svgHeight = svgElement.getAttribute("height");
-            if (svgWidth && svgHeight) {
-              const parsedWidth = parseFloat(svgWidth.replace(/[^\d.]/g, ""));
-              const parsedHeight = parseFloat(svgHeight.replace(/[^\d.]/g, ""));
-              if (!isNaN(parsedWidth) && parsedWidth > 0) width = parsedWidth;
-              if (!isNaN(parsedHeight) && parsedHeight > 0) height = parsedHeight;
-            }
-          }
-          
-          // Set canvas dimensions (use 2x for better quality)
-          const scale = 2;
-          canvas.width = width * scale;
-          canvas.height = height * scale;
-          
-          // Draw image on canvas
-          const ctx = canvas.getContext("2d");
-          if (!ctx) {
-            throw new Error("Failed to get canvas context");
-          }
-          
-          // Scale context for high DPI
-          ctx.scale(scale, scale);
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          // Convert to blob and download
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) {
-                reject(new Error("Failed to create PNG blob"));
-                return;
-              }
-              
-              const pngUrl = URL.createObjectURL(blob);
-              const link = document.createElement("a");
-              link.href = pngUrl;
-              link.download = filename;
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              
-              // Cleanup
-              URL.revokeObjectURL(url);
-              URL.revokeObjectURL(pngUrl);
-              
-              resolve();
-            },
-            "image/png",
-            1.0
-          );
-        } catch (err) {
+        // Scale for better quality (2x)
+        const scale = 2;
+        const canvas = document.createElement("canvas");
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
           URL.revokeObjectURL(url);
-          reject(err);
+          reject(new Error("Failed to get canvas context"));
+          return;
         }
+
+        // Fill with white background
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw the image scaled up
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        // Convert to PNG and download
+        canvas.toBlob(
+          (blob) => {
+            URL.revokeObjectURL(url);
+
+            if (!blob) {
+              reject(new Error("Failed to create PNG blob"));
+              return;
+            }
+
+            // Create download link
+            const downloadUrl = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = downloadUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(downloadUrl);
+
+            resolve();
+          },
+          "image/png",
+          1.0
+        );
       };
-      
-      img.onerror = () => {
+
+      img.onerror = (e) => {
         URL.revokeObjectURL(url);
+        console.error("Image load error:", e);
         reject(new Error("Failed to load SVG image"));
       };
-      
+
       img.src = url;
-    } catch (err) {
-      reject(err);
+    } catch (error) {
+      reject(error);
     }
   });
 }
