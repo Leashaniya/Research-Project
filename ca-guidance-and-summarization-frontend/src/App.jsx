@@ -61,6 +61,9 @@ function App() {
   const [reinforceError, setReinforceError] = useState(null);
   const [reinforceSuccess, setReinforceSuccess] = useState(false);
   const [reinforcementVisible, setReinforcementVisible] = useState(false);
+  const [summaryFeedbackOpen, setSummaryFeedbackOpen] = useState(false); // Show feedback form
+  const [summaryLiked, setSummaryLiked] = useState(false); // Track "Yes" clicks
+  const [summaryFeedbackType, setSummaryFeedbackType] = useState(null); // add_examples, simplify, etc.
   const [loadedTopic, setLoadedTopic] = useState('');
   const [sessionId, setSessionId] = useState(null);
   const [baseSummary, setBaseSummary] = useState(null);
@@ -213,6 +216,9 @@ function App() {
     setConfusedConcept('');
     setFeedbackComment('');
     setLastFeedbackId(null);
+    setSummaryFeedbackOpen(false);
+    setSummaryLiked(false);
+    setSummaryFeedbackType(null);
     setSummary(null);
     setSummaryAudio(null); // ✅ clear old audio immediately
     setSummaryAccuracy(null); // Clear previous accuracy results
@@ -461,6 +467,9 @@ function App() {
       setFeedbackComment('');
       setFeedbackSubmitted(false);
       setLastFeedbackId(null);
+      setSummaryFeedbackOpen(false);
+      setSummaryLiked(false);
+      setSummaryFeedbackType(null);
     } catch (error) {
       console.error('Error submitting feedback and generating reinforced summary:', error);
       setReinforceError('An error occurred while generating reinforced summary.');
@@ -1267,141 +1276,255 @@ function App() {
                         </div>
 
                         {/* Feedback Section */}
-                        <div style={{ marginTop: '30px', padding: '20px', border: '1px solid #dee2e6', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
-                          <h3 style={{ marginBottom: '16px', color: '#495057', fontSize: '1.1rem' }}>
-                            Was this summary helpful?
-                          </h3>
-                          
-                          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                            <button
-                              onClick={() => setFeedbackRating('helpful')}
-                              disabled={feedbackLoading || reinforceLoading}
-                              style={{
-                                padding: '10px 20px',
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                backgroundColor: feedbackRating === 'helpful' ? '#28a745' : '#fff',
-                                color: feedbackRating === 'helpful' ? '#fff' : '#495057',
-                                border: `2px solid ${feedbackRating === 'helpful' ? '#28a745' : '#dee2e6'}`,
-                                borderRadius: '8px',
-                                cursor: feedbackLoading || reinforceLoading ? 'not-allowed' : 'pointer',
-                                opacity: feedbackLoading || reinforceLoading ? 0.6 : 1,
-                                transition: 'all 0.3s ease'
-                              }}
-                            >
-                              👍 Helpful
-                            </button>
-                            <button
-                              onClick={() => setFeedbackRating('not_helpful')}
-                              disabled={feedbackLoading || reinforceLoading}
-                              style={{
-                                padding: '10px 20px',
-                                fontSize: '1rem',
-                                fontWeight: '600',
-                                backgroundColor: feedbackRating === 'not_helpful' ? '#dc3545' : '#fff',
-                                color: feedbackRating === 'not_helpful' ? '#fff' : '#495057',
-                                border: `2px solid ${feedbackRating === 'not_helpful' ? '#dc3545' : '#dee2e6'}`,
-                                borderRadius: '8px',
-                                cursor: feedbackLoading || reinforceLoading ? 'not-allowed' : 'pointer',
-                                opacity: feedbackLoading || reinforceLoading ? 0.6 : 1,
-                                transition: 'all 0.3s ease'
-                              }}
-                            >
-                              👎 Not Helpful
-                            </button>
-                          </div>
-
-                          {feedbackRating && (
-                            <>
-                              <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#495057' }}>
-                                  Confused about (optional):
-                                </label>
-                                <input
-                                  type="text"
-                                  value={confusedConcept}
-                                  onChange={(e) => setConfusedConcept(e.target.value)}
-                                  placeholder="e.g., normalization steps, ER diagram relationships..."
-                                  disabled={feedbackLoading || reinforceLoading}
-                                  style={{
-                                    width: '100%',
-                                    padding: '10px',
-                                    border: '1px solid #dee2e6',
-                                    borderRadius: '6px',
-                                    fontSize: '0.95rem',
-                                    opacity: feedbackLoading || reinforceLoading ? 0.6 : 1
-                                  }}
-                                />
-                              </div>
-
-                              <div style={{ marginBottom: '16px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#495057' }}>
-                                  Comment (optional):
-                                </label>
-                                <textarea
-                                  value={feedbackComment}
-                                  onChange={(e) => setFeedbackComment(e.target.value)}
-                                  placeholder="Any additional feedback..."
-                                  disabled={feedbackLoading || reinforceLoading}
-                                  rows={3}
-                                  style={{
-                                    width: '100%',
-                                    padding: '10px',
-                                    border: '1px solid #dee2e6',
-                                    borderRadius: '6px',
-                                    fontSize: '0.95rem',
-                                    fontFamily: 'inherit',
-                                    resize: 'vertical',
-                                    opacity: feedbackLoading || reinforceLoading ? 0.6 : 1
-                                  }}
-                                />
-                              </div>
-
+                        <div style={{ 
+                          marginTop: '30px', 
+                          padding: '16px 20px', 
+                          border: '1px solid #dee2e6', 
+                          borderRadius: '8px', 
+                          backgroundColor: summaryLiked ? '#e8f5e9' : '#f8f9fa',
+                          borderColor: summaryLiked ? '#4caf50' : '#dee2e6'
+                        }}>
+                          {/* Show confirmed state if user clicked "Yes" */}
+                          {summaryLiked && !summaryFeedbackOpen && (
+                            <div style={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: '8px'
+                            }}>
+                              <FaCheck style={{ color: '#2e7d32' }} />
+                              <span style={{ color: '#2e7d32', fontWeight: '500', fontSize: '0.95rem' }}>
+                                Thanks for your feedback!
+                              </span>
                               <button
-                                onClick={handleSubmitFeedbackAndReinforce}
-                                disabled={feedbackLoading || reinforceLoading}
-                                className="btn btn-primary"
-                                style={{ marginBottom: '12px' }}
+                                onClick={() => setSummaryFeedbackOpen(true)}
+                                style={{
+                                  marginLeft: 'auto',
+                                  padding: '4px 10px',
+                                  backgroundColor: 'transparent',
+                                  border: '1px solid #6c757d',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  fontSize: '0.8rem',
+                                  color: '#6c757d'
+                                }}
                               >
-                                {feedbackLoading || reinforceLoading ? (
-                                  <>
-                                    <span className="loading-spinner"></span>
-                                    Submitting & Generating...
-                                  </>
-                                ) : (
-                                  <>
-                                    <HiMiniSparkles style={{ marginRight: '8px' }} />
-                                    Feedback → Generate
-                                  </>
-                                )}
+                                Still want to improve?
                               </button>
+                            </div>
+                          )}
 
-                              {reinforceSuccess && (
-                                <div style={{ 
-                                  marginTop: '12px', 
-                                  padding: '10px', 
-                                  backgroundColor: '#d4edda', 
-                                  border: '1px solid #c3e6cb',
-                                  borderRadius: '6px',
-                                  color: '#155724',
-                                  fontSize: '0.9rem'
-                                }}>
-                                  Reinforcement summary generated successfully ✅
-                                </div>
-                              )}
+                          {/* Quick feedback buttons - only show if not yet liked and form not open */}
+                          {!summaryLiked && !summaryFeedbackOpen && !reinforceLoading && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              <span style={{ fontSize: '0.9rem', color: '#6c757d' }}>Was this helpful?</span>
+                              <button
+                                onClick={() => {
+                                  setSummaryLiked(true);
+                                  setFeedbackRating('helpful');
+                                }}
+                                disabled={feedbackLoading}
+                                style={{
+                                  padding: '6px 14px',
+                                  backgroundColor: feedbackLoading ? '#c8e6c9' : '#e8f5e9',
+                                  border: '1px solid #4caf50',
+                                  borderRadius: '4px',
+                                  cursor: feedbackLoading ? 'not-allowed' : 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  color: '#2e7d32',
+                                  fontWeight: '500',
+                                  transition: 'all 0.2s ease'
+                                }}
+                              >
+                                <FaThumbsUp size={14} /> Yes
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setSummaryFeedbackOpen(true);
+                                  setFeedbackRating('not_helpful');
+                                }}
+                                disabled={feedbackLoading}
+                                style={{
+                                  padding: '6px 14px',
+                                  backgroundColor: '#ffebee',
+                                  border: '1px solid #f44336',
+                                  borderRadius: '4px',
+                                  cursor: feedbackLoading ? 'not-allowed' : 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  color: '#c62828',
+                                  fontWeight: '500'
+                                }}
+                              >
+                                <FaThumbsDown size={14} /> Improve
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Improving indicator */}
+                          {reinforceLoading && (
+                            <div style={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: '8px',
+                              color: '#1976d2',
+                              fontSize: '0.9rem'
+                            }}>
+                              <FaSpinner className="loading-spinner" style={{ animation: 'spin 1s linear infinite' }} />
+                              Improving summary based on your feedback...
+                            </div>
+                          )}
+
+                          {/* Expanded feedback form */}
+                          {summaryFeedbackOpen && !reinforceLoading && (
+                            <div style={{ marginTop: summaryLiked ? '12px' : '0' }}>
+                              <p style={{ fontSize: '0.95rem', fontWeight: '600', marginBottom: '12px', color: '#495057' }}>
+                                How can we improve this summary?
+                              </p>
                               
-                              {feedbackError && (
-                                <div className="error-message" style={{ marginTop: '12px' }}>
-                                  {feedbackError}
-                                </div>
-                              )}
+                              {/* Feedback type buttons */}
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                                {[
+                                  { id: 'add_examples', label: 'Add Examples' },
+                                  { id: 'simplify', label: 'Simplify Language' },
+                                  { id: 'more_detail', label: 'More Detail' },
+                                  { id: 'clarify', label: 'Clarify Concepts' }
+                                ].map(type => (
+                                  <button
+                                    key={type.id}
+                                    onClick={() => setSummaryFeedbackType(summaryFeedbackType === type.id ? null : type.id)}
+                                    style={{
+                                      padding: '6px 12px',
+                                      backgroundColor: summaryFeedbackType === type.id ? '#336db0' : '#fff',
+                                      color: summaryFeedbackType === type.id ? '#fff' : '#495057',
+                                      border: `1px solid ${summaryFeedbackType === type.id ? '#336db0' : '#dee2e6'}`,
+                                      borderRadius: '16px',
+                                      cursor: 'pointer',
+                                      fontSize: '0.85rem',
+                                      transition: 'all 0.2s ease'
+                                    }}
+                                  >
+                                    {type.label}
+                                  </button>
+                                ))}
+                              </div>
 
-                              {reinforceError && (
-                                <div className="error-message" style={{ marginTop: '12px' }}>
-                                  {reinforceError}
-                                </div>
-                              )}
-                            </>
+                              {/* Confused concept input */}
+                              <input
+                                type="text"
+                                value={confusedConcept}
+                                onChange={(e) => setConfusedConcept(e.target.value)}
+                                placeholder="Confused about? (e.g., normalization steps...)"
+                                disabled={feedbackLoading}
+                                style={{
+                                  width: '100%',
+                                  padding: '10px',
+                                  border: '1px solid #dee2e6',
+                                  borderRadius: '6px',
+                                  fontSize: '0.9rem',
+                                  marginBottom: '10px'
+                                }}
+                              />
+
+                              {/* Comment textarea */}
+                              <textarea
+                                value={feedbackComment}
+                                onChange={(e) => setFeedbackComment(e.target.value)}
+                                placeholder="Add specific feedback (optional)..."
+                                disabled={feedbackLoading}
+                                rows={2}
+                                style={{
+                                  width: '100%',
+                                  padding: '10px',
+                                  border: '1px solid #dee2e6',
+                                  borderRadius: '6px',
+                                  fontSize: '0.9rem',
+                                  fontFamily: 'inherit',
+                                  resize: 'vertical',
+                                  marginBottom: '12px'
+                                }}
+                              />
+
+                              {/* Action buttons */}
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                  onClick={handleSubmitFeedbackAndReinforce}
+                                  disabled={feedbackLoading || (!summaryFeedbackType && !confusedConcept && !feedbackComment)}
+                                  className="btn btn-primary"
+                                  style={{
+                                    padding: '8px 16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    opacity: feedbackLoading || (!summaryFeedbackType && !confusedConcept && !feedbackComment) ? 0.6 : 1,
+                                    cursor: feedbackLoading || (!summaryFeedbackType && !confusedConcept && !feedbackComment) ? 'not-allowed' : 'pointer'
+                                  }}
+                                >
+                                  {feedbackLoading ? (
+                                    <>
+                                      <FaSpinner className="loading-spinner" style={{ animation: 'spin 1s linear infinite' }} />
+                                      Submitting...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <FaEdit size={14} />
+                                      Submit & Improve
+                                    </>
+                                  )}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setSummaryFeedbackOpen(false);
+                                    setSummaryFeedbackType(null);
+                                    if (!summaryLiked) {
+                                      setFeedbackRating(null);
+                                    }
+                                  }}
+                                  style={{
+                                    padding: '8px 16px',
+                                    backgroundColor: '#fff',
+                                    color: '#495057',
+                                    border: '1px solid #dee2e6',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Success/Error messages */}
+                          {reinforceSuccess && !summaryFeedbackOpen && (
+                            <div style={{ 
+                              marginTop: '12px', 
+                              padding: '10px', 
+                              backgroundColor: '#d4edda', 
+                              border: '1px solid #c3e6cb',
+                              borderRadius: '6px',
+                              color: '#155724',
+                              fontSize: '0.9rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px'
+                            }}>
+                              <FaCheck /> Summary improved successfully!
+                            </div>
+                          )}
+                          
+                          {feedbackError && (
+                            <div className="error-message" style={{ marginTop: '12px' }}>
+                              {feedbackError}
+                            </div>
+                          )}
+
+                          {reinforceError && (
+                            <div className="error-message" style={{ marginTop: '12px' }}>
+                              {reinforceError}
+                            </div>
                           )}
                         </div>
 

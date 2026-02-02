@@ -14,7 +14,10 @@ from app.models.schemas import (
     SummaryFeedbackRequest,
     ReinforceSummaryRequest,
     SummaryResponse,
-    FeedbackResponse
+    FeedbackResponse,
+    SaveFlashcardSetRequest,
+    FlashcardFeedbackRequest,
+    FlashcardUpdateRequest,
 )
 from app.ca_guidance.crew import create_guidance_crew, create_summarization_crew
 from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR
@@ -502,6 +505,303 @@ async def generate_flashcards(
             detail=f"Failed to generate flashcards: {str(e)}"
         )
 
+
+# ============ Flashcard Feedback Endpoints ============
+
+@router.post("/flashcards/save")
+async def save_flashcard_set(
+    request: SaveFlashcardSetRequest,
+    user: UserInfo = Depends(get_current_user)
+):
+    """
+    Save a generated flashcard set to the database with unique IDs.
+    """
+    logger.info(f"=== Saving flashcard set for topic: {request.topic} ===")
+    
+    try:
+        from datetime import datetime
+        from bson.objectid import ObjectId
+        from app.core.config import settings
+        from pymongo import MongoClient
+        import uuid
+        import certifi
+        
+        client = MongoClient(settings.MONGO_URI, tlsCAFile=certifi.where())
+        db = client.ca_guidance
+        flashcard_sets = db.flashcard_sets
+        
+        # Add unique IDs to each flashcard if they don't have one
+        flashcards_with_ids = {}
+        for level, cards in request.flashcards.items():
+            flashcards_with_ids[level] = []
+            for card in cards:
+                flashcards_with_ids[level].append({
+                    "id": card.get("id") or str(uuid.uuid4()),
+                    "question": card["question"],
+                    "answer": card["answer"]
+                })
+        
+        doc = {
+            "topic": request.topic,
+            "user_email": user.email,
+            "flashcards": flashcards_with_ids,
+            "version": 1,
+            "created_at": datetime.utcnow(),
+            "updated_at": None
+        }
+        
+        result = flashcard_sets.insert_one(doc)
+        logger.info(f"Flashcard set saved with ID: {result.inserted_id}")
+        
+        return {
+            "flashcard_set_id": str(result.inserted_id),
+            "topic": request.topic,
+            "flashcards": flashcards_with_ids,
+            "version": 1,
+            "message": "Flashcard set saved successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error saving flashcard set: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to save flashcard set: {str(e)}"
+        )
+
+
+@router.post("/flashcards/feedback")
+async def submit_flashcard_feedback(
+    request: FlashcardFeedbackRequest,
+    user: UserInfo = Depends(get_current_user)
+):
+    """Submit feedback for a specific flashcard."""
+    logger.info(f"=== Submitting feedback for flashcard {request.flashcard_id} ===")
+    
+    try:
+        from datetime import datetime
+        from app.core.config import settings
+        from pymongo import MongoClient
+        import certifi
+        
+        client = MongoClient(settings.MONGO_URI, tlsCAFile=certifi.where())
+        db = client.ca_guidance
+        flashcard_feedback = db.flashcard_feedback
+        
+        doc = {
+            "flashcard_set_id": request.flashcard_set_id,
+            "flashcard_id": request.flashcard_id,
+            "bloom_level": request.bloom_level,
+            "user_email": user.email,
+            "rating": request.rating,
+            "feedback_type": request.feedback_type,
+            "comment": request.comment,
+            "session_id": request.session_id,
+            "created_at": datetime.utcnow(),
+            "processed": False
+        }
+        
+        result = flashcard_feedback.insert_one(doc)
+        logger.info(f"Flashcard feedback stored (id: {result.inserted_id})")
+        
+        return {
+            "feedback_id": str(result.inserted_id),
+            "flashcard_set_id": request.flashcard_set_id,
+            "flashcard_id": request.flashcard_id,
+            "message": "Feedback submitted successfully"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error storing flashcard feedback: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to store feedback: {str(e)}"
+        )
+
+
+@router.post("/flashcards/improve")
+async def improve_flashcard(
+    request: FlashcardUpdateRequest,
+    user: UserInfo = Depends(get_current_user)
+):
+    """Improve a flashcard based on submitted feedback."""
+    logger.info(f"=== Improving flashcard {request.flashcard_id} ===")
+    
+    try:
+        from datetime import datetime
+        from bson.objectid import ObjectId
+        from langchain_openai import ChatOpenAI
+        from app.core.config import settings
+        from app.ca_guidance.agents.flashcard_improvement_agent import FlashcardImprovementAgent
+        from pymongo import MongoClient
+        import certifi
+        
+        client = MongoClient(settings.MONGO_URI, tlsCAFile=certifi.where())
+        db = client.ca_guidance
+        flashcard_sets = db.flashcard_sets
+        flashcard_feedback = db.flashcard_feedback
+        
+        feedback_doc = flashcard_feedback.find_one({"_id": ObjectId(request.feedback_id)})
+        if not feedback_doc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Feedback not found")
+        
+        flashcard_set = flashcard_sets.find_one({"_id": ObjectId(request.flashcard_set_id)})
+        if not flashcard_set:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Flashcard set not found")
+        
+        bloom_level = request.bloom_level
+        flashcard = None
+        flashcard_index = -1
+        
+        if bloom_level in flashcard_set["flashcards"]:
+            for i, card in enumerate(flashcard_set["flashcards"][bloom_level]):
+                if card["id"] == request.flashcard_id:
+                    flashcard = card
+                    flashcard_index = i
+                    break
+        
+        if not flashcard:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Flashcard not found")
+        
+        llm = ChatOpenAI(model="gpt-4o-mini", api_key=settings.OPENAI_API_KEY, temperature=0.3)
+        agent = FlashcardImprovementAgent(llm=llm)
+        
+        improved = agent.improve_flashcard(
+            topic=flashcard_set["topic"],
+            question=flashcard["question"],
+            answer=flashcard["answer"],
+            bloom_level=bloom_level,
+            feedback_type=feedback_doc.get("feedback_type"),
+            comment=feedback_doc.get("comment")
+        )
+        
+        new_version = flashcard_set.get("version", 1) + 1
+        
+        flashcard_sets.update_one(
+            {"_id": ObjectId(request.flashcard_set_id)},
+            {
+                "$set": {
+                    f"flashcards.{bloom_level}.{flashcard_index}.question": improved["question"],
+                    f"flashcards.{bloom_level}.{flashcard_index}.answer": improved["answer"],
+                    "version": new_version,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        flashcard_feedback.update_one(
+            {"_id": ObjectId(request.feedback_id)},
+            {"$set": {"processed": True, "processed_at": datetime.utcnow()}}
+        )
+        
+        logger.info(f"Flashcard improved successfully. New version: {new_version}")
+        
+        return {
+            "flashcard_id": request.flashcard_id,
+            "bloom_level": bloom_level,
+            "original_question": flashcard["question"],
+            "original_answer": flashcard["answer"],
+            "updated_question": improved["question"],
+            "updated_answer": improved["answer"],
+            "improvement_notes": improved["improvement_notes"],
+            "version": new_version,
+            "message": "Flashcard improved successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error improving flashcard: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to improve flashcard: {str(e)}"
+        )
+
+
+@router.get("/flashcards/topic/{topic}")
+async def get_flashcards_by_topic(
+    topic: str,
+    user: UserInfo = Depends(get_current_user)
+):
+    """Get the latest flashcard set for a topic."""
+    logger.info(f"=== Getting flashcards for topic: {topic} ===")
+    
+    try:
+        from app.core.config import settings
+        from pymongo import MongoClient
+        import certifi
+        
+        client = MongoClient(settings.MONGO_URI, tlsCAFile=certifi.where())
+        db = client.ca_guidance
+        flashcard_sets = db.flashcard_sets
+        
+        flashcard_set = flashcard_sets.find_one(
+            {"topic": topic, "user_email": user.email},
+            sort=[("version", -1)]
+        )
+        
+        if not flashcard_set:
+            return {"found": False, "message": "No flashcards found for this topic"}
+        
+        return {
+            "found": True,
+            "_id": str(flashcard_set["_id"]),
+            "topic": flashcard_set["topic"],
+            "flashcards": flashcard_set["flashcards"],
+            "version": flashcard_set.get("version", 1),
+            "created_at": flashcard_set["created_at"].isoformat() if flashcard_set.get("created_at") else None,
+            "updated_at": flashcard_set["updated_at"].isoformat() if flashcard_set.get("updated_at") else None
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting flashcards by topic: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get flashcards: {str(e)}"
+        )
+
+
+@router.get("/flashcards/{flashcard_set_id}")
+async def get_flashcard_set(
+    flashcard_set_id: str,
+    user: UserInfo = Depends(get_current_user)
+):
+    """Get a flashcard set by ID."""
+    logger.info(f"=== Getting flashcard set {flashcard_set_id} ===")
+    
+    try:
+        from bson.objectid import ObjectId
+        from app.core.config import settings
+        from pymongo import MongoClient
+        import certifi
+        
+        client = MongoClient(settings.MONGO_URI, tlsCAFile=certifi.where())
+        db = client.ca_guidance
+        flashcard_sets = db.flashcard_sets
+        
+        flashcard_set = flashcard_sets.find_one({"_id": ObjectId(flashcard_set_id)})
+        if not flashcard_set:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Flashcard set not found")
+        
+        return {
+            "_id": str(flashcard_set["_id"]),
+            "topic": flashcard_set["topic"],
+            "flashcards": flashcard_set["flashcards"],
+            "version": flashcard_set.get("version", 1),
+            "created_at": flashcard_set["created_at"].isoformat() if flashcard_set.get("created_at") else None,
+            "updated_at": flashcard_set["updated_at"].isoformat() if flashcard_set.get("updated_at") else None
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting flashcard set: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get flashcard set: {str(e)}"
+        )
+
+
+# ============ Summary Feedback Endpoints ============
 
 @router.post("/summaries/feedback")
 async def submit_summary_feedback(

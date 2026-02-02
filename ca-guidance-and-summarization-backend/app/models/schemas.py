@@ -58,3 +58,30 @@ class FeedbackResponse(BaseModel):
     comment: Optional[str] = None
     created_at: datetime
 
+
+# ============ Flashcard Feedback Schemas ============
+
+class SaveFlashcardSetRequest(BaseModel):
+    """Request to save a flashcard set"""
+    topic: str
+    flashcards: dict  # Bloom levels -> list of flashcards
+
+
+class FlashcardFeedbackRequest(BaseModel):
+    """Request to submit feedback for a specific flashcard"""
+    flashcard_set_id: str
+    flashcard_id: str
+    bloom_level: str  # remember, understand, apply, analyze, evaluate, create
+    rating: str  # "thumbs_up", "thumbs_down"
+    feedback_type: Optional[str] = None  # "add_examples", "simplify", "more_detail", "clarify"
+    comment: Optional[str] = None
+    session_id: Optional[str] = None
+
+
+class FlashcardUpdateRequest(BaseModel):
+    """Request to update a flashcard based on feedback"""
+    flashcard_set_id: str
+    flashcard_id: str
+    bloom_level: str
+    feedback_id: str
+
