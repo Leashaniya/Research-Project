@@ -310,7 +310,7 @@ def main():
         json.dumps(trend_summary, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
-    print(f"✅ Saved trend_summary.json (top_topic={trend_summary['top_topic']})")
+    print(f"Saved trend_summary.json (top_topic={trend_summary['top_topic']})")
 
 
     # ==========================================================
@@ -338,7 +338,7 @@ def main():
     canonical_num_questions = 4
     canonical_total_marks = int(EXPECTED_TOTAL_MARKS)
     
-    print(f"\n📌 FORCED: canonical_num_questions = {canonical_num_questions} (regardless of historical paper counts)")
+    print(f"\nFORCED: canonical_num_questions = {canonical_num_questions} (regardless of historical paper counts)")
 
     # Calculate slot stats for positions 1-4 (Q1-Q4) only
     # But use data from ALL positions (Q1-Q5+) for topic frequency analysis
@@ -414,7 +414,7 @@ def main():
         encoding="utf-8"
     )
 
-    print("\n✅ Saved exam_blueprint_template.json")
+    print("\nSaved exam_blueprint_template.json")
     print("Target marks sum:", sum([s["target_marks"] for s in exam_blueprint["question_slots"]]))
 
 
@@ -475,7 +475,7 @@ def main():
         json.dumps(assignments, indent=2, ensure_ascii=False),
         encoding="utf-8"
     )
-    print("✅ Saved topic_assignments.json")
+    print("Saved topic_assignments.json")
 
     # ==========================================================
     # TOPIC FREQUENCY ANALYSIS (Across ALL Positions Q1-Q5+)
@@ -491,7 +491,7 @@ def main():
         most_frequent_cluster_id, most_frequent_count = all_positions_cluster_counts.most_common(1)[0]
         most_frequent_keywords = cluster_terms[most_frequent_cluster_id][:3]
         most_frequent_topic_name = ", ".join(most_frequent_keywords) if most_frequent_keywords else "General"
-        print(f"\n🏆 MOST FREQUENT TOPIC (across all positions): Cluster {most_frequent_cluster_id} - '{most_frequent_topic_name}' (appears {most_frequent_count} times)")
+        print(f"\nMOST FREQUENT TOPIC (across all positions): Cluster {most_frequent_cluster_id} - '{most_frequent_topic_name}' (appears {most_frequent_count} times)")
     else:
         most_frequent_cluster_id = 0
         most_frequent_keywords = ["General"]
@@ -525,7 +525,7 @@ def main():
                 ", ".join(cluster_terms[cid][:3]): round(count / sum(all_positions_cluster_counts.values()), 2)
                 for cid, count in all_positions_cluster_counts.items()
             }
-            print(f"  ✅ Q1 FORCED to most frequent topic: {most_frequent_topic_name}")
+            print(f"  Q1 FORCED to most frequent topic: {most_frequent_topic_name}")
         else:
             # For Q2-Q4: Use position-specific data, but avoid duplicates
             if pos in pos_clusters:
@@ -590,7 +590,7 @@ def main():
     # Verify uniqueness
     topic_names = [", ".join(slot["topics"][:3]) for slot in exam_blueprint["question_slots"]]
     unique_topics = len(set(topic_names))
-    print(f"\n✅ Topic Uniqueness Check: {unique_topics} unique topics across 4 questions")
+    print(f"\nTopic Uniqueness Check: {unique_topics} unique topics across 4 questions")
     if unique_topics < 4:
         print(f"  ⚠️  WARNING: Only {unique_topics} unique topics found (expected 4)")
     
@@ -599,7 +599,7 @@ def main():
         json.dumps(exam_blueprint, indent=2, ensure_ascii=False),
         encoding="utf-8"
     )
-    print("✅ Updated exam_blueprint_template.json with Probabilistic Topics")
+    print("Updated exam_blueprint_template.json with Probabilistic Topics")
 
 
     # ==========================================================
@@ -623,7 +623,7 @@ def main():
         json.dumps(high_freq, indent=2, ensure_ascii=False),
         encoding="utf-8"
     )
-    print("✅ Saved high_frequency_topics.json")
+    print("Saved high_frequency_topics.json")
 
     print("\nCluster summary:")
     for c in sorted(cluster_counts):
@@ -671,12 +671,18 @@ def main():
             })
 
     # 2. Position-based selection (to ensure Q1-Q5 representation)
+    # ENSURE: Prioritize recent papers for each position
     unique_positions = sorted(topic_df["question_id"].unique())
+    recent_paper_stems = set(p["pdf_stem"] for p in recent_papers)
+    
     for pos in unique_positions:
         # If we don't already have enough samples for this position, snag some
         current_count = sum(1 for t in templates if str(t["question_id"]) == str(pos))
         if current_count < 2:
-            sub = topic_df[topic_df["question_id"] == str(pos)].sort_values("text_len", ascending=False).head(2)
+            # Prioritize recent papers: sort by recent first, then by text length
+            sub = topic_df[topic_df["question_id"] == str(pos)].copy()
+            sub["is_recent"] = sub["pdf_stem"].apply(lambda x: x in recent_paper_stems)
+            sub = sub.sort_values(["is_recent", "text_len"], ascending=[False, False]).head(2)
             for _, row in sub.iterrows():
                 # Avoid duplicates
                 if any(t["pdf_stem"] == row["pdf_stem"] and str(t["question_id"]) == str(row["question_id"]) for t in templates):
@@ -699,10 +705,10 @@ def main():
         json.dumps(templates, indent=2, ensure_ascii=False),
         encoding="utf-8"
     )
-    print("\n✅ Saved template_questions.json")
+    print("\nSaved template_questions.json")
     print("Templates selected:", len(templates))
 
-    print("\n✅ NOTEBOOK 2 COMPLETED")
+    print("\nNOTEBOOK 2 COMPLETED")
     print("Outputs in:", OUT_ROOT)
 
 

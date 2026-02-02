@@ -405,13 +405,16 @@ class QualityCritic(BaseAgent):
                 return {"approved": False, "feedback": err_msg, "feedback_code": "QUALITY_ERROR"}
             
             # 10.3 DATABASE SYSTEMS RELEVANCE CHECK (CRITICAL)
+            # NOTE: "deadlock" is a VALID database systems topic (transaction management/concurrency control)
+            # NOTE: "semaphore" and "mutex" are OS concepts but can appear in DB concurrency discussions
+            # NOTE: "process" is REMOVED - can legitimately appear in DB contexts (e.g., "transaction processing", "database processes")
             non_db_keywords = [
                 "frame bytes", "frame bytes time", "network protocol", "tcp/ip", "http", "https",
                 "routing", "switching", "packet", "datagram", "osi model", "network layer",
                 "transport layer", "application layer", "socket", "port number", "dns",
                 "dhcp", "subnet", "gateway", "router", "switch", "firewall", "vpn",
                 "operating system", "process scheduling", "memory management", "file system",
-                "cpu scheduling", "deadlock", "semaphore", "mutex", "thread", "process",
+                "cpu scheduling", "semaphore", "mutex", "thread",
                 "compiler", "interpreter", "syntax", "parsing", "lexical analysis",
                 "software engineering", "agile", "scrum", "waterfall", "sdlc",
                 "web development", "html", "css", "javascript", "frontend", "backend",
@@ -433,16 +436,46 @@ class QualityCritic(BaseAgent):
         Review this Draft Question: {json.dumps(draft, indent=2)}
         Reference Material: {context}
         
-        Check for:
-        1. CONTENT RELEVANCE: Is it 100% Database Systems? REJECT if networking, OS, etc.
-        2. NO HALLUCINATIONS: REJECT phantom slide references.
-        3. SCENARIO COMPLETENESS: REJECT if missing scenario text for "Design" tasks.
-        4. SEMANTIC QUALITY: Ensure questions are clear, unambiguous, and academically appropriate.
+        ⚠️ CRITICAL REVIEW CRITERIA ⚠️
+        
+        1. SYLLABUS ALIGNMENT (MANDATORY):
+           - Is the question STRICTLY based on historical exam patterns?
+           - Does it align with past exam content and curriculum requirements?
+           - Does it reflect ONLY core Database Management Systems syllabus content?
+           - REJECT if it introduces topics unrelated to core syllabus or past paper patterns
+           - REJECT if it deviates from historical exam question styles
+        
+        2. CONTENT RELEVANCE (MANDATORY):
+           - Is it 100% Database Systems? 
+           - REJECT if it contains networking topics (TCP/IP, routing, packets, OSI model, etc.)
+           - REJECT if it contains OS topics (CPU scheduling, process scheduling, memory management, etc.)
+           - REJECT if it contains web development (HTML, CSS, JavaScript, etc.)
+           - REJECT if it contains compiler design (parsing, lexical analysis, etc.)
+           - REJECT if it contains software engineering methodologies (Agile, Scrum, etc.)
+           - REJECT if it contains ML/AI topics (neural networks, deep learning, etc.)
+           - REJECT if it contains ANY topic NOT in Database Management Systems curriculum
+        
+        3. HISTORICAL PATTERN ALIGNMENT:
+           - Does it follow the structure and style of past exam questions?
+           - Does it match the difficulty level of historical questions?
+           - REJECT if it introduces concepts or approaches not found in past papers
+        
+        4. NO HALLUCINATIONS:
+           - REJECT phantom slide references
+           - REJECT references to non-existent figures or content
+        
+        5. SCENARIO COMPLETENESS:
+           - REJECT if missing scenario text for "Design" tasks
+           - Ensure all required context is provided
+        
+        6. SEMANTIC QUALITY:
+           - Ensure questions are clear, unambiguous, and academically appropriate
+           - Ensure questions match the academic level of past papers
         
         Output JSON:
         {{
             "approved": true/false,
-            "feedback": "..."
+            "feedback": "Detailed explanation of approval/rejection reason, focusing on syllabus alignment and historical pattern compliance"
         }}
         """
         

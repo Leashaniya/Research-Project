@@ -1,210 +1,187 @@
 {
   "Q1": {
     "dominant_topic": "ER and EER Diagrams",
-    "source_paper": "2019",
-    "total_marks": 0,
-    "subquestion_count": 0,
-    "subquestion_structure": []
-  },
-  "Q2": {
-    "dominant_topic": "frame bytes time",
-    "source_paper": "2016",
+    "pattern_label": "ER_EER_MODELING",
+    "source_paper": "2024",
     "total_marks": 20,
-    "subquestion_count": 9,
+    "subquestion_count": 2,
     "subquestion_structure": [
       {
-        "label": "a",
+        "label": "?",
+        "marks": 17,
+        "type": "General",
+        "text": "a) Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulting relations clearly."
+      },
+      {
+        "label": "?",
         "marks": 3,
-        "type": "General"
-      },
+        "type": "Define",
+        "text": "b) What is the best option for mapping the ISA hierarchies in the diagram? Justify your answer."
+      }
+    ]
+  },
+  "Q2": {
+    "dominant_topic": "Functional Dependencies and Normalization",
+    "pattern_label": "NORMALIZATION_FD_KEYS",
+    "source_paper": "2024 II",
+    "total_marks": 20,
+    "subquestion_count": 8,
+    "subquestion_structure": [
       {
-        "label": "b",
+        "label": "?",
         "marks": 2,
-        "type": "Define"
+        "type": "Draw",
+        "text": "Draw the functional dependency diagram."
       },
       {
-        "label": "c.i",
-        "marks": 1,
-        "type": "General"
-      },
-      {
-        "label": "c.ii",
+        "label": "?",
         "marks": 2,
-        "type": "General"
+        "type": "List",
+        "text": "Use the attribute closure and identify the primary key for the given relation."
       },
       {
-        "label": "c.iii",
+        "label": "?",
         "marks": 2,
-        "type": "General"
+        "type": "General",
+        "text": "If we insert a row < Kamal, Colombo, null, Kurundu Wattha, null, 40> into the given relation, what is the update anomaly that is violated? Give reasons."
       },
       {
-        "label": "c.iv",
+        "label": "?",
         "marks": 2,
-        "type": "General"
+        "type": "General",
+        "text": "Assume that the relation has a row, < Gamunu, Matara, Miris Wattha, A 5.5, 10>. If we remove the broker Gamunu, what is the possible update anomaly that can be violated? Give reasons."
       },
       {
-        "label": "c.v",
+        "label": "?",
+        "marks": 5,
+        "type": "General",
+        "text": "Using the above functional dependencies, design a set of 3NF relations for the above given relation. Show clearly each stage in deriving the 3NF relations. Also identify the normal form at each of these stages."
+      },
+      {
+        "label": "?",
         "marks": 2,
-        "type": "General"
+        "type": "General",
+        "text": "Do the update anomalies of part (c) and (d) hold in the 3NF relations? Discuss briefly."
       },
       {
-        "label": "d",
+        "label": "?.?",
         "marks": 2,
-        "type": "Define"
+        "type": "General",
+        "text": "Are the 3NF relations derived in part (e) still in 3NF? Justify your answer."
       },
       {
-        "label": "e",
-        "marks": 4,
-        "type": "General"
+        "label": "?.?",
+        "marks": 3,
+        "type": "General",
+        "text": "Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to BCNF."
       }
     ]
   },
   "Q3": {
-    "dominant_topic": "Transaction Management and Concurrency",
-    "source_paper": "2023",
+    "dominant_topic": "SQL Database Schema and Queries",
+    "pattern_label": "SQL_DDL_DML",
+    "source_paper": "2024",
     "total_marks": 25,
     "subquestion_count": 9,
     "subquestion_structure": [
       {
-        "label": "a)",
+        "label": "?",
         "marks": 2,
-        "type": "General"
+        "type": "General",
+        "text": "a) In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer."
       },
       {
-        "label": "b)",
+        "label": "?",
         "marks": 2,
-        "type": "General"
+        "type": "General",
+        "text": "b) There are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used."
       },
       {
-        "label": "c)",
+        "label": "?",
         "marks": 2,
-        "type": "Define"
+        "type": "Define",
+        "text": ") Briefly explain the options available for transferring data between two sources such as between tables and servers."
       },
       {
-        "label": "d)",
+        "label": "?",
         "marks": 3,
-        "type": "Define"
+        "type": "Define",
+        "text": "d) Briefly explain how authentication and authorization are achieved in SQL Server."
       },
       {
-        "label": "e).i)",
+        "label": "?",
         "marks": 2,
-        "type": "General"
+        "type": "General",
+        "text": "e) A financial institution is developing a robust database system to manage its clients' sensitive financial data. Different roles are assigned to various team members for database administration and management. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance. Tom and Emily are junior database administrators under Sarah's supervision. Tom manages the client accounts database, while Emily handles the transactions database. Nathan is a database developer reporting to Tom and Emily. His responsibilities include designing and implementing database schemas for client accounts and transactions. Grace and Michael are data entry operators responsible for inputting client information and transaction records into the system. Write a T-SQL statement to create a login to Sarah with windows authentication."
       },
       {
-        "label": "e).ii)",
+        "label": "?",
         "marks": 3,
-        "type": "General"
+        "type": "General",
+        "text": "Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role."
       },
       {
-        "label": "e).iii)",
+        "label": "?",
         "marks": 5,
-        "type": "General"
+        "type": "List",
+        "text": "Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the transactions database using a user-defined server role."
       },
       {
-        "label": "e).iv)",
+        "label": "?",
         "marks": 3,
-        "type": "General"
+        "type": "List",
+        "text": "Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases."
       },
       {
-        "label": "e).v)",
+        "label": "?",
         "marks": 3,
-        "type": "General"
+        "type": "List",
+        "text": "Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the client accounts and transactions databases."
       }
     ]
   },
   "Q4": {
-    "dominant_topic": "SQL Database Schema and Queries",
-    "source_paper": "2016 II",
-    "total_marks": 15,
-    "subquestion_count": 7,
+    "dominant_topic": "Relation Book Stores",
+    "pattern_label": "RELATIONAL_ALGEBRA",
+    "source_paper": "2024 II",
+    "total_marks": 20,
+    "subquestion_count": 6,
     "subquestion_structure": [
       {
-        "label": "a",
-        "marks": 3,
-        "type": "Define"
-      },
-      {
-        "label": "b",
+        "label": "?.?",
         "marks": 2,
-        "type": "General"
+        "type": "General",
+        "text": "Find the name of the agencies, such that they are located in the same city as passenger with passenger id 123."
       },
       {
-        "label": "c",
-        "marks": 1,
-        "type": "Define"
-      },
-      {
-        "label": "d.i",
+        "label": "?.?",
         "marks": 2,
-        "type": "General"
+        "type": "General",
+        "text": "Find the passenger names for those who do not have any bookings in any flights."
       },
       {
-        "label": "d.ii",
+        "label": "?.?",
+        "marks": 3,
+        "type": "General",
+        "text": "Get the details of flights that are scheduled on both dates 01/12/2024 and 02/12/2024 at 16:00 hours."
+      },
+      {
+        "label": "?.?",
+        "marks": 3,
+        "type": "General",
+        "text": "Retrieve the names of the passengers who have booked all available flights."
+      },
+      {
+        "label": "?.?",
         "marks": 2,
-        "type": "General"
+        "type": "General",
+        "text": "How many passengers have booked the flight f001?"
       },
       {
-        "label": "e.i",
-        "marks": 3,
-        "type": "List"
-      },
-      {
-        "label": "e.ii",
-        "marks": 2,
-        "type": "List"
-      }
-    ]
-  },
-  "Q5": {
-    "dominant_topic": "Transaction Management and Concurrency",
-    "source_paper": "2017 II",
-    "total_marks": 25,
-    "subquestion_count": 9,
-    "subquestion_structure": [
-      {
-        "label": "a)",
-        "marks": 4,
-        "type": "Define"
-      },
-      {
-        "label": "b)",
-        "marks": 3,
-        "type": "General"
-      },
-      {
-        "label": "c)",
-        "marks": 3,
-        "type": "Define"
-      },
-      {
-        "label": "d)",
-        "marks": 3,
-        "type": "Define"
-      },
-      {
-        "label": "e)",
-        "marks": 2,
-        "type": "Define"
-      },
-      {
-        "label": "f)",
-        "marks": 2,
-        "type": "Define"
-      },
-      {
-        "label": "i.",
-        "marks": 2,
-        "type": "Draw"
-      },
-      {
-        "label": "ii.",
-        "marks": 3,
-        "type": "Draw"
-      },
-      {
-        "label": "h)",
-        "marks": 3,
-        "type": "Draw"
+        "label": "?",
+        "marks": 8,
+        "type": "General",
+        "text": "Express the above queries (i) to (iv) in tuple calculus."
       }
     ]
   }

@@ -280,8 +280,18 @@ class QuestionWriter(BaseAgent):
         structure_fingerprint = template.get("required_structure") or [{"label": "a", "marks": slot.get("target_marks")}]
         pattern_label = template.get('pattern_label', topic).lower()
         
-        # Calculate sub-question breakdown string
-        structure_str = "\n".join([f"- Part {s.get('label', '?')}: {s.get('marks')} marks" for s in structure_fingerprint])
+        # Calculate sub-question breakdown string with text patterns if available
+        structure_parts = []
+        for s in structure_fingerprint:
+            label = s.get('label', '?')
+            marks = s.get('marks', 0)
+            text_pattern = s.get('text', '')  # Get stored text pattern
+            if text_pattern:
+                # Include the instruction pattern for preservation
+                structure_parts.append(f"- Part {label}: {marks} marks\n  Instruction Pattern: \"{text_pattern}\"")
+            else:
+                structure_parts.append(f"- Part {label}: {marks} marks")
+        structure_str = "\n".join(structure_parts)
         
         # CRITICAL: Get exact count required
         required_count = len(structure_fingerprint)
@@ -292,16 +302,36 @@ class QuestionWriter(BaseAgent):
         
         
         er_context = ""
+        used_scenarios_list = global_context.get('used_scenarios', [])
         if is_er_question:
-             er_context = "Include a scenario describing entities, relationships, and attributes."
+             er_context = f"Include a UNIQUE scenario (zoo, restaurant, gym, hotel, museum, cinema, stadium, theater) DIFFERENT from: {used_scenarios_list}. Describe entities, relationships, and attributes."
         elif is_norm_question:
-             er_context = "Include a relation schema and functional dependencies."
+             er_context = f"Include a relation schema and functional dependencies from a UNIQUE scenario (airline, restaurant, gym, hotel, pharmacy, supermarket, warehouse, factory) DIFFERENT from: {used_scenarios_list}."
         else:
-             er_context = "Include relevant context and background information."
+             er_context = f"Include relevant context and background information. Use a UNIQUE scenario DIFFERENT from: {used_scenarios_list}."
 
         prompt = f"""
         You are an expert Exam Setter for a Database Management Systems course.
-        Create a NEW, ORIGINAL exam question based on the following constraints.
+        Create a NEW, ORIGINAL exam question STRICTLY based on historical exam patterns, topic coverage, and syllabus modules.
+        
+        ⚠️ CRITICAL: SYLLABUS ALIGNMENT REQUIREMENTS ⚠️
+        - Generate questions STRICTLY based on historical exam patterns from past papers
+        - All questions MUST be directly aligned with past exam content and curriculum requirements
+        - Ensure questions reflect ONLY core Database Management Systems syllabus content
+        - Follow the exact structure and style of historical exam questions
+        - Do NOT introduce topics unrelated to the core syllabus or past paper patterns
+        
+        🚫 STRICT NON-DATABASE TOPIC PROHIBITION 🚫
+        ABSOLUTELY DO NOT include any topics from:
+        - Networking: TCP/IP, routing, switching, packets, datagrams, OSI model, network layers, sockets, DNS, DHCP, VPN, firewall
+        - Operating Systems: CPU scheduling, process scheduling, memory management, file systems, semaphores, mutexes, threads, processes
+        - Web Development: HTML, CSS, JavaScript, frontend, backend, web development
+        - Compiler Design: Compiler, interpreter, syntax, parsing, lexical analysis
+        - Software Engineering: Agile, Scrum, Waterfall, SDLC, software engineering methodologies
+        - Machine Learning & AI: Neural networks, deep learning, machine learning, AI algorithms
+        - Any other topics NOT in Database Management Systems curriculum
+        
+        ALL questions MUST remain within Database Management Systems (DMS) scope ONLY.
 
         TOOLING RULES (STRICT):
         - Do NOT output Mermaid, Graphviz, Kroki links, or any external-diagram syntax.
@@ -312,17 +342,23 @@ class QuestionWriter(BaseAgent):
         - Question No: {slot.get('question_no', '?')}
         - Total Marks: {slot.get('target_marks')}
         - Primary Topic: {template.get('pattern_label', topic)}
-        - Primary Topic: {template.get('pattern_label', topic)}
+        - Historical Pattern: This template is derived from past exam papers - follow its structure EXACTLY
         - Module Context: {context[:500]}...
 
         TOPIC UNIQUENESS (STRICT):
         - This question's topic MUST be: {template.get('pattern_label', topic)}
+        - This topic is derived from historical exam patterns - maintain alignment
         - BANNED TOPICS (must NOT be used): {banned_topics or []}
         
         GLOBAL ANTI-REPETITION CONSTRAINTS (DO NOT REUSE):
         - BANNED TOPICS (MUST NOT REPEAT): {global_context.get('banned_topics', [])} (You MUST use a DIFFERENT topic - each question must have a unique topic)
         - USED QUESTION TYPES: {global_context.get('used_question_types', [])} (You MUST generate a DIFFERENT type)
-        - USED SCENARIOS: {global_context.get('used_scenarios', [])} (You MUST use a completely different scenario)
+        - USED SCENARIOS (MUST AVOID): {global_context.get('used_scenarios', [])} 
+          ⚠️ CRITICAL: You MUST use a COMPLETELY DIFFERENT, UNIQUE scenario that has NEVER been used before.
+          - If used scenarios include: "library", "university", "hospital", "bank"
+          - You MUST choose a DIFFERENT scenario like: "airline", "restaurant", "gym", "hotel", "school", "museum", "zoo", "pharmacy", "cinema", "supermarket", "warehouse", "factory", "park", "stadium", "theater"
+          - Each question in the paper MUST have a UNIQUE scenario (no two questions can use the same scenario)
+          - The scenario must be relevant to Database Management Systems and allow for the same question structure
         
         REQUIRED STRUCTURE (MANDATORY - NO EXCEPTIONS):
 {structure_str}
@@ -343,19 +379,36 @@ class QuestionWriter(BaseAgent):
         {"6. **ER/EER QUESTION REQUIREMENTS**: " if is_er_question else ""}{"The question stem MUST include a scenario block (2-5 sentences) describing:" if is_er_question else ""}
         {"   - Entities and their attributes" if is_er_question else ""}
         {"   - Relationships between entities" if is_er_question else ""}
-        {"   - Real-world context (e.g., university, hospital, library)" if is_er_question else ""}
+        {"   - Real-world context: Use a UNIQUE scenario DIFFERENT from previous questions. Examples: zoo, restaurant, gym, hotel, museum, cinema, stadium, theater, park, warehouse, factory" if is_er_question else ""}
+        {"   - AVOID common scenarios already used: {global_context.get('used_scenarios', [])}" if is_er_question else ""}
         {"   Then subquestions should: identify entities/attributes, identify relationships/cardinalities, draw ER/EER diagram (use [DIAGRAM PLACEHOLDER]), map to relational schema." if is_er_question else ""}
         
-        {"6. **NORMALIZATION QUESTION REQUIREMENTS**: " if is_norm_question else ""}{"The question stem MUST include:" if is_norm_question else ""}
-        {"   - A relation schema (e.g., R(A,B,C) or explicit attributes)" if is_norm_question else ""}
-        {"   - Functional dependencies (FDs) in standard notation" if is_norm_question else ""}
+        {"6. **NORMALIZATION QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_norm_question else ""}{"The question stem MUST include BOTH of the following:" if is_norm_question else ""}
+        {"   - A relation schema in EXACT format: 'Consider a relation R(A, B, C, D) with...' OR 'Consider the following relation schema: RelationName (Attr1, Attr2, Attr3)'" if is_norm_question else ""}
+        {"   - Functional dependencies in EXACT format: 'F = {A->B, B->C}' OR 'FD1: A → B, FD2: B → C' OR 'functional dependencies: A->B, B->C'" if is_norm_question else ""}
+        {"   " if is_norm_question else ""}
+        {"   EXAMPLE OF CORRECT FORMAT:" if is_norm_question else ""}
+        {"   'Consider a relation R(ProjectNo, ProjectName, EmpNo, EmpName, DeptNo, DeptName) with the following set of functional dependencies F over R: F={{ ProjectNo->ProjectName, DeptNo->DeptName, EmpNo->EmpName }}'" if is_norm_question else ""}
+        {"   " if is_norm_question else ""}
+        {"   ⚠️ WITHOUT A RELATION SCHEMA AND FUNCTIONAL DEPENDENCIES IN THE STEM, THE QUESTION WILL BE REJECTED IMMEDIATELY." if is_norm_question else ""}
         {"   Then subquestions should ask for normalization steps to 3NF/BCNF and final decomposition." if is_norm_question else ""}
         
         ADDITIONAL CONSTRAINTS:
-        - **Bloom's Taxonomy**: Ensure a mix of Recall (Define/List) and Application (Design/Analyze).
+        - **PRESERVE INSTRUCTION PATTERNS**: If the structure includes "Instruction Pattern" text, you MUST preserve that exact instruction pattern:
+          * Keep the same task verbs (e.g., "Draw", "Convert", "Extend", "Identify", "Use the attribute closure")
+          * Keep the same diagram types (e.g., "ER diagram", "EER diagram", "relational model", "functional dependency diagram")
+          * Keep the same instruction structure (e.g., "Convert the following EER model into the relational model", "Draw the functional dependency diagram")
+          * ONLY change the scenario/context (e.g., different entities, different domain, different relation names)
+          * Example: If pattern says "Convert the following EER model into the relational model", your generated question MUST say "Convert the following EER model into the relational model" (but for a different scenario)
+        - **Historical Pattern Alignment**: Follow the exact structure, style, and difficulty level of past exam questions
+        - **Syllabus Compliance**: Ensure all content aligns with Database Management Systems curriculum modules
+        - **Past Paper Reflection**: Questions must reflect topics and patterns from historical exam papers
+        - **Bloom's Taxonomy**: Ensure a mix of Recall (Define/List) and Application (Design/Analyze) as seen in past papers
         - **Single Scenario**: Use ONE cohesive scenario for all parts.
-        - **Authenticity**: Write a real, solvable problem with specific details.
-        - **Database Systems Only**: All content must be relevant to Database Management Systems.
+        - **SCENARIO UNIQUENESS**: The scenario you choose MUST be completely different from any scenario used in previous questions in this paper. Check USED SCENARIOS: {global_context.get('used_scenarios', [])}
+        - **Authenticity**: Write a real, solvable problem with specific details matching past paper style
+        - **Database Systems Only**: All content must be relevant to Database Management Systems - NO exceptions
+        - **No Deviation**: Do NOT introduce concepts, topics, or approaches not found in past papers or syllabus
         
         
 
@@ -390,25 +443,57 @@ class QuestionWriter(BaseAgent):
         
         # Get required structure and count
         structure_fingerprint = template.get("required_structure") or [{"label": "a", "marks": slot.get("target_marks")}]
-        structure_str = "\n".join([f"- Part {s.get('label', '?')}: {s.get('marks')} marks" for s in structure_fingerprint])
+        
+        # Build structure string with text patterns if available
+        structure_parts = []
+        for s in structure_fingerprint:
+            label = s.get('label', '?')
+            marks = s.get('marks', 0)
+            text_pattern = s.get('text', '')  # Get stored text pattern
+            if text_pattern:
+                # Include the instruction pattern for preservation
+                structure_parts.append(f"- Part {label}: {marks} marks\n  Instruction Pattern: \"{text_pattern}\"")
+            else:
+                structure_parts.append(f"- Part {label}: {marks} marks")
+        structure_str = "\n".join(structure_parts)
         required_count = len(structure_fingerprint)
 
         er_context = ""
+        used_scenarios_list = global_context.get('used_scenarios', [])
         if is_er_question:
-             er_context = "Include a scenario describing entities, relationships, and attributes."
+             er_context = f"Include a UNIQUE scenario (zoo, restaurant, gym, hotel, museum, cinema, stadium, theater) DIFFERENT from: {used_scenarios_list}. Describe entities, relationships, and attributes."
         elif is_norm_question:
-             er_context = "Include a relation schema and functional dependencies."
+             er_context = f"Include a relation schema and functional dependencies from a UNIQUE scenario (airline, restaurant, gym, hotel, pharmacy, supermarket, warehouse, factory) DIFFERENT from: {used_scenarios_list}."
         else:
-             er_context = "Include relevant context and background information."
+             er_context = f"Include relevant context and background information. Use a UNIQUE scenario DIFFERENT from: {used_scenarios_list}."
         
         base_prompt = f"""
         Generate ONE high-quality university exam question for a Database Systems course.
+        
+        ⚠️ CRITICAL: SYLLABUS ALIGNMENT REQUIREMENTS ⚠️
+        - Generate questions STRICTLY based on historical exam patterns from past papers
+        - All questions MUST be directly aligned with past exam content and curriculum requirements
+        - Ensure questions reflect ONLY core Database Management Systems syllabus content
+        - Follow the exact structure and style of historical exam questions
+        - Do NOT introduce topics unrelated to the core syllabus or past paper patterns
+        
+        🚫 STRICT NON-DATABASE TOPIC PROHIBITION 🚫
+        ABSOLUTELY DO NOT include any topics from:
+        - Networking: TCP/IP, routing, switching, packets, datagrams, OSI model, network layers, sockets, DNS, DHCP, VPN, firewall
+        - Operating Systems: CPU scheduling, process scheduling, memory management, file systems, semaphores, mutexes, threads, processes
+        - Web Development: HTML, CSS, JavaScript, frontend, backend, web development
+        - Compiler Design: Compiler, interpreter, syntax, parsing, lexical analysis
+        - Software Engineering: Agile, Scrum, Waterfall, SDLC, software engineering methodologies
+        - Machine Learning & AI: Neural networks, deep learning, machine learning, AI algorithms
+        - Any other topics NOT in Database Management Systems curriculum
+        
+        ALL questions MUST remain within Database Management Systems (DMS) scope ONLY.
         
         TASK:
         You are given a 'Reference Question' from a past paper.
         Your goal is to WRITE A NEW QUESTION that has the EXACT SAME STRUCTURE and DIFFICULTY, but applies to a COMPLETELY DIFFERENT SCENARIO.
         
-        REFERENCE QUESTION:
+        REFERENCE QUESTION (Historical Pattern):
         {template.get('full_text', '')}
         
         REQUIRED STRUCTURE (MANDATORY - NO EXCEPTIONS):
@@ -422,13 +507,28 @@ class QuestionWriter(BaseAgent):
         
         CONSTRAINTS:
         1. **Keep Structure EXACTLY**: You MUST generate EXACTLY {required_count} sub-questions matching the structure above. If template shows 9 parts, generate 9. If 7 parts, generate 7. NO DEVIATION.
-        2. **Change Scenario**: If original is about a Bank, you write about a Library or Hospital (completely different).
-        3. **Keep Topic**: If original asks to Draw ERD, you ask to Draw ERD (but for the new scenario).
-        4. **NO PLAGIARISM**: Do not copy the text. Re-invent it completely.
+        2. **PRESERVE INSTRUCTION PATTERNS**: For each sub-question, preserve the EXACT instruction pattern from the template:
+           - If template says "Draw the ER diagram", your generated question MUST say "Draw the ER diagram" (but for the new scenario)
+           - If template says "Extend and draw the EER diagram", your generated question MUST say "Extend and draw the EER diagram" (but for the new scenario)
+           - If template says "Convert the following EER model into the relational model", your generated question MUST say "Convert the following EER model into the relational model" (but for the new scenario)
+           - Preserve the exact task verbs, diagram types, and instruction structure
+           - ONLY change the scenario/context (e.g., "university" → "hospital", "library" → "bank")
+        3. **Historical Pattern Alignment**: Maintain the exact structure, style, and difficulty level of the reference question
+        4. **Syllabus Compliance**: Ensure all content aligns with Database Management Systems curriculum modules
+        5. **SCENARIO DIVERSITY (CRITICAL)**: You MUST use a COMPLETELY DIFFERENT, UNIQUE scenario that has NEVER been used before:
+           - If past papers use: "library", "university", "hospital", "bank", "bookstore"
+           - You MUST use a DIFFERENT scenario like: "airline", "restaurant", "gym", "hotel", "school", "museum", "zoo", "pharmacy", "cinema", "supermarket", "warehouse", "factory", "park", "stadium", "theater"
+           - Each question in the paper MUST have a UNIQUE scenario (no two questions can use the same scenario)
+           - The scenario must be relevant to Database Management Systems and allow for the same question structure
+           - USED SCENARIOS TO AVOID: {global_context.get('used_scenarios', [])}
+           - Example: If Q1 uses "hospital", Q2 cannot use "hospital" - use "airline" or "restaurant" instead
+        6. **NO PLAGIARISM**: Do not copy the text verbatim. Re-invent the scenario and context, but keep the instruction pattern.
+        7. **No Deviation**: Do NOT introduce concepts, topics, or approaches not found in past papers or syllabus
         
         Specifications:
         - Question Number: {slot.get('question_no') or slot.get('slot_id') or "Q?"}
         - Total Marks: {slot.get('target_marks')}
+        - Historical Pattern: This template is derived from past exam papers - follow its structure EXACTLY
         - Topic Context: {context[:500]}...
 
         TOOLING RULES (STRICT):
@@ -438,6 +538,7 @@ class QuestionWriter(BaseAgent):
 
         TOPIC UNIQUENESS (STRICT):
         - This question's topic MUST be: {template.get('pattern_label', '')}
+        - This topic is derived from historical exam patterns - maintain alignment
         - BANNED TOPICS (must NOT be used): {banned_topics or []}
         
         GLOBAL UNIQUENESS (DO NOT REUSE THESE):
@@ -447,18 +548,26 @@ class QuestionWriter(BaseAgent):
         - PREVIOUS SCENARIOS (DO NOT REUSE): {global_context.get('used_scenarios', [])}
         
         CRITICAL CONTENT RULES (ZERO TOLERANCE - VIOLATIONS WILL CAUSE REJECTION):
-        1. **NO PLACEHOLDERS**: Never use "...", "TBD", "[insert", "[placeholder", or any placeholder text. Every field must have complete, valid content.
-        2. **MARKS MUST SUM EXACTLY**: Sub-question marks must sum to exactly {slot.get('target_marks')}. Double-check your math.
-        3. **EACH SUBQUESTION MUST BE SEMANTICALLY DISTINCT**: Use different task verbs/intents. No duplicate or near-duplicate questions.
-        4. **NO "DESCRIBED ABOVE" REFERENCES**: Never say "described above", "as shown above" unless you have already included the described content.
-        5. **SINGLE SCENARIO ENFORCEMENT**: If this question involves a scenario, it must be the ONLY scenario used for the ENTIRE question (all sub-questions). DO NOT mix multiple scenarios.
-        6. **NO MCQs**: This is a structural paper. DO NOT generate Multiple Choice Questions. All questions must be descriptive or design-based.
-        7. **NO FIGURE REFERENCES**: Do NOT refer to "Figure 1", "Slide 2", etc.
-        8. **NO EMPTY QUESTIONS**: Every sub-question `text` field must have substantial content (minimum 20 characters).
+        1. **SYLLABUS ALIGNMENT**: Questions MUST strictly reflect historical exam patterns and syllabus content. NO deviation.
+        2. **NO NON-DATABASE TOPICS**: ABSOLUTELY DO NOT include networking, OS, web development, compiler design, software engineering, or ML/AI topics.
+        3. **HISTORICAL PATTERN COMPLIANCE**: Follow the exact structure, style, and difficulty level of past exam questions.
+        4. **NO PLACEHOLDERS**: Never use "...", "TBD", "[insert", "[placeholder", or any placeholder text. Every field must have complete, valid content.
+        5. **MARKS MUST SUM EXACTLY**: Sub-question marks must sum to exactly {slot.get('target_marks')}. Double-check your math.
+        6. **EACH SUBQUESTION MUST BE SEMANTICALLY DISTINCT**: Use different task verbs/intents. No duplicate or near-duplicate questions.
+        7. **NO "DESCRIBED ABOVE" REFERENCES**: Never say "described above", "as shown above" unless you have already included the described content.
+        8. **SINGLE SCENARIO ENFORCEMENT**: If this question involves a scenario, it must be the ONLY scenario used for the ENTIRE question (all sub-questions). DO NOT mix multiple scenarios.
+        9. **NO MCQs**: This is a structural paper. DO NOT generate Multiple Choice Questions. All questions must be descriptive or design-based.
+        10. **NO FIGURE REFERENCES**: Do NOT refer to "Figure 1", "Slide 2", etc.
+        11. **NO EMPTY QUESTIONS**: Every sub-question `text` field must have substantial content (minimum 20 characters).
+        12. **NO DEVIATION**: Do NOT introduce concepts, topics, or approaches not found in past papers or syllabus.
         
-        {"9. **ER/EER QUESTION REQUIREMENTS**: " if is_er_question else ""}{"The question stem MUST include a scenario block (2-5 sentences) describing entities, relationships, and attributes. Then subquestions should: identify entities/attributes, identify relationships/cardinalities, draw ER/EER diagram (use [DIAGRAM PLACEHOLDER]), map to relational schema." if is_er_question else ""}
+        {"9. **ER/EER QUESTION REQUIREMENTS**: " if is_er_question else ""}{"The question stem MUST include a scenario block (2-5 sentences) describing entities, relationships, and attributes. Use a UNIQUE scenario (zoo, restaurant, gym, hotel, museum, cinema, stadium, theater) DIFFERENT from previous questions. AVOID: {global_context.get('used_scenarios', [])}. Then subquestions should: identify entities/attributes, identify relationships/cardinalities, draw ER/EER diagram (use [DIAGRAM PLACEHOLDER]), map to relational schema." if is_er_question else ""}
         
-        {"9. **NORMALIZATION QUESTION REQUIREMENTS**: " if is_norm_question else ""}{"The question stem MUST include a relation schema (e.g., R(A,B,C)) and functional dependencies. Then subquestions should ask for normalization steps to 3NF/BCNF and final decomposition." if is_norm_question else ""}
+        {"9. **NORMALIZATION QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_norm_question else ""}{"The question stem MUST include BOTH:" if is_norm_question else ""}
+        {"   - A relation schema in EXACT format: 'Consider a relation R(A, B, C, D) with...' OR 'Consider the following relation schema: RelationName (Attr1, Attr2, Attr3)'" if is_norm_question else ""}
+        {"   - Functional dependencies in EXACT format: 'F = {{A->B, B->C}}' OR 'FD1: A → B, FD2: B → C'" if is_norm_question else ""}
+        {"   ⚠️ WITHOUT A RELATION SCHEMA AND FUNCTIONAL DEPENDENCIES IN THE STEM, THE QUESTION WILL BE REJECTED IMMEDIATELY." if is_norm_question else ""}
+        {"   Then subquestions should ask for normalization steps to 3NF/BCNF and final decomposition." if is_norm_question else ""}
         
         Output valid JSON (STRICT SCHEMA):
         {{

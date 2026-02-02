@@ -18,10 +18,10 @@ async def migrate_templates():
     if tpl_path.exists():
         data = json.loads(tpl_path.read_text(encoding="utf-8"))
         if data:
-            print(f"🚀 Migrating {len(data)} raw templates...")
+            print(f"Migrating {len(data)} raw templates...")
             await database.templates.delete_many({})  # Clear old
             await database.templates.insert_many(data)
-            print("✅ Templates migrated.")
+            print("Templates migrated.")
 
     # 2. Canonical Templates
     canon_path = ARTIFACTS_DIR / "canonical_templates.json"
@@ -34,10 +34,10 @@ async def migrate_templates():
             docs.append(val)
             
         if docs:
-            print(f"🚀 Migrating {len(docs)} canonical templates...")
+            print(f"Migrating {len(docs)} canonical templates...")
             await database.canonical_templates.delete_many({})
             await database.canonical_templates.insert_many(docs)
-            print("✅ Canonical templates migrated.")
+            print("Canonical templates migrated.")
 
 async def migrate_papers():
     """Migrate generated papers from outputs directory."""
@@ -58,7 +58,7 @@ async def migrate_papers():
         except Exception as e:
             print(f"⚠️ Failed to migrate {p_path.name}: {e}")
             
-    print("✅ Papers migrated.")
+    print("Papers migrated.")
 
 async def main():
     print("--- STARTING MIGRATION ---")

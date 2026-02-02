@@ -13,11 +13,12 @@
       "2019 II",
       "2019"
     ],
-    "rule": "Blueprint derived from latest 3 years; Clustering uses all historical data."
+    "rule": "Blueprint always generates exactly 4 questions (Q1-Q4). Topic frequency analyzed across ALL positions (Q1-Q5+) from latest 6 papers. Most frequent topic forced into Q1."
   },
   "question_slots": [
     {
       "slot_id": "Q1",
+      "question_no": "Q1",
       "position": 1,
       "target_marks": 20,
       "typical_num_subquestions": 2,
@@ -27,17 +28,25 @@
       ],
       "num_samples": 6,
       "topics": [
-        "varchar",
-        "table",
-        "int"
+        "relation",
+        "functional",
+        "dependencies"
       ],
       "topic_probabilities": {
-        "varchar, table, int": 0.53,
-        "model, keys, eer": 0.47
-      }
+        "each, student, bytes": 0.08,
+        "relation, functional, dependencies": 0.24,
+        "list, transaction, properties": 0.04,
+        "relation, book, stores": 0.2,
+        "eer, model": 0.12,
+        "database, statements, sql": 0.12,
+        "int, varchar, name": 0.2
+      },
+      "forced_topic": true,
+      "topic_source": "most_frequent_across_all_positions"
     },
     {
       "slot_id": "Q2",
+      "question_no": "Q2",
       "position": 2,
       "target_marks": 15,
       "typical_num_subquestions": 3,
@@ -48,18 +57,16 @@
       ],
       "num_samples": 6,
       "topics": [
-        "relation",
-        "functional",
-        "dependencies"
+        "eer",
+        "model"
       ],
-      "topic_probabilities": {
-        "frame, number, bytes": 0.4,
-        "tree, file, after": 0.07,
-        "relation, functional, dependencies": 0.53
-      }
+      "topic_probabilities": {},
+      "forced_topic": false,
+      "topic_source": "fallback_unique"
     },
     {
       "slot_id": "Q3",
+      "question_no": "Q3",
       "position": 3,
       "target_marks": 25,
       "typical_num_subquestions": 5,
@@ -67,41 +74,44 @@
         2,
         2,
         2,
-        3,
-        16
+        3
       ],
       "num_samples": 6,
       "topics": [
-        "tree",
-        "file",
-        "after"
+        "database",
+        "statements",
+        "sql"
       ],
       "topic_probabilities": {
-        "tree, file, after": 0.47,
-        "varchar, table, int": 0.47,
-        "transaction, schedule, explain": 0.07
-      }
+        "list, transaction, properties": 0.17,
+        "database, statements, sql": 0.5,
+        "relation, book, stores": 0.33
+      },
+      "forced_topic": false,
+      "topic_source": "position_3_most_common"
     },
     {
       "slot_id": "Q4",
+      "question_no": "Q4",
       "position": 4,
       "target_marks": 40,
-      "typical_num_subquestions": 3,
+      "typical_num_subquestions": 5,
       "structural_fingerprint": [
-        8,
-        9,
+        11,
         12
       ],
       "num_samples": 6,
       "topics": [
+        "int",
         "varchar",
-        "table",
-        "int"
+        "name"
       ],
       "topic_probabilities": {
-        "query, index, indexes": 0.47,
-        "varchar, table, int": 0.53
-      }
+        "relation, book, stores": 0.17,
+        "int, varchar, name": 0.83
+      },
+      "forced_topic": false,
+      "topic_source": "position_4_most_common"
     }
   ]
 }

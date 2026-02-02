@@ -1,641 +1,8 @@
 [
   {
-    "pdf_stem": "2023",
-    "question_id": "3",
-    "cluster": 0,
-    "cluster_label_keywords": [
-      "varchar",
-      "table",
-      "int",
-      "name",
-      "number",
-      "stores",
-      "each",
-      "char"
-    ],
-    "marks": 25,
-    "full_text": "In Native API Driver, vendor-specific driver must be installed on each client machine. Accept or refute the above statement justifying your answer. There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used. Briefly explain what is meant by a BCP Command? Briefly explain how SQL server security framework manages access to securable entities. A software company has been tasked with developing a comprehensive healthcare information technology (IT) system for a large medical facility. The project manager is responsible for overseeing the project's development, and the following roles and responsibilities are assigned: Linda is the senior database administrator who is tasked with creating and managing the databases required for the healthcare IT system. This includes patient records, appointment scheduling, and medical inventory databases. Raj and Eva are junior database administrators who work under Linda's supervision. They are responsible for managing and maintaining specific databases within the healthcare IT system. Raj takes care of the patient records database, while Eva is responsible for the appointment scheduling database. Carla is a database developer who reports to Raj and Eva. Her role involves designing and building the database schemas, including creating tables, views, and stored procedures for the patient records and appointment scheduling databases. Sophie and John are data entry operators responsible for entering patient information, medical records, and appointment data into the system. They work closely with the junior database administrators to ensure accurate and timely data entry. Write a T-SQL statement to create a login to Linda. Provide permission using fixed server role to handle all the administrative tasks in the server to Linda. Assuming that Eva has the user name eva.e, write a T-SQL statements required to assign her with the responsibility of handling the appointmentDB using user defined server role. Assuming that Carla has a login name by the name carla.a, write T-SQL statements required to allow her to create tables, views and stored procedures. Assuming that John has a login name john.k write T-SQL statements required to perform the tasks he is responsible for.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a)",
-        "marks": 2,
-        "text": "In Native API Driver, vendor-specific driver must be installed on each client machine. Accept or refute the above statement justifying your answer.",
-        "subquestions": []
-      },
-      {
-        "label": "b)",
-        "marks": 2,
-        "text": "There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used.",
-        "subquestions": []
-      },
-      {
-        "label": "c)",
-        "marks": 2,
-        "text": "Briefly explain what is meant by a BCP Command?",
-        "subquestions": []
-      },
-      {
-        "label": "d)",
-        "marks": 3,
-        "text": "Briefly explain how SQL server security framework manages access to securable entities.",
-        "subquestions": []
-      },
-      {
-        "label": "e)",
-        "marks": 16,
-        "text": "A software company has been tasked with developing a comprehensive healthcare information technology (IT) system for a large medical facility. The project manager is responsible for overseeing the project's development, and the following roles and responsibilities are assigned: Linda is the senior database administrator who is tasked with creating and managing the databases required for the healthcare IT system. This includes patient records, appointment scheduling, and medical inventory databases. Raj and Eva are junior database administrators who work under Linda's supervision. They are responsible for managing and maintaining specific databases within the healthcare IT system. Raj takes care of the patient records database, while Eva is responsible for the appointment scheduling database. Carla is a database developer who reports to Raj and Eva. Her role involves designing and building the database schemas, including creating tables, views, and stored procedures for the patient records and appointment scheduling databases. Sophie and John are data entry operators responsible for entering patient information, medical records, and appointment data into the system. They work closely with the junior database administrators to ensure accurate and timely data entry.",
-        "subquestions": [
-          {
-            "label": "i)",
-            "marks": 2,
-            "text": "Write a T-SQL statement to create a login to Linda.",
-            "subquestions": []
-          },
-          {
-            "label": "ii)",
-            "marks": 3,
-            "text": "Provide permission using fixed server role to handle all the administrative tasks in the server to Linda.",
-            "subquestions": []
-          },
-          {
-            "label": "iii)",
-            "marks": 5,
-            "text": "Assuming that Eva has the user name eva.e, write a T-SQL statements required to assign her with the responsibility of handling the appointmentDB using user defined server role.",
-            "subquestions": []
-          },
-          {
-            "label": "iv)",
-            "marks": 3,
-            "text": "Assuming that Carla has a login name by the name carla.a, write T-SQL statements required to allow her to create tables, views and stored procedures.",
-            "subquestions": []
-          },
-          {
-            "label": "v)",
-            "marks": 3,
-            "text": "Assuming that John has a login name john.k write T-SQL statements required to perform the tasks he is responsible for.",
-            "subquestions": []
-          }
-        ]
-      }
-    ],
-    "pattern_label": "SQL_DDL_DML"
-  },
-  {
-    "pdf_stem": "2023 II",
-    "question_id": "3",
-    "cluster": 0,
-    "cluster_label_keywords": [
-      "varchar",
-      "table",
-      "int",
-      "name",
-      "number",
-      "stores",
-      "each",
-      "char"
-    ],
-    "marks": 25,
-    "full_text": "Native API Driver is faster than Java Thin Driver. Accept or refute the above statement justifying your answer. There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used. Briefly explain what is meant by a Full Backup? Briefly explain the three main aspects to focus on when a database is secured? A software company has been assigned the responsibility of automating the tasks of a digital marketing company. This includes designing and developing a database for the company to maintain the records of various functions. It also maintains records of digital channels to market products and services in order to reach consumers. Menaka, a senior DBA is assigned to the project to handle all the administrative tasks related to the databases by the database architect. Menaka creates the required database and assign Nipun the responsibility of managing the CompanyDB. Since there will be lot of users for the project, Amali is assigned with the responsibility of handling logins to the system. Nipun assigns Kasuni with the responsibility of creating tables. In addition, Kasuni should be able to create views, stored procedures and triggers required. Dinethi, who is data entry operator is given the responsibility of inserting the data to the table. Amal is assigned with the responsibility of generating reports from the table in the data. For the above purpose, Amal could directly query the data or call functions and procedures. Write a T-SQL statement to create a login to Menaka. Provide permission using fixed server role to handle all the administrative tasks in the server to Menaka. Assuming that Nipun has the user name nipun.b, write a T-SQL statements required to assign him with the responsibility of handling the companyDB using user defined server role. Assuming that Kasuni has a login name by the name kasuni.a write T-SQL statements required to allow her to create tables, functions, procedures and triggers. Assuming that Amal has a login name amal k. write T-SQL statements required to perform the tasks she is responsible for.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a)",
-        "marks": 2,
-        "text": "Native API Driver is faster than Java Thin Driver. Accept or refute the above statement justifying your answer.",
-        "subquestions": []
-      },
-      {
-        "label": "b)",
-        "marks": 2,
-        "text": "There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used.",
-        "subquestions": []
-      },
-      {
-        "label": "c)",
-        "marks": 2,
-        "text": "Briefly explain what is meant by a Full Backup?",
-        "subquestions": []
-      },
-      {
-        "label": "d)",
-        "marks": 3,
-        "text": "Briefly explain the three main aspects to focus on when a database is secured?",
-        "subquestions": []
-      },
-      {
-        "label": "e)",
-        "marks": 16,
-        "text": "A software company has been assigned the responsibility of automating the tasks of a digital marketing company. This includes designing and developing a database for the company to maintain the records of various functions. It also maintains records of digital channels to market products and services in order to reach consumers. Menaka, a senior DBA is assigned to the project to handle all the administrative tasks related to the databases by the database architect. Menaka creates the required database and assign Nipun the responsibility of managing the CompanyDB. Since there will be lot of users for the project, Amali is assigned with the responsibility of handling logins to the system. Nipun assigns Kasuni with the responsibility of creating tables. In addition, Kasuni should be able to create views, stored procedures and triggers required. Dinethi, who is data entry operator is given the responsibility of inserting the data to the table. Amal is assigned with the responsibility of generating reports from the table in the data. For the above purpose, Amal could directly query the data or call functions and procedures.",
-        "subquestions": [
-          {
-            "label": "i)",
-            "marks": 2,
-            "text": "Write a T-SQL statement to create a login to Menaka.",
-            "subquestions": []
-          },
-          {
-            "label": "ii)",
-            "marks": 3,
-            "text": "Provide permission using fixed server role to handle all the administrative tasks in the server to Menaka.",
-            "subquestions": []
-          },
-          {
-            "label": "iii)",
-            "marks": 5,
-            "text": "Assuming that Nipun has the user name nipun.b, write a T-SQL statements required to assign him with the responsibility of handling the companyDB using user defined server role.",
-            "subquestions": []
-          },
-          {
-            "label": "iv)",
-            "marks": 3,
-            "text": "Assuming that Kasuni has a login name by the name kasuni.a write T-SQL statements required to allow her to create tables, functions, procedures and triggers.",
-            "subquestions": []
-          },
-          {
-            "label": "v)",
-            "marks": 3,
-            "text": "Assuming that Amal has a login name amal k. write T-SQL statements required to perform the tasks she is responsible for.",
-            "subquestions": []
-          }
-        ]
-      }
-    ],
-    "pattern_label": "SQL_DDL_DML"
-  },
-  {
-    "pdf_stem": "2015 II",
-    "question_id": "1",
-    "cluster": 0,
-    "cluster_label_keywords": [
-      "varchar",
-      "table",
-      "int",
-      "name",
-      "number",
-      "stores",
-      "each",
-      "char"
-    ],
-    "marks": 20,
-    "full_text": "Consider the following schema of a database used in a vehicle rental system. Customers (custld: integer, name: varchar (50), address: varachar (60), phone: char (10)) Vehicles (vehicleld: interger, mileage: double, fuel Type: varchar (10), transmission: varchar (15)) Reservations (cld: integer, vId: integer, startDate: datetime, endDate: datetime, returnDate: datetime) Payments (pld: integer, cId: integer, vId: integer, type: varchar (10), amount: real, date: datetime) Customers table contains attributes to store the id (custld), name, address and the phone number of customers. Vehicles table contains the id (vehicleld), milage, type of fuel and the type of transmission (transmission) for each vehicle. Fuel type attribute stores Petrol, Diesel or Hybrid. The transmission attribute stores either automatic or manual. Reservation table stores information about reservations of vehicles. The table contains information about the vehicles which have been rented (vId), the customers who have reserved vehicles (cId), start dates of the reservations (startDate), the end dates of the reservations (endDate) and the dates the vehicles have been returned by the customer (returnDate). For vehicles that are not returned yet, a null value is stored in the return date field. Payment table stores the payment details of the reservations. The table contains payment id (pId), customer id (cId), vehicle id (vId), type of the payment (type), amount paid and the and the paid date. When customers reserve vehicles they have to make the full payment or a partial payment. If the vehicle is returned late a fine has to be paid for the vehicle. The type attribute of the payment table stores Full, Partial or Fine to show the type of the payment as above. The primary keys of all relations are underlined.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a",
-        "marks": null,
-        "text": "Use SQL queries to answer following questions.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 2,
-            "text": "Find the names of the customers who are late to return the vehicles they have rented."
-          },
-          {
-            "label": "ii",
-            "marks": 4,
-            "text": "Find the vehicle ids of vehicles with mileage over 80000km which have not been rented since 1% May 2015."
-          },
-          {
-            "label": "iii",
-            "marks": 5,
-            "text": "Find the ids and the names of customers who have paid the most amount of fines."
-          }
-        ]
-      },
-      {
-        "label": "b",
-        "marks": 3,
-        "text": "Create a view which contains customer id, name and phone number of customers who have outstanding fines.",
-        "subquestions": []
-      },
-      {
-        "label": "c",
-        "marks": 6,
-        "text": "Create a trigger to insert an entry to the payment table to indicate that a fine is to be paid when a vehicle is returned late. A fine of Rs. 3000 is to be paid for each day late. (Assume that the pid is set using the identity property and that the Reservation table is updated only to enter the return date of a vehicle. DATEDIFF(dd, daiel,date2) function returns the number of days between datel and date 2).",
-        "subquestions": []
-      }
-    ],
-    "pattern_label": "GENERAL_THEORY"
-  },
-  {
-    "pdf_stem": "2016 II",
-    "question_id": "3",
-    "cluster": 6,
-    "cluster_label_keywords": [
-      "tree",
-      "file",
-      "after",
-      "index",
-      "explain",
-      "above",
-      "inserting",
-      "briefly"
-    ],
-    "marks": 20,
-    "full_text": "Briefly explain the Sequential file organization. What are the advantages of this file organization compared to the Heap file organization? Range search in sequential file organization is not always efficient than in heap file organization. Accept or refute the above statement giving reasons. Suppose you have a student table with following fields Student (studentld, name, address, gender, phone, birthdate, NIC, GPA) Assume that you want to retrieve the IDs and the names of students with GPA higher than 3.0. The student table contains a clustered index on the GPA column of the table. Explain the approach you will be using to retrieve the records you require. Why would you use the selected approach? Consider the following B+ tree of order 2. Illustrate the B+ tree after inserting 4 and 7 to the tree above. Illustrate the B+ tree after deleting 17 from the original tree. Consider the following extendible hash index. The hashing function considers the last 2 digits of the binary representation. Show the extendible hash index after inserting 12 and 22.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a",
-        "marks": 3,
-        "text": "Briefly explain the Sequential file organization. What are the advantages of this file organization compared to the Heap file organization?"
-      },
-      {
-        "label": "b",
-        "marks": 3,
-        "text": "Range search in sequential file organization is not always efficient than in heap file organization. Accept or refute the above statement giving reasons."
-      },
-      {
-        "label": "",
-        "marks": null,
-        "text": "Suppose you have a student table with following fields Student (studentld, name, address, gender, phone, birthdate, NIC, GPA) Assume that you want to retrieve the IDs and the names of students with GPA higher than 3.0. The student table contains a clustered index on the GPA column of the table. Explain the approach you will be using to retrieve the records you require. Why would you use the selected approach?",
-        "subquestions": [
-          {
-            "label": "",
-            "marks": 3,
-            "text": ""
-          }
-        ]
-      },
-      {
-        "label": "d",
-        "marks": null,
-        "text": "Consider the following B+ tree of order 2.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 3,
-            "text": "Illustrate the B+ tree after inserting 4 and 7 to the tree above."
-          },
-          {
-            "label": "ii",
-            "marks": 3,
-            "text": "Illustrate the B+ tree after deleting 17 from the original tree."
-          }
-        ]
-      },
-      {
-        "label": "e",
-        "marks": 5,
-        "text": "Consider the following extendible hash index. The hashing function considers the last 2 digits of the binary representation. Show the extendible hash index after inserting 12 and 22."
-      }
-    ],
-    "pattern_label": "INDEXING_STORAGE"
-  },
-  {
-    "pdf_stem": "2017",
-    "question_id": "3",
-    "cluster": 6,
-    "cluster_label_keywords": [
-      "tree",
-      "file",
-      "after",
-      "index",
-      "explain",
-      "above",
-      "inserting",
-      "briefly"
-    ],
-    "marks": 20,
-    "full_text": "Question 3",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a",
-        "marks": 4,
-        "text": "Briefly explain the sequential file organization with respect to the application of insert, update, delete and search (equality/range) operations performed on it."
-      },
-      {
-        "label": "b",
-        "marks": 3,
-        "text": "Deleting a row in the Heap file organization is always easy. Accept or refute the above statement providing reasons."
-      },
-      {
-        "label": "c",
-        "marks": 3,
-        "text": "Explain general characteristics of B+ tree index with reference to its structure, nodes and entries in nodes."
-      },
-      {
-        "label": "d",
-        "marks": null,
-        "text": "Consider the following B+ tree of order 2. [DIAGRAM: page_004_diagram_1.png]",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 3,
-            "text": "Illustrate B+ tree after inserting 8 to the above tree."
-          },
-          {
-            "label": "ii",
-            "marks": 3,
-            "text": "Illustrate the B+ tree after deleting 4 from the original tree."
-          }
-        ]
-      },
-      {
-        "label": "e",
-        "marks": 4,
-        "text": "Consider the following extendible hashing index. The hashing function considers the last 2 digits of the binary representation. [DIAGRAM: page_005_diagram_1.png] Show the extendible hashed file after inserting 16 and 35."
-      }
-    ],
-    "pattern_label": "GENERAL_THEORY"
-  },
-  {
-    "pdf_stem": "2015",
-    "question_id": "3",
-    "cluster": 6,
-    "cluster_label_keywords": [
-      "tree",
-      "file",
-      "after",
-      "index",
-      "explain",
-      "above",
-      "inserting",
-      "briefly"
-    ],
-    "marks": 18,
-    "full_text": "Compare heap file against the sorted file organization. Consider an employee relation containing records with employee id, employee name, age and salary. Assume that the records are stored in a hash file where the hash function is based on the employee's salary. Retrieving records with age of 20 is inefficient with the above file. State whether the above statement is true or false. Give reasons. Consider the B+ tree index given below. Illustrate the tree after inserting 31. Illustrate the tree after deleting 20, 24, 29 from the original tree. Construct an order 2 B+ tree index when the following index entries are inserted in the given order. 3,5,15,12,7,2,20,22,25. Consider the Hash index below;",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a",
-        "marks": 3,
-        "text": "Compare heap file against the sorted file organization."
-      },
-      {
-        "label": "b",
-        "marks": 3,
-        "text": "Consider an employee relation containing records with employee id, employee name, age and salary. Assume that the records are stored in a hash file where the hash function is based on the employee's salary. Retrieving records with age of 20 is inefficient with the above file. State whether the above statement is true or false. Give reasons."
-      },
-      {
-        "label": "c",
-        "marks": null,
-        "text": "Consider the B+ tree index given below. [DIAGRAM: page_004_diagram_1.png]",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 2,
-            "text": "Illustrate the tree after inserting 31."
-          },
-          {
-            "label": "ii",
-            "marks": 2,
-            "text": "Illustrate the tree after deleting 20, 24, 29 from the original tree."
-          },
-          {
-            "label": "iii",
-            "marks": 4,
-            "text": "Construct an order 2 B+ tree index when the following index entries are inserted in the given order. 3,5,15,12,7,2,20,22,25."
-          }
-        ]
-      },
-      {
-        "label": "d",
-        "marks": 4,
-        "text": "Consider the Hash index below; [DIAGRAM: page_004_diagram_2.png]"
-      }
-    ],
-    "pattern_label": "INDEXING_STORAGE"
-  },
-  {
-    "pdf_stem": "2014 (1)",
-    "question_id": "5",
-    "cluster": 5,
-    "cluster_label_keywords": [
-      "transaction",
-      "schedule",
-      "explain",
-      "briefly",
-      "higher",
-      "priority",
-      "than",
-      "wait"
-    ],
-    "marks": 25,
-    "full_text": "Briefly explain the properties of a transaction. Briefly explain what an unrepeatable read is. Briefly explain the rules in Strict 2 Phase Locking Protocol. Briefly explain what the phantom problem is. Consider the following sequence of actions, listed in the order they are submitted to the DBMS. The DBMS processes actions in the order shown. The Strict 2PL is used for concurrency control. If a transaction is blocked, assume that all of its actions are queued until it is resumed; the DBMS continues with the next action of an unblocked transaction. TER(X), T2:W(X), T2:W(Y), T3:W(Y), T1:W(Y),T3W(X), T1: Commit, T2: Commit, T3: Commit Assume that older transaction has higher priority always. Draw a transaction schedule and briefly explain how the above three transactions are running till commit those without deadlocks in schedule. Follow Wait-Die policy to deal with deadlock. Follow deadlock detection approach to deal with deadlocks. Draw a transaction schedule and explain how three transactions are running. Show a waits-for graph if a deadlock cycle develops. State the Simple Tree Locking Algorithm. Consider the tree shown below. Describe the steps involved in executing each of the following operations according to the Simple Tree Locking algorithm, in terms of the order in which nodes are locked, unlocked, read and written. Be specific about what type of locks are obtained and released. Search 23. Delete 43. Insert 44.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a",
-        "marks": 4,
-        "text": "Briefly explain the properties of a transaction."
-      },
-      {
-        "label": "b",
-        "marks": 2,
-        "text": "Briefly explain what an unrepeatable read is."
-      },
-      {
-        "label": "c",
-        "marks": 2,
-        "text": "Briefly explain the rules in Strict 2 Phase Locking Protocol."
-      },
-      {
-        "label": "d",
-        "marks": 3,
-        "text": "Briefly explain what the phantom problem is."
-      },
-      {
-        "label": "e",
-        "marks": null,
-        "text": "Consider the following sequence of actions, listed in the order they are submitted to the DBMS. The DBMS processes actions in the order shown. The Strict 2PL is used for concurrency control. If a transaction is blocked, assume that all of its actions are queued until it is resumed; the DBMS continues with the next action of an unblocked transaction. TER(X), T2:W(X), T2:W(Y), T3:W(Y), T1:W(Y),T3W(X), T1: Commit, T2: Commit, T3: Commit Assume that older transaction has higher priority always.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 4,
-            "text": "Draw a transaction schedule and briefly explain how the above three transactions are running till commit those without deadlocks in schedule. Follow Wait-Die policy to deal with deadlock."
-          },
-          {
-            "label": "ii",
-            "marks": 4,
-            "text": "Follow deadlock detection approach to deal with deadlocks. Draw a transaction schedule and explain how three transactions are running. Show a waits-for graph if a deadlock cycle develops."
-          }
-        ]
-      },
-      {
-        "label": "f",
-        "marks": 3,
-        "text": "State the Simple Tree Locking Algorithm."
-      },
-      {
-        "label": "g",
-        "marks": 3,
-        "text": "Consider the tree shown below. [DIAGRAM: page_006_diagram_1.png] Describe the steps involved in executing each of the following operations according to the Simple Tree Locking algorithm, in terms of the order in which nodes are locked, unlocked, read and written. Be specific about what type of locks are obtained and released.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": null,
-            "text": "Search 23."
-          },
-          {
-            "label": "ii",
-            "marks": null,
-            "text": "Delete 43."
-          },
-          {
-            "label": "iii",
-            "marks": null,
-            "text": "Insert 44."
-          }
-        ]
-      }
-    ],
-    "pattern_label": "TRANSACTIONS_CONCURRENCY"
-  },
-  {
-    "pdf_stem": "2024 II",
-    "question_id": "3",
-    "cluster": 5,
-    "cluster_label_keywords": [
-      "transaction",
-      "schedule",
-      "explain",
-      "briefly",
-      "higher",
-      "priority",
-      "than",
-      "wait"
-    ],
-    "marks": 20,
-    "full_text": "List the transaction properties that are required for the database system to ensure integrity of the data? Consider the following schedules S1 and S2: S1=RI1(X), W20, WI(X) S2 = W1(X), R2(X), W2(X), W3(X) Here Ri(X) means, read the item X of transaction Ti, Wi(X) means write item X of transaction Ti. List all conflict operations of the schedules S1 and S2 separately. Schedule S1 is not serializable and schedule 2 is conflict serializable. Justify this statement and give the equivalent serial schedule for the serializable schedule S2. Let X and Y be two accounts that are accessed by transactions T1 and T2. Transaction T1 updates the balance of account X and transaction T2 gives a bonus for accounts X and Y. Using the 2PL protocol, add the lock and unlock operations to T1 and T2 and rewrite the transactions T1 and T2. Construct a concurrent execution for the transactions T1 and T2 given in (i) above, such that it prevents the lost update problem. A concurrent execution for the transactions T1 and T2 given in (i) above will not result in a dead lock. Justify this statement. Consider the following schedule. Apply the timestamp ordering algorithm for the transactions T1 and T2 and show the transaction that should be aborted and rolled back. Assume that TS(T1) < TS(T2) and the initial timestamps of read_TS(X) = 0, read_TS(Y) =0, write TS(X)=0 and write_TS(Y) = 0.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a)",
-        "marks": 2,
-        "text": "List the transaction properties that are required for the database system to ensure integrity of the data?",
-        "subquestions": []
-      },
-      {
-        "label": "b)",
-        "marks": 2,
-        "text": "Consider the following schedules S1 and S2: S1=RI1(X), W20, WI(X) S2 = W1(X), R2(X), W2(X), W3(X) Here Ri(X) means, read the item X of transaction Ti, Wi(X) means write item X of transaction Ti.",
-        "subquestions": [
-          {
-            "label": "i.",
-            "marks": 2,
-            "text": "List all conflict operations of the schedules S1 and S2 separately.",
-            "subquestions": []
-          },
-          {
-            "label": "ii.",
-            "marks": 4,
-            "text": "Schedule S1 is not serializable and schedule 2 is conflict serializable. Justify this statement and give the equivalent serial schedule for the serializable schedule S2.",
-            "subquestions": []
-          }
-        ]
-      },
-      {
-        "label": "c)",
-        "marks": 2,
-        "text": "Let X and Y be two accounts that are accessed by transactions T1 and T2. Transaction T1 updates the balance of account X and transaction T2 gives a bonus for accounts X and Y.",
-        "subquestions": [
-          {
-            "label": "i.",
-            "marks": 2,
-            "text": "Using the 2PL protocol, add the lock and unlock operations to T1 and T2 and rewrite the transactions T1 and T2.",
-            "subquestions": []
-          },
-          {
-            "label": "ii.",
-            "marks": 3,
-            "text": "Construct a concurrent execution for the transactions T1 and T2 given in (i) above, such that it prevents the lost update problem.",
-            "subquestions": []
-          },
-          {
-            "label": "iii.",
-            "marks": 3,
-            "text": "A concurrent execution for the transactions T1 and T2 given in (i) above will not result in a dead lock. Justify this statement.",
-            "subquestions": []
-          },
-          {
-            "label": "iv.",
-            "marks": 4,
-            "text": "Consider the following schedule. Apply the timestamp ordering algorithm for the transactions T1 and T2 and show the transaction that should be aborted and rolled back. Assume that TS(T1) < TS(T2) and the initial timestamps of read_TS(X) = 0, read_TS(Y) =0, write TS(X)=0 and write_TS(Y) = 0.",
-            "subquestions": []
-          }
-        ]
-      }
-    ],
-    "pattern_label": "TRANSACTIONS_CONCURRENCY"
-  },
-  {
-    "pdf_stem": "2017 II",
-    "question_id": "5",
-    "cluster": 5,
-    "cluster_label_keywords": [
-      "transaction",
-      "schedule",
-      "explain",
-      "briefly",
-      "higher",
-      "priority",
-      "than",
-      "wait"
-    ],
-    "marks": 25,
-    "full_text": "Briefly explain the properties of a transaction. Why do DBMSs interleave actions of multiple transactions? Why is interleaving actions in the schedules desirable in serializable fashion? Briefly explain the rules in Strict 2 Phase Locking Protocol. Explain with an example how WR conflict could be avoided using the Strict 2PL Protocol. Briefly explain the term Deadlock associates with schedules in DBMS. Briefly explain the wound-wait algorithm used for deadlock prevention. Consider the following part of the schedule. Assume that Transaction T; is higher priority than transaction Ti+1(i.e. transaction T has higher priority than T2; T2 has higher priority than Ts; and T3 has higher priority than Ts). Draw a Wait-For-Graph for the schedule given above. Draw the schedule again considering deadlock prevention using Wound-wait approach. Consider the following scenario: Database D contains a relation R. Relation R contains 1000 pages. Assume that multiple granularity locking scheme is used. Describe the locks acquired when all rows in page P are modified.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a)",
-        "marks": 4,
-        "text": "Briefly explain the properties of a transaction."
-      },
-      {
-        "label": "b)",
-        "marks": 3,
-        "text": "Why do DBMSs interleave actions of multiple transactions? Why is interleaving actions in the schedules desirable in serializable fashion?"
-      },
-      {
-        "label": "c)",
-        "marks": 3,
-        "text": "Briefly explain the rules in Strict 2 Phase Locking Protocol."
-      },
-      {
-        "label": "d)",
-        "marks": 3,
-        "text": "Explain with an example how WR conflict could be avoided using the Strict 2PL Protocol."
-      },
-      {
-        "label": "e)",
-        "marks": 2,
-        "text": "Briefly explain the term Deadlock associates with schedules in DBMS."
-      },
-      {
-        "label": "f)",
-        "marks": 2,
-        "text": "Briefly explain the wound-wait algorithm used for deadlock prevention."
-      },
-      {
-        "label": "g)",
-        "marks": null,
-        "text": "Consider the following part of the schedule. [DIAGRAM: page_006_diagram_1.png] Assume that Transaction T; is higher priority than transaction Ti+1(i.e. transaction T has higher priority than T2; T2 has higher priority than Ts; and T3 has higher priority than Ts)."
-      },
-      {
-        "label": "i.",
-        "marks": 2,
-        "text": "Draw a Wait-For-Graph for the schedule given above."
-      },
-      {
-        "label": "ii.",
-        "marks": 3,
-        "text": "Draw the schedule again considering deadlock prevention using Wound-wait approach."
-      },
-      {
-        "label": "h)",
-        "marks": 3,
-        "text": "Consider the following scenario: [DIAGRAM: page_007_diagram_1.png] Database D contains a relation R. Relation R contains 1000 pages. Assume that multiple granularity locking scheme is used. Describe the locks acquired when all rows in page P are modified."
-      }
-    ],
-    "pattern_label": "TRANSACTIONS_CONCURRENCY"
-  },
-  {
     "pdf_stem": "2024 II",
     "question_id": "2",
-    "cluster": 1,
+    "cluster": 6,
     "cluster_label_keywords": [
       "relation",
       "functional",
@@ -651,57 +18,49 @@
     "diagram_refs": [],
     "subquestions": [
       {
-        "label": "a)",
+        "question_id": 2,
         "marks": 2,
-        "text": "Draw the functional dependency diagram.",
-        "subquestions": []
+        "text": "Draw the functional dependency diagram."
       },
       {
-        "label": "b)",
+        "question_id": 2,
         "marks": 2,
-        "text": "Use the attribute closure and identify the primary key for the given relation.",
-        "subquestions": []
+        "text": "Use the attribute closure and identify the primary key for the given relation."
       },
       {
-        "label": "c)",
+        "question_id": 2,
         "marks": 2,
-        "text": "If we insert a row < Kamal, Colombo, null, Kurundu Wattha, null, 40> into the given relation, what is the update anomaly that is violated? Give reasons.",
-        "subquestions": []
+        "text": "If we insert a row < Kamal, Colombo, null, Kurundu Wattha, null, 40> into the given relation, what is the update anomaly that is violated? Give reasons."
       },
       {
-        "label": "d)",
+        "question_id": 2,
         "marks": 2,
-        "text": "Assume that the relation has a row, < Gamunu, Matara, Miris Wattha, A 5.5, 10>. If we remove the broker Gamunu, what is the possible update anomaly that can be violated? Give reasons.",
-        "subquestions": []
+        "text": "Assume that the relation has a row, < Gamunu, Matara, Miris Wattha, A 5.5, 10>. If we remove the broker Gamunu, what is the possible update anomaly that can be violated? Give reasons."
       },
       {
-        "label": "e)",
+        "question_id": 2,
         "marks": 5,
-        "text": "Using the above functional dependencies, design a set of 3NF relations for the above given relation. Show clearly each stage in deriving the 3NF relations. Also identify the normal form at each of these stages.",
-        "subquestions": []
+        "text": "Using the above functional dependencies, design a set of 3NF relations for the above given relation. Show clearly each stage in deriving the 3NF relations. Also identify the normal form at each of these stages."
       },
       {
-        "label": "f)",
+        "question_id": 2,
         "marks": 2,
-        "text": "Do the update anomalies of part (c) and (d) hold in the 3NF relations? Discuss briefly.",
-        "subquestions": []
+        "text": "Do the update anomalies of part (c) and (d) hold in the 3NF relations? Discuss briefly."
       },
       {
-        "label": "g)",
-        "marks": 5,
+        "question_id": 2,
+        "marks": 2,
         "text": "Assume that an additional functional dependency FD4: A → O is given.",
         "subquestions": [
           {
-            "label": "i.",
+            "question_id": 2,
             "marks": 2,
-            "text": "Are the 3NF relations derived in part (e) still in 3NF? Justify your answer.",
-            "subquestions": []
+            "text": "Are the 3NF relations derived in part (e) still in 3NF? Justify your answer."
           },
           {
-            "label": "ii.",
+            "question_id": 2,
             "marks": 3,
-            "text": "Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to BCNF.",
-            "subquestions": []
+            "text": "Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to BCNF."
           }
         ]
       }
@@ -711,7 +70,7 @@
   {
     "pdf_stem": "2024",
     "question_id": "2",
-    "cluster": 1,
+    "cluster": 6,
     "cluster_label_keywords": [
       "relation",
       "functional",
@@ -727,22 +86,16 @@
     "diagram_refs": [],
     "subquestions": [
       {
-        "label": "a)",
-        "marks": 4,
-        "text": "Find all the keys in relation R using the attribute closure method.",
-        "subquestions": []
+        "text": "a) Find all the keys in relation R using the attribute closure method.",
+        "marks": 4
       },
       {
-        "label": "b)",
-        "marks": 3,
-        "text": "Is R in 3NF? Give reasons for your conclusion.",
-        "subquestions": []
+        "text": "b) Is R in 3NF? Give reasons for your conclusion.",
+        "marks": 3
       },
       {
-        "label": "c)",
-        "marks": 8,
-        "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
-        "subquestions": []
+        "text": ") Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+        "marks": 8
       }
     ],
     "pattern_label": "NORMALIZATION_FD_KEYS"
@@ -750,7 +103,7 @@
   {
     "pdf_stem": "2023 II",
     "question_id": "2",
-    "cluster": 1,
+    "cluster": 6,
     "cluster_label_keywords": [
       "relation",
       "functional",
@@ -766,520 +119,772 @@
     "diagram_refs": [],
     "subquestions": [
       {
-        "label": "a)",
-        "marks": 4,
         "text": "Find all the keys in relation R using attribute closure method.",
-        "subquestions": []
+        "marks": 4
       },
       {
-        "label": "b)",
-        "marks": 3,
         "text": "Is R in 3NF? Give reasons for your conclusion.",
-        "subquestions": []
+        "marks": 3
       },
       {
-        "label": "c)",
-        "marks": 8,
         "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
-        "subquestions": []
+        "marks": 8
       }
     ],
     "pattern_label": "NORMALIZATION_FD_KEYS"
   },
   {
-    "pdf_stem": "2014 (1)",
-    "question_id": "2",
-    "cluster": 4,
+    "pdf_stem": "2019",
+    "question_id": "3",
+    "cluster": 1,
     "cluster_label_keywords": [
-      "frame",
-      "number",
-      "bytes",
-      "time",
-      "disk",
-      "page",
-      "used",
-      "block"
+      "relation",
+      "book",
+      "stores",
+      "author",
+      "relational",
+      "flight",
+      "ssn",
+      "prescription"
     ],
-    "marks": 20,
-    "full_text": "Explain the time spent in accessing a block in a disk. Consider a disk with the following characteristics: block size 512 bytes, number of blocks per track 50, number of tracks per surface 100, average seck time 10 msec. The disk consists of 4 double-sided platters. Suppose that a file containing 1000 records of 100 bytes each is to be stored on such a disk and that no record is allowed to span two blocks: How many records of 100 bytes could be stored in a track? How many tracks are needed to store the entire file? If disk platter rotates at 5400 rpm (revolutions per minute), calculate transfer time of one track of data. Assuming that the blocks in the file are stored sequentially and has only this file data in the disk, what is the time taken to read the file content? Briefly explain one technique used in RAID to improve performance and one technique used to improve reliability. Illustrate the two alternatives available for storing fixed length records in a page. List one advantage of each alternative over the other. Consider the following buffer pool with 5 frames. Frame No: 0 | Frame No: 1 | Frame No: 2 | Frame No: 3 | Frame No: 4 Each frame has a frame number (Frame No), page id (PagelD) of page in buffer pool, pin count (PinCount) and a dirty bit (Dirty). Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 11:15 am Frame number 1 at 11:35 am Frame number 2 at 10:57 am Frame number 3 at 11:12 am Frame number 4 at 11:26 am Describe the steps involved when a page request for the page with PageID 50 occurs if LRU (least-recently-used) policy is used as the replacement policy.",
+    "marks": 25,
+    "full_text": "Consider the following relations relate to patient management system database.  The Doctor relation has attributes Social Security Number (SSN), first and last names, specialty, the number of experience years, and the phone number. The Patient relation has attributes SSN, first and last names, address, date of birth (DOB), and the SSN of the patient's primary doctor (pDocSSN). Prescription relation has attributes id, the date in which the prescription is written, the SSN of the doctor who wrote the prescription, and the SSN of the patient to whom the prescription is written. The Medicine relation has attributes trade name, unit price, and whether or not the medicine is generic (True or False). The Prescription_Medicine relation stores the medicines written in each prescription along with their quantities (NumOfUnits). Write the following queries in Relational Algebra.\n[DIAGRAM: page_003_diagram_1.png]",
     "diagram_refs": [],
     "subquestions": [
       {
-        "label": "a",
-        "marks": 3,
-        "text": "Explain the time spent in accessing a block in a disk."
-      },
-      {
-        "label": "b",
-        "marks": null,
-        "text": "Consider a disk with the following characteristics: block size 512 bytes, number of blocks per track 50, number of tracks per surface 100, average seck time 10 msec. The disk consists of 4 double-sided platters. Suppose that a file containing 1000 records of 100 bytes each is to be stored on such a disk and that no record is allowed to span two blocks:",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 1,
-            "text": "How many records of 100 bytes could be stored in a track?"
-          },
-          {
-            "label": "ii",
-            "marks": 2,
-            "text": "How many tracks are needed to store the entire file?"
-          },
-          {
-            "label": "iii",
-            "marks": 2,
-            "text": "If disk platter rotates at 5400 rpm (revolutions per minute), calculate transfer time of one track of data."
-          },
-          {
-            "label": "iv",
-            "marks": 2,
-            "text": "Assuming that the blocks in the file are stored sequentially and has only this file data in the disk, what is the time taken to read the file content?"
-          }
-        ]
-      },
-      {
-        "label": "c",
+        "question_id": 3.1,
         "marks": 2,
-        "text": "Briefly explain one technique used in RAID to improve performance and one technique used to improve reliability."
-      },
-      {
-        "label": "d",
-        "marks": 3,
-        "text": "Illustrate the two alternatives available for storing fixed length records in a page. List one advantage of each alternative over the other."
-      },
-      {
-        "label": "e",
-        "marks": null,
-        "text": "Consider the following buffer pool with 5 frames. Frame No: 0 | Frame No: 1 | Frame No: 2 | Frame No: 3 | Frame No: 4 [DIAGRAM: page_003_diagram_1.png] Each frame has a frame number (Frame No), page id (PagelD) of page in buffer pool, pin count (PinCount) and a dirty bit (Dirty). Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 11:15 am Frame number 1 at 11:35 am Frame number 2 at 10:57 am Frame number 3 at 11:12 am Frame number 4 at 11:26 am Describe the steps involved when a page request for the page with PageID 50 occurs if LRU (least-recently-used) policy is used as the replacement policy.",
-        "subquestions": []
-      }
-    ],
-    "pattern_label": "GENERAL_THEORY"
-  },
-  {
-    "pdf_stem": "2016",
-    "question_id": "2",
-    "cluster": 4,
-    "cluster_label_keywords": [
-      "frame",
-      "number",
-      "bytes",
-      "time",
-      "disk",
-      "page",
-      "used",
-      "block"
-    ],
-    "marks": 20,
-    "full_text": "Briefly describe two main techniques used in RAID. What is the purpose of each technique? Explain the role of the Disk Space Manager in the database management system architecture? Consider a disk with a sector size of 512 bytes, block size of 1024 bytes, 1000 tracks per surface, 50 sectors per track and 5 double-sided platters. Seek time is 20 msec. Average rotational delay is 10 msec. Data transfer time per a block is 1 msec. You need to store a student file with fields as follows in the disk above: id (20 bytes), name (40 bytes), bdate (10 bytes), GPA (20 bytes), phone(10 bytes). The student file has 5000 records, which are in fixed-length format. No record spans multiple blocks. What is the size of a student record? How many student records can be stored in a block? How many cylinders are needed to store the student file? What is the time required to read a data block from the student file? What is the time required to read 3 consecutive data blocks in the same track from the student file? Explain the terms pin count and dirty bit relevant to the buffer manager? Consider the following buffer pool with 5 frames. Each frame has a frame number (Frame No), page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty). Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 12:15 pm, Frame number 1 at 12:07 pm, Frame number 2 at 2:05 pm, Frame number 3 at 12:02 pm, Frame number 4 at 1:26 pm. Describe the steps followed by the buffer manager when a request for the page with PageID 50 occurs if MRU (Most-recently-used) replacement policy is used.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a",
-        "marks": 3,
-        "text": "Briefly describe two main techniques used in RAID. What is the purpose of each technique?",
+        "text": "List the trade names of generic medicine with unit price less than Rs.1000.",
         "subquestions": []
       },
       {
-        "label": "b",
-        "marks": 2,
-        "text": "Explain the role of the Disk Space Manager in the database management system architecture?",
-        "subquestions": []
-      },
-      {
-        "label": "c",
-        "marks": null,
-        "text": "Consider a disk with a sector size of 512 bytes, block size of 1024 bytes, 1000 tracks per surface, 50 sectors per track and 5 double-sided platters. Seek time is 20 msec. Average rotational delay is 10 msec. Data transfer time per a block is 1 msec. You need to store a student file with fields as follows in the disk above: id (20 bytes), name (40 bytes), bdate (10 bytes), GPA (20 bytes), phone(10 bytes). The student file has 5000 records, which are in fixed-length format. No record spans multiple blocks.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 1,
-            "text": "What is the size of a student record?",
-            "subquestions": []
-          },
-          {
-            "label": "ii",
-            "marks": 2,
-            "text": "How many student records can be stored in a block?",
-            "subquestions": []
-          },
-          {
-            "label": "iii",
-            "marks": 2,
-            "text": "How many cylinders are needed to store the student file?",
-            "subquestions": []
-          },
-          {
-            "label": "iv",
-            "marks": 2,
-            "text": "What is the time required to read a data block from the student file?",
-            "subquestions": []
-          },
-          {
-            "label": "v",
-            "marks": 2,
-            "text": "What is the time required to read 3 consecutive data blocks in the same track from the student file?",
-            "subquestions": []
-          }
-        ]
-      },
-      {
-        "label": "d",
-        "marks": 2,
-        "text": "Explain the terms pin count and dirty bit relevant to the buffer manager?",
-        "subquestions": []
-      },
-      {
-        "label": "e",
+        "question_id": 3.2,
         "marks": 4,
-        "text": "Consider the following buffer pool with 5 frames. Each frame has a frame number (Frame No), page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty). [DIAGRAM: page_003_diagram_1.png] Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 12:15 pm, Frame number 1 at 12:07 pm, Frame number 2 at 2:05 pm, Frame number 3 at 12:02 pm, Frame number 4 at 1:26 pm. Describe the steps followed by the buffer manager when a request for the page with PageID 50 occurs if MRU (Most-recently-used) replacement policy is used.",
+        "text": "List the first and last name of patients whose primary doctor is 'John Smith'.",
         "subquestions": []
+      },
+      {
+        "question_id": 3.3,
+        "marks": 5,
+        "text": "List the first and last name of doctors who are not primary doctors to any patient.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.4,
+        "marks": 5,
+        "text": "List the prescription IDs which contain both Vitamin C and Aspirin as trade name.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.5,
+        "marks": 9,
+        "text": "List the trade name of medicines that appears in the most of the prescriptions.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "RELATIONAL_ALGEBRA"
+  },
+  {
+    "pdf_stem": "2019 II",
+    "question_id": "3",
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "relation",
+      "book",
+      "stores",
+      "author",
+      "relational",
+      "flight",
+      "ssn",
+      "prescription"
+    ],
+    "marks": 25,
+    "full_text": "Consider the database of a printing company, which prints books according to the requests of authors with the following schema:  Book table stores the book ID, title, publisher of each book and the year the book is published. Author table stores the author ID, first name and last name of all authors. WrittenBy table stores the author ID of the author, book ID of the book and the position of the author (such as first author, second author) for each book written. Publisher table stores the name of the publisher and country and the city the book is published. Write relational algebra statements to answer the following queries",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 3.1,
+        "marks": 2,
+        "text": "a) Display the titles of the books printed in 2019.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.2,
+        "marks": 4,
+        "text": "b) Display the titles of the books published in New York city.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.3,
+        "marks": 5,
+        "text": "c) Display the name of the publisher who published both Fundamentals of Database systems and Database Applications in America.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.4,
+        "marks": 5,
+        "text": "d) Display the first name and last name of authors who are only first authors.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.5,
+        "marks": 9,
+        "text": "e) Display the titles of books with most number of authors.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "RELATIONAL_ALGEBRA"
+  },
+  {
+    "pdf_stem": "2024 II",
+    "question_id": "4",
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "relation",
+      "book",
+      "stores",
+      "author",
+      "relational",
+      "flight",
+      "ssn",
+      "prescription"
+    ],
+    "marks": 20,
+    "full_text": "Consider the following relational database schema containing airline flight information. Here the passenger relation gives the details of the passengers who book flights. The agency relation keeps the details of agent who books a flight for a passenger. The flight relation stores the details of each available flight. The booking relation stores required booking details. passenger (pid, pname, pgender, pcity) agency (aid, aname, acity) flight (fid, fdate, time, departs, arrives) booking (pid, aid, fid, fdate)",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 4,
+        "marks": 2,
+        "text": "Express each of the following queries as expressions in relational algebra.",
+        "subquestions": [
+          {
+            "question_id": 4,
+            "marks": 2,
+            "text": "Find the name of the agencies, such that they are located in the same city as passenger with passenger id 123."
+          },
+          {
+            "question_id": 4,
+            "marks": 2,
+            "text": "Find the passenger names for those who do not have any bookings in any flights."
+          },
+          {
+            "question_id": 4,
+            "marks": 3,
+            "text": "Get the details of flights that are scheduled on both dates 01/12/2024 and 02/12/2024 at 16:00 hours."
+          },
+          {
+            "question_id": 4,
+            "marks": 3,
+            "text": "Retrieve the names of the passengers who have booked all available flights."
+          },
+          {
+            "question_id": 4,
+            "marks": 2,
+            "text": "How many passengers have booked the flight f001?"
+          }
+        ]
+      },
+      {
+        "question_id": 4,
+        "marks": 8,
+        "text": "Express the above queries (i) to (iv) in tuple calculus."
       }
     ],
     "pattern_label": "GENERAL_THEORY"
   },
   {
-    "pdf_stem": "2016 II",
-    "question_id": "2",
+    "pdf_stem": "2023",
+    "question_id": "4",
     "cluster": 4,
     "cluster_label_keywords": [
-      "frame",
-      "number",
-      "bytes",
-      "time",
-      "disk",
-      "page",
-      "used",
-      "block"
+      "int",
+      "varchar",
+      "name",
+      "char",
+      "relation",
+      "address",
+      "stores",
+      "number"
     ],
-    "marks": 20,
-    "full_text": "Briefly describe two main techniques that could be used to improve the reliability of the disk. What is meant by data striping? What is the purpose of striping data? Consider a disk with a sector size of 512 bytes, block size of 512 bytes, 1000 tracks per surface, 100 sectors per track and 5 single-sided platters. Seek time is 10 msec. The disk is spinning at a speed of 2400 rpm. You need to store a student file which contains 10000 records of 100 bytes which are in fixed-length format. No record spans multiple blocks. How many student records can be stored in a block in the above disk? How many student records can be stored in a single track? How many cylinders are needed to store the entire student file? What is the time required to transfer a track of data from the above disk? Assuming that the data in the above disk are stored using the Next Block concept and what would be the time taken to read the entire student file from the disk. Explain with an aid of a diagram, the alternatives available for storing variable length fields in a record. Consider the following buffer pool with 5 frames. Each frame has @ frame number (Frame No), page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty). Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 12:15 pm Frame number 1 at 12:07 pm Frame number 2 at 2:05 pm Frame number 3 at 12:02 pm Frame number 4 at 1:26 pm Describe the steps followed by the buffer manager when a request for the page with PagelD 50 occurs if MRU (Most-recently-used) replacement policy is used.",
+    "marks": 40,
+    "full_text": "Consider the following schema of a database designed for a hotel: Guest (guestId: int, fname: varchar(50), lastName: varchar(50), phone: int, email: varchar(50), address: varchar(100)) Room (roomNum: int, roomType: varchar(20), bedType: varchar(50), price: real, isOccupied: boolean) Booking (bookingId: int, guestId: int, roomNum: int, checkInDate: date, checkOutDate: date, totalAmount: real) Bill (billNum: int, bookingId: int, totalAmount: real, paymentMethod: varchar(50), paymentStatus: varchar(50)) Receptionist (repId: int, name: varchar(20), phone: int, address: varchar(30)) The 'Guest' table is designed to store information about the hotel's guests, including their unique guest ID, first name, last name, phone number, email address, and physical address. The 'Room' table tracks details about the hotel's rooms. It includes information such as the room number, room type, bed type, price per night, and a flag (boolean) indicating whether the room is currently occupied. The 'Booking' table manages guest reservations. Each booking is assigned a unique ID and is associated with a specific guest (via guestId) and a room (via roomNum). It also records the check-in and check-out dates, as well as the total booking amount. The 'Bill' table handles billing information for guest stays. It connects to a particular booking (via bookingId) and stores the bill number, the total amount to be paid, the payment method, and the payment status. The 'Receptionist' table contains details about hotel receptionist, with each staff member having a unique ID, name, phone number, and address. This allows the system to keep track of receptionists or other staff members involved in hotel operations.",
     "diagram_refs": [],
     "subquestions": [
       {
-        "label": "a",
-        "marks": 3,
-        "text": "Briefly describe two main techniques that could be used to improve the reliability of the disk."
-      },
-      {
-        "label": "b",
-        "marks": 2,
-        "text": "What is meant by data striping? What is the purpose of striping data?"
-      },
-      {
-        "label": "",
+        "text": "Write SQL Queries to perform the following:",
         "marks": null,
-        "text": "Consider a disk with a sector size of 512 bytes, block size of 512 bytes, 1000 tracks per surface, 100 sectors per track and 5 single-sided platters. Seek time is 10 msec. The disk is spinning at a speed of 2400 rpm. You need to store a student file which contains 10000 records of 100 bytes which are in fixed-length format. No record spans multiple blocks.",
         "subquestions": [
           {
-            "label": "i",
-            "marks": 1,
-            "text": "How many student records can be stored in a block in the above disk?"
+            "text": "Find the guest's name and phone number who booked a Deluxe room for 2 days.",
+            "marks": 4
           },
           {
-            "label": "ii",
-            "marks": 1,
-            "text": "How many student records can be stored in a single track?"
+            "text": "Find the total amount spent by guest with last name Smith on Bookings.",
+            "marks": 6
           },
           {
-            "label": "iii",
-            "marks": 2,
-            "text": "How many cylinders are needed to store the entire student file?"
-          },
-          {
-            "label": "iv",
-            "marks": 2,
-            "text": "What is the time required to transfer a track of data from the above disk?"
-          },
-          {
-            "label": "v",
-            "marks": 3,
-            "text": "Assuming that the data in the above disk are stored using the Next Block concept and what would be the time taken to read the entire student file from the disk."
+            "text": "Find the room numbers, room types, and guest names of currently occupied rooms.",
+            "marks": 7
           }
         ]
       },
       {
-        "label": "d",
-        "marks": 2,
-        "text": "Explain with an aid of a diagram, the alternatives available for storing variable length fields in a record."
+        "text": "Create a function to calculate the total bill amount for a given guest's booking.",
+        "marks": 11
       },
       {
-        "label": "",
-        "marks": null,
-        "text": "Consider the following buffer pool with 5 frames. Each frame has @ frame number (Frame No), page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty).",
-        "subquestions": [
-          {
-            "label": "",
-            "marks": 4,
-            "text": "[DIAGRAM: page_003_diagram_1.png] Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 12:15 pm Frame number 1 at 12:07 pm Frame number 2 at 2:05 pm Frame number 3 at 12:02 pm Frame number 4 at 1:26 pm Describe the steps followed by the buffer manager when a request for the page with PagelD 50 occurs if MRU (Most-recently-used) replacement policy is used."
-          }
-        ]
+        "text": "Assume that the guests table consists of a column named TotalBillAmount. The 'TotalBillAmount' column contains the total bill amount for each guest. Create a trigger that automatically updates the 'TotalBillAmount' column whenever a new bill is added, or an existing bill is updated.",
+        "marks": 12
       }
     ],
     "pattern_label": "GENERAL_THEORY"
   },
   {
-    "pdf_stem": "2015",
+    "pdf_stem": "2019 II",
     "question_id": "4",
-    "cluster": 2,
+    "cluster": 4,
     "cluster_label_keywords": [
-      "query",
-      "index",
-      "indexes",
-      "pages",
-      "cost",
-      "student",
+      "int",
+      "varchar",
+      "name",
+      "char",
       "relation",
-      "page"
+      "address",
+      "stores",
+      "number"
     ],
-    "marks": 18,
-    "full_text": "Consider the following statement; Indexes speed up selections but may slow down updates. Briefly explain how indexes can slow down update operations. Justify why a table contains only one clustered index whereas more unclustered indexes are allowed. Consider the following schema: Employee(eid:integer, ename:string, address:string, salary:float, dno:int). There are 10000 pages in Employee file. Each page contains 100 tuples. Assume that the following indexes exists: Index I: An unclustered B+ Tree index on Employee<eid> with height 3. Index 2: A clustered hash index using Alt. 1 on Employee<eid> (Assume a cost of 1.2 Disk I/Os to access a hash page). Consider the following queries: Query 1: SELECT salary FROM Employee WHERE eid = E100200762. Query 2: SELECT salary FROM Employee WHERE eid < E00001000. What is the best index (from the indexes given above) that you would select to evaluate query 1? Give reasons? Estimate the cost of the query in disk I/Os using the selected index. Note that eid is primary key in the Employee table. What is the best index (from the indexes given above) that you would select to evaluate query 2? Give reasons? Consider the following relational schema: Student (sno, sname, gpa) Registration (sno, cno, marks) Course (cno, cname, credits) Assume that Student relation consists of 300 pages with 100 tuples per page, Registration relation contains 900 pages with 100 tuples per page, and Course relation contains 300 pages with 100 tuples per page. Consider the following query: Select count (s.sno) From Student s, Registration r Where s.sno = r.sno. There exists a B+ tree on Registration<sno> with height 3 using Alt. 1 (record and index key together). Join tables using index nested loop join algorithm. Draw query tree for the above query. Estimate the cost for the above query.",
+    "marks": 40,
+    "full_text": "Consider the following relations in a database created for a university. Module (mCode: char(6), mName: varchar (50), credits: int, specialization: char(4), year: int, semester: int) Student (sld: char(10), sName: varchar(50), age: int, gpa: int, address: varchar(50)) Follow (sld: char(10), mCode: char(6), semester: int, academicYear: int, grade: char(1)) Class (cld: int, mCode: char(6), sld: Char(10), type: varchar(10), day: char(3), time:time, len: int, hld: char(4)) Hall (hld: char(4), building: varchar(15), floorNo: int, capacity: int) Module relation stores the code (mCode), name (mName), number of credits (credits) and the specialization the module belongs to (such as IT, SE, CSN), year and the semester the module is offered for each module offered. Student relation stores the ID (s/d), name(sName), age, cumulative gpa (gpa) and address of all students. For each student following a module in the university the Follow relation stores the ID of the student (sId), code of the module (mCode), the semester the module is offered (such as 1 and 2), the academic year the student has followed the module (such as 2018 and 2019) and the grade he received for the module. The Class relation stores the id(c/d), code(mCode), type of the class (such as lecture and tutorial), day the class is conducted such as (Mon, Tue, Wed), start time of the class (time), length of the class in hours (/en) and the id of the hall the class is conducted (h/d) for each Class. Hall relation stores the ID (h/d), name of the building the hall is in, floor number the hall is in (floorNo) and capacity of each Hall.",
     "diagram_refs": [],
     "subquestions": [
       {
-        "label": "a",
-        "marks": 2,
-        "text": "Consider the following statement; Indexes speed up selections but may slow down updates. Briefly explain how indexes can slow down update operations."
-      },
-      {
-        "label": "b",
-        "marks": 3,
-        "text": "Justify why a table contains only one clustered index whereas more unclustered indexes are allowed."
-      },
-      {
-        "label": "c",
-        "marks": null,
-        "text": "Consider the following schema: Employee(eid:integer, ename:string, address:string, salary:float, dno:int). There are 10000 pages in Employee file. Each page contains 100 tuples. Assume that the following indexes exists: Index I: An unclustered B+ Tree index on Employee<eid> with height 3. Index 2: A clustered hash index using Alt. 1 on Employee<eid> (Assume a cost of 1.2 Disk I/Os to access a hash page). Consider the following queries: Query 1: SELECT salary FROM Employee WHERE eid = E100200762. Query 2: SELECT salary FROM Employee WHERE eid < E00001000.",
+        "question_id": 4.1,
+        "marks": 5,
+        "text": "a) Use SQL queries to answer following questions.",
         "subquestions": [
           {
-            "label": "i",
-            "marks": 4,
-            "text": "What is the best index (from the indexes given above) that you would select to evaluate query 1? Give reasons? Estimate the cost of the query in disk I/Os using the selected index. Note that eid is primary key in the Employee table."
-          },
-          {
-            "label": "ii",
-            "marks": 2,
-            "text": "What is the best index (from the indexes given above) that you would select to evaluate query 2? Give reasons?"
-          }
-        ]
-      },
-      {
-        "label": "d",
-        "marks": null,
-        "text": "Consider the following relational schema: Student (sno, sname, gpa) Registration (sno, cno, marks) Course (cno, cname, credits) Assume that Student relation consists of 300 pages with 100 tuples per page, Registration relation contains 900 pages with 100 tuples per page, and Course relation contains 300 pages with 100 tuples per page. Consider the following query: Select count (s.sno) From Student s, Registration r Where s.sno = r.sno. There exists a B+ tree on Registration<sno> with height 3 using Alt. 1 (record and index key together). Join tables using index nested loop join algorithm.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 2,
-            "text": "Draw query tree for the above query."
-          },
-          {
-            "label": "ii",
+            "question_id": 4.1,
             "marks": 5,
-            "text": "Estimate the cost for the above query."
-          }
-        ]
-      }
-    ],
-    "pattern_label": "SQL_DDL_DML"
-  },
-  {
-    "pdf_stem": "2016 II",
-    "question_id": "4",
-    "cluster": 2,
-    "cluster_label_keywords": [
-      "query",
-      "index",
-      "indexes",
-      "pages",
-      "cost",
-      "student",
-      "relation",
-      "page"
-    ],
-    "marks": 15,
-    "full_text": "Briefly explain the query optimization phase of the query processing. From where does the optimizer obtain the required information for query processing? Name three different types of information available for the optimizer to use. What is an index only plan? Consider the following relation: Employee (eid:char(5), ename: varchar(50), job: varchar(30), salary: float) The relation has 8000 pages with 100 tuples per page. Assume that 20 buffer frames available in buffer pool. Consider the following query: Query I: SELECT * FROM Employee WHERE eid = 0001 Estimate the cost (in Disk I/Os) of executing Query I with the following Hash indexes. The data entries in the indexes have <k, rid> format. Hash indexes require 1.2 Disk I/Os on average to retrieve a data entry. Unclustered hash index on Employee<eid> Clustered hash index on Employee<eid> Consider the following query Query 2: SELECT ename FROM doctor WHERE specialization = Surgeon You are given following information: The doctor relation has four attributes namely, name, designation and specialization and address; all are string fields of the same length. The ename attribute is a candidate key. The relation contains 3000 pages. There are 10 buffer pages. Only 0.02 percent of tuples qualify the where clause condition. DBMS support only B+ tree indexes and require 3 disk I/Os to retrieve leaf page. Suppose this query is one of the most frequently running queries. Therefore, recommend the most suitable index to get the best performance of the query. Briefly explain the query plan you have considered. Estimate the cost of executing the query using the plan and the index proposed above.",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a",
-        "marks": 3,
-        "text": "Briefly explain the query optimization phase of the query processing."
-      },
-      {
-        "label": "b",
-        "marks": 2,
-        "text": "From where does the optimizer obtain the required information for query processing? Name three different types of information available for the optimizer to use."
-      },
-      {
-        "label": "c",
-        "marks": 1,
-        "text": "What is an index only plan?"
-      },
-      {
-        "label": "d",
-        "marks": null,
-        "text": "Consider the following relation: Employee (eid:char(5), ename: varchar(50), job: varchar(30), salary: float) The relation has 8000 pages with 100 tuples per page. Assume that 20 buffer frames available in buffer pool. Consider the following query: Query I: SELECT * FROM Employee WHERE eid = 0001 Estimate the cost (in Disk I/Os) of executing Query I with the following Hash indexes. The data entries in the indexes have <k, rid> format. Hash indexes require 1.2 Disk I/Os on average to retrieve a data entry.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 2,
-            "text": "Unclustered hash index on Employee<eid>"
+            "text": "i. Display the module codes and name of all modules followed by students in year 3 of SE specialization in academic year 2018.",
+            "subquestions": []
           },
           {
-            "label": "ii",
-            "marks": 2,
-            "text": "Clustered hash index on Employee<eid>"
+            "question_id": 4.2,
+            "marks": 6,
+            "text": "ii. Display the hall id and the floor number of halls which are vacant on Monday in Engineering Building.",
+            "subquestions": []
           }
         ]
       },
       {
-        "label": "e",
-        "marks": null,
-        "text": "Consider the following query Query 2: SELECT ename FROM doctor WHERE specialization = Surgeon You are given following information: The doctor relation has four attributes namely, name, designation and specialization and address; all are string fields of the same length. The ename attribute is a candidate key. The relation contains 3000 pages. There are 10 buffer pages. Only 0.02 percent of tuples qualify the where clause condition. DBMS support only B+ tree indexes and require 3 disk I/Os to retrieve leaf page.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 3,
-            "text": "Suppose this query is one of the most frequently running queries. Therefore, recommend the most suitable index to get the best performance of the query. Briefly explain the query plan you have considered."
-          },
-          {
-            "label": "ii",
-            "marks": 2,
-            "text": "Estimate the cost of executing the query using the plan and the index proposed above."
-          }
-        ]
-      }
-    ],
-    "pattern_label": "SQL_DDL_DML"
-  },
-  {
-    "pdf_stem": "2016",
-    "question_id": "4",
-    "cluster": 2,
-    "cluster_label_keywords": [
-      "query",
-      "index",
-      "indexes",
-      "pages",
-      "cost",
-      "student",
-      "relation",
-      "page"
-    ],
-    "marks": 13,
-    "full_text": "Briefly explain the process of query processing. What is heuristic optimization in query processing? Consider the following relation: Student(sid:char(10), sname:varchar(100), address:varchar(200), gpa:float) Grades (sid: char(10), cid: char(5), grade: char(2)). The Student relation has 100 pages with 100 tuples per page. The Grades relation has 1000 pages with 200 tuples per page. Assume that 20 buffer frames are available in the buffer pool. Consider the following query: SELECT sname FROM Student WHERE gpa >3.7. Estimate the cost for the above query assuming there are no indexes on the Student table. (Reduction factor for gpa > 3.7 is 0.1) Consider the following query: SELECT g.grade FROM Student s, Grades g WHERE s.sid=g.sid and s.gpa >3.7. a. Estimate the cost for finding the students with gpa > 3.7 from the Student table assuming there is a B+ tree index of height 3 on the gpa column in the Student table with Alt. 2 which has 20 leaf pages. (Reduction factor for gpa > 3.7 is 0.1) Do we have to store the resulted Student pages in the disk before they are joined with the Grades table? Estimate the cost for finding the grades of the students with gpa > 3.7 assuming that the Grades table contains a Hash index of Alt. 1 on the sid column. Assume that the Index nested loop join is used to join the Student table and the Grades table. What is the total cost for executing the query?",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "label": "a",
-        "marks": 3,
-        "text": "Briefly explain the process of query processing.",
+        "question_id": 4.2,
+        "marks": 8,
+        "text": "b) Create a view named ClassDetails that contains class id, module name, year the module is offered, specialization, type of class and the size of the class for each class. (size of the class is the number of students following the class).",
         "subquestions": []
       },
       {
-        "label": "b",
-        "marks": 2,
-        "text": "What is heuristic optimization in query processing?",
+        "question_id": 4.3,
+        "marks": 9,
+        "text": "c) Create a function which named-getAvialability which takes class id and module code as inputs and returns the number of more students that could be added to the class based on class size and the capacity of the hall.",
         "subquestions": []
       },
       {
-        "label": "c",
-        "marks": null,
-        "text": "Consider the following relation: Student(sid:char(10), sname:varchar(100), address:varchar(200), gpa:float) Grades (sid: char(10), cid: char(5), grade: char(2)). The Student relation has 100 pages with 100 tuples per page. The Grades relation has 1000 pages with 200 tuples per page. Assume that 20 buffer frames are available in the buffer pool.",
-        "subquestions": [
-          {
-            "label": "i",
-            "marks": 1,
-            "text": "Consider the following query: SELECT sname FROM Student WHERE gpa >3.7. Estimate the cost for the above query assuming there are no indexes on the Student table. (Reduction factor for gpa > 3.7 is 0.1)",
-            "subquestions": []
-          },
-          {
-            "label": "ii",
-            "marks": 2,
-            "text": "Consider the following query: SELECT g.grade FROM Student s, Grades g WHERE s.sid=g.sid and s.gpa >3.7. a. Estimate the cost for finding the students with gpa > 3.7 from the Student table assuming there is a B+ tree index of height 3 on the gpa column in the Student table with Alt. 2 which has 20 leaf pages. (Reduction factor for gpa > 3.7 is 0.1)",
-            "subquestions": []
-          },
-          {
-            "label": "b",
-            "marks": 1,
-            "text": "Do we have to store the resulted Student pages in the disk before they are joined with the Grades table?",
-            "subquestions": []
-          },
-          {
-            "label": "c",
-            "marks": 2,
-            "text": "Estimate the cost for finding the grades of the students with gpa > 3.7 assuming that the Grades table contains a Hash index of Alt. 1 on the sid column. Assume that the Index nested loop join is used to join the Student table and the Grades table.",
-            "subquestions": []
-          },
-          {
-            "label": "d",
-            "marks": 2,
-            "text": "What is the total cost for executing the query?",
-            "subquestions": []
-          }
-        ]
+        "question_id": 4.4,
+        "marks": 12,
+        "text": "d) Create a trigger to ensure that for a class, students are not allocated than the capacity of the hall allocated for the class. (Hint: Use the function created in c)).",
+        "subquestions": []
       }
     ],
-    "pattern_label": "SQL_DDL_DML"
-  },
-  {
-    "pdf_stem": "2018",
-    "question_id": "1",
-    "cluster": 3,
-    "cluster_label_keywords": [
-      "model",
-      "keys",
-      "eer",
-      "convert",
-      "relational",
-      "indicate",
-      "primary",
-      "foreign"
-    ],
-    "marks": 20,
-    "full_text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
-    "diagram_refs": [],
-    "subquestions": [],
-    "pattern_label": "ER_EER_MODELING"
-  },
-  {
-    "pdf_stem": "2018 II",
-    "question_id": "1",
-    "cluster": 3,
-    "cluster_label_keywords": [
-      "model",
-      "keys",
-      "eer",
-      "convert",
-      "relational",
-      "indicate",
-      "primary",
-      "foreign"
-    ],
-    "marks": 20,
-    "full_text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly. [DIAGRAM: page_002_diagram_1.png]",
-    "diagram_refs": [],
-    "subquestions": [],
-    "pattern_label": "ER_EER_MODELING"
+    "pattern_label": "GENERAL_THEORY"
   },
   {
     "pdf_stem": "2019",
-    "question_id": "1",
-    "cluster": 3,
+    "question_id": "4",
+    "cluster": 4,
     "cluster_label_keywords": [
-      "model",
-      "keys",
+      "int",
+      "varchar",
+      "name",
+      "char",
+      "relation",
+      "address",
+      "stores",
+      "number"
+    ],
+    "marks": 40,
+    "full_text": "Consider the following relations in a Movie Database. Movie (mID: int, title: varchar(30), year: date, rank: real) Actor (aID: int, fname: varchar(30), lname: varchar(30), gender: char(10)) Director (dID: int, fname: varchar(30), lname: varchar(30), gender: char(10)) Casts (actorID: int, movieID: int, role: varchar(10)) Genre (genID: int, type: varchar(10)) DirectsMovie (directorID: int, movieID: int) MovieGenre (movieID: int, genID: int) Reviewer (reviewID: int, reviewName: varchar(20)) Rating (movieID: int, reviewID: int, reviewStars: int) The attributes of the Movie relation are id (mID), title, year it was made and the rank of the movies. The Actor relation has attributes to record the id (aID), first name (fname), last name (lname) and gender (M or F) of actors. The Director relation has attributes to store the id (dID), first name (fname), last name (lname) and gender (M or F) of directors. The Casts relation associates the movie with actors who had acted in them and contains the role (lead, support, or other) they played. The Genre relation stores information of movies types (such as Romantic, Horror, Action, Fiction, Documentary, Thriller, and Drama). The DirectsMovie relation stores information on movies and their directors. The MovieGenre relation stores information related to movies respective genre. A Rating system is carried out based on the Reviewers number of stars. The Reviewer relation has attributes to record the reviewer id, name. The Rating relation has attributes to store the movie id, reviewer id and reviewer’s number of stars. Primary keys are underlined.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 4.1,
+        "marks": 5,
+        "text": "Display names of all the Actors in the movie The Princess Bride.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.2,
+        "marks": 6,
+        "text": "Display all directors who directed 500 movies or more, in descending order of the number of movies they directed. List the directors' names and the number of movies each of them directed.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.3,
+        "marks": 8,
+        "text": "Create a view named movieDirection that contains movie title, movie genre type, year, director’s first name, last name and actors for those movies.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.4,
+        "marks": 9,
+        "text": "Create a function named as getActorCount, which takes movie title as the input and returns the number of actors that acted in that particular movie.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.5,
+        "marks": 12,
+        "text": "Assume that rank of the Movie are based on the number of stars the reviewers have rewarded. Write a trigger to update the rank when the reviewer places stars in a new movie.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2024",
+    "question_id": "1",
+    "cluster": 0,
+    "cluster_label_keywords": [
       "eer",
-      "convert",
-      "relational",
-      "indicate",
-      "primary",
-      "foreign"
+      "model"
     ],
     "marks": 20,
-    "full_text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
+    "full_text": "Consider the following EER Model.\n[DIAGRAM: page_002_diagram_1.png]",
     "diagram_refs": [],
-    "subquestions": [],
+    "subquestions": [
+      {
+        "text": "a) Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulting relations clearly.",
+        "marks": 17
+      },
+      {
+        "text": "b) What is the best option for mapping the ISA hierarchies in the diagram? Justify your answer.",
+        "marks": 3
+      }
+    ],
     "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2023 II",
+    "question_id": "1",
+    "cluster": 0,
+    "cluster_label_keywords": [
+      "eer",
+      "model"
+    ],
+    "marks": 20,
+    "full_text": "Consider the following EER Model.\n[DIAGRAM: page_002_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
+        "marks": 16
+      },
+      {
+        "text": "What is the best option for mapping the ISA hierarchy in the diagram? Justify your answer.",
+        "marks": 4
+      }
+    ],
+    "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2023",
+    "question_id": "1",
+    "cluster": 0,
+    "cluster_label_keywords": [
+      "eer",
+      "model"
+    ],
+    "marks": 20,
+    "full_text": "Consider the following EER Model.\n[DIAGRAM: page_002_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
+        "marks": 17
+      },
+      {
+        "text": "What is the best option for mapping the ISA hierarchy in the diagram? Justify your answer.",
+        "marks": 3
+      },
+      {
+        "text": ""
+      }
+    ],
+    "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2023",
+    "question_id": "3",
+    "cluster": 3,
+    "cluster_label_keywords": [
+      "database",
+      "statements",
+      "sql",
+      "write",
+      "data",
+      "server",
+      "name",
+      "briefly"
+    ],
+    "marks": 25,
+    "full_text": "[DIAGRAM: page_003_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "In Native API Driver, vendor-specific driver must be installed on each client machine. Accept or refute the above statement justifying your answer.",
+        "marks": 2
+      },
+      {
+        "text": "There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used.",
+        "marks": 2
+      },
+      {
+        "text": ""
+      },
+      {
+        "text": "Briefly explain what is meant by a BCP Command?",
+        "marks": 2
+      },
+      {
+        "text": "Briefly explain how SQL server security framework manages access to securable entities.",
+        "marks": 3
+      },
+      {
+        "text": "A software company has been tasked with developing a comprehensive healthcare information technology (IT) system for a large medical facility. The project manager is responsible for overseeing the project's development, and the following roles and responsibilities are assigned: Linda is the senior database administrator who is tasked with creating and managing the databases required for the healthcare IT system. This includes patient records, appointment scheduling, and medical inventory databases. Raj and Eva are junior database administrators who work under Linda's supervision. They are responsible for managing and maintaining specific databases within the healthcare IT system. Raj takes care of the patient records database, while Eva is responsible for the appointment scheduling database. Carla is a database developer who reports to Raj and Eva. Her role involves designing and building the database schemas, including creating tables, views, and stored procedures for the patient records and appointment scheduling databases. Sophie and John are data entry operators responsible for entering patient information, medical records, and appointment data into the system. They work closely with the junior database administrators to ensure accurate and timely data entry.",
+        "marks": null,
+        "subquestions": [
+          {
+            "text": "Write a T-SQL statement to create a login to Linda.",
+            "marks": 2
+          },
+          {
+            "text": "Provide permission using fixed server role to handle all the administrative tasks in the server to Linda.",
+            "marks": 3
+          },
+          {
+            "text": "Assuming that Eva has the user name eva.e, write a T-SQL statements required to assign her with the responsibility of handling the appointmentDB using user defined server role.",
+            "marks": 5
+          },
+          {
+            "text": "Assuming that Carla has a login name by the name carla.a, write T-SQL statements required to allow her to create tables, views and stored procedures.",
+            "marks": 3
+          },
+          {
+            "text": "Assuming that John has a login name john.k write T-SQL statements required to perform the tasks he is responsible for.",
+            "marks": 3
+          }
+        ]
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2023 II",
+    "question_id": "3",
+    "cluster": 3,
+    "cluster_label_keywords": [
+      "database",
+      "statements",
+      "sql",
+      "write",
+      "data",
+      "server",
+      "name",
+      "briefly"
+    ],
+    "marks": 25,
+    "full_text": "[DIAGRAM: page_003_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "Native API Driver is faster than Java Thin Driver. Accept or refute the above statement justifying your answer.",
+        "marks": 2
+      },
+      {
+        "text": "There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used.",
+        "marks": 2,
+        "diagram": "[DIAGRAM: page_003_diagram_1.png]"
+      },
+      {
+        "text": "Briefly explain what is meant by a Full Backup?",
+        "marks": 2
+      },
+      {
+        "text": "Briefly explain the three main aspects to focus on when a database is secured?",
+        "marks": 3
+      },
+      {
+        "text": "A software company has been assigned the responsibility of automating the tasks of a digital marketing company. This includes designing and developing a database for the company to maintain the records of various functions. It also maintains records of digital channels to market products and services in order to reach consumers. Menaka, a senior DBA is assigned to the project to handle all the administrative tasks related to the databases by the database architect. Menaka creates the required database and assign Nipun the responsibility of managing the CompanyDB. Since there will be lot of users for the project, Amali is assigned with the responsibility of handling logins to the system. Nipun assigns Kasuni with the responsibility of creating tables. In addition, Kasuni should be able to create views, stored procedures and triggers required. Dinethi, who is data entry operator is given the responsibility of inserting the data to the table. Amal is assigned with the responsibility of generating reports from the table in the data. For the above purpose, Amal could directly query the data or call functions and procedures.",
+        "subquestions": [
+          {
+            "text": "Write a T-SQL statement to create a login to Menaka.",
+            "marks": 2
+          },
+          {
+            "text": "Provide permission using fixed server role to handle all the administrative tasks in the server to Menaka.",
+            "marks": 3
+          },
+          {
+            "text": "Assuming that Nipun has the user name nipun.b, write a T-SQL statements required to assign him with the responsibility of handling the companyDB using user defined server role.",
+            "marks": 5
+          },
+          {
+            "text": "Assuming that Kasuni has a login name by the name kasuni.a write T-SQL statements required to allow her to create tables, functions, procedures and triggers.",
+            "marks": 3
+          },
+          {
+            "text": "Assuming that Amal has a login name amal k. write T-SQL statements required to perform the tasks she is responsible for.",
+            "marks": 3
+          }
+        ]
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2024",
+    "question_id": "3",
+    "cluster": 3,
+    "cluster_label_keywords": [
+      "database",
+      "statements",
+      "sql",
+      "write",
+      "data",
+      "server",
+      "name",
+      "briefly"
+    ],
+    "marks": 25,
+    "full_text": "[DIAGRAM: page_003_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "a) In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
+        "marks": 2
+      },
+      {
+        "text": "b) There are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used.",
+        "marks": 2
+      },
+      {
+        "text": ") Briefly explain the options available for transferring data between two sources such as between tables and servers.",
+        "marks": 2
+      },
+      {
+        "text": "d) Briefly explain how authentication and authorization are achieved in SQL Server.",
+        "marks": 3
+      },
+      {
+        "text": "e) A financial institution is developing a robust database system to manage its clients' sensitive financial data. Different roles are assigned to various team members for database administration and management. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance. Tom and Emily are junior database administrators under Sarah's supervision. Tom manages the client accounts database, while Emily handles the transactions database. Nathan is a database developer reporting to Tom and Emily. His responsibilities include designing and implementing database schemas for client accounts and transactions. Grace and Michael are data entry operators responsible for inputting client information and transaction records into the system. Write a T-SQL statement to create a login to Sarah with windows authentication.",
+        "marks": 2
+      },
+      {
+        "text": "Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role.",
+        "marks": 3
+      },
+      {
+        "text": "Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the transactions database using a user-defined server role.",
+        "marks": 5
+      },
+      {
+        "text": "Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases.",
+        "marks": 3
+      },
+      {
+        "text": "Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the client accounts and transactions databases.",
+        "marks": 3
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2024 II",
+    "question_id": "1",
+    "cluster": 5,
+    "cluster_label_keywords": [
+      "each",
+      "student",
+      "bytes",
+      "recorded",
+      "several",
+      "song",
+      "students",
+      "songs"
+    ],
+    "marks": 20,
+    "full_text": "The Computer Science Students at SLIIT are planning to design a database to produce music albums. The students have come up with the following requirements. The students who have talent in music (i.e. singing, playing an instrument, etc..) are named as student musician. All student musicians are capable of singing songs. In addition, some of them play instruments and some of them act as producers when albums are produced. For each student musician a unique identification number, name and address are recorded. For those who play instruments, their specialization, and the duration that they play should be stored. For each instrument, a unique identification number and the name (e.g., guitar, violin, flute, etc.) are recorded. Each student capable of playing instruments may play several instruments, and a given instrument is played by one student. A student who plays instruments may supervise several other such students. Each album has a unique identification number, title, copyright date and a format (e.g., CD or MC). Each album has one student who acts as its producer. A student may produce several albums. Each album has several songs on it and a song appears on one album. The date that the songs are recorded on the album should be known. For each song a unique identification number, the title and the author are recorded. Each song is sung by one or more students, and a student sings several songs. The number of times that a song is sung should be recorded. Each song may have several melody types. For each melody type, the tempo, and the key for that song (e.g. C major, D minor etc.) are recorded. Different songs may have the same key.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 1,
+        "marks": 3,
+        "text": "What are the entities that could be used for the above requirements?"
+      },
+      {
+        "question_id": 1,
+        "marks": 3,
+        "text": "Identify suitable attributes and the primary key, if any, for each of the entities that you have identified."
+      },
+      {
+        "question_id": 1,
+        "marks": 2,
+        "text": "Is there a recursive relationship? Justify your answer."
+      },
+      {
+        "question_id": 1,
+        "marks": 2,
+        "text": "Is there any weak entity type? Justify your answer."
+      },
+      {
+        "question_id": 1,
+        "marks": 2,
+        "text": "Identify a likely superclass/subclass relationship. Justify your answer."
+      },
+      {
+        "question_id": 1,
+        "marks": 8,
+        "text": "Construct a suitable EER diagram for the above given requirements. State any assumptions you make. Note: You may avoid showing the attributes on the entity types, but any attributes on the relationships must be shown.",
+        "diagrams": []
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2024 II",
+    "question_id": "5",
+    "cluster": 5,
+    "cluster_label_keywords": [
+      "each",
+      "student",
+      "bytes",
+      "recorded",
+      "several",
+      "song",
+      "students",
+      "songs"
+    ],
+    "marks": 20,
+    "full_text": "A file has r = 20,000 STUDENT records of fixed length. Each record has the following fields: Name (30 bytes), Stno (9 bytes), Address (40 bytes), Phone (10 bytes), Birth date (8 bytes), Gender (1 byte), Major_dept code (4 bytes), Minor_dept code (4 bytes), Class_code (4 bytes), and Degree program (3 bytes). An additional byte is used as a deletion marker. Assume that this file is stored on a disk with block size 512 bytes using an unspanned organization.\n[DIAGRAM: page_006_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 5,
+        "marks": 2,
+        "text": "Calculate the record size R in bytes."
+      },
+      {
+        "question_id": 5,
+        "marks": 2,
+        "text": "Calculate the blocking factor bfr and the number of file blocks b."
+      },
+      {
+        "question_id": 5,
+        "marks": 4,
+        "text": "Calculate the average time it takes to find a record by doing a linear search on the file if A. the file blocks are stored contiguously, and double buffering is used; B. the file blocks are not stored contiguously."
+      },
+      {
+        "question_id": 5,
+        "marks": 2,
+        "text": "Assume that the file is ordered by Stno; by doing a binary search, calculate the time it takes to search for a record given its Stno value. Note: Consider that 10g.5000 = 13."
+      },
+      {
+        "question_id": 5,
+        "marks": 2,
+        "text": "List three properties of NoSQL databases."
+      },
+      {
+        "question_id": 5,
+        "marks": 2,
+        "text": "Key-value stores, Column family databases, Document databases, Graph databases are the four types of NoSQL databases. Give two example databases for each of them."
+      },
+      {
+        "question_id": 5,
+        "marks": 6,
+        "text": "Consider the following ER diagram.",
+        "diagrams": [],
+        "subquestions": [
+          {
+            "question_id": 5,
+            "marks": 6,
+            "text": "Map the above ER Model to A. Relational database schema B. Document database C. Graph database."
+          }
+        ]
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2024 II",
+    "question_id": "3",
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "list",
+      "transaction",
+      "properties",
+      "required",
+      "database",
+      "system",
+      "ensure",
+      "integrity"
+    ],
+    "marks": 20,
+    "full_text": "List the transaction properties that are required for the database system to ensure integrity of the data.\n[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_005_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 3,
+        "marks": 2,
+        "text": "Consider the following schedules S1 and S2: S1=RI1(X), W20, WI(X) S2 = W1(X), R2(X), W2(X), W3(X) Here Ri(X) means, read the item X of transaction Ti, Wi(X) means write item X of transaction Ti."
+      },
+      {
+        "question_id": 3,
+        "marks": 2,
+        "text": "List all conflict operations of the schedules S1 and S2 separately."
+      },
+      {
+        "question_id": 3,
+        "marks": 4,
+        "text": "Schedule S1 is not serializable and schedule S2 is conflict serializable. Justify this statement and give the equivalent serial schedule for the serializable schedule S2."
+      },
+      {
+        "question_id": 3,
+        "marks": 2,
+        "text": "Let X and Y be two accounts that are accessed by transactions T1 and T2. Transaction T1 updates the balance of account X and transaction T2 gives a bonus for accounts X and Y.",
+        "diagrams": [],
+        "subquestions": [
+          {
+            "question_id": 3,
+            "marks": 2,
+            "text": "Using the 2PL protocol, add the lock and unlock operations to T1 and T2 and rewrite the transactions T1 and T2."
+          },
+          {
+            "question_id": 3,
+            "marks": 3,
+            "text": "Construct a concurrent execution for the transactions T1 and T2 given in (i) above, such that it prevents the lost update problem."
+          },
+          {
+            "question_id": 3,
+            "marks": 3,
+            "text": "A concurrent execution for the transactions T1 and T2 given in (i) above will not result in a dead lock. Justify this statement."
+          },
+          {
+            "question_id": 3,
+            "marks": 4,
+            "text": "Consider the following schedule. Apply the timestamp ordering algorithm for the transactions T1 and T2 and show the transaction that should be aborted and rolled back. Assume that TS(T1) < TS(T2) and the initial timestamps of read_TS(X) = 0, read_TS(Y) = 0, write_TS(X) = 0 and write_TS(Y) = 0."
+          }
+        ]
+      }
+    ],
+    "pattern_label": "TRANSACTIONS_CONCURRENCY"
   }
 ]

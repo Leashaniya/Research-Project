@@ -8,9 +8,9 @@ class Database:
     def connect(self):
         """Establish connection to MongoDB."""
         if not self.client:
-            print(f"🔌 Connecting to MongoDB at {settings.MONGO_URI}...")
+            print(f"Connecting to MongoDB at {settings.MONGO_URI}...")
             self.client = AsyncIOMotorClient(settings.MONGO_URI)
-            print("✅ MongoDB Connected.")
+            print("MongoDB Connected.")
 
     def close(self):
         """Close connection."""

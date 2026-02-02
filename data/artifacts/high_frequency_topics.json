@@ -1,50 +1,8 @@
 {
   "top_clusters": [
     {
-      "cluster_id": 0,
-      "count": 23,
-      "label_keywords": [
-        "varchar",
-        "table",
-        "int",
-        "name",
-        "number",
-        "stores",
-        "each",
-        "char"
-      ]
-    },
-    {
       "cluster_id": 6,
-      "count": 8,
-      "label_keywords": [
-        "tree",
-        "file",
-        "after",
-        "index",
-        "explain",
-        "above",
-        "inserting",
-        "briefly"
-      ]
-    },
-    {
-      "cluster_id": 5,
-      "count": 8,
-      "label_keywords": [
-        "transaction",
-        "schedule",
-        "explain",
-        "briefly",
-        "higher",
-        "priority",
-        "than",
-        "wait"
-      ]
-    },
-    {
-      "cluster_id": 1,
-      "count": 8,
+      "count": 6,
       "label_keywords": [
         "relation",
         "functional",
@@ -57,45 +15,81 @@
       ]
     },
     {
-      "cluster_id": 4,
-      "count": 7,
+      "cluster_id": 1,
+      "count": 5,
       "label_keywords": [
-        "frame",
-        "number",
-        "bytes",
-        "time",
-        "disk",
-        "page",
-        "used",
-        "block"
+        "relation",
+        "book",
+        "stores",
+        "author",
+        "relational",
+        "flight",
+        "ssn",
+        "prescription"
       ]
     },
     {
-      "cluster_id": 2,
-      "count": 7,
+      "cluster_id": 4,
+      "count": 5,
       "label_keywords": [
-        "query",
-        "index",
-        "indexes",
-        "pages",
-        "cost",
-        "student",
+        "int",
+        "varchar",
+        "name",
+        "char",
         "relation",
-        "page"
+        "address",
+        "stores",
+        "number"
+      ]
+    },
+    {
+      "cluster_id": 0,
+      "count": 3,
+      "label_keywords": [
+        "eer",
+        "model"
       ]
     },
     {
       "cluster_id": 3,
-      "count": 7,
+      "count": 3,
       "label_keywords": [
-        "model",
-        "keys",
-        "eer",
-        "convert",
-        "relational",
-        "indicate",
-        "primary",
-        "foreign"
+        "database",
+        "statements",
+        "sql",
+        "write",
+        "data",
+        "server",
+        "name",
+        "briefly"
+      ]
+    },
+    {
+      "cluster_id": 5,
+      "count": 2,
+      "label_keywords": [
+        "each",
+        "student",
+        "bytes",
+        "recorded",
+        "several",
+        "song",
+        "students",
+        "songs"
+      ]
+    },
+    {
+      "cluster_id": 2,
+      "count": 1,
+      "label_keywords": [
+        "list",
+        "transaction",
+        "properties",
+        "required",
+        "database",
+        "system",
+        "ensure",
+        "integrity"
       ]
     }
   ]
