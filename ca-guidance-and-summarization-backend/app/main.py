@@ -1,6 +1,9 @@
 import logging
-from fastapi import FastAPI
+import json
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
 from starlette.middleware.sessions import SessionMiddleware
 from app.core.config import settings
 from app.api.routes import auth, er, public, protected, summaries
@@ -9,10 +12,13 @@ from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,  # Changed to DEBUG to see all messages
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+# Set specific loggers to appropriate levels
+logging.getLogger("uvicorn.access").setLevel(logging.INFO)
+logging.getLogger("uvicorn.error").setLevel(logging.INFO)
 
 # Create FastAPI instance
 app = FastAPI(
@@ -53,6 +59,34 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register exception handler BEFORE including routers
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Handle Pydantic validation errors and log them for debugging."""
+    errors = exc.errors()
+    # Log detailed error information - use print to ensure it shows up
+    print("\n" + "=" * 80)
+    print(f"VALIDATION ERROR on {request.url.path}")
+    print(f"Method: {request.method}")
+    print(f"Errors:")
+    print(json.dumps(errors, indent=2))
+    print("=" * 80 + "\n")
+    logger.error("=" * 80)
+    logger.error(f"VALIDATION ERROR on {request.url.path}")
+    logger.error(f"Method: {request.method}")
+    logger.error(f"Errors: {json.dumps(errors, indent=2)}")
+    logger.error("=" * 80)
+    
+    # Return detailed error response
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": errors,
+            "message": "Validation failed. Check the 'detail' field for specific errors."
+        }
+    )
+
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 # Include routers
 app.include_router(public.router)

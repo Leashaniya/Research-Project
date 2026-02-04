@@ -1,27 +1,55 @@
 export type Cardinality = "0..1" | "1..1" | "0..*" | "1..*";
 
+export type AttributeType = "regular" | "composite" | "multivalued";
+
+export type ParticipationType = "partial" | "total" | "none"; // none = no special constraint
+
+export type RelationshipType = "binary" | "ternary" | "isa";
+
 export interface Attribute {
   id: string;
   name: string;
   pk: boolean;
   unique: boolean;
   nullable: boolean;
+  type: AttributeType; // regular, composite, or multivalued
+  subAttributes?: Attribute[]; // For composite attributes only
 }
 
 export interface Entity {
   id: string;
   name: string;
   attributes: Attribute[];
+  isWeak: boolean; // true if this is a weak entity
+  strongEntityId?: string; // ID of the strong entity (required if isWeak is true)
 }
 
 export interface Relationship {
   id: string;
   name: string;
+  relationshipType: RelationshipType; // binary, ternary, or isa
+  
+  // Binary relationship fields (always present)
   fromEntityId: string; // entity A
   toEntityId: string; // entity B
   fromCardinality: Cardinality;
   toCardinality: Cardinality;
+  fromParticipation: ParticipationType; // participation constraint for entity A
+  toParticipation: ParticipationType; // participation constraint for entity B
+  
+  // Ternary relationship fields (only when relationshipType === "ternary")
+  thirdEntityId?: string; // entity C
+  thirdCardinality?: Cardinality;
+  thirdParticipation?: ParticipationType;
+  
+  // ISA relationship fields (only when relationshipType === "isa")
+  parentEntityId?: string; // parent entity (supertype)
+  childEntityIds?: string[]; // child entities (subtypes)
+  isDisjoint?: boolean; // true if ISA is disjoint (mutually exclusive subtypes)
+  isTotal?: boolean; // true if ISA is total (all instances must belong to a subtype)
+  
   attributes: Attribute[];
+  isWeak: boolean; // true if this is a weak relationship (connecting weak entity to strong entity) - always mandatory
 }
 
 export interface ERModel {

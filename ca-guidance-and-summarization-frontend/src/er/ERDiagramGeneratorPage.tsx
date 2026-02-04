@@ -18,22 +18,39 @@ import { downloadSvgStringAsPng } from "./pngExport";
 const DEFAULT_CARD: Cardinality = "0..*";
 
 function newAttribute(): Attribute {
-  return { id: createId("attr"), name: "", pk: false, unique: false, nullable: true };
+  return { 
+    id: createId("attr"), 
+    name: "", 
+    pk: false, 
+    unique: false, 
+    nullable: true,
+    type: "regular"
+  };
 }
 
 function newEntity(nextIndex: number): Entity {
-  return { id: createId("ent"), name: `Entity ${nextIndex}`, attributes: [newAttribute()] };
+  return { 
+    id: createId("ent"), 
+    name: `Entity ${nextIndex}`, 
+    attributes: [newAttribute()],
+    isWeak: false,
+    strongEntityId: undefined
+  };
 }
 
 function newRelationship(nextIndex: number): Relationship {
   return {
     id: createId("rel"),
     name: `Relationship ${nextIndex}`,
+    relationshipType: "binary",
     fromEntityId: "",
     toEntityId: "",
     fromCardinality: DEFAULT_CARD,
     toCardinality: DEFAULT_CARD,
-    attributes: []
+    fromParticipation: "none",
+    toParticipation: "none",
+    attributes: [],
+    isWeak: false
   };
 }
 
@@ -138,7 +155,14 @@ export default function ERDiagramGeneratorPage() {
       const frontendResult = validateModel(model);
       setValidationMessages(frontendResult.messages);
       setBackendValidation(null);
-      alert(`Validation API error: ${error instanceof Error ? error.message : String(error)}`);
+      
+      // Show detailed error message
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("Full validation error:", errorMessage);
+      // Don't show alert for 422 errors - they're handled by validation messages
+      if (!errorMessage.includes("422")) {
+        alert(`Validation API error: ${errorMessage}`);
+      }
     }
   };
 
@@ -255,7 +279,7 @@ export default function ERDiagramGeneratorPage() {
       {/* MIDDLE PANEL (Editor) */}
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {selectedEntity ? (
-          <EntityEditor entity={selectedEntity} onChange={updateEntity} />
+          <EntityEditor entity={selectedEntity} entities={model.entities} onChange={updateEntity} />
         ) : selectedRelationship ? (
           <RelationshipEditor relationship={selectedRelationship} entities={model.entities} onChange={updateRelationship} />
         ) : (
