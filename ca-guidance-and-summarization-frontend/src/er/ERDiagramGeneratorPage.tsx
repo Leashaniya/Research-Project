@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import "./er.css";
+import { FaCheckCircle, FaExclamationTriangle, FaInfoCircle, FaDownload, FaSpinner } from "react-icons/fa";
+import { HiSparkles } from "react-icons/hi";
 
 import type { Attribute, Cardinality, ERModel, Entity, Relationship, Selection, ValidationMessage, ValidationOutput } from "./types";
 import { createId } from "./id";
@@ -12,6 +14,7 @@ import { EntityEditor } from "./components/EntityEditor";
 import { RelationshipEditor } from "./components/RelationshipEditor";
 import { ValidationPanel } from "./components/ValidationPanel";
 import { GraphvizDiagram } from "./components/GraphvizDiagram";
+import { ConfirmationDialog } from "./components/ConfirmationDialog";
 import { erModelToDot } from "./graphviz";
 import { downloadSvgStringAsPng } from "./pngExport";
 
@@ -71,6 +74,14 @@ export default function ERDiagramGeneratorPage() {
   // Graphviz state
   const [dotText, setDotText] = useState<string | null>(null);
   const [currentSvg, setCurrentSvg] = useState<string | null>(null);
+  
+  // Confirmation dialog state
+  const [showDownloadConfirm, setShowDownloadConfirm] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    type: "entity" | "relationship";
+    id: string;
+    name: string;
+  } | null>(null);
 
   const selectedEntity = useMemo(() => {
     if (selection?.type !== "entity") return null;
@@ -97,15 +108,18 @@ export default function ERDiagramGeneratorPage() {
   const deleteEntity = (id: string) => {
     const e = model.entities.find((x) => x.id === id);
     const name = e?.name || "(unnamed entity)";
-    if (!window.confirm(`Delete entity "${name}"? This will not delete relationships, but they may become invalid.`)) {
-      return;
-    }
+    setDeleteConfirm({ type: "entity", id, name });
+  };
 
-    const nextEntities = model.entities.filter((x) => x.id !== id);
+  const confirmDeleteEntity = () => {
+    if (!deleteConfirm || deleteConfirm.type !== "entity") return;
+    
+    const nextEntities = model.entities.filter((x) => x.id !== deleteConfirm.id);
     const nextModel: ERModel = { ...model, entities: nextEntities };
     setModel(nextModel);
 
-    if (selection?.type === "entity" && selection.id === id) setSelection(null);
+    if (selection?.type === "entity" && selection.id === deleteConfirm.id) setSelection(null);
+    setDeleteConfirm(null);
   };
 
   const addRelationship = () => {
@@ -118,11 +132,16 @@ export default function ERDiagramGeneratorPage() {
   const deleteRelationship = (id: string) => {
     const r = model.relationships.find((x) => x.id === id);
     const name = r?.name || "(unnamed relationship)";
-    if (!window.confirm(`Delete relationship "${name}"?`)) return;
+    setDeleteConfirm({ type: "relationship", id, name });
+  };
 
-    const nextRels = model.relationships.filter((x) => x.id !== id);
+  const confirmDeleteRelationship = () => {
+    if (!deleteConfirm || deleteConfirm.type !== "relationship") return;
+    
+    const nextRels = model.relationships.filter((x) => x.id !== deleteConfirm.id);
     setModel({ ...model, relationships: nextRels });
-    if (selection?.type === "relationship" && selection.id === id) setSelection(null);
+    if (selection?.type === "relationship" && selection.id === deleteConfirm.id) setSelection(null);
+    setDeleteConfirm(null);
   };
 
   const updateEntity = (next: Entity) => {
@@ -166,11 +185,10 @@ export default function ERDiagramGeneratorPage() {
     }
   };
 
+  // Keep generateDiagram for manual generation if needed (e.g., for download)
   const generateDiagram = async (): Promise<string> => {
     setIsGenerating(true);
     setGenerationError(null);
-    setDotText(null);
-    setCurrentSvg(null);
 
     try {
       // First validate
@@ -244,6 +262,12 @@ export default function ERDiagramGeneratorPage() {
       return;
     }
 
+    // Show confirmation dialog
+    setShowDownloadConfirm(true);
+  };
+
+  const confirmDownloadPng = async () => {
+    setShowDownloadConfirm(false);
     try {
       // Use current SVG if available, otherwise generate diagram
       const svg = currentSvg ?? await generateDiagram();
@@ -255,90 +279,130 @@ export default function ERDiagramGeneratorPage() {
   };
 
   return (
-    <div className="er-page">
-      {/* LEFT PANEL */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <EntityList
-          entities={model.entities}
-          selectedEntityId={selection?.type === "entity" ? selection.id : null}
-          onSelect={(id) => setSelection({ type: "entity", id })}
-          onAdd={addEntity}
-          onDelete={deleteEntity}
-        />
+    <>
+      <div className="er-page">
+        {/* LEFT PANEL */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <EntityList
+            entities={model.entities}
+            selectedEntityId={selection?.type === "entity" ? selection.id : null}
+            onSelect={(id) => setSelection({ type: "entity", id })}
+            onAdd={addEntity}
+            onDelete={deleteEntity}
+          />
 
-        <RelationshipList
-          relationships={model.relationships}
-          entities={model.entities}
-          selectedRelationshipId={selection?.type === "relationship" ? selection.id : null}
-          onSelect={(id) => setSelection({ type: "relationship", id })}
-          onAdd={addRelationship}
-          onDelete={deleteRelationship}
-        />
-      </div>
+          <RelationshipList
+            relationships={model.relationships}
+            entities={model.entities}
+            selectedRelationshipId={selection?.type === "relationship" ? selection.id : null}
+            onSelect={(id) => setSelection({ type: "relationship", id })}
+            onAdd={addRelationship}
+            onDelete={deleteRelationship}
+          />
+        </div>
 
-      {/* MIDDLE PANEL (Editor) */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {selectedEntity ? (
-          <EntityEditor entity={selectedEntity} entities={model.entities} onChange={updateEntity} />
-        ) : selectedRelationship ? (
-          <RelationshipEditor relationship={selectedRelationship} entities={model.entities} onChange={updateRelationship} />
-        ) : (
-          <div className="er-panel">
-            <h3 className="er-section-title">Editor</h3>
-            <div className="er-muted">Select an entity or relationship to edit.</div>
-          </div>
-        )}
-      </div>
-
-      {/* RIGHT PANEL */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <div className="er-panel">
-          <h3 className="er-section-title">Actions</h3>
-          <div className="er-actions">
-            <button className="er-btn primary" type="button" onClick={runValidation} disabled={isGenerating}>
-              Validate Model
-            </button>
-            <button
-              className="er-btn"
-              type="button"
-              onClick={generateDiagram}
-              disabled={hasErrors || backendHasErrors || isGenerating}
-            >
-              {isGenerating ? "Generating..." : "Generate Diagram"}
-            </button>
-            <button
-              className="er-btn"
-              type="button"
-              onClick={handleDownloadPng}
-              disabled={hasErrors || backendHasErrors || isGenerating}
-              style={{ marginLeft: 8 }}
-            >
-              Download PNG
-            </button>
-          </div>
-          
-          <div className="er-muted" style={{ marginTop: 8 }}>
-            {hasErrors || backendHasErrors
-              ? "Fix validation errors before generating or downloading a diagram."
-              : "Generate Diagram creates a visual ER diagram using Graphviz automatic layout. Download PNG exports the current diagram as an image."}
-          </div>
-          {generationError && (
-            <div style={{ marginTop: 8, color: "#842029", fontSize: "0.9rem" }}>
-              {generationError}
+        {/* MIDDLE PANEL (Editor) */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {selectedEntity ? (
+            <EntityEditor entity={selectedEntity} entities={model.entities} onChange={updateEntity} />
+          ) : selectedRelationship ? (
+            <RelationshipEditor relationship={selectedRelationship} entities={model.entities} onChange={updateRelationship} />
+          ) : (
+            <div className="er-panel">
+              <h3 className="er-section-title">Editor</h3>
+              <div className="er-muted">Select an entity or relationship to edit.</div>
             </div>
           )}
         </div>
 
-        {/* Validation Results */}
-        <ValidationPanel
-          messages={validationMessages}
-          backendValidation={backendValidation || undefined}
-          hasRun={hasValidated}
-        />
+        {/* RIGHT PANEL */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="er-panel">
+            <h3 className="er-section-title">Actions</h3>
+            <div className="er-actions">
+              <button 
+                className="er-btn er-btn-icon primary" 
+                type="button" 
+                onClick={runValidation} 
+                title="Validate Model"
+              >
+                <FaCheckCircle />
+                <span>Validate</span>
+              </button>
+              <button
+                className="er-btn er-btn-icon"
+                type="button"
+                onClick={handleDownloadPng}
+                disabled={hasErrors || backendHasErrors || !currentSvg}
+                title="Download PNG"
+              >
+                <FaDownload />
+                <span>Download</span>
+              </button>
+            </div>
+            
+            <div className="er-muted" style={{ marginTop: 12 }}>
+              {hasErrors || backendHasErrors
+                ? "Fix validation errors to see the diagram preview and download."
+                : "The diagram preview updates automatically as you edit. Download PNG exports the current diagram as an image."}
+            </div>
+            {generationError && (
+              <div className="er-error-message" style={{ marginTop: 12 }}>
+                <FaExclamationTriangle style={{ marginRight: 6 }} />
+                {generationError}
+              </div>
+            )}
+          </div>
 
-        {/* Diagram Preview */}
-        <GraphvizDiagram model={model} dotText={dotText ?? undefined} onSvgReady={setCurrentSvg} />
+          {/* Validation Results */}
+          <ValidationPanel
+            messages={validationMessages}
+            backendValidation={backendValidation || undefined}
+            hasRun={hasValidated}
+          />
+        </div>
       </div>
-    </div>
+
+      {/* Download Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={showDownloadConfirm}
+        title="Confirm Download"
+        message="Download the current ER diagram as a PNG image?"
+        confirmText="Download"
+        cancelText="Cancel"
+        type="info"
+        onConfirm={confirmDownloadPng}
+        onCancel={() => setShowDownloadConfirm(false)}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirm && (
+        <ConfirmationDialog
+          isOpen={true}
+          title={deleteConfirm.type === "entity" ? "Delete Entity" : "Delete Relationship"}
+          message={
+            deleteConfirm.type === "entity"
+              ? `Are you sure you want to delete the entity "${deleteConfirm.name}"? This will not delete relationships, but they may become invalid.`
+              : `Are you sure you want to delete the relationship "${deleteConfirm.name}"? This action cannot be undone.`
+          }
+          confirmText="Delete"
+          cancelText="Cancel"
+          type="danger"
+          onConfirm={deleteConfirm.type === "entity" ? confirmDeleteEntity : confirmDeleteRelationship}
+          onCancel={() => setDeleteConfirm(null)}
+        />
+      )}
+
+      {/* Diagram Preview - Full width below main content */}
+      <div className="er-preview-fullwidth">
+        <GraphvizDiagram 
+          model={model} 
+          dotText={dotText ?? undefined} 
+          onSvgReady={setCurrentSvg}
+          autoGenerate={true}
+          hasValidationErrors={hasErrors || backendHasErrors}
+        />
+      </div>
+    </>
   );
 }

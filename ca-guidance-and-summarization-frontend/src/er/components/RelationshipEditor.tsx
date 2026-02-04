@@ -1,6 +1,7 @@
 import type { Attribute, Cardinality, Entity, Relationship, AttributeType, ParticipationType, RelationshipType } from "../types";
 import { createId } from "../id";
 import { useMemo } from "react";
+import { FaTrash, FaPlus } from "react-icons/fa";
 
 const CARDINALITIES: Cardinality[] = ["0..1", "1..1", "0..*", "1..*"];
 const PARTICIPATION_TYPES: ParticipationType[] = ["none", "partial", "total"];
@@ -222,7 +223,7 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
       {/* Binary Relationship UI */}
       {normalizedRelationship.relationshipType === "binary" && (
         <>
-          <div className="er-row">
+          <div className="er-row-equal-3">
         <div>
           <label className="er-muted" htmlFor="entity-a">
             Entity A
@@ -258,9 +259,26 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
             ))}
           </select>
         </div>
+        <div>
+          <label className="er-muted" htmlFor="participation-a" title="Participation (Entity A)">
+            Participation A
+          </label>
+          <select
+            id="participation-a"
+            className="er-select"
+            value={normalizedRelationship.fromParticipation}
+            onChange={(e) => onChange({ ...normalizedRelationship, fromParticipation: e.target.value as ParticipationType })}
+          >
+            {PARTICIPATION_TYPES.map((p) => (
+              <option key={p} value={p}>
+                {p === "none" ? "None" : p === "total" ? "Total (double line)" : "Partial (single line)"}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <div className="er-row">
+      <div className="er-row-equal-3">
         <div>
           <label className="er-muted" htmlFor="entity-b">
             Entity B
@@ -296,30 +314,9 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
             ))}
           </select>
         </div>
-      </div>
-
-      {/* Participation Constraints */}
-      <div className="er-row" style={{ marginTop: 12 }}>
         <div>
-          <label className="er-muted" htmlFor="participation-a">
-            Participation (Entity A)
-          </label>
-          <select
-            id="participation-a"
-            className="er-select"
-            value={normalizedRelationship.fromParticipation}
-            onChange={(e) => onChange({ ...normalizedRelationship, fromParticipation: e.target.value as ParticipationType })}
-          >
-            {PARTICIPATION_TYPES.map((p) => (
-              <option key={p} value={p}>
-                {p === "none" ? "None" : p === "total" ? "Total (double line)" : "Partial (single line)"}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="er-muted" htmlFor="participation-b">
-            Participation (Entity B)
+          <label className="er-muted" htmlFor="participation-b" title="Participation (Entity B)">
+            Participation B
           </label>
           <select
             id="participation-b"
@@ -363,7 +360,7 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
       {/* Ternary Relationship UI */}
       {normalizedRelationship.relationshipType === "ternary" && (
         <>
-          <div className="er-row">
+          <div className="er-row-equal-3">
             <div>
               <label className="er-muted" htmlFor="entity-a-ternary">
                 Entity A
@@ -418,7 +415,7 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
             </div>
           </div>
 
-          <div className="er-row">
+          <div className="er-row-equal-3">
             <div>
               <label className="er-muted" htmlFor="entity-b-ternary">
                 Entity B
@@ -473,7 +470,7 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
             </div>
           </div>
 
-          <div className="er-row">
+          <div className="er-row-equal-3">
             <div>
               <label className="er-muted" htmlFor="entity-c-ternary">
                 Entity C
@@ -557,8 +554,9 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
               <label className="er-muted" style={{ fontWeight: 700 }}>
                 Child Entities (Subtypes)
               </label>
-              <button className="er-btn primary" type="button" onClick={addChildEntity} style={{ fontSize: "0.9rem", padding: "4px 12px" }}>
-                + Add Child
+              <button className="er-btn er-btn-icon primary" type="button" onClick={addChildEntity} style={{ fontSize: "0.9rem", padding: "6px 12px" }}>
+                <FaPlus />
+                <span>Add Child</span>
               </button>
             </div>
             {normalizedRelationship.childEntityIds && normalizedRelationship.childEntityIds.length > 0 ? (
@@ -581,12 +579,13 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
                         ))}
                     </select>
                     <button
-                      className="er-btn danger"
+                      className="er-btn er-btn-icon-only danger"
                       type="button"
                       onClick={() => removeChildEntity(index)}
+                      title="Remove child entity"
                       style={{ fontSize: "0.85rem", padding: "4px 8px" }}
                     >
-                      Remove
+                      <FaTrash />
                     </button>
                   </div>
                 ))}
@@ -630,8 +629,9 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
         <div className="er-muted" style={{ fontWeight: 700 }}>
           Relationship Attributes
         </div>
-        <button className="er-btn primary" type="button" onClick={addAttr}>
-          + Add Attribute
+        <button className="er-btn er-btn-icon primary" type="button" onClick={addAttr}>
+          <FaPlus />
+          <span>Add Attribute</span>
         </button>
       </div>
 
@@ -706,8 +706,13 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
                     />
                   </td>
                   <td>
-                    <button className="er-btn danger" type="button" onClick={() => deleteAttr(a.id)}>
-                      Delete
+                    <button 
+                      className="er-btn er-btn-icon-only danger" 
+                      type="button" 
+                      onClick={() => deleteAttr(a.id)}
+                      title="Delete attribute"
+                    >
+                      <FaTrash />
                     </button>
                   </td>
                 </tr>
@@ -720,12 +725,13 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
                           Sub-attributes:
                         </span>
                         <button
-                          className="er-btn primary"
+                          className="er-btn er-btn-icon primary"
                           type="button"
                           onClick={() => addSubAttr(a.id)}
-                          style={{ fontSize: "0.85rem", padding: "2px 8px" }}
+                          style={{ fontSize: "0.85rem", padding: "4px 10px" }}
                         >
-                          + Add Sub-attribute
+                          <FaPlus />
+                          <span>Add Sub-attribute</span>
                         </button>
                       </div>
                       {a.subAttributes && a.subAttributes.length > 0 ? (
@@ -740,12 +746,13 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
                                 style={{ flex: 1, fontSize: "0.9rem" }}
                               />
                               <button
-                                className="er-btn danger"
+                                className="er-btn er-btn-icon-only danger"
                                 type="button"
                                 onClick={() => deleteSubAttr(a.id, subAttr.id)}
-                                style={{ fontSize: "0.85rem", padding: "2px 8px" }}
+                                title="Remove sub-attribute"
+                                style={{ fontSize: "0.85rem", padding: "4px 8px" }}
                               >
-                                Remove
+                                <FaTrash />
                               </button>
                             </div>
                           ))}

@@ -1,5 +1,6 @@
 import type { Attribute, Entity, AttributeType } from "../types";
 import { createId } from "../id";
+import { FaTrash, FaPlus } from "react-icons/fa";
 
 interface Props {
   entity: Entity;
@@ -174,20 +175,21 @@ export function EntityEditor({ entity, entities, onChange }: Props) {
         <div className="er-muted" style={{ fontWeight: 700 }}>
           Attributes
         </div>
-        <button className="er-btn primary" type="button" onClick={addAttr}>
-          + Add Attribute
+        <button className="er-btn er-btn-icon primary" type="button" onClick={addAttr}>
+          <FaPlus />
+          <span>Add Attribute</span>
         </button>
       </div>
 
       <table className="er-attrs-table" style={{ marginTop: 10 }}>
         <thead>
           <tr>
-            <th style={{ width: "30%" }}>Name</th>
-            <th style={{ width: "15%" }}>Type</th>
+            <th>Name</th>
+            <th>Type</th>
             <th>PK</th>
             <th>Unique</th>
             <th>Nullable</th>
-            <th style={{ width: 90 }} />
+            <th className="er-attrs-table-actions" />
           </tr>
         </thead>
         <tbody>
@@ -211,10 +213,9 @@ export function EntityEditor({ entity, entities, onChange }: Props) {
                   </td>
                   <td>
                     <select
-                      className="er-input"
+                      className="er-select"
                       value={a.type}
                       onChange={(e) => updateAttr(a.id, { type: e.target.value as AttributeType })}
-                      style={{ fontSize: "0.9rem", padding: "4px 8px" }}
                     >
                       <option value="regular">Regular</option>
                       <option value="composite">Composite</option>
@@ -246,8 +247,13 @@ export function EntityEditor({ entity, entities, onChange }: Props) {
                     />
                   </td>
                   <td>
-                    <button className="er-btn danger" type="button" onClick={() => deleteAttr(a.id)}>
-                      Delete
+                    <button 
+                      className="er-btn er-btn-icon-only danger" 
+                      type="button" 
+                      onClick={() => deleteAttr(a.id)}
+                      title="Delete attribute"
+                    >
+                      <FaTrash />
                     </button>
                   </td>
                 </tr>
@@ -260,12 +266,13 @@ export function EntityEditor({ entity, entities, onChange }: Props) {
                           Sub-attributes:
                         </span>
                         <button
-                          className="er-btn primary"
+                          className="er-btn er-btn-icon primary"
                           type="button"
                           onClick={() => addSubAttr(a.id)}
-                          style={{ fontSize: "0.85rem", padding: "2px 8px" }}
+                          style={{ fontSize: "0.85rem", padding: "4px 10px" }}
                         >
-                          + Add Sub-attribute
+                          <FaPlus />
+                          <span>Add Sub-attribute</span>
                         </button>
                       </div>
                       {a.subAttributes && a.subAttributes.length > 0 ? (
@@ -280,12 +287,13 @@ export function EntityEditor({ entity, entities, onChange }: Props) {
                                 style={{ flex: 1, fontSize: "0.9rem" }}
                               />
                               <button
-                                className="er-btn danger"
+                                className="er-btn er-btn-icon-only danger"
                                 type="button"
                                 onClick={() => deleteSubAttr(a.id, subAttr.id)}
-                                style={{ fontSize: "0.85rem", padding: "2px 8px" }}
+                                title="Remove sub-attribute"
+                                style={{ fontSize: "0.85rem", padding: "4px 8px" }}
                               >
-                                Remove
+                                <FaTrash />
                               </button>
                             </div>
                           ))}

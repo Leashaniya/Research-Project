@@ -1,5 +1,6 @@
 import { createId } from "../id";
 import type { ValidationMessage, ValidationOutput } from "../types";
+import { FaCheckCircle, FaExclamationTriangle, FaInfoCircle, FaExclamationCircle } from "react-icons/fa";
 
 interface Props {
   messages?: ValidationMessage[];
@@ -51,30 +52,57 @@ export function ValidationPanel({ messages, backendValidation, hasRun }: Props) 
 
   const hasErrors = displayMessages.some((m) => m.severity === "error");
 
+  const getSeverityIcon = (severity: string) => {
+    switch (severity) {
+      case "error":
+        return <FaExclamationCircle className="er-validation-icon error" />;
+      case "warning":
+        return <FaExclamationTriangle className="er-validation-icon warning" />;
+      case "info":
+        return <FaInfoCircle className="er-validation-icon info" />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="er-panel">
       <h3 className="er-section-title">Validation Results</h3>
 
       {!hasRun ? (
-        <div className="er-muted">Click "Validate Model" to see warnings and errors.</div>
+        <div className="er-muted" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <FaInfoCircle style={{ color: "#6c757d" }} />
+          <span>Click "Validate" to see warnings and errors.</span>
+        </div>
       ) : displayMessages.length === 0 ? (
-        <div style={{ color: "#155724", fontWeight: 700 }}>No issues found.</div>
+        <div className="er-validation-success">
+          <FaCheckCircle />
+          <span>No issues found. Your model is valid!</span>
+        </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="er-validation-messages">
           {hasErrors && (
-            <div style={{ color: "#842029", fontWeight: 700, marginBottom: 8 }}>
-              ⚠️ Model has errors. Fix them before generating a diagram.
+            <div className="er-validation-summary error">
+              <FaExclamationCircle />
+              <span>Model has errors. Fix them before generating a diagram.</span>
             </div>
           )}
-          {displayMessages.map((m) => (
-            <div key={m.id} style={{ border: "1px solid #dee2e6", borderRadius: 8, padding: 10 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                <span className={`er-pill ${m.severity}`}>{m.severity.toUpperCase()}</span>
-                <div style={{ fontWeight: 700, color: "#495057" }}>{m.title}</div>
+          <div className="er-validation-scroll">
+            {displayMessages.map((m) => (
+              <div key={m.id} className={`er-validation-item ${m.severity}`}>
+                <div className="er-validation-item-header">
+                  {getSeverityIcon(m.severity)}
+                  <span className={`er-pill ${m.severity}`}>{m.severity.toUpperCase()}</span>
+                  <div className="er-validation-title">{m.title}</div>
+                </div>
+                {m.detail && (
+                  <div className="er-validation-detail" title={m.detail}>
+                    {m.detail}
+                  </div>
+                )}
               </div>
-              {m.detail && <div className="er-muted">{m.detail}</div>}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>

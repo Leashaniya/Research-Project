@@ -1,4 +1,5 @@
 import type { Entity } from "../types";
+import { FaTrash, FaPlus } from "react-icons/fa";
 
 interface Props {
   entities: Entity[];
@@ -30,7 +31,7 @@ export function EntityList({ entities, selectedEntityId, onSelect, onAdd, onDele
                 <div className="er-muted">{e.attributes.length} attribute(s)</div>
               </div>
               <button
-                className="er-btn danger"
+                className="er-btn er-btn-icon-only danger"
                 onClick={(ev) => {
                   ev.stopPropagation();
                   onDelete(e.id);
@@ -38,15 +39,16 @@ export function EntityList({ entities, selectedEntityId, onSelect, onAdd, onDele
                 title="Delete entity"
                 type="button"
               >
-                Delete
+                <FaTrash />
               </button>
             </div>
           ))
         )}
       </div>
 
-      <button className="er-btn primary" onClick={onAdd} type="button">
-        + Add Entity
+      <button className="er-btn er-btn-icon primary" onClick={onAdd} type="button">
+        <FaPlus />
+        <span>Add Entity</span>
       </button>
     </div>
   );

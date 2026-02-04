@@ -1,4 +1,5 @@
 import type { Entity, Relationship } from "../types";
+import { FaTrash, FaPlus } from "react-icons/fa";
 
 interface Props {
   relationships: Relationship[];
@@ -46,7 +47,7 @@ export function RelationshipList({
                 </div>
               </div>
               <button
-                className="er-btn danger"
+                className="er-btn er-btn-icon-only danger"
                 onClick={(ev) => {
                   ev.stopPropagation();
                   onDelete(r.id);
@@ -54,15 +55,16 @@ export function RelationshipList({
                 title="Delete relationship"
                 type="button"
               >
-                Delete
+                <FaTrash />
               </button>
             </div>
           ))
         )}
       </div>
 
-      <button className="er-btn primary" onClick={onAdd} type="button">
-        + Add Relationship
+      <button className="er-btn er-btn-icon primary" onClick={onAdd} type="button">
+        <FaPlus />
+        <span>Add Relationship</span>
       </button>
     </div>
   );
