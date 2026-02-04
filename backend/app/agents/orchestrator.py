@@ -1289,9 +1289,51 @@ class AgentOrchestrator:
             if "normalization" in used_question_types:
                 forbidden_topics.append("Normalize the relation")
             
-            # Diagrams are disabled by updated rules (text-only generation).
+            # --- DETECT IF DIAGRAM NEEDS TO BE SHOWN (not drawn by student) ---
+            # Check if question references an existing diagram that should be displayed
             needs_diagram = False
             diagram_type = None
+            
+            # Get draft preview to check if it references diagrams
+            draft_preview = None
+            if template.get("full_text"):
+                draft_preview = template.get("full_text", "")
+            elif template.get("required_structure"):
+                # Check subquestions for diagram references
+                struct = template.get("required_structure", [])
+                if struct:
+                    draft_preview = " ".join([s.get("text", "") for s in struct[:3]])
+            
+            # Check if question should SHOW a diagram (not ask student to draw)
+            if draft_preview:
+                preview_lower = draft_preview.lower()
+                # Pattern: "Convert the following EER model" - needs diagram shown
+                # Pattern: "Based on the diagram" - needs diagram shown
+                # Pattern: "The following diagram" - needs diagram shown
+                if any(phrase in preview_lower for phrase in [
+                    "convert the following",
+                    "following eer model",
+                    "following er model",
+                    "following diagram",
+                    "based on the diagram",
+                    "the diagram shows",
+                    "shown in the diagram",
+                    "referring to the diagram"
+                ]):
+                    # Determine diagram type from pattern_label
+                    pattern_lower = template_intent.lower()
+                    if "eer" in pattern_lower:
+                        needs_diagram = True
+                        diagram_type = "EER"
+                    elif "er" in pattern_lower:
+                        needs_diagram = True
+                        diagram_type = "ER"
+                    elif "normalization" in pattern_lower or "fd" in pattern_lower:
+                        needs_diagram = True
+                        diagram_type = "FD"  # Functional Dependency
+                    
+                    if needs_diagram:
+                        print(f"    [INFO] Question references existing diagram - will generate {diagram_type} diagram")
                 
                 # Double check if we already used this diagram type
                 # if diagram_type == "ER" and "er_diagram" in used_question_types:
@@ -1368,66 +1410,164 @@ class AgentOrchestrator:
                     # No structure available, use generic fallback
                     draft = self._generate_minimal_valid_draft(q_no, target_marks, template.get("pattern_label", "General"), [], needs_diagram, diagram_type)
             
-            # --- DALL·E IMAGE GENERATION (after approval) ---
-            if approved and needs_diagram and draft.get("needs_diagram"):
+            # --- AUTOMATIC DIAGRAM GENERATION (after approval) ---
+            # Only generate if question needs to SHOW a diagram (not ask student to draw)
+            # Check generated draft for diagram references (AFTER generation, more accurate)
+            if approved:
                 try:
-                    from app.services.image_generation_service import generate_diagram_for_question
+                    from app.services.semantic_diagram_service import SemanticDiagramService
                     from app.core.paths import OUTPUTS_DIR
+                    import re
                     
-                    # Prepare image output directory
-                    images_dir = OUTPUTS_DIR / "model_papers" / "images"
-                    images_dir.mkdir(parents=True, exist_ok=True)
+                    # Check if question asks student to draw (don't generate in that case)
+                    all_text = draft.get("text", "") + " " + " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])])
+                    all_text_lower = all_text.lower()
                     
-                    # Find sub-question that mentions diagram
-                    diagram_subq_text = None
-                    for sq in draft.get("subquestions", []):
-                        sq_text = sq.get("text", "").lower()
-                        if "draw" in sq_text or "diagram" in sq_text or "illustrate" in sq_text or "sketch" in sq_text:
-                            diagram_subq_text = sq.get("text")
-                            break
-                    
-                    # If no specific sub-question found, use main question text
-                    if not diagram_subq_text:
-                        diagram_subq_text = draft.get("text", "")
-                    
-                    # Generate image using DALL·E
-                    question_text = draft.get("text", "")
-                    q_no = slot.get("question_no") or slot.get("slot_id") or "Q?"
-                    
-                    print(f"    🎨 Generating diagram image with DALL·E 3 for {q_no}...")
-                    image_result = generate_diagram_for_question(
-                        question_text=question_text,
-                        subquestion_text=diagram_subq_text,
-                        diagram_type=diagram_type,
-                        question_no=q_no,
-                        output_dir=images_dir
+                    # Check if any subquestion references "the following diagram/model" (needs diagram shown)
+                    subquestion_references_diagram = any(
+                        re.search(r"(?:convert|based on|referring to|using|the following)\s+(?:the\s+)?(?:eer|er|entity[\s-]?relationship|diagram|model)", 
+                                 sq.get("text", "").lower()) 
+                        for sq in draft.get("subquestions", [])
                     )
                     
-                    if image_result.get("success"):
-                        # Add image reference to draft
-                        draft["diagram_image_url"] = image_result.get("image_url")
-                        draft["diagram_image_path"] = image_result.get("image_path")
-                        draft["diagram_generated"] = True
-                        draft["diagram_prompt_used"] = image_result.get("prompt_used")
-                        print(f"    ✅ DALL·E image generated successfully: {image_result.get('image_path')}")
-                    else:
-                        # Fallback to text placeholder
-                        error_msg = image_result.get("error", "Unknown error")
-                        print(f"    ⚠️ DALL·E image generation failed: {error_msg}")
-                        draft["diagram_image_url"] = None
-                        draft["diagram_image_path"] = None
-                        draft["diagram_generated"] = False
-                        draft["diagram_placeholder"] = f"[DIAGRAM PLACEHOLDER: {diagram_subq_text or 'Draw the diagram as described in the question'}]"
+                    # Also check main question for diagram references
+                    main_references_diagram = bool(re.search(
+                        r"(?:convert|based on|referring to|using|the following)\s+(?:the\s+)?(?:eer|er|entity[\s-]?relationship|diagram|model)",
+                        draft.get("text", "").lower()
+                    ))
+                    
+                    # Determine if we need a diagram based on ACTUAL generated text
+                    if subquestion_references_diagram or main_references_diagram:
+                        # Determine diagram type from pattern_label or text
+                        pattern_lower = template_intent.lower()
+                        if not diagram_type:
+                            if "eer" in pattern_lower or "eer" in all_text_lower:
+                                diagram_type = "EER"
+                            elif "er" in pattern_lower or ("er" in all_text_lower and "eer" not in all_text_lower):
+                                diagram_type = "ER"
+                            elif "normalization" in pattern_lower or "fd" in pattern_lower or "functional dependency" in all_text_lower:
+                                diagram_type = "Functional Dependency"
                         
+                        if diagram_type:
+                            needs_diagram = True
+                            print(f"    [INFO] Detected diagram reference in generated text - will generate {diagram_type} diagram")
+                    
+                    # Skip if main question asks student to draw AND no subquestion references a diagram
+                    main_q_draws = bool(re.search(r"draw\s+(?:an?\s+)?(?:eer|er|entity[\s-]?relationship|diagram)", draft.get("text", "").lower()))
+                    if main_q_draws and not subquestion_references_diagram and not main_references_diagram:
+                        print(f"    [INFO] Question asks student to draw diagram - skipping image generation")
+                        needs_diagram = False
+                    elif main_q_draws and (subquestion_references_diagram or main_references_diagram):
+                        # Main asks to draw, but subquestion references "following diagram" - generate it
+                        print(f"    [INFO] Main question asks to draw, but references 'following diagram' - will generate diagram")
+                        needs_diagram = True
+                    
+                    if needs_diagram:
+                        # Prepare image output directory
+                        images_dir = OUTPUTS_DIR / "model_papers" / "images"
+                        images_dir.mkdir(parents=True, exist_ok=True)
+                        
+                        q_no = slot.get("question_no") or slot.get("slot_id") or "Q?"
+                        
+                        # Extract semantic description from question text
+                        semantic_description = draft.get("text", "")
+                        
+                        # Check if any subquestion asks about ISA hierarchies
+                        requires_isa = False
+                        for sq in draft.get("subquestions", []):
+                            sq_text = sq.get("text", "").lower()
+                            if any(phrase in sq_text for phrase in [
+                                "isa hierarchy", "isa hierarchies", "mapping the isa",
+                                "isa relationship", "generalization", "specialization",
+                                "subtype", "supertype", "inheritance"
+                            ]):
+                                requires_isa = True
+                                print(f"    [INFO] Subquestion requires ISA hierarchies - will enforce in diagram")
+                                break
+                        
+                        # If ISA hierarchies are required but not mentioned in description, enhance it
+                        if requires_isa and diagram_type == "EER":
+                            if not any(phrase in semantic_description.lower() for phrase in [
+                                "isa", "subtype", "supertype", "graduate", "undergraduate",
+                                "generalization", "specialization", "inheritance"
+                            ]):
+                                # Enhance description to include ISA hierarchies
+                                # Add a common ISA pattern (e.g., Student -> GraduateStudent, UndergraduateStudent)
+                                enhancement = " The system includes ISA hierarchies: Student has subtypes GraduateStudent and UndergraduateStudent. GraduateStudent has specific attributes like ThesisTitle and AdvisorName. UndergraduateStudent has specific attributes like YearOfStudy and Major."
+                                semantic_description = semantic_description + enhancement
+                                print(f"    [INFO] Enhanced semantic description to include ISA hierarchies")
+                        
+                        # If question references "following diagram" but doesn't describe it,
+                        # use the main question text as semantic description
+                        if "following" in all_text_lower and len(semantic_description) < 100:
+                            # Try to get description from context or use question text
+                            semantic_description = draft.get("text", "")
+                        
+                        # Generate diagram using Graphviz from semantic description
+                        print(f"    [INFO] Generating {diagram_type} diagram from semantic description for {q_no}...")
+                        print(f"    [INFO] Semantic description: {semantic_description[:100]}...")
+                        
+                        service = SemanticDiagramService()
+                        output_path = images_dir / f"{q_no}_{diagram_type.lower()}_diagram.png"
+                        
+                        result = service.generate_diagram_from_semantic_description(
+                            description=semantic_description,
+                            output_path=output_path,
+                            diagram_type=diagram_type,
+                            format="png"
+                        )
+                        
+                        if result.get("success"):
+                            # Add image reference to draft
+                            draft["diagram_image_path"] = str(output_path)
+                            draft["diagram_generated"] = True
+                            draft["diagram_type"] = diagram_type
+                            draft["needs_diagram"] = True
+                            draft["diagram_source"] = "semantic_description"
+                            print(f"    [OK] Graphviz diagram generated successfully: {output_path}")
+                            
+                            # Replace semantic description in question text with diagram reference
+                            # Remove the detailed entity/relationship description and replace with simple reference
+                            original_text = draft.get("text", "")
+                            
+                            # Pattern: If text contains detailed entity descriptions, replace with diagram reference
+                            # Look for patterns like "has attributes", "includes", "with attributes", etc.
+                            if any(phrase in original_text.lower() for phrase in [
+                                "has attributes", "includes attributes", "with attributes",
+                                "has entities", "entities include", "entities are",
+                                "the main entities", "entities involved", "entities such as"
+                            ]):
+                                # Replace with simple diagram reference
+                                if diagram_type == "EER":
+                                    replacement_text = f"Consider the following Enhanced Entity-Relationship (EER) diagram:"
+                                elif diagram_type == "ER":
+                                    replacement_text = f"Consider the following Entity-Relationship (ER) diagram:"
+                                elif diagram_type == "Functional Dependency":
+                                    replacement_text = f"Consider the following functional dependency diagram:"
+                                else:
+                                    replacement_text = f"Consider the following {diagram_type} diagram:"
+                                
+                                draft["text"] = replacement_text
+                                draft["original_semantic_description"] = original_text  # Keep original for reference
+                                print(f"    [INFO] Replaced semantic description with diagram reference: '{replacement_text}'")
+                        else:
+                            # Fallback to text placeholder
+                            error_msg = result.get("error", "Unknown error")
+                            print(f"    [WARN] Graphviz diagram generation failed: {error_msg}")
+                            draft["diagram_image_path"] = None
+                            draft["diagram_generated"] = False
+                            draft["needs_diagram"] = True
+                            draft["diagram_placeholder"] = f"[DIAGRAM PLACEHOLDER: {diagram_type} diagram should be shown here based on the description]"
+                            
                 except Exception as e:
-                    print(f"    ⚠️ DALL·E integration error: {e}")
+                    print(f"    [ERROR] Diagram generation error: {e}")
                     import traceback
                     traceback.print_exc()
                     # Fallback to placeholder
-                    draft["diagram_image_url"] = None
                     draft["diagram_image_path"] = None
                     draft["diagram_generated"] = False
-                    draft["diagram_placeholder"] = f"[DIAGRAM PLACEHOLDER: Draw the {diagram_type or 'diagram'} as described in the question]"
+                    draft["needs_diagram"] = True
+                    draft["diagram_placeholder"] = f"[DIAGRAM PLACEHOLDER: {diagram_type or 'diagram'} should be shown here]"
             # -----------------------------------------
             
             # 3. SAVE Question

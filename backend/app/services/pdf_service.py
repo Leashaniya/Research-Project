@@ -1,6 +1,7 @@
 from fpdf import FPDF
 from datetime import datetime
 from pathlib import Path
+import os
 
 class PDFService:
     @staticmethod
@@ -85,6 +86,31 @@ class PDFService:
                     pdf.multi_cell(0, 6, PDFService._sanitize_text(question_stem))
                     pdf.ln(3)
             
+            # Show diagram immediately after question text (if generated)
+            diagram_image_path = q.get("diagram_image_path")
+            diagram_generated = q.get("diagram_generated", False)
+            if diagram_generated and diagram_image_path:
+                img_path_str = str(diagram_image_path) if isinstance(diagram_image_path, Path) else diagram_image_path
+                img_path_normalized = img_path_str.replace("\\", "/")
+                
+                if os.path.exists(img_path_str):
+                    try:
+                        pdf.ln(3)
+                        pdf.set_font("helvetica", "B", 10)
+                        diagram_type = q.get("diagram_type", "Diagram")
+                        pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
+                        
+                        # Calculate available width (A4 width - margins)
+                        avail_width = 180
+                        # Embed diagram image
+                        pdf.image(img_path_normalized, w=avail_width)
+                        pdf.ln(5)
+                        print(f"    [OK] Embedded diagram image after question text: {img_path_normalized}")
+                    except Exception as e:
+                        print(f"    [WARN] Failed to embed diagram image: {e}")
+                        import traceback
+                        traceback.print_exc()
+            
             # Sub-questions
             subquestions = q.get("subquestions", [])
             if subquestions:
@@ -121,6 +147,7 @@ class PDFService:
                 pdf.ln(5)
 
             # --- DIAGRAM RENDERING (V3: DALL·E + Mermaid Fallback) ---
+            # Note: If diagram was already shown above (after question text), skip here
             # Priority 1: DALL·E generated image
             # Priority 2: Mermaid code rendering
             # Priority 3: Text placeholder
@@ -129,38 +156,53 @@ class PDFService:
             diagram_image_url = q.get("diagram_image_url")
             mermaid_code = q.get("mermaid_code")
             needs_diagram = q.get("needs_diagram", False)
+            diagram_generated = q.get("diagram_generated", False)
             diagram_placeholder = q.get("diagram_placeholder")
             
-            # Priority 1: DALL·E generated image
-            if diagram_image_path and os.path.exists(diagram_image_path):
-                try:
-                    pdf.ln(5)
-                    pdf.set_font("helvetica", "B", 10)
-                    diagram_type = q.get("diagram_type", "Diagram")
-                    pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
-                    
-                    # Calculate available width (A4 width - margins)
-                    avail_width = 180
-                    # Embed DALL·E generated image
-                    pdf.image(diagram_image_path, w=avail_width)
-                    pdf.ln(5)
-                    print(f"    ✅ Embedded DALL·E image: {diagram_image_path}")
-                except Exception as e:
-                    print(f"    ⚠️ Failed to embed DALL·E image: {e}")
-                    # Fall through to Mermaid or placeholder
+            # Skip diagram rendering here if it was already shown above (after question text)
+            if diagram_generated and diagram_image_path:
+                # Diagram already shown above, skip duplicate rendering
+                pass
+            # Priority 1: Generated diagram image (Graphviz or DALL·E) - only if not shown above
+            elif diagram_image_path:
+                # Convert to string and normalize path for FPDF (use forward slashes)
+                img_path_str = str(diagram_image_path) if isinstance(diagram_image_path, Path) else diagram_image_path
+                # Normalize path separators for FPDF (works on both Windows and Unix)
+                img_path_normalized = img_path_str.replace("\\", "/")
+                
+                if os.path.exists(img_path_str):
+                    try:
+                        pdf.ln(5)
+                        pdf.set_font("helvetica", "B", 10)
+                        diagram_type = q.get("diagram_type", "Diagram")
+                        pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
+                        
+                        # Calculate available width (A4 width - margins)
+                        avail_width = 180
+                        # Embed diagram image (FPDF.image accepts string path with forward slashes)
+                        pdf.image(img_path_normalized, w=avail_width)
+                        pdf.ln(5)
+                        print(f"    [OK] Embedded diagram image: {img_path_normalized}")
+                    except Exception as e:
+                        print(f"    [WARN] Failed to embed diagram image: {e}")
+                        import traceback
+                        traceback.print_exc()
+                        # Fall through to Mermaid or placeholder
+                        diagram_image_path = None
+                else:
+                    print(f"    [WARN] Diagram image file not found: {img_path_str}")
                     diagram_image_path = None
             
             # Priority 2: Mermaid code rendering (fallback)
             elif mermaid_code:
                 try:
                     from app.services.diagram_service import DiagramService
-                    import os
                     
                     # Generate temporary path
                     timestamp = int(datetime.now().timestamp())
                     temp_img_path = str(Path(output_path).parent / "temp_images" / f"q_{q_no}_{timestamp}.png")
                     
-                    print(f"    🎨 Rendering Mermaid diagram for {q_no}...")
+                    print(f"    [INFO] Rendering Mermaid diagram for {q_no}...")
                     success = DiagramService.render_mermaid_to_image(mermaid_code, temp_img_path)
                     
                     if success and os.path.exists(temp_img_path):

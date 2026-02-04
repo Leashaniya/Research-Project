@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-04 13:28:06",
+  "generated_at": "2026-02-05 00:15:23",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "A university has a database that contains information about students, courses, and enrollments. The students have attributes such as StudentID (primary key), Name, and Age. The courses have attributes like CourseID (primary key), CourseName, and Credits. An enrollment connects students to courses and includes attributes EnrollmentID (primary key), Grade, and Semester. There are many students for each course (many-to-many relationship), and a student can be enrolled in multiple courses.",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:",
       "subquestions": [
         {
           "label": "a",
@@ -42,12 +42,18 @@
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
       "template_id": "6982fba8d57348f105e05de1",
+      "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research Project\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
+      "diagram_generated": true,
+      "diagram_type": "EER",
+      "needs_diagram": true,
+      "diagram_source": "semantic_description",
+      "original_semantic_description": "A university system manages various entities related to student enrollment, courses, and faculty members. The system includes entities such as Student with attributes like student_id, name, and major; Course with attributes such as course_id, title, and credits; and Faculty with attributes like faculty_id, name, and department. Students can enroll in multiple courses, and each course can have multiple students. Additionally, faculty members are assigned to teach specific courses. This scenario involves specialization where there are undergraduate and graduate students.",
       "topic_label": "ER_EER_MODELING"
     },
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider the following relation schema: BookInventory (ISBN, Title, AuthorID, PublisherID, Price) with the functional dependencies F = {{ISBN->Title, ISBN->AuthorID, AuthorID->PublisherID, AuthorID->Price}}. Analyze this schema for normalization.",
+      "text": "Consider a relation R(EmployeeID, EmployeeName, DepartmentID, DepartmentName, Salary) with the following set of functional dependencies F over R: F={{ EmployeeID->EmployeeName, DepartmentID->DepartmentName, EmployeeID->Salary }}.",
       "subquestions": [
         {
           "label": "a",
@@ -61,12 +67,12 @@
         },
         {
           "label": "c",
-          "text": "If we insert a row < 978-3-16-148410-0, 'Database Systems', null, 123, 59.99> into the given relation, what is the update anomaly that is violated? Give reasons.",
+          "text": "If we insert a row < 101, John Doe, 4, HR, 75000> into the given relation, what is the update anomaly that is violated? Give reasons.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Assume that the relation has a row, < 978-0-12-345678-9, 'Data Science Fundamentals', 456, 789, 49.99>. If we remove the author with ID 456, what is the possible update anomaly that can be violated? Give reasons.",
+          "text": "Assume that the relation has a row, < 102, Jane Smith, 3, IT, 65000>. If we remove the record for Jane Smith, what is the possible update anomaly that can be violated? Give reasons.",
           "marks": 2
         },
         {
@@ -86,7 +92,7 @@
         },
         {
           "label": "h",
-          "text": "Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to BCNF.",
+          "text": "Are the 3NF relations derived in part (e) in BCNF? If not, bring the relations to BCNF.",
           "marks": 2
         }
       ],
@@ -99,51 +105,51 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A retail company is developing a comprehensive database system to manage its product inventory and sales data. The database structure defined includes tables for products, sales transactions, customers, and staff members. Ensure you address the various SQL commands and roles that will be implemented for managing the database effectively.",
+      "text": "A university is managing its course and student enrollment data using a relational database system. The database contains several relations, including Courses(course_id: string, course_name: string, credits: integer) and Students(student_id: string, student_name: string, major: string). In addition, the university requires constraints to ensure data integrity for managing course enrollments in a relation called Enrollments(course_id: string, student_id: string, semester: string). Enrollments must refer to valid course_id and student_id from the respective relations.",
       "subquestions": [
         {
           "label": "a",
-          "text": "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
+          "text": "Accept or refute the statement about using relational schemas to define the structure of a database. Justify your answer.",
           "marks": 2
         },
         {
           "label": "b",
-          "text": "There are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used.",
+          "text": "Which type of statements is used in JDBC API to execute updates on the database? Briefly explain when this type of statement will be used.",
           "marks": 2
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
+          "text": "Briefly explain the methods available for transferring data between the Courses and Students tables.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
+          "text": "Briefly explain how data integrity can be ensured for the Enrollments relation in the university database.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A retail company has assigned various roles for its database. Mark is the lead database administrator responsible for overseeing the database system's management. Write a T-SQL statement to create a login for Mark with Windows authentication.",
-          "marks": 3
+          "text": "A new requirement states that each course must have a unique identifier. Write a T-SQL statement to create the Courses table including this requirement.",
+          "marks": 2
         },
         {
           "label": "f",
-          "text": "Provide Mark with the necessary permissions to perform all administrative operations within the server through a fixed server role.",
-          "marks": 3
+          "text": "Provide permissions to a database user to manage the Courses and Enrollments relations. Write a T-SQL statement to grant this access.",
+          "marks": 5
         },
         {
           "label": "g",
-          "text": "Assuming Laura's username is 'laura.l', write T-SQL statements to assign her the responsibility of managing the sales transactions table using a user-defined role.",
-          "marks": 4
+          "text": "Assuming the user is 'student101', write T-SQL statements to allow this user to retrieve data from the Courses table.",
+          "marks": 3
         },
         {
           "label": "h",
-          "text": "Assuming Alex's login name is 'alex.a', write T-SQL statements to grant him permission to create and modify product tables.",
+          "text": "Assuming the user 'admin' needs to manage data integrity, write T-SQL statements to enforce foreign key relationships in the Enrollments table.",
           "marks": 3
         },
         {
           "label": "i",
-          "text": "Assuming Jessica's login name is 'jessica.j', write T-SQL statements to allow her to execute data entry tasks on the product and sales transaction tables.",
+          "text": "Assuming the user has been given access to the database, write T-SQL statements to allow him to insert new student enrollment records in the Enrollments table.",
           "marks": 3
         }
       ],
@@ -156,32 +162,27 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "A university maintains records of its courses, students, and professors. Each course has a unique course code, a title, and is taught by one or more professors. Each student is identified by a student ID, has a name, and can enroll in multiple courses. Professors are identified by their faculty ID and have names as well. Draw an Entity-Relationship Diagram to represent the above scenario.",
+      "text": "In a university database, there are three main entities: Student, Course, and Instructor. Each Student can enroll in multiple Courses, and each Course is taught by a single Instructor. The Student entity has attributes like StudentID, Name, and Major. The Course entity includes CourseID, Title, and Credits, while the Instructor entity contains InstructorID, Name, and Department. The enrollment relationship has an attribute for Grade, representing the Student's performance in a Course.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Identify the main entities involved in the given scenario.",
-          "marks": 5
+          "text": "Identify all the entities and their attributes in the given scenario.",
+          "marks": 10
         },
         {
           "label": "b",
-          "text": "List the attributes for each entity identified.",
+          "text": "Identify the relationships and their cardinalities among the entities in the scenario.",
           "marks": 10
         },
         {
           "label": "c",
-          "text": "Determine and state the relationships between the entities, including cardinalities.",
+          "text": "Draw an ER diagram to represent the entities, attributes, and relationships identified in the scenario.",
           "marks": 10
         },
         {
           "label": "d",
-          "text": "Draw an ER diagram to represent the entities and relationships from the scenario.",
+          "text": "Map the identified entities and relationships to a relational schema, indicating primary keys.",
           "marks": 10
-        },
-        {
-          "label": "e",
-          "text": "Convert the ER diagram into a relational schema mapping each entity to a table structure.",
-          "marks": 5
         }
       ],
       "pattern_label": "GENERAL_THEORY",
