@@ -337,7 +337,7 @@ def main():
     # FORCE: Always generate exactly 4 questions (Q1-Q4)
     canonical_num_questions = 4
     canonical_total_marks = int(EXPECTED_TOTAL_MARKS)
-    
+
     print(f"\nFORCED: canonical_num_questions = {canonical_num_questions} (regardless of historical paper counts)")
 
     # Calculate slot stats for positions 1-4 (Q1-Q4) only
@@ -496,7 +496,7 @@ def main():
         most_frequent_cluster_id = 0
         most_frequent_keywords = ["General"]
         most_frequent_topic_name = "General"
-    
+
     # UPDATE BLUEPRINT WITH TOPICS
     # Find most common cluster for each position (Q1-Q4 only)
     pos_clusters = {}

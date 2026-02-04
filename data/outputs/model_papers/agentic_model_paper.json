@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-03 00:48:16",
+  "generated_at": "2026-02-04 13:28:06",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,50 +25,53 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "A zoo manages various animals within different exhibits and keeps records of their health and feeding schedules. Each animal has animal ID, species, age, and health status. Each exhibit has exhibit ID, type, and capacity. Each keeper has keeper ID, name, and experience level.",
+      "text": "A university has a database that contains information about students, courses, and enrollments. The students have attributes such as StudentID (primary key), Name, and Age. The courses have attributes like CourseID (primary key), CourseName, and Credits. An enrollment connects students to courses and includes attributes EnrollmentID (primary key), Grade, and Semester. There are many students for each course (many-to-many relationship), and a student can be enrolled in multiple courses.",
       "subquestions": [
         {
           "label": "a",
-          "marks": 17,
-          "text": "Identify the main entities and their attributes."
+          "text": "Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulting relations clearly.",
+          "marks": 17
         },
         {
           "label": "b",
-          "marks": 3,
-          "text": "Draw the ER/EER diagram showing relationships and cardinalities."
+          "text": "What is the best option for mapping the ISA hierarchies in the diagram? Justify your answer.",
+          "marks": 3
         }
       ],
+      "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
+      "intent": "ER_EER_MODELING",
+      "template_id": "6982fba8d57348f105e05de1",
       "topic_label": "ER_EER_MODELING"
     },
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider the following relation schema: Flight(FlightID, Airline, DepartureCity, ArrivalCity, DepartureTime, ArrivalTime). The functional dependencies are given by F = {FlightID \u2192 Airline, DepartureCity, ArrivalCity, DepartureTime, ArrivalTime; Airline, DepartureCity \u2192 ArrivalCity, DepartureTime, ArrivalTime}. Analyze this relation and its dependencies for normalization purposes.",
+      "text": "Consider the following relation schema: BookInventory (ISBN, Title, AuthorID, PublisherID, Price) with the functional dependencies F = {{ISBN->Title, ISBN->AuthorID, AuthorID->PublisherID, AuthorID->Price}}. Analyze this schema for normalization.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Draw the functional dependency diagram for the relation Flight.",
+          "text": "Draw the functional dependency diagram.",
           "marks": 1
         },
         {
           "label": "b",
-          "text": "Use the attribute closure and identify the primary key for the relation Flight.",
+          "text": "Use the attribute closure and identify the primary key for the given relation.",
           "marks": 1
         },
         {
           "label": "c",
-          "text": "If we insert a row <FL123, Delta, Atlanta, New York, 10:00, 12:00> into the relation, what is the update anomaly that is violated? Give reasons.",
+          "text": "If we insert a row < 978-3-16-148410-0, 'Database Systems', null, 123, 59.99> into the given relation, what is the update anomaly that is violated? Give reasons.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Assume that the relation has a row <FL456, Southwest, Miami, Los Angeles, 15:00, 17:30>. If we remove the flight FL456, what is the possible update anomaly that can be violated? Give reasons.",
+          "text": "Assume that the relation has a row, < 978-0-12-345678-9, 'Data Science Fundamentals', 456, 789, 49.99>. If we remove the author with ID 456, what is the possible update anomaly that can be violated? Give reasons.",
           "marks": 2
         },
         {
           "label": "e",
-          "text": "Using the above functional dependencies, design a set of 3NF relations for the relation Flight. Show clearly each stage in deriving the 3NF relations. Also identify the normal form at each of these stages.",
+          "text": "Using the above functional dependencies, design a set of 3NF relations for the above given relation. Show clearly each stage in deriving the 3NF relations. Also identify the normal form at each of these stages.",
           "marks": 3
         },
         {
@@ -83,99 +86,102 @@
         },
         {
           "label": "h",
-          "text": "Are the 3NF relations derived in part (e) in BCNF? If not, bring the relations to BCNF.",
+          "text": "Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to BCNF.",
           "marks": 2
         }
       ],
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "6980da5d7814358e3f3326f3",
+      "template_id": "6982fba8d57348f105e05de2",
       "topic_label": "NORMALIZATION_FD_KEYS"
     },
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "Given a restaurant database with tables: Customers (id, name, email), Orders (id, customer_id, date), Products (id, name, price).",
+      "text": "A retail company is developing a comprehensive database system to manage its product inventory and sales data. The database structure defined includes tables for products, sales transactions, customers, and staff members. Ensure you address the various SQL commands and roles that will be implemented for managing the database effectively.",
       "subquestions": [
         {
           "label": "a",
-          "marks": 2,
-          "text": "Write a SQL query to retrieve customer orders with order details."
+          "text": "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
+          "marks": 2
         },
         {
           "label": "b",
-          "marks": 2,
-          "text": "Create a SQL query with appropriate joins between multiple tables."
+          "text": "There are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used.",
+          "marks": 2
         },
         {
           "label": "c",
-          "marks": 2,
-          "text": "Write a SQL query with aggregation functions (COUNT, SUM, AVG)."
+          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
+          "marks": 2
         },
         {
           "label": "d",
-          "marks": 3,
-          "text": "Design a SQL query with subqueries for complex data retrieval."
+          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
+          "marks": 3
         },
         {
           "label": "e",
-          "marks": 2,
-          "text": "Explain the SQL query execution plan and optimization strategies."
+          "text": "A retail company has assigned various roles for its database. Mark is the lead database administrator responsible for overseeing the database system's management. Write a T-SQL statement to create a login for Mark with Windows authentication.",
+          "marks": 3
         },
         {
           "label": "f",
-          "marks": 3,
-          "text": "Write a SQL query with GROUP BY and HAVING clauses."
+          "text": "Provide Mark with the necessary permissions to perform all administrative operations within the server through a fixed server role.",
+          "marks": 3
         },
         {
           "label": "g",
-          "marks": 5,
-          "text": "Create a SQL query with window functions for analytical operations."
+          "text": "Assuming Laura's username is 'laura.l', write T-SQL statements to assign her the responsibility of managing the sales transactions table using a user-defined role.",
+          "marks": 4
         },
         {
           "label": "h",
-          "marks": 3,
-          "text": "Write a SQL query to filter records based on specific conditions."
+          "text": "Assuming Alex's login name is 'alex.a', write T-SQL statements to grant him permission to create and modify product tables.",
+          "marks": 3
         },
         {
           "label": "i",
-          "marks": 3,
-          "text": "Create a SQL query to sort and limit results."
+          "text": "Assuming Jessica's login name is 'jessica.j', write T-SQL statements to allow her to execute data entry tasks on the product and sales transaction tables.",
+          "marks": 3
         }
       ],
+      "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
+      "intent": "SQL_DDL_DML",
+      "template_id": "6982fba8d57348f105e05de3",
       "topic_label": "SQL_DDL_DML"
     },
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "A zoo manages various animals within different exhibits and keeps records of their health and feeding schedules. Each animal has animal ID, species, age, and health status. Each exhibit has exhibit ID, type, and capacity. Each keeper has keeper ID, name, and experience level.",
+      "text": "A university maintains records of its courses, students, and professors. Each course has a unique course code, a title, and is taught by one or more professors. Each student is identified by a student ID, has a name, and can enroll in multiple courses. Professors are identified by their faculty ID and have names as well. Draw an Entity-Relationship Diagram to represent the above scenario.",
       "subquestions": [
         {
           "label": "a",
-          "marks": 8,
-          "text": "Identify the main entities and their attributes."
+          "text": "Identify the main entities involved in the given scenario.",
+          "marks": 5
         },
         {
           "label": "b",
-          "marks": 8,
-          "text": "Explain the relationships between entities."
+          "text": "List the attributes for each entity identified.",
+          "marks": 10
         },
         {
           "label": "c",
-          "marks": 8,
-          "text": "Describe the key concepts related to GENERAL_THEORY."
+          "text": "Determine and state the relationships between the entities, including cardinalities.",
+          "marks": 10
         },
         {
           "label": "d",
-          "marks": 8,
-          "text": "Analyze the key concepts related to GENERAL_THEORY."
+          "text": "Draw an ER diagram to represent the entities and relationships from the scenario.",
+          "marks": 10
         },
         {
           "label": "e",
-          "marks": 8,
-          "text": "Design the key concepts related to GENERAL_THEORY."
+          "text": "Convert the ER diagram into a relational schema mapping each entity to a table structure.",
+          "marks": 5
         }
       ],
       "pattern_label": "GENERAL_THEORY",

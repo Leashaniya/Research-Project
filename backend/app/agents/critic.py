@@ -399,8 +399,12 @@ class QualityCritic(BaseAgent):
                 return {"approved": False, "feedback": err_msg, "feedback_code": "QUALITY_ERROR"}
             
             # 10.2 Mark-to-effort mismatch (e.g. 1 mark for huge explanation)
+            # NOTE: Allow "Briefly explain" even with 2 marks, as this is a valid pattern from templates
+            # Only reject if it's "explain" without "briefly" AND the question is long AND marks are low
+            # BUT: Check if template has "Briefly explain" pattern - if so, this is a critical error
             if marks <= 2 and ("explain" in text.lower() and "briefly" not in text.lower()) and len(text) > 100:
-                err_msg = f"QUALITY_ERROR: Mark mismatch. You have {marks} marks for a potentially complex question. Simplify or increase marks."
+                # Check if this might be a template pattern violation (should be "Briefly explain")
+                err_msg = f"QUALITY_ERROR: Mark mismatch. You have {marks} marks for a potentially complex question. This appears to be missing 'Briefly' qualifier - if the template pattern says 'Briefly explain', you MUST use 'Briefly explain' exactly. Simplify or increase marks."
                 self.log(f"❌ Deterministic Reject: {err_msg}")
                 return {"approved": False, "feedback": err_msg, "feedback_code": "QUALITY_ERROR"}
             
@@ -431,10 +435,32 @@ class QualityCritic(BaseAgent):
         # --- LLM AUDIT (Only if deterministic checks pass) ---
         # All hard-fail conditions have been checked above.
         # LLM review is for semantic quality, not structural validation.
+        
+        # Extract template context to inform the reviewer about expected patterns
+        template_info = ""
+        if template:
+            template_pattern = template.get("pattern_label", "")
+            template_structure = template.get("required_structure", [])
+            if template_structure:
+                # Check if template contains JDBC or T-SQL patterns
+                template_text = json.dumps(template_structure, indent=2).lower()
+                has_jdbc = "jdbc" in template_text or "java" in template_text
+                has_tsql = "t-sql" in template_text or "tsql" in template_text
+                
+                template_info = f"""
+        TEMPLATE CONTEXT (IMPORTANT):
+        - This question follows a template pattern: {template_pattern}
+        - The template structure includes {len(template_structure)} sub-questions
+        {"- ⚠️ NOTE: The template includes JDBC API topics (database connectivity from Java) - this is VALID for Database Systems exams" if has_jdbc else ""}
+        {"- ⚠️ NOTE: The template includes T-SQL statements - this is VALID for Database Systems exams" if has_tsql else ""}
+        - If the question follows the template structure, it should be APPROVED even if it contains JDBC API or T-SQL topics
+        """
+        
         prompt = f"""
         You are a strict Exam Quality Reviewer for a Database Systems exam.
         Review this Draft Question: {json.dumps(draft, indent=2)}
         Reference Material: {context}
+        {template_info}
         
         ⚠️ CRITICAL REVIEW CRITERIA ⚠️
         
@@ -444,9 +470,13 @@ class QualityCritic(BaseAgent):
            - Does it reflect ONLY core Database Management Systems syllabus content?
            - REJECT if it introduces topics unrelated to core syllabus or past paper patterns
            - REJECT if it deviates from historical exam question styles
+           - ⚠️ IMPORTANT: If the template context shows JDBC API or T-SQL topics, these are VALID database connectivity topics and should be APPROVED
         
         2. CONTENT RELEVANCE (MANDATORY):
            - Is it 100% Database Systems? 
+           - ✅ ALLOW: JDBC API (Java Database Connectivity) - this is a VALID database connectivity topic
+           - ✅ ALLOW: T-SQL (Transact-SQL) statements - this is a VALID database language topic
+           - ✅ ALLOW: Database connectivity APIs, SQL statements, database administration tasks
            - REJECT if it contains networking topics (TCP/IP, routing, packets, OSI model, etc.)
            - REJECT if it contains OS topics (CPU scheduling, process scheduling, memory management, etc.)
            - REJECT if it contains web development (HTML, CSS, JavaScript, etc.)

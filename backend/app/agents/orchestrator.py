@@ -613,7 +613,7 @@ class AgentOrchestrator:
         draft["text"] = stem
         return draft
 
-    def _generate_minimal_valid_draft(self, q_no: str, target_marks: int, intent: str, struct_source: list, needs_diagram: bool, diagram_type: str, used_scenarios: set = None) -> dict:
+    def _generate_minimal_valid_draft(self, q_no: str, target_marks: int, intent: str, struct_source: list, needs_diagram: bool, diagram_type: str) -> dict:
         """
         Generate a minimal valid draft guaranteed to pass deterministic validation.
         Preserves template intent (ER, Normalization, SQL, etc.) and ensures:
@@ -621,12 +621,8 @@ class AgentOrchestrator:
         - Scenario/schema if required by type
         - Distinct subquestions (unique verbs)
         - Marks sum exactly
-        - Unique scenarios (diversity)
         """
         import string
-        
-        if used_scenarios is None:
-            used_scenarios = set()
         
         # Determine question type from intent
         intent_lower = intent.lower()
@@ -637,68 +633,15 @@ class AgentOrchestrator:
         # Build stem with required content based on intent
         stem_parts = []
         if is_er:
-            # Choose a unique ER scenario
-            er_scenarios = ["zoo", "restaurant", "gym", "hotel", "museum", "cinema", "stadium", "theater", "park", "warehouse", "factory", "pharmacy", "supermarket"]
-            scenario_choice = "zoo"  # Default
-            for s in er_scenarios:
-                if s not in used_scenarios:
-                    scenario_choice = s
-                    break
-            
-            if scenario_choice == "zoo":
-                stem_parts.append("A zoo manages various animals within different exhibits and keeps records of their health and feeding schedules.")
-                stem_parts.append("Each animal has animal ID, species, age, and health status.")
-                stem_parts.append("Each exhibit has exhibit ID, type, and capacity.")
-                stem_parts.append("Each keeper has keeper ID, name, and experience level.")
-            elif scenario_choice == "restaurant":
-                stem_parts.append("A restaurant manages orders, customers, and menu items.")
-                stem_parts.append("Each customer has customer ID, name, and contact information.")
-                stem_parts.append("Each order has order ID, date, and total amount.")
-                stem_parts.append("Each menu item has item ID, name, price, and category.")
-            elif scenario_choice == "gym":
-                stem_parts.append("A gym manages members, trainers, and workout sessions.")
-                stem_parts.append("Each member has member ID, name, and membership type.")
-                stem_parts.append("Each trainer has trainer ID, name, and specialization.")
-                stem_parts.append("Each session has session ID, date, and duration.")
-            elif scenario_choice == "hotel":
-                stem_parts.append("A hotel manages rooms, guests, and reservations.")
-                stem_parts.append("Each guest has guest ID, name, and contact information.")
-                stem_parts.append("Each room has room number, type, and price.")
-                stem_parts.append("Each reservation has reservation ID, check-in date, and check-out date.")
-            elif scenario_choice == "museum":
-                stem_parts.append("A museum manages exhibits, artifacts, and visitors.")
-                stem_parts.append("Each artifact has artifact ID, name, and historical period.")
-                stem_parts.append("Each exhibit has exhibit ID, theme, and location.")
-                stem_parts.append("Each visitor has visitor ID, name, and visit date.")
-            elif scenario_choice == "cinema":
-                stem_parts.append("A cinema manages movies, screenings, and tickets.")
-                stem_parts.append("Each movie has movie ID, title, and genre.")
-                stem_parts.append("Each screening has screening ID, date, and time.")
-                stem_parts.append("Each ticket has ticket ID, seat number, and price.")
-            else:
-                # Generic fallback with scenario name
-                stem_parts.append(f"A {scenario_choice} database system manages various entities and relationships.")
-                stem_parts.append("Each entity has unique identifiers and relevant attributes.")
-                stem_parts.append("Entities are related through defined relationships.")
+            stem_parts.append("Consider a university database system with students, courses, and enrollments.")
+            stem_parts.append("Each student has student ID, name, and email.")
+            stem_parts.append("Each course has course code, title, and credits.")
+            stem_parts.append("Students enroll in courses, and each enrollment has a grade.")
         elif is_norm:
-            # Use a diverse scenario for normalization - pick from unused scenarios
-            norm_scenarios = ["airline", "restaurant", "gym", "hotel", "pharmacy", "supermarket", "warehouse", "factory", "cinema", "stadium"]
-            scenario_choice = "restaurant"  # Default
-            for s in norm_scenarios:
-                if s not in used_scenarios:
-                    scenario_choice = s
-                    break
-            stem_parts.append(f"Consider a relation schema R(A, B, C, D) from a {scenario_choice} database system with functional dependencies:")
+            stem_parts.append("Given a relation schema R(A, B, C, D) with functional dependencies:")
             stem_parts.append("A → B, B → C, C → D.")
         elif is_sql:
-            # Use a diverse scenario for SQL - pick from unused scenarios
-            sql_scenarios = ["airline", "restaurant", "gym", "hotel", "pharmacy", "supermarket", "warehouse", "factory", "cinema", "stadium", "theater", "museum"]
-            scenario_choice = "restaurant"  # Default
-            for s in sql_scenarios:
-                if s not in used_scenarios:
-                    scenario_choice = s
-                    break
-            stem_parts.append(f"Given a {scenario_choice} database with tables: Customers (id, name, email), Orders (id, customer_id, date), Products (id, name, price).")
+            stem_parts.append("Given a database with tables: Customers (id, name, email), Orders (id, customer_id, date), Products (id, name, price).")
         else:
             stem_parts.append("Consider a database management system scenario.")
         
@@ -749,58 +692,80 @@ class AgentOrchestrator:
                 else:
                     marks = target_marks // len(struct_source)
                 
-                verb = verbs[idx % len(verbs)]
+                # PRIORITY: Use template text pattern if available (preserves exact instruction patterns)
+                template_text = item.get("text", "").strip()
                 
-                # Generate intent-aware text with distinct content for each subquestion
-                # Use different verbs AND different tasks to ensure maximum distinctness
-                if is_er:
-                    er_combinations = [
-                        ("Identify", "the main entities and their attributes"),
-                        ("Draw", "the ER/EER diagram showing relationships and cardinalities"),
-                        ("Map", "the ER diagram to a relational schema with primary and foreign keys"),
-                        ("Explain", "the relationships between entities and their cardinality constraints"),
-                        ("Describe", "the attributes of each entity and their data types"),
-                        ("List", "the primary keys, foreign keys, and integrity constraints"),
-                        ("Design", "the complete relational schema based on the ER diagram")
-                    ]
-                    verb, task = er_combinations[idx % len(er_combinations)]
-                    text = f"{verb} {task}."
-                elif is_norm:
-                    norm_combinations = [
-                        ("Identify", "the functional dependencies in the given relation"),
-                        ("Determine", "the normal form of the relation and justify your answer"),
-                        ("Normalize", "the relation to 3NF showing all decomposition steps"),
-                        ("Find", "the candidate keys and superkeys in the relation"),
-                        ("Perform", "decomposition to achieve BCNF with lossless join"),
-                        ("Explain", "the normalization process and why each step is necessary"),
-                        ("Analyze", "the anomalies in the original relation")
-                    ]
-                    verb, task = norm_combinations[idx % len(norm_combinations)]
-                    text = f"{verb} {task}."
-                elif is_sql:
-                    sql_combinations = [
-                        ("Write", "a SQL query to retrieve customer orders with order details"),
-                        ("Create", "a SQL query with appropriate joins between multiple tables"),
-                        ("Write", "a SQL query with aggregation functions (COUNT, SUM, AVG)"),
-                        ("Design", "a SQL query with subqueries for complex data retrieval"),
-                        ("Explain", "the SQL query execution plan and optimization strategies"),
-                        ("Write", "a SQL query with GROUP BY and HAVING clauses"),
-                        ("Create", "a SQL query with window functions for analytical operations")
-                    ]
-                    verb, task = sql_combinations[idx % len(sql_combinations)]
-                    text = f"{verb} {task}."
+                # Use template text if it exists and is valid (even if long - long scenarios are OK)
+                if template_text and not self._is_placeholder(template_text) and len(template_text) > 5:
+                    # Use template text pattern - preserve exact instruction wording
+                    # This includes long scenarios (100+ words) which are valid for Q3 parts like 'e'
+                    text = template_text
+                    # Remove label prefix if present (e.g., "a) " or "? " from template)
+                    # But be careful - some templates start with ") " (missing label)
+                    if text and len(text) > 2:
+                        # Check for label prefix patterns: "a) ", "b) ", "? ", ") "
+                        if text[1] in [')', '.', '?']:
+                            text = text[2:].strip()
+                        elif text[0] in [')', '.', '?']:
+                            text = text[1:].strip()
+                    
+                    # Ensure we have valid text after cleaning
+                    if not text or len(text) < 5:
+                        # If cleaning removed too much, use original
+                        text = template_text
                 else:
-                    generic_combinations = [
-                        ("Define", "the key concepts and their importance"),
-                        ("Describe", "the main components and how they interact"),
-                        ("Analyze", "the advantages and disadvantages of different approaches"),
-                        ("Compare", "different implementation strategies and their trade-offs"),
-                        ("Evaluate", "the effectiveness of the proposed solution"),
-                        ("Explain", "the real-world applications and use cases"),
-                        ("List", "the key features and their benefits")
-                    ]
-                    verb, task = generic_combinations[idx % len(generic_combinations)]
-                    text = f"{verb} {task} related to {intent}."
+                    # Fallback: Generate intent-aware text with distinct content for each subquestion
+                    # Use different verbs AND different tasks to ensure maximum distinctness
+                    verb = verbs[idx % len(verbs)]
+                    
+                    if is_er:
+                        er_combinations = [
+                            ("Identify", "the main entities and their attributes"),
+                            ("Draw", "the ER/EER diagram showing relationships and cardinalities"),
+                            ("Map", "the ER diagram to a relational schema with primary and foreign keys"),
+                            ("Explain", "the relationships between entities and their cardinality constraints"),
+                            ("Describe", "the attributes of each entity and their data types"),
+                            ("List", "the primary keys, foreign keys, and integrity constraints"),
+                            ("Design", "the complete relational schema based on the ER diagram")
+                        ]
+                        verb, task = er_combinations[idx % len(er_combinations)]
+                        text = f"{verb} {task}."
+                    elif is_norm:
+                        norm_combinations = [
+                            ("Identify", "the functional dependencies in the given relation"),
+                            ("Determine", "the normal form of the relation and justify your answer"),
+                            ("Normalize", "the relation to 3NF showing all decomposition steps"),
+                            ("Find", "the candidate keys and superkeys in the relation"),
+                            ("Perform", "decomposition to achieve BCNF with lossless join"),
+                            ("Explain", "the normalization process and why each step is necessary"),
+                            ("Analyze", "the anomalies in the original relation")
+                        ]
+                        verb, task = norm_combinations[idx % len(norm_combinations)]
+                        text = f"{verb} {task}."
+                    elif is_sql:
+                        sql_combinations = [
+                            ("Write", "a SQL query to retrieve customer orders with order details"),
+                            ("Create", "a SQL query with appropriate joins between multiple tables"),
+                            ("Write", "a SQL query with aggregation functions (COUNT, SUM, AVG)"),
+                            ("Design", "a SQL query with subqueries for complex data retrieval"),
+                            ("Briefly explain", "the SQL query execution plan and optimization strategies"),
+                            ("Write", "a SQL query with GROUP BY and HAVING clauses"),
+                            ("Create", "a SQL query with window functions for analytical operations")
+                        ]
+                        verb, task = sql_combinations[idx % len(sql_combinations)]
+                        text = f"{verb} {task}."
+                    else:
+                        generic_combinations = [
+                            ("Define", "the key concepts and their importance"),
+                            ("Describe", "the main components and how they interact"),
+                            ("Analyze", "the advantages and disadvantages of different approaches"),
+                            ("Compare", "different implementation strategies and their trade-offs"),
+                            ("Evaluate", "the effectiveness of the proposed solution"),
+                            ("Briefly explain", "the real-world applications and use cases"),
+                            ("List", "the key features and their benefits")
+                        ]
+                        verb, task = generic_combinations[idx % len(generic_combinations)]
+                        text = f"{verb} {task} related to {intent}."
                 
                 subquestions.append({"label": label, "marks": marks, "text": text})
             
@@ -825,33 +790,6 @@ class AgentOrchestrator:
                 draft["mermaid_code"] = "erDiagram\n    ENTITY1 ||--o{ ENTITY2 : relates_to\n    ENTITY2 ||--|{ ENTITY3 : contains"
             else:
                 draft["mermaid_code"] = "graph TD\n    Error[Diagram Missing] -->|Fallback Draft| Generated\n    Generated[Check Logs]"
-        
-        # Track scenario for diversity
-        if used_scenarios is not None:
-            scenario_keywords = []
-            q_text = stem.lower()
-            scenario_patterns = {
-                "zoo": ["zoo", "animal", "exhibit", "keeper"],
-                "restaurant": ["restaurant", "order", "menu", "customer", "waiter"],
-                "gym": ["gym", "member", "trainer", "workout"],
-                "hotel": ["hotel", "room", "guest", "reservation"],
-                "museum": ["museum", "exhibit", "visitor", "artifact"],
-                "cinema": ["cinema", "movie", "ticket", "screening"],
-                "stadium": ["stadium", "event", "ticket", "team"],
-                "theater": ["theater", "play", "actor", "performance"],
-                "airline": ["airline", "flight", "passenger", "booking"],
-                "pharmacy": ["pharmacy", "medicine", "prescription"],
-                "supermarket": ["supermarket", "product", "sale", "cart"],
-                "warehouse": ["warehouse", "inventory", "product", "supplier"],
-                "factory": ["factory", "production", "worker", "machine"],
-                "university": ["university", "student", "course", "enrollment"]
-            }
-            for scenario_type, keywords in scenario_patterns.items():
-                if any(kw in q_text for kw in keywords):
-                    scenario_keywords.append(scenario_type)
-                    break
-            if scenario_keywords:
-                used_scenarios.add(scenario_keywords[0])
         
         return draft
 
@@ -1413,8 +1351,22 @@ class AgentOrchestrator:
 
             if not approved:
                 print("    ⚠️  Max Retries reached. Using safest fallback.")
-                # Fallback: Simple deterministic draft (with scenario diversity)
-                draft = self._generate_minimal_valid_draft(q_no, target_marks, template.get("pattern_label", "General"), template.get("required_structure", []), needs_diagram, diagram_type, used_scenarios)
+                # Fallback: Use template structure EXACTLY (preserves instruction patterns)
+                struct_source = template.get("required_structure") or []
+                if not struct_source or len(struct_source) == 0:
+                    # Try to get from canonical template if available
+                    canonical = await self._get_canonical_template(q_no)
+                    if canonical:
+                        struct_source = canonical.get("subquestion_structure", [])
+                
+                if struct_source and len(struct_source) > 0:
+                    print(f"    📋 Fallback using template structure with {len(struct_source)} parts")
+                    # Use exact structure from template
+                    draft = self._generate_minimal_valid_draft(q_no, target_marks, template.get("pattern_label", "General"), struct_source, needs_diagram, diagram_type)
+                else:
+                    print("    ⚠️  No template structure available, using generic fallback")
+                    # No structure available, use generic fallback
+                    draft = self._generate_minimal_valid_draft(q_no, target_marks, template.get("pattern_label", "General"), [], needs_diagram, diagram_type)
             
             # --- DALL·E IMAGE GENERATION (after approval) ---
             if approved and needs_diagram and draft.get("needs_diagram"):
@@ -1506,43 +1458,9 @@ class AgentOrchestrator:
             if "sql" in q_text or "query" in q_text:
                 used_question_types.add("sql_coding")
             
-            # Track Scenario - Extract scenario type/keywords for better diversity tracking
-            # Identify common scenario types from question text
-            scenario_keywords = []
-            scenario_patterns = {
-                "library": ["library", "book", "borrow", "member", "librarian"],
-                "university": ["university", "student", "course", "enrollment", "faculty", "department"],
-                "hospital": ["hospital", "patient", "doctor", "treatment", "appointment", "medical"],
-                "bank": ["bank", "account", "transaction", "customer", "branch", "loan"],
-                "bookstore": ["bookstore", "book", "publisher", "author", "sale"],
-                "airline": ["airline", "flight", "passenger", "booking", "airport"],
-                "restaurant": ["restaurant", "order", "menu", "customer", "waiter", "chef"],
-                "hotel": ["hotel", "room", "guest", "reservation", "booking"],
-                "school": ["school", "teacher", "student", "class", "grade"],
-                "gym": ["gym", "member", "trainer", "equipment", "workout"],
-                "pharmacy": ["pharmacy", "medicine", "prescription", "patient", "doctor"],
-                "supermarket": ["supermarket", "product", "sale", "customer", "cart"],
-                "warehouse": ["warehouse", "inventory", "product", "supplier", "stock"],
-                "factory": ["factory", "production", "worker", "machine", "product"],
-                "museum": ["museum", "exhibit", "visitor", "artifact", "collection"],
-                "cinema": ["cinema", "movie", "ticket", "show", "audience"],
-                "zoo": ["zoo", "animal", "keeper", "enclosure", "visitor"],
-                "stadium": ["stadium", "event", "ticket", "team", "match"],
-                "theater": ["theater", "play", "actor", "performance", "ticket"]
-            }
-            
-            q_text_lower = q_text.lower()
-            for scenario_type, keywords in scenario_patterns.items():
-                if any(kw in q_text_lower for kw in keywords):
-                    scenario_keywords.append(scenario_type)
-                    break  # Use first match
-            
-            # Also track first 50 chars as fallback
+            # Track Scenario (hash or snippet)
+            # We track the first 50 chars of the scenario to catch direct duplicates
             scenario_snippet = q_text[:50].strip()
-            if scenario_keywords:
-                # Add scenario type for better tracking
-                for st in scenario_keywords:
-                    used_scenarios.add(st)
             if scenario_snippet:
                 used_scenarios.add(scenario_snippet)
                 

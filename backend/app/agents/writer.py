@@ -89,6 +89,13 @@ class QuestionWriter(BaseAgent):
                     )
                     parsed["subquestions"] = generated_subquestions
                 
+                # ENFORCE INSTRUCTION PATTERNS: Check if LLM deviated from template patterns
+                if required_structure and len(required_structure) > 0:
+                    parsed["subquestions"] = self._enforce_instruction_patterns(
+                        parsed["subquestions"],
+                        required_structure
+                    )
+                
                 # Normalize marks to ensure they sum correctly
                 parsed["subquestions"] = self._normalize_subquestion_marks(
                     parsed["subquestions"], 
@@ -273,6 +280,81 @@ class QuestionWriter(BaseAgent):
         
         return subquestions
 
+    def _enforce_instruction_patterns(self, subquestions: list, required_structure: list) -> list:
+        """
+        Enforce instruction patterns from template if LLM deviated.
+        For each sub-question, if template has a text pattern, ensure the generated text preserves it.
+        """
+        if not required_structure or len(required_structure) != len(subquestions):
+            return subquestions
+        
+        enforced = []
+        for idx, (sq, struct_item) in enumerate(zip(subquestions, required_structure)):
+            template_text = struct_item.get("text", "").strip()
+            
+            # If template has text pattern, check if we should enforce it
+            if template_text and len(template_text) > 10:
+                # Clean template text (remove label prefix)
+                clean_template = template_text
+                if clean_template and len(clean_template) > 2 and clean_template[1] in [')', '.', '?']:
+                    clean_template = clean_template[2:].strip()
+                
+                # Extract instruction pattern (the task/instruction part, not the scenario)
+                # For patterns like "Briefly explain...", "Write a T-SQL statement...", "Accept or refute..."
+                # We want to preserve these exact phrases
+                generated_text = sq.get("text", "").strip()
+                
+                # Check if generated text matches the instruction pattern
+                # CRITICAL: "Briefly explain" must be preserved exactly
+                needs_enforcement = False
+                
+                # Check for "Briefly explain" - this is CRITICAL
+                if "briefly explain" in clean_template.lower():
+                    if "briefly explain" not in generated_text.lower():
+                        needs_enforcement = True
+                        self.log(f"    🔧 CRITICAL: Missing 'Briefly' qualifier in sub-question {sq.get('label', idx)} - enforcing template pattern")
+                
+                # Check for "Accept or refute"
+                if "accept or refute" in clean_template.lower():
+                    if "accept or refute" not in generated_text.lower():
+                        needs_enforcement = True
+                        self.log(f"    🔧 Enforcing 'Accept or refute' pattern for sub-question {sq.get('label', idx)}")
+                
+                # Check for "Write a T-SQL statement"
+                if "write a t-sql statement" in clean_template.lower():
+                    if "write a t-sql statement" not in generated_text.lower():
+                        needs_enforcement = True
+                        self.log(f"    🔧 Enforcing 'Write a T-SQL statement' pattern for sub-question {sq.get('label', idx)}")
+                
+                # For short patterns (< 150 chars), use template text directly if enforcement needed
+                if needs_enforcement and len(clean_template) < 150:
+                    sq["text"] = clean_template
+                    self.log(f"    ✅ Enforced exact template pattern for sub-question {sq.get('label', idx)}")
+                # For long patterns (with scenarios), we need to preserve the instruction part
+                elif needs_enforcement and len(clean_template) >= 150:
+                    # Extract the instruction part (usually the last sentence or phrase)
+                    # For T-SQL patterns, the instruction is usually at the end
+                    if "write a t-sql statement" in clean_template.lower():
+                        # Find the instruction part (from "Write a T-SQL" to end)
+                        tsql_start = clean_template.lower().find("write a t-sql statement")
+                        if tsql_start >= 0:
+                            instruction_part = clean_template[tsql_start:]
+                            # Try to merge: keep generated scenario but use template instruction
+                            # For now, use template text to ensure correctness
+                            sq["text"] = clean_template
+                            self.log(f"    ✅ Enforced long scenario pattern for sub-question {sq.get('label', idx)}")
+                        else:
+                            self.log(f"    ⚠️  Long scenario pattern detected - using full template text")
+                            sq["text"] = clean_template
+                    else:
+                        # For other long patterns, use template text
+                        sq["text"] = clean_template
+                        self.log(f"    ✅ Enforced template pattern for long scenario sub-question {sq.get('label', idx)}")
+            
+            enforced.append(sq)
+        
+        return enforced
+
     def _build_generation_prompt(self, slot, template, context, global_context, feedback=None, *, banned_topics=None) -> str:
         """Mode 1: Pure Generation from Constraints (No past text shown)."""
         
@@ -282,15 +364,22 @@ class QuestionWriter(BaseAgent):
         
         # Calculate sub-question breakdown string with text patterns if available
         structure_parts = []
+        instruction_patterns = []  # Store patterns for explicit enforcement
         for s in structure_fingerprint:
             label = s.get('label', '?')
             marks = s.get('marks', 0)
             text_pattern = s.get('text', '')  # Get stored text pattern
             if text_pattern:
+                # Clean text pattern (remove label prefix if present)
+                clean_pattern = text_pattern.strip()
+                if clean_pattern and len(clean_pattern) > 2 and clean_pattern[1] in [')', '.', '?']:
+                    clean_pattern = clean_pattern[2:].strip()
+                instruction_patterns.append(clean_pattern)
                 # Include the instruction pattern for preservation
-                structure_parts.append(f"- Part {label}: {marks} marks\n  Instruction Pattern: \"{text_pattern}\"")
+                structure_parts.append(f"- Part {label}: {marks} marks\n  Instruction Pattern (MUST PRESERVE EXACTLY): \"{clean_pattern}\"")
             else:
                 structure_parts.append(f"- Part {label}: {marks} marks")
+                instruction_patterns.append("")
         structure_str = "\n".join(structure_parts)
         
         # CRITICAL: Get exact count required
@@ -302,13 +391,12 @@ class QuestionWriter(BaseAgent):
         
         
         er_context = ""
-        used_scenarios_list = global_context.get('used_scenarios', [])
         if is_er_question:
-             er_context = f"Include a UNIQUE scenario (zoo, restaurant, gym, hotel, museum, cinema, stadium, theater) DIFFERENT from: {used_scenarios_list}. Describe entities, relationships, and attributes."
+             er_context = "Include a scenario describing entities, relationships, and attributes."
         elif is_norm_question:
-             er_context = f"Include a relation schema and functional dependencies from a UNIQUE scenario (airline, restaurant, gym, hotel, pharmacy, supermarket, warehouse, factory) DIFFERENT from: {used_scenarios_list}."
+             er_context = "Include a relation schema and functional dependencies."
         else:
-             er_context = f"Include relevant context and background information. Use a UNIQUE scenario DIFFERENT from: {used_scenarios_list}."
+             er_context = "Include relevant context and background information."
 
         prompt = f"""
         You are an expert Exam Setter for a Database Management Systems course.
@@ -353,12 +441,7 @@ class QuestionWriter(BaseAgent):
         GLOBAL ANTI-REPETITION CONSTRAINTS (DO NOT REUSE):
         - BANNED TOPICS (MUST NOT REPEAT): {global_context.get('banned_topics', [])} (You MUST use a DIFFERENT topic - each question must have a unique topic)
         - USED QUESTION TYPES: {global_context.get('used_question_types', [])} (You MUST generate a DIFFERENT type)
-        - USED SCENARIOS (MUST AVOID): {global_context.get('used_scenarios', [])} 
-          ⚠️ CRITICAL: You MUST use a COMPLETELY DIFFERENT, UNIQUE scenario that has NEVER been used before.
-          - If used scenarios include: "library", "university", "hospital", "bank"
-          - You MUST choose a DIFFERENT scenario like: "airline", "restaurant", "gym", "hotel", "school", "museum", "zoo", "pharmacy", "cinema", "supermarket", "warehouse", "factory", "park", "stadium", "theater"
-          - Each question in the paper MUST have a UNIQUE scenario (no two questions can use the same scenario)
-          - The scenario must be relevant to Database Management Systems and allow for the same question structure
+        - USED SCENARIOS: {global_context.get('used_scenarios', [])} (You MUST use a completely different scenario)
         
         REQUIRED STRUCTURE (MANDATORY - NO EXCEPTIONS):
 {structure_str}
@@ -379,8 +462,7 @@ class QuestionWriter(BaseAgent):
         {"6. **ER/EER QUESTION REQUIREMENTS**: " if is_er_question else ""}{"The question stem MUST include a scenario block (2-5 sentences) describing:" if is_er_question else ""}
         {"   - Entities and their attributes" if is_er_question else ""}
         {"   - Relationships between entities" if is_er_question else ""}
-        {"   - Real-world context: Use a UNIQUE scenario DIFFERENT from previous questions. Examples: zoo, restaurant, gym, hotel, museum, cinema, stadium, theater, park, warehouse, factory" if is_er_question else ""}
-        {"   - AVOID common scenarios already used: {global_context.get('used_scenarios', [])}" if is_er_question else ""}
+        {"   - Real-world context (e.g., university, hospital, library)" if is_er_question else ""}
         {"   Then subquestions should: identify entities/attributes, identify relationships/cardinalities, draw ER/EER diagram (use [DIAGRAM PLACEHOLDER]), map to relational schema." if is_er_question else ""}
         
         {"6. **NORMALIZATION QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_norm_question else ""}{"The question stem MUST include BOTH of the following:" if is_norm_question else ""}
@@ -393,19 +475,62 @@ class QuestionWriter(BaseAgent):
         {"   ⚠️ WITHOUT A RELATION SCHEMA AND FUNCTIONAL DEPENDENCIES IN THE STEM, THE QUESTION WILL BE REJECTED IMMEDIATELY." if is_norm_question else ""}
         {"   Then subquestions should ask for normalization steps to 3NF/BCNF and final decomposition." if is_norm_question else ""}
         
-        ADDITIONAL CONSTRAINTS:
-        - **PRESERVE INSTRUCTION PATTERNS**: If the structure includes "Instruction Pattern" text, you MUST preserve that exact instruction pattern:
-          * Keep the same task verbs (e.g., "Draw", "Convert", "Extend", "Identify", "Use the attribute closure")
-          * Keep the same diagram types (e.g., "ER diagram", "EER diagram", "relational model", "functional dependency diagram")
-          * Keep the same instruction structure (e.g., "Convert the following EER model into the relational model", "Draw the functional dependency diagram")
-          * ONLY change the scenario/context (e.g., different entities, different domain, different relation names)
-          * Example: If pattern says "Convert the following EER model into the relational model", your generated question MUST say "Convert the following EER model into the relational model" (but for a different scenario)
+        ⚠️ CRITICAL: INSTRUCTION PATTERN PRESERVATION (MANDATORY - ZERO TOLERANCE) ⚠️
+        The structure above includes "Instruction Pattern" text for each part. These patterns are from historical exam papers and MUST be preserved EXACTLY.
+        
+        **HOW TO USE INSTRUCTION PATTERNS (STRICT RULES):**
+        1. For each sub-question, look at the "Instruction Pattern" provided in the structure above
+        2. Copy the EXACT instruction wording from the pattern - DO NOT change task verbs, qualifiers, or instruction structure
+        3. **"Briefly explain" RULE (CRITICAL)**: 
+           - If pattern says "Briefly explain", you MUST write "Briefly explain" (NOT "explain", "Explain", "briefly explain", or any variation)
+           - The word "Briefly" MUST be included exactly as shown
+           - Missing "Briefly" will cause IMMEDIATE REJECTION
+           - Example: Pattern "Briefly explain how authentication works" → Output MUST be "Briefly explain how authentication works" (with "Briefly")
+        4. **"Accept or refute" RULE**: 
+           - If pattern says "Accept or refute", you MUST write "Accept or refute" (NOT "accept or reject", "accept or deny", or similar)
+           - Preserve EXACT wording
+        5. **"Write a T-SQL statement" RULE**: 
+           - If pattern says "Write a T-SQL statement", you MUST write "Write a T-SQL statement" (NOT "Write a SQL query", "Create a T-SQL", "Write T-SQL", etc.)
+           - Preserve the exact phrase "Write a T-SQL statement"
+        6. **JDBC API RULE**: 
+           - If pattern mentions JDBC API, Type 2 Driver, or Java database connectivity, these are VALID database topics
+           - Preserve these topics exactly as they appear in the pattern
+        7. ONLY change scenario-specific details (person names, organization names, database names, entity names, relation names)
+        8. Keep ALL task verbs, qualifiers ("Briefly", "Assuming", etc.), and instruction structure EXACTLY as shown
+        
+        **VALIDATION CHECKLIST (Before outputting):**
+        - [ ] Every "Briefly explain" in pattern has "Briefly" in output
+        - [ ] Every "Accept or refute" in pattern is preserved exactly
+        - [ ] Every "Write a T-SQL statement" in pattern is preserved exactly
+        - [ ] All qualifiers and task verbs match the pattern exactly
+        - [ ] Only scenario details (names, places) have changed
+        
+        **EXAMPLES OF CORRECT PATTERN PRESERVATION:**
+        - If pattern says: "Briefly explain how authentication and authorization are achieved in SQL Server"
+          → Your output: "Briefly explain how authentication and authorization are achieved in SQL Server" (EXACT SAME)
+        
+        - If pattern says: "Accept or refute the above statement justifying your answer"
+          → Your output: "Accept or refute the above statement justifying your answer" (EXACT SAME)
+        
+        - If pattern says: "Write a T-SQL statement to create a login to Sarah with windows authentication"
+          → Your output: "Write a T-SQL statement to create a login to [DIFFERENT_NAME] with windows authentication"
+          → Change "Sarah" to a different name, but keep "Write a T-SQL statement to create a login to" and "with windows authentication" EXACTLY
+        
+        - If pattern has a long scenario (e.g., "A financial institution... Sarah is the senior DBA... Write a T-SQL statement to create a login to Sarah"):
+          → Change: "financial institution" → "healthcare facility", "Sarah" → "John", "client accounts" → "patient records"
+          → Keep: The entire instruction structure "Write a T-SQL statement to create a login to [person] with windows authentication" EXACTLY
+        
+        **RULES:**
+        - Keep qualifiers like "Briefly" - if pattern says "Briefly explain", you MUST say "Briefly explain" (NOT "explain")
+        - Keep exact phrases like "Accept or refute the above statement justifying your answer" - preserve EXACTLY
+        - Keep exact T-SQL instruction patterns - preserve structure, only change names/contexts
+        - For long scenarios, preserve scenario structure but change: person names, organization names, database names, department names
+        - ONLY change scenario/context details - NEVER change instruction wording, task verbs, or structure
         - **Historical Pattern Alignment**: Follow the exact structure, style, and difficulty level of past exam questions
         - **Syllabus Compliance**: Ensure all content aligns with Database Management Systems curriculum modules
         - **Past Paper Reflection**: Questions must reflect topics and patterns from historical exam papers
         - **Bloom's Taxonomy**: Ensure a mix of Recall (Define/List) and Application (Design/Analyze) as seen in past papers
         - **Single Scenario**: Use ONE cohesive scenario for all parts.
-        - **SCENARIO UNIQUENESS**: The scenario you choose MUST be completely different from any scenario used in previous questions in this paper. Check USED SCENARIOS: {global_context.get('used_scenarios', [])}
         - **Authenticity**: Write a real, solvable problem with specific details matching past paper style
         - **Database Systems Only**: All content must be relevant to Database Management Systems - NO exceptions
         - **No Deviation**: Do NOT introduce concepts, topics, or approaches not found in past papers or syllabus
@@ -446,26 +571,32 @@ class QuestionWriter(BaseAgent):
         
         # Build structure string with text patterns if available
         structure_parts = []
+        instruction_patterns = []  # Store patterns for explicit enforcement
         for s in structure_fingerprint:
             label = s.get('label', '?')
             marks = s.get('marks', 0)
             text_pattern = s.get('text', '')  # Get stored text pattern
             if text_pattern:
+                # Clean text pattern (remove label prefix if present)
+                clean_pattern = text_pattern.strip()
+                if clean_pattern and len(clean_pattern) > 2 and clean_pattern[1] in [')', '.', '?']:
+                    clean_pattern = clean_pattern[2:].strip()
+                instruction_patterns.append(clean_pattern)
                 # Include the instruction pattern for preservation
-                structure_parts.append(f"- Part {label}: {marks} marks\n  Instruction Pattern: \"{text_pattern}\"")
+                structure_parts.append(f"- Part {label}: {marks} marks\n  Instruction Pattern (MUST PRESERVE EXACTLY): \"{clean_pattern}\"")
             else:
                 structure_parts.append(f"- Part {label}: {marks} marks")
+                instruction_patterns.append("")
         structure_str = "\n".join(structure_parts)
         required_count = len(structure_fingerprint)
 
         er_context = ""
-        used_scenarios_list = global_context.get('used_scenarios', [])
         if is_er_question:
-             er_context = f"Include a UNIQUE scenario (zoo, restaurant, gym, hotel, museum, cinema, stadium, theater) DIFFERENT from: {used_scenarios_list}. Describe entities, relationships, and attributes."
+             er_context = "Include a scenario describing entities, relationships, and attributes."
         elif is_norm_question:
-             er_context = f"Include a relation schema and functional dependencies from a UNIQUE scenario (airline, restaurant, gym, hotel, pharmacy, supermarket, warehouse, factory) DIFFERENT from: {used_scenarios_list}."
+             er_context = "Include a relation schema and functional dependencies."
         else:
-             er_context = f"Include relevant context and background information. Use a UNIQUE scenario DIFFERENT from: {used_scenarios_list}."
+             er_context = "Include relevant context and background information."
         
         base_prompt = f"""
         Generate ONE high-quality university exam question for a Database Systems course.
@@ -507,21 +638,38 @@ class QuestionWriter(BaseAgent):
         
         CONSTRAINTS:
         1. **Keep Structure EXACTLY**: You MUST generate EXACTLY {required_count} sub-questions matching the structure above. If template shows 9 parts, generate 9. If 7 parts, generate 7. NO DEVIATION.
-        2. **PRESERVE INSTRUCTION PATTERNS**: For each sub-question, preserve the EXACT instruction pattern from the template:
-           - If template says "Draw the ER diagram", your generated question MUST say "Draw the ER diagram" (but for the new scenario)
-           - If template says "Extend and draw the EER diagram", your generated question MUST say "Extend and draw the EER diagram" (but for the new scenario)
-           - If template says "Convert the following EER model into the relational model", your generated question MUST say "Convert the following EER model into the relational model" (but for the new scenario)
-           - Preserve the exact task verbs, diagram types, and instruction structure
-           - ONLY change the scenario/context (e.g., "university" → "hospital", "library" → "bank")
+        2. **PRESERVE INSTRUCTION PATTERNS** (CRITICAL - ZERO TOLERANCE): 
+           The structure above shows "Instruction Pattern (MUST PRESERVE EXACTLY)" for each part. These are from historical exam papers.
+           
+           **FOR EACH SUB-QUESTION:**
+           - Look at the "Instruction Pattern" provided in the structure above
+           - Copy the EXACT instruction wording from that pattern
+           - ONLY change scenario-specific details (person names, organization names, database names, entity names, relation names)
+           - Keep ALL task verbs, qualifiers, and instruction structure EXACTLY as shown
+           
+           **EXAMPLES:**
+           - Pattern: "Briefly explain how authentication and authorization are achieved in SQL Server"
+             → Output: "Briefly explain how authentication and authorization are achieved in SQL Server" (EXACT SAME)
+           
+           - Pattern: "Accept or refute the above statement justifying your answer"
+             → Output: "Accept or refute the above statement justifying your answer" (EXACT SAME)
+           
+           - Pattern: "Write a T-SQL statement to create a login to Sarah with windows authentication"
+             → Output: "Write a T-SQL statement to create a login to [DIFFERENT_NAME] with windows authentication"
+             → Change "Sarah" to different name, keep rest EXACTLY
+           
+           - Pattern with long scenario: "A financial institution... Sarah is the senior DBA... Write a T-SQL statement to create a login to Sarah"
+             → Change: "financial institution" → "healthcare facility", "Sarah" → "John", "client accounts" → "patient records"
+             → Keep: "Write a T-SQL statement to create a login to [person] with windows authentication" EXACTLY
+           
+           **HANDLING LONG SCENARIOS** (e.g., Q3 part 'e' with 100+ words):
+           - Preserve the EXACT instruction pattern at the end
+           - Change person names, organization types, database names, department names
+           - Keep the same role structure and relationships
+           - Keep the same instruction wording EXACTLY
         3. **Historical Pattern Alignment**: Maintain the exact structure, style, and difficulty level of the reference question
         4. **Syllabus Compliance**: Ensure all content aligns with Database Management Systems curriculum modules
-        5. **SCENARIO DIVERSITY (CRITICAL)**: You MUST use a COMPLETELY DIFFERENT, UNIQUE scenario that has NEVER been used before:
-           - If past papers use: "library", "university", "hospital", "bank", "bookstore"
-           - You MUST use a DIFFERENT scenario like: "airline", "restaurant", "gym", "hotel", "school", "museum", "zoo", "pharmacy", "cinema", "supermarket", "warehouse", "factory", "park", "stadium", "theater"
-           - Each question in the paper MUST have a UNIQUE scenario (no two questions can use the same scenario)
-           - The scenario must be relevant to Database Management Systems and allow for the same question structure
-           - USED SCENARIOS TO AVOID: {global_context.get('used_scenarios', [])}
-           - Example: If Q1 uses "hospital", Q2 cannot use "hospital" - use "airline" or "restaurant" instead
+        5. **Change Scenario**: If original is about a Bank, you write about a Library or Hospital (completely different scenario).
         6. **NO PLAGIARISM**: Do not copy the text verbatim. Re-invent the scenario and context, but keep the instruction pattern.
         7. **No Deviation**: Do NOT introduce concepts, topics, or approaches not found in past papers or syllabus
         
@@ -561,7 +709,7 @@ class QuestionWriter(BaseAgent):
         11. **NO EMPTY QUESTIONS**: Every sub-question `text` field must have substantial content (minimum 20 characters).
         12. **NO DEVIATION**: Do NOT introduce concepts, topics, or approaches not found in past papers or syllabus.
         
-        {"9. **ER/EER QUESTION REQUIREMENTS**: " if is_er_question else ""}{"The question stem MUST include a scenario block (2-5 sentences) describing entities, relationships, and attributes. Use a UNIQUE scenario (zoo, restaurant, gym, hotel, museum, cinema, stadium, theater) DIFFERENT from previous questions. AVOID: {global_context.get('used_scenarios', [])}. Then subquestions should: identify entities/attributes, identify relationships/cardinalities, draw ER/EER diagram (use [DIAGRAM PLACEHOLDER]), map to relational schema." if is_er_question else ""}
+        {"9. **ER/EER QUESTION REQUIREMENTS**: " if is_er_question else ""}{"The question stem MUST include a scenario block (2-5 sentences) describing entities, relationships, and attributes. Then subquestions should: identify entities/attributes, identify relationships/cardinalities, draw ER/EER diagram (use [DIAGRAM PLACEHOLDER]), map to relational schema." if is_er_question else ""}
         
         {"9. **NORMALIZATION QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_norm_question else ""}{"The question stem MUST include BOTH:" if is_norm_question else ""}
         {"   - A relation schema in EXACT format: 'Consider a relation R(A, B, C, D) with...' OR 'Consider the following relation schema: RelationName (Attr1, Attr2, Attr3)'" if is_norm_question else ""}
