@@ -1491,11 +1491,30 @@ class AgentOrchestrator:
                                 "isa", "subtype", "supertype", "graduate", "undergraduate",
                                 "generalization", "specialization", "inheritance"
                             ]):
-                                # Enhance description to include ISA hierarchies
-                                # Add a common ISA pattern (e.g., Student -> GraduateStudent, UndergraduateStudent)
-                                enhancement = " The system includes ISA hierarchies: Student has subtypes GraduateStudent and UndergraduateStudent. GraduateStudent has specific attributes like ThesisTitle and AdvisorName. UndergraduateStudent has specific attributes like YearOfStudy and Major."
+                                # Enhance description to include ISA hierarchies - make it context-aware
+                                # Try to infer the main entity from the description
+                                desc_lower = semantic_description.lower()
+                                main_entity = None
+                                
+                                # Common patterns: look for main entities mentioned
+                                if "course" in desc_lower:
+                                    main_entity = "Course"
+                                    enhancement = " The system includes ISA hierarchies: Course has subtypes CoreCourse and ElectiveCourse. CoreCourse has specific attributes like PrerequisiteCourseID and RequiredCredits. ElectiveCourse has specific attributes like MaxEnrollment and DepartmentRestriction."
+                                elif "student" in desc_lower:
+                                    main_entity = "Student"
+                                    enhancement = " The system includes ISA hierarchies: Student has subtypes GraduateStudent and UndergraduateStudent. GraduateStudent has specific attributes like ThesisTitle and AdvisorName. UndergraduateStudent has specific attributes like YearOfStudy and Major."
+                                elif "employee" in desc_lower or "staff" in desc_lower:
+                                    main_entity = "Employee"
+                                    enhancement = " The system includes ISA hierarchies: Employee has subtypes FullTimeEmployee and PartTimeEmployee. FullTimeEmployee has specific attributes like Salary and Benefits. PartTimeEmployee has specific attributes like HourlyRate and MaxHours."
+                                elif "member" in desc_lower:
+                                    main_entity = "Member"
+                                    enhancement = " The system includes ISA hierarchies: Member has subtypes RegularMember and PremiumMember. RegularMember has specific attributes like MembershipStartDate. PremiumMember has specific attributes like PremiumExpiryDate and DiscountRate."
+                                else:
+                                    # Generic fallback
+                                    enhancement = " The system includes ISA hierarchies: Entity has subtypes TypeA and TypeB. TypeA has specific attributes like AttributeA1 and AttributeA2. TypeB has specific attributes like AttributeB1 and AttributeB2."
+                                
                                 semantic_description = semantic_description + enhancement
-                                print(f"    [INFO] Enhanced semantic description to include ISA hierarchies")
+                                print(f"    [INFO] Enhanced semantic description to include ISA hierarchies (context-aware for {main_entity or 'generic entity'})")
                         
                         # If question references "following diagram" but doesn't describe it,
                         # use the main question text as semantic description
@@ -1514,7 +1533,8 @@ class AgentOrchestrator:
                             description=semantic_description,
                             output_path=output_path,
                             diagram_type=diagram_type,
-                            format="png"
+                            format="png",
+                            requires_isa=requires_isa  # Pass ISA requirement flag
                         )
                         
                         if result.get("success"):

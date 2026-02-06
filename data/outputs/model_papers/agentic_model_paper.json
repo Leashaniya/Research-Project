@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-05 00:15:23",
+  "generated_at": "2026-02-06 10:34:18",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -41,19 +41,19 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "6982fba8d57348f105e05de1",
+      "template_id": "69857386de4dacd36d8d5576",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research Project\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
       "diagram_source": "semantic_description",
-      "original_semantic_description": "A university system manages various entities related to student enrollment, courses, and faculty members. The system includes entities such as Student with attributes like student_id, name, and major; Course with attributes such as course_id, title, and credits; and Faculty with attributes like faculty_id, name, and department. Students can enroll in multiple courses, and each course can have multiple students. Additionally, faculty members are assigned to teach specific courses. This scenario involves specialization where there are undergraduate and graduate students.",
+      "original_semantic_description": "A university database manages its student information, courses, and instructors. Each student has attributes such as StudentID, Name, and Major. Courses include CourseID, Title, and Credits. Instructors are characterized by InstructorID, Name, and Department. Students enroll in multiple courses, and each course can have multiple students. Instructors teach multiple courses, and each course is taught by one instructor. Draw the EER diagram representing these entities and their relationships.",
       "topic_label": "ER_EER_MODELING"
     },
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(EmployeeID, EmployeeName, DepartmentID, DepartmentName, Salary) with the following set of functional dependencies F over R: F={{ EmployeeID->EmployeeName, DepartmentID->DepartmentName, EmployeeID->Salary }}.",
+      "text": "Consider a relation R(StudentID, CourseID, Instructor, Semester) with the following set of functional dependencies F over R: F = {StudentID -> CourseID, CourseID -> Instructor, Semester -> CourseID}.",
       "subquestions": [
         {
           "label": "a",
@@ -67,12 +67,12 @@
         },
         {
           "label": "c",
-          "text": "If we insert a row < 101, John Doe, 4, HR, 75000> into the given relation, what is the update anomaly that is violated? Give reasons.",
+          "text": "If we insert a row < 101, CSE101, Dr. Smith, Fall> into the given relation, what is the update anomaly that is violated? Give reasons.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Assume that the relation has a row, < 102, Jane Smith, 3, IT, 65000>. If we remove the record for Jane Smith, what is the possible update anomaly that can be violated? Give reasons.",
+          "text": "Assume that the relation has a row, < 102, CSE102, Dr. Jones, Spring>. If we remove the course CSE102, what is the possible update anomaly that can be violated? Give reasons.",
           "marks": 2
         },
         {
@@ -99,89 +99,89 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "6982fba8d57348f105e05de2",
+      "template_id": "69857386de4dacd36d8d5577",
       "topic_label": "NORMALIZATION_FD_KEYS"
     },
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A university is managing its course and student enrollment data using a relational database system. The database contains several relations, including Courses(course_id: string, course_name: string, credits: integer) and Students(student_id: string, student_name: string, major: string). In addition, the university requires constraints to ensure data integrity for managing course enrollments in a relation called Enrollments(course_id: string, student_id: string, semester: string). Enrollments must refer to valid course_id and student_id from the respective relations.",
+      "text": "A university is developing a database system to manage its courses and student enrollments. Each course has a unique ID and a title, while each student has a unique student ID and associated personal information. The system is intended to facilitate enrollment tracking and course management. The system is built upon a relational database model, where SQL Data Definition Language (DDL) is employed to define the structure of the database. The administration of the database involves assigning roles to various personnel including administrators, course coordinators, and data entry operators.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Accept or refute the statement about using relational schemas to define the structure of a database. Justify your answer.",
+          "text": "In a relational database, each table is defined by a schema that includes its fields and data types. Accept or refute the above statement justifying your answer.",
           "marks": 2
         },
         {
           "label": "b",
-          "text": "Which type of statements is used in JDBC API to execute updates on the database? Briefly explain when this type of statement will be used.",
+          "text": "There are several different statements in SQL DDL to enforce data integrity. Which type of statements are used in the code segment given below? Briefly explain when this type of statement will be used.",
           "marks": 2
         },
         {
           "label": "c",
-          "text": "Briefly explain the methods available for transferring data between the Courses and Students tables.",
+          "text": "Briefly explain the options available for transferring data between different tables within the same database.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how data integrity can be ensured for the Enrollments relation in the university database.",
+          "text": "Briefly explain how user privileges and roles can be managed in a MySQL database.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A new requirement states that each course must have a unique identifier. Write a T-SQL statement to create the Courses table including this requirement.",
-          "marks": 2
-        },
-        {
-          "label": "f",
-          "text": "Provide permissions to a database user to manage the Courses and Enrollments relations. Write a T-SQL statement to grant this access.",
-          "marks": 5
-        },
-        {
-          "label": "g",
-          "text": "Assuming the user is 'student101', write T-SQL statements to allow this user to retrieve data from the Courses table.",
+          "text": "A financial institution is developing a robust database system to manage its clients' sensitive financial data. Different roles are assigned to various team members for database administration and management. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance. Tom and Emily are junior database administrators under Sarah's supervision. Tom manages the client accounts database, while Emily handles the transactions database. Nathan is a database developer reporting to Tom and Emily. His responsibilities include designing and implementing database schemas for client accounts and transactions. Grace and Michael are data entry operators responsible for inputting client information and transaction records into the system. Write a T-SQL statement to create a login to Sarah with windows authentication.",
           "marks": 3
         },
         {
+          "label": "f",
+          "text": "Provide Jessica with the necessary permissions to execute all administrative commands within the database using a predefined role.",
+          "marks": 2
+        },
+        {
+          "label": "g",
+          "text": "Assuming Lisa's username is 'lisa.l', write SQL statements to assign her the responsibility of managing the student database using a user-defined role.",
+          "marks": 5
+        },
+        {
           "label": "h",
-          "text": "Assuming the user 'admin' needs to manage data integrity, write T-SQL statements to enforce foreign key relationships in the Enrollments table.",
+          "text": "Assuming Oliver's username is 'oliver.o', write SQL statements to grant him permission to create tables and alter existing ones.",
           "marks": 3
         },
         {
           "label": "i",
-          "text": "Assuming the user has been given access to the database, write T-SQL statements to allow him to insert new student enrollment records in the Enrollments table.",
+          "text": "Assuming Maria's username is 'maria.m', write SQL statements to allow her to perform data entry tasks on both the courses and student databases.",
           "marks": 3
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "6982fba8d57348f105e05de3",
+      "template_id": "69857386de4dacd36d8d5578",
       "topic_label": "SQL_DDL_DML"
     },
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "In a university database, there are three main entities: Student, Course, and Instructor. Each Student can enroll in multiple Courses, and each Course is taught by a single Instructor. The Student entity has attributes like StudentID, Name, and Major. The Course entity includes CourseID, Title, and Credits, while the Instructor entity contains InstructorID, Name, and Department. The enrollment relationship has an attribute for Grade, representing the Student's performance in a Course.",
+      "text": "A library system manages books, members, and loans. Each member can borrow multiple books, and each book can be borrowed by multiple members over time. The system tracks the date of loan and return. There are specific genres for books, and each member is assigned a unique membership ID alongside their contact information. Your task is to analyze this scenario and perform the required actions below.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Identify all the entities and their attributes in the given scenario.",
+          "text": "Identify the entities in the scenario and provide an attribute list for each entity.",
           "marks": 10
         },
         {
           "label": "b",
-          "text": "Identify the relationships and their cardinalities among the entities in the scenario.",
+          "text": "Clearly define the relationships between the identified entities, indicating cardinalities.",
           "marks": 10
         },
         {
           "label": "c",
-          "text": "Draw an ER diagram to represent the entities, attributes, and relationships identified in the scenario.",
+          "text": "Draw an ER diagram representing the entities, relationships, and their attributes. Ensure to include appropriate cardinalities and relationship names.",
           "marks": 10
         },
         {
           "label": "d",
-          "text": "Map the identified entities and relationships to a relational schema, indicating primary keys.",
+          "text": "Map the ER model to a relational schema, specifying primary and foreign keys in your design.",
           "marks": 10
         }
       ],

@@ -570,7 +570,8 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         description: str,
         output_path: Path,
         diagram_type: str = "EER",
-        format: str = "png"
+        format: str = "png",
+        requires_isa: bool = False
     ) -> Dict[str, Any]:
         """
         Complete pipeline: Parse semantic description and generate diagram image.
@@ -616,7 +617,8 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                     "generalization", "specialization", "inheritance", "subclass"
                 ])
                 
-                if mentions_isa and not isa_hierarchies:
+                # If ISA hierarchies are required (from subquestion) but not parsed, force them
+                if (mentions_isa or requires_isa) and not isa_hierarchies:
                     print(f"   [WARN] Description mentions ISA/subtypes but none were parsed. Attempting to infer...")
                     # Try to infer ISA hierarchies from entity names
                     entities = parsed_data.get("entities", [])
