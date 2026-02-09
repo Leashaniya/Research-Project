@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-06 10:34:18",
+  "generated_at": "2026-02-09 17:32:10",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:",
+      "text": "A university maintains a database to manage its courses, students, and instructors. Each course has a unique course ID, a title, and a number of credits. Students have a student ID, name, and major. Instructors are defined by an instructor ID, name, and department. Each course can have multiple students enrolled, and each course is taught by one instructor. Additionally, students can take multiple courses. Model this scenario using an Enhanced Entity-Relationship (EER) diagram that incorporates courses, students, instructors, and their relationships.",
       "subquestions": [
         {
           "label": "a",
@@ -41,19 +41,18 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69857386de4dacd36d8d5576",
+      "template_id": "6988383d14a4504bf217c8bf",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research Project\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
       "diagram_source": "semantic_description",
-      "original_semantic_description": "A university database manages its student information, courses, and instructors. Each student has attributes such as StudentID, Name, and Major. Courses include CourseID, Title, and Credits. Instructors are characterized by InstructorID, Name, and Department. Students enroll in multiple courses, and each course can have multiple students. Instructors teach multiple courses, and each course is taught by one instructor. Draw the EER diagram representing these entities and their relationships.",
       "topic_label": "ER_EER_MODELING"
     },
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(StudentID, CourseID, Instructor, Semester) with the following set of functional dependencies F over R: F = {StudentID -> CourseID, CourseID -> Instructor, Semester -> CourseID}.",
+      "text": "Consider a relation R(CustomerID, Name, Address, OrderID, Product, Quantity) with the following set of functional dependencies F over R: F={CustomerID->Name, OrderID->Product, Product->Quantity}. Analyze the relational schema for normalization.",
       "subquestions": [
         {
           "label": "a",
@@ -67,12 +66,12 @@
         },
         {
           "label": "c",
-          "text": "If we insert a row < 101, CSE101, Dr. Smith, Fall> into the given relation, what is the update anomaly that is violated? Give reasons.",
+          "text": "If we insert a row <102, John Doe, 123 Main St, 201, Laptop, 3> into the given relation, what is the update anomaly that is violated? Give reasons.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Assume that the relation has a row, < 102, CSE102, Dr. Jones, Spring>. If we remove the course CSE102, what is the possible update anomaly that can be violated? Give reasons.",
+          "text": "Assume that the relation has a row <101, Jane Smith, 456 Elm St, 200, Phone, 1>. If we remove the order with OrderID 200, what is the possible update anomaly that can be violated? Give reasons.",
           "marks": 2
         },
         {
@@ -92,101 +91,114 @@
         },
         {
           "label": "h",
-          "text": "Are the 3NF relations derived in part (e) in BCNF? If not, bring the relations to BCNF.",
+          "text": "Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to BCNF.",
           "marks": 2
         }
       ],
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69857386de4dacd36d8d5577",
+      "template_id": "6988383d14a4504bf217c8c0",
       "topic_label": "NORMALIZATION_FD_KEYS"
     },
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A university is developing a database system to manage its courses and student enrollments. Each course has a unique ID and a title, while each student has a unique student ID and associated personal information. The system is intended to facilitate enrollment tracking and course management. The system is built upon a relational database model, where SQL Data Definition Language (DDL) is employed to define the structure of the database. The administration of the database involves assigning roles to various personnel including administrators, course coordinators, and data entry operators.",
+      "text": "A retail organization is establishing a new relational database to keep track of its inventory and customer orders. The database will consist of multiple tables including Products, Customers, and Orders. Each table will have specific attributes such as ProductID, ProductName, CustomerID, CustomerName, OrderID, and OrderDate. The organization seeks to ensure that all data adheres to certain integrity constraints and best practices in database design.",
       "subquestions": [
         {
           "label": "a",
-          "text": "In a relational database, each table is defined by a schema that includes its fields and data types. Accept or refute the above statement justifying your answer.",
+          "text": "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
           "marks": 2
         },
         {
           "label": "b",
-          "text": "There are several different statements in SQL DDL to enforce data integrity. Which type of statements are used in the code segment given below? Briefly explain when this type of statement will be used.",
+          "text": "Code Segment:\n```sql\nPreparedStatement pstmt = connection.prepareStatement(\n    \"SELECT * FROM Employees WHERE Department = ?\");\npstmt.setString(1, \"IT\");\nResultSet rs = pstmt.executeQuery();\n```\n\nThere are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
           "marks": 2
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for transferring data between different tables within the same database.",
+          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how user privileges and roles can be managed in a MySQL database.",
+          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A financial institution is developing a robust database system to manage its clients' sensitive financial data. Different roles are assigned to various team members for database administration and management. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance. Tom and Emily are junior database administrators under Sarah's supervision. Tom manages the client accounts database, while Emily handles the transactions database. Nathan is a database developer reporting to Tom and Emily. His responsibilities include designing and implementing database schemas for client accounts and transactions. Grace and Michael are data entry operators responsible for inputting client information and transaction records into the system. Write a T-SQL statement to create a login to Sarah with windows authentication.",
+          "text": "A retail organization has designated a user named Alice as the primary database administrator responsible for managing inventory data. Write a T-SQL statement to create a login to Alice with Windows authentication.",
           "marks": 3
         },
         {
           "label": "f",
-          "text": "Provide Jessica with the necessary permissions to execute all administrative commands within the database using a predefined role.",
-          "marks": 2
+          "text": "Provide Alice with the necessary permissions to handle all administrative tasks within the server using a fixed server role.",
+          "marks": 3
         },
         {
           "label": "g",
-          "text": "Assuming Lisa's username is 'lisa.l', write SQL statements to assign her the responsibility of managing the student database using a user-defined role.",
-          "marks": 5
+          "text": "Assuming Bob's username is 'bob.m', write T-SQL statements to assign him the responsibility of managing the Orders table using a user-defined server role.",
+          "marks": 4
         },
         {
           "label": "h",
-          "text": "Assuming Oliver's username is 'oliver.o', write SQL statements to grant him permission to create tables and alter existing ones.",
+          "text": "Assuming Charlie's login name is 'charlie.c', write T-SQL statements to grant him permission to select and insert records in the Products table.",
           "marks": 3
         },
         {
           "label": "i",
-          "text": "Assuming Maria's username is 'maria.m', write SQL statements to allow her to perform data entry tasks on both the courses and student databases.",
+          "text": "Assuming David's login name is 'david.d', write T-SQL statements to allow him to perform updates on the Customer table.",
           "marks": 3
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69857386de4dacd36d8d5578",
+      "template_id": "6988383d14a4504bf217c8c1",
       "topic_label": "SQL_DDL_DML"
     },
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "A library system manages books, members, and loans. Each member can borrow multiple books, and each book can be borrowed by multiple members over time. The system tracks the date of loan and return. There are specific genres for books, and each member is assigned a unique membership ID alongside their contact information. Your task is to analyze this scenario and perform the required actions below.",
+      "text": "A university department maintains a database to manage its courses and enrollments. The relation Course(course_id: string, course_name: string, credits: integer, department: string) contains details of all courses offered. The relation Enrollment(student_id: string, course_id: string, semester: string) records which students are enrolled in which courses during a particular semester. Based on this schema, answer the following questions.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Identify the entities in the scenario and provide an attribute list for each entity.",
-          "marks": 10
+          "text": "Find the names of the courses that have more than 3 credits.",
+          "marks": 5
         },
         {
           "label": "b",
-          "text": "Clearly define the relationships between the identified entities, indicating cardinalities.",
-          "marks": 10
+          "text": "Find the student IDs for those who are enrolled in the 'Database Systems' course.",
+          "marks": 5
         },
         {
           "label": "c",
-          "text": "Draw an ER diagram representing the entities, relationships, and their attributes. Ensure to include appropriate cardinalities and relationship names.",
-          "marks": 10
+          "text": "Get the details of courses offered in the 'Computer Science' department during the 'Fall 2024' semester.",
+          "marks": 8
         },
         {
           "label": "d",
-          "text": "Map the ER model to a relational schema, specifying primary and foreign keys in your design.",
+          "text": "Retrieve the names of students who are enrolled in all courses offered in the 'Spring 2024' semester.",
           "marks": 10
+        },
+        {
+          "label": "e",
+          "text": "How many students are enrolled in the 'CS101' course?",
+          "marks": 4
+        },
+        {
+          "label": "f",
+          "text": "Express the above queries (a) to (e) in tuple calculus.",
+          "marks": 8
         }
       ],
-      "pattern_label": "GENERAL_THEORY",
-      "main_topic": "GENERAL_THEORY"
+      "pattern_label": "RELATIONAL_ALGEBRA",
+      "main_topic": "RELATIONAL_ALGEBRA",
+      "intent": "RELATIONAL_ALGEBRA",
+      "template_id": "6988383d14a4504bf217c8c2",
+      "topic_label": "RELATIONAL_ALGEBRA"
     }
   ]
 }

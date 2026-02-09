@@ -403,23 +403,26 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         
         lines.append("")
         
-        # Draw ISA hierarchies (EER) - with subtype-specific attributes
+        # Draw ISA hierarchies (EER) - single ISA node per hierarchy, no inherited attributes on subtypes
         if diagram_type == "EER" and isa_hierarchies:
             for isa in isa_hierarchies:
                 supertype_raw = isa["supertype"]
                 supertype = supertype_raw.replace(" ", "_").replace("-", "_")
                 supertype = "".join(c if c.isalnum() or c == "_" else "_" for c in supertype)
                 
-                # Get supertype entity to access its attributes
-                supertype_entity = next((e for e in entities if e["name"] == supertype_raw), None)
-                supertype_attrs = supertype_entity.get("attributes", []) if supertype_entity else []
-                supertype_pk = supertype_entity.get("primary_key", "") if supertype_entity else ""
-                
                 subtypes = isa.get("subtypes", [])
                 
                 if not subtypes:
                     continue
-                    
+                
+                # Create ONE ISA relationship node (triangle) for the entire hierarchy
+                isa_node = f"ISA_{supertype}"
+                lines.append(f'    {isa_node} [label="ISA\\n(Inheritance)", shape=triangle, style="filled", fillcolor=lightgreen, orientation=0, fontsize=9];')
+                
+                # Connect supertype to ISA node (only once)
+                lines.append(f'    {supertype} -> {isa_node} [style=dashed, arrowhead=none];')
+                
+                # Process all subtypes and connect them to the same ISA node
                 for subtype_data in subtypes:
                     # Handle both dict format (with specific_attributes) and string format
                     if isinstance(subtype_data, dict):
@@ -437,32 +440,10 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                     subtype_id = subtype_raw.replace(" ", "_").replace("-", "_")
                     subtype_id = "".join(c if c.isalnum() or c == "_" else "_" for c in subtype_id)
                     
-                    # Create ISA relationship node (triangle) - clearly labeled with inheritance meaning
-                    isa_node = f"ISA_{supertype}_{subtype_id}"
-                    lines.append(f'    {isa_node} [label="ISA\\n(Inheritance)", shape=triangle, style="filled", fillcolor=lightgreen, orientation=0, fontsize=9];')
-                    lines.append(f'    {supertype} -> {isa_node} [style=dashed, arrowhead=none];')
+                    # Connect subtype to the same ISA node (only one ISA relationship)
                     lines.append(f'    {isa_node} -> {subtype_id} [style=dashed, arrowhead=none];')
                     
-                    # Draw inherited attributes from supertype (connected to subtype)
-                    for attr in supertype_attrs:
-                        attr_clean = attr.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "_")
-                        attr_clean = attr_clean.replace("_PK", "").replace("_pk", "")
-                        attr_id = f"{subtype_id}_inherited_{attr_clean}"
-                        attr_id = "".join(c if c.isalnum() or c == "_" else "_" for c in attr_id)
-                        
-                        is_pk = supertype_pk and (supertype_pk.lower() in attr.lower() or attr.lower().endswith("(pk)"))
-                        attr_label = attr.replace('"', '\\"').replace('\\', '\\\\')
-                        
-                        # Underline primary keys in label using HTML-like formatting
-                        if is_pk:
-                            # Use <u> tag for underline in Graphviz labels
-                            attr_label_underlined = f"<u>{attr_label}</u>"
-                            lines.append(f'    {attr_id} [label=<{attr_label_underlined}>, shape=ellipse, style="filled, dashed", fillcolor=lightyellow];')
-                        else:
-                            lines.append(f'    {attr_id} [label="{attr_label}", shape=ellipse, style="filled, dashed", fillcolor=lightgray];')
-                        lines.append(f'    {subtype_id} -> {attr_id} [style=dashed, arrowhead=none];')
-                    
-                    # Draw subtype-specific attributes (unique to this subtype)
+                    # Draw ONLY subtype-specific attributes (inherited attributes are NOT repeated)
                     for attr in specific_attrs:
                         attr_clean = attr.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "_")
                         attr_id = f"{subtype_id}_specific_{attr_clean}"
