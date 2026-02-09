@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-09 17:32:10",
+  "generated_at": "2026-02-10 01:03:27",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "A university maintains a database to manage its courses, students, and instructors. Each course has a unique course ID, a title, and a number of credits. Students have a student ID, name, and major. Instructors are defined by an instructor ID, name, and department. Each course can have multiple students enrolled, and each course is taught by one instructor. Additionally, students can take multiple courses. Model this scenario using an Enhanced Entity-Relationship (EER) diagram that incorporates courses, students, instructors, and their relationships.",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:",
       "subquestions": [
         {
           "label": "a",
@@ -41,18 +41,19 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "6988383d14a4504bf217c8bf",
+      "template_id": "698a35f57468fcf199eb7876",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research Project\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
       "diagram_source": "semantic_description",
+      "original_semantic_description": "A university is managing its courses and students in a database. Each course has attributes such as CourseID, CourseName, and Credits. Students have attributes like StudentID, Name, and Major. Each student can enroll in multiple courses, and each course can have multiple enrolled students. The university also tracks enrollments with attributes such as EnrollmentDate and Grade. Draw an EER diagram representing this scenario clearly showing the entities, relationships, and attributes.",
       "topic_label": "ER_EER_MODELING"
     },
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(CustomerID, Name, Address, OrderID, Product, Quantity) with the following set of functional dependencies F over R: F={CustomerID->Name, OrderID->Product, Product->Quantity}. Analyze the relational schema for normalization.",
+      "text": "Consider a relation schema: Students (StudentID, StudentName, CourseID, AdvisorID) with the functional dependencies F = {StudentID \u2192 StudentName, StudentID \u2192 CourseID, CourseID \u2192 AdvisorID}.",
       "subquestions": [
         {
           "label": "a",
@@ -66,12 +67,12 @@
         },
         {
           "label": "c",
-          "text": "If we insert a row <102, John Doe, 123 Main St, 201, Laptop, 3> into the given relation, what is the update anomaly that is violated? Give reasons.",
+          "text": "If we insert a row < 123, John Doe, CSE101, null> into the given relation, what is the update anomaly that is violated? Give reasons.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Assume that the relation has a row <101, Jane Smith, 456 Elm St, 200, Phone, 1>. If we remove the order with OrderID 200, what is the possible update anomaly that can be violated? Give reasons.",
+          "text": "Assume that the relation has a row, < 456, Jane Smith, CSE102, 7>. If we remove the student Jane Smith, what is the possible update anomaly that can be violated? Give reasons.",
           "marks": 2
         },
         {
@@ -91,20 +92,20 @@
         },
         {
           "label": "h",
-          "text": "Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to BCNF.",
+          "text": "Are the 3NF relations derived in part (e) in BCNF? If not, bring the relations to BCNF.",
           "marks": 2
         }
       ],
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "6988383d14a4504bf217c8c0",
+      "template_id": "698a35f57468fcf199eb7877",
       "topic_label": "NORMALIZATION_FD_KEYS"
     },
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A retail organization is establishing a new relational database to keep track of its inventory and customer orders. The database will consist of multiple tables including Products, Customers, and Orders. Each table will have specific attributes such as ProductID, ProductName, CustomerID, CustomerName, OrderID, and OrderDate. The organization seeks to ensure that all data adheres to certain integrity constraints and best practices in database design.",
+      "text": "A retail company is implementing a new database system to manage its products, sales, and customer relationships. The database schema will include the tables: Products (product_id, product_name, category, price), Sales (sale_id, product_id, quantity, sale_date), and Customers (customer_id, customer_name, contact_info). The company aims to optimize its inventory management and improve customer service.",
       "subquestions": [
         {
           "label": "a",
@@ -128,76 +129,73 @@
         },
         {
           "label": "e",
-          "text": "A retail organization has designated a user named Alice as the primary database administrator responsible for managing inventory data. Write a T-SQL statement to create a login to Alice with Windows authentication.",
-          "marks": 3
+          "text": "The retail company has designated Sarah as the senior database administrator responsible for supervising the system. Write a T-SQL statement to create a login for Sarah with Windows authentication.",
+          "marks": 2
         },
         {
           "label": "f",
-          "text": "Provide Alice with the necessary permissions to handle all administrative tasks within the server using a fixed server role.",
+          "text": "Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role.",
           "marks": 3
         },
         {
           "label": "g",
-          "text": "Assuming Bob's username is 'bob.m', write T-SQL statements to assign him the responsibility of managing the Orders table using a user-defined server role.",
-          "marks": 4
+          "text": "Assuming Emily's username is 'emily.ent', write T-SQL statements to assign her the responsibility of managing the Products table using a user-defined server role.",
+          "marks": 5
         },
         {
           "label": "h",
-          "text": "Assuming Charlie's login name is 'charlie.c', write T-SQL statements to grant him permission to select and insert records in the Products table.",
+          "text": "Assuming Nathan's login name is 'nathan.dev', write T-SQL statements to grant him permission to create tables and views in the Sales database.",
           "marks": 3
         },
         {
           "label": "i",
-          "text": "Assuming David's login name is 'david.d', write T-SQL statements to allow him to perform updates on the Customer table.",
+          "text": "Assuming Michael's login name is 'michael.ent', write T-SQL statements to allow him to perform data entry tasks on the Customers and Products databases.",
           "marks": 3
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "6988383d14a4504bf217c8c1",
+      "template_id": "698a35f57468fcf199eb7878",
       "topic_label": "SQL_DDL_DML"
     },
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "A university department maintains a database to manage its courses and enrollments. The relation Course(course_id: string, course_name: string, credits: integer, department: string) contains details of all courses offered. The relation Enrollment(student_id: string, course_id: string, semester: string) records which students are enrolled in which courses during a particular semester. Based on this schema, answer the following questions.",
+      "text": "Consider a database management system scenario.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Find the names of the courses that have more than 3 credits.",
-          "marks": 5
+          "marks": 4,
+          "text": "Define the key concepts and their importance related to RELATIONAL_ALGEBRA."
         },
         {
           "label": "b",
-          "text": "Find the student IDs for those who are enrolled in the 'Database Systems' course.",
-          "marks": 5
+          "marks": 4,
+          "text": "Describe the main components and how they interact related to RELATIONAL_ALGEBRA."
         },
         {
           "label": "c",
-          "text": "Get the details of courses offered in the 'Computer Science' department during the 'Fall 2024' semester.",
-          "marks": 8
+          "marks": 6,
+          "text": "Get the details of flights that are scheduled on both dates 01/12/2024 and 02/12/2024 at 16:00 hours."
         },
         {
           "label": "d",
-          "text": "Retrieve the names of students who are enrolled in all courses offered in the 'Spring 2024' semester.",
-          "marks": 10
+          "marks": 6,
+          "text": "Compare different implementation strategies and their trade-offs related to RELATIONAL_ALGEBRA."
         },
         {
           "label": "e",
-          "text": "How many students are enrolled in the 'CS101' course?",
-          "marks": 4
+          "marks": 4,
+          "text": "How many passengers have booked the flight f001?"
         },
         {
           "label": "f",
-          "text": "Express the above queries (a) to (e) in tuple calculus.",
-          "marks": 8
+          "marks": 16,
+          "text": "Express the above queries (i) to (iv) in tuple calculus."
         }
       ],
-      "pattern_label": "RELATIONAL_ALGEBRA",
       "main_topic": "RELATIONAL_ALGEBRA",
-      "intent": "RELATIONAL_ALGEBRA",
-      "template_id": "6988383d14a4504bf217c8c2",
       "topic_label": "RELATIONAL_ALGEBRA"
     }
   ]
