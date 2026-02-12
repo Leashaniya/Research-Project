@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-10 01:03:27",
+  "generated_at": "2026-02-12 20:24:59",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -41,19 +41,19 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "698a35f57468fcf199eb7876",
+      "template_id": "698de957bcbaa47032d73940",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research Project\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
       "diagram_source": "semantic_description",
-      "original_semantic_description": "A university is managing its courses and students in a database. Each course has attributes such as CourseID, CourseName, and Credits. Students have attributes like StudentID, Name, and Major. Each student can enroll in multiple courses, and each course can have multiple enrolled students. The university also tracks enrollments with attributes such as EnrollmentDate and Grade. Draw an EER diagram representing this scenario clearly showing the entities, relationships, and attributes.",
+      "original_semantic_description": "A library management system includes entities such as Book, Author, and Member. The Book entity has attributes like ISBN, Title, and PublishYear. Each Author can write multiple Books, and a single Book can be written by one or more Authors. Members can borrow Books, and each Member can borrow multiple Books at a time. Each Member has a MembershipID and Name, while each Book has a specific ISBN.",
       "topic_label": "ER_EER_MODELING"
     },
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation schema: Students (StudentID, StudentName, CourseID, AdvisorID) with the functional dependencies F = {StudentID \u2192 StudentName, StudentID \u2192 CourseID, CourseID \u2192 AdvisorID}.",
+      "text": "Consider a relation R(EmployeeID, EmployeeName, DepartmentID, DepartmentName) with the following set of functional dependencies F over R: F = {EmployeeID -> EmployeeName, DepartmentID -> DepartmentName, EmployeeID -> DepartmentID}.",
       "subquestions": [
         {
           "label": "a",
@@ -67,12 +67,12 @@
         },
         {
           "label": "c",
-          "text": "If we insert a row < 123, John Doe, CSE101, null> into the given relation, what is the update anomaly that is violated? Give reasons.",
+          "text": "If we insert a row <E123, John Doe, D1, null> into the given relation, what is the update anomaly that is violated? Give reasons.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Assume that the relation has a row, < 456, Jane Smith, CSE102, 7>. If we remove the student Jane Smith, what is the possible update anomaly that can be violated? Give reasons.",
+          "text": "Assume that the relation has a row, <E124, Jane Smith, D2, Logistics>. If we remove the department D2, what is the possible update anomaly that can be violated? Give reasons.",
           "marks": 2
         },
         {
@@ -99,13 +99,13 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "698a35f57468fcf199eb7877",
+      "template_id": "698de957bcbaa47032d73941",
       "topic_label": "NORMALIZATION_FD_KEYS"
     },
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A retail company is implementing a new database system to manage its products, sales, and customer relationships. The database schema will include the tables: Products (product_id, product_name, category, price), Sales (sale_id, product_id, quantity, sale_date), and Customers (customer_id, customer_name, contact_info). The company aims to optimize its inventory management and improve customer service.",
+      "text": "A company named TechSolutions is setting up a new database system to manage its inventory of products and suppliers. The database schema will include tables for Products (product_id: integer, product_name: string, price: real) and Suppliers (supplier_id: integer, supplier_name: string, city: string). The database team is responsible for implementing various operations on this schema. As part of their tasks, they need to ensure data integrity and proper access controls.",
       "subquestions": [
         {
           "label": "a",
@@ -129,8 +129,8 @@
         },
         {
           "label": "e",
-          "text": "The retail company has designated Sarah as the senior database administrator responsible for supervising the system. Write a T-SQL statement to create a login for Sarah with Windows authentication.",
-          "marks": 2
+          "text": "A firm is developing a database system to manage its product inventory. Sarah is the lead database administrator tasked with maintaining the entire database system. Tom is a junior database administrator responsible for the Products table while Emily manages data input for the Suppliers table. Write a T-SQL statement to create a login to Sarah with windows authentication.",
+          "marks": 3
         },
         {
           "label": "f",
@@ -139,63 +139,66 @@
         },
         {
           "label": "g",
-          "text": "Assuming Emily's username is 'emily.ent', write T-SQL statements to assign her the responsibility of managing the Products table using a user-defined server role.",
-          "marks": 5
+          "text": "Assuming Emily's username is 'emily.s', write T-SQL statements to assign her the responsibility of managing the Suppliers table using a user-defined server role.",
+          "marks": 4
         },
         {
           "label": "h",
-          "text": "Assuming Nathan's login name is 'nathan.dev', write T-SQL statements to grant him permission to create tables and views in the Sales database.",
+          "text": "Assuming Tom's login name is 'tom.t', write T-SQL statements to grant him permission to create tables within the inventory database.",
           "marks": 3
         },
         {
           "label": "i",
-          "text": "Assuming Michael's login name is 'michael.ent', write T-SQL statements to allow him to perform data entry tasks on the Customers and Products databases.",
+          "text": "Assuming the company assigns data entry responsibilities to Michael with login name 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Products and Suppliers tables.",
           "marks": 3
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "698a35f57468fcf199eb7878",
+      "template_id": "698de957bcbaa47032d73942",
       "topic_label": "SQL_DDL_DML"
     },
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider a database management system scenario.",
+      "text": "Consider the following relational database schema containing details about a library system. In this system, the book relation stores information about different books, the member relation holds details about library members, the transaction relation records borrowings and returns, and the author relation contains information about book authors.\n\nbook (bid, title, genre, author_id)\nmember (mid, name, email, phone)\ntransaction (tid, mid, bid, date, status)\nauthor (author_id, author_name, country)",
       "subquestions": [
         {
           "label": "a",
-          "marks": 4,
-          "text": "Define the key concepts and their importance related to RELATIONAL_ALGEBRA."
+          "text": "Find the titles of books that have been borrowed at least once.",
+          "marks": 5
         },
         {
           "label": "b",
-          "marks": 4,
-          "text": "Describe the main components and how they interact related to RELATIONAL_ALGEBRA."
+          "text": "Identify the members who have never borrowed any books from the library.",
+          "marks": 5
         },
         {
           "label": "c",
-          "marks": 6,
-          "text": "Get the details of flights that are scheduled on both dates 01/12/2024 and 02/12/2024 at 16:00 hours."
+          "text": "Get the details of authors who have written books in the 'Science Fiction' genre.",
+          "marks": 5
         },
         {
           "label": "d",
-          "marks": 6,
-          "text": "Compare different implementation strategies and their trade-offs related to RELATIONAL_ALGEBRA."
+          "text": "Retrieve the names of members who have borrowed books by a specific author_id.",
+          "marks": 5
         },
         {
           "label": "e",
-          "marks": 4,
-          "text": "How many passengers have booked the flight f001?"
+          "text": "How many books are currently available (not borrowed)?",
+          "marks": 5
         },
         {
           "label": "f",
-          "marks": 16,
-          "text": "Express the above queries (i) to (iv) in tuple calculus."
+          "text": "Express the above queries (a) to (d) in tuple calculus.",
+          "marks": 15
         }
       ],
+      "pattern_label": "RELATIONAL_ALGEBRA",
       "main_topic": "RELATIONAL_ALGEBRA",
+      "intent": "RELATIONAL_ALGEBRA",
+      "template_id": "698de957bcbaa47032d73943",
       "topic_label": "RELATIONAL_ALGEBRA"
     }
   ]

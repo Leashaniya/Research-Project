@@ -121,6 +121,9 @@ class QuestionWriter(BaseAgent):
             # Handle code segment references - detect and add code if needed
             parsed = self._handle_code_segment_references(parsed, template, slot)
             
+            # Fix subquestion references (e.g., "queries (i) to (iv)" when labels are a, b, c, d)
+            parsed = self._fix_subquestion_references(parsed, template)
+            
             # Validation: Check for empty stem
             if not parsed.get("text") or len(parsed.get("text", "").strip()) < 20:
                 raise ValueError("Generated empty or too-short question stem (text field)")
@@ -311,6 +314,19 @@ class QuestionWriter(BaseAgent):
                 # CRITICAL: "Briefly explain" must be preserved exactly
                 needs_enforcement = False
                 
+                # For Q2 normalization questions, check if template has specific patterns that MUST be enforced
+                # Check for "Draw the functional dependency diagram" - this is a critical pattern
+                if "draw the functional dependency diagram" in clean_template.lower():
+                    if "draw" not in generated_text.lower() or "functional dependency diagram" not in generated_text.lower():
+                        needs_enforcement = True
+                        self.log(f"    🔧 Q2 Pattern Mismatch: Template requires 'Draw the functional dependency diagram' but got: {generated_text[:50]}...")
+                
+                # Check for detailed 3NF decomposition pattern - this is a critical pattern
+                if "design a set of 3nf relations" in clean_template.lower() and "show clearly each stage" in clean_template.lower():
+                    if "design a set of 3nf" not in generated_text.lower() or "show clearly each stage" not in generated_text.lower():
+                        needs_enforcement = True
+                        self.log(f"    🔧 Q2 Pattern Mismatch: Template requires detailed 3NF decomposition but got: {generated_text[:50]}...")
+                
                 # Check for "Briefly explain" - this is CRITICAL
                 if "briefly explain" in clean_template.lower():
                     if "briefly explain" not in generated_text.lower():
@@ -329,8 +345,33 @@ class QuestionWriter(BaseAgent):
                         needs_enforcement = True
                         self.log(f"    🔧 Enforcing 'Write a T-SQL statement' pattern for sub-question {sq.get('label', idx)}")
                 
-                # For short patterns (< 150 chars), use template text directly if enforcement needed
-                if needs_enforcement and len(clean_template) < 150:
+                # Check for "Draw the functional dependency diagram" (Q2 pattern)
+                if "draw the functional dependency diagram" in clean_template.lower():
+                    if "draw the functional dependency diagram" not in generated_text.lower():
+                        needs_enforcement = True
+                        self.log(f"    🔧 Enforcing 'Draw the functional dependency diagram' pattern for sub-question {sq.get('label', idx)}")
+                
+                # Check for detailed 3NF decomposition instruction (Q2 pattern)
+                # Template: "Using the above functional dependencies, design a set of 3NF relations... Show clearly each stage..."
+                if "design a set of 3nf relations" in clean_template.lower() or "show clearly each stage in deriving the 3nf relations" in clean_template.lower():
+                    if "design a set of 3nf relations" not in generated_text.lower() and "show clearly each stage" not in generated_text.lower():
+                        needs_enforcement = True
+                        self.log(f"    🔧 Enforcing detailed 3NF decomposition pattern for sub-question {sq.get('label', idx)}")
+                
+                # For Q2 normalization questions, be more strict about pattern matching
+                # If template has specific instruction pattern, enforce it strictly
+                pattern_label = struct_item.get("type", "").lower() if isinstance(struct_item, dict) else ""
+                is_q2_norm = "draw" in pattern_label or "list" in pattern_label
+                
+                # Check if this is a critical Q2 pattern that must be enforced
+                is_critical_q2_pattern = (
+                    "draw the functional dependency diagram" in clean_template.lower() or
+                    "design a set of 3nf relations" in clean_template.lower() or
+                    "show clearly each stage in deriving" in clean_template.lower()
+                )
+                
+                # For short patterns (< 150 chars) OR critical Q2 patterns, use template text directly
+                if needs_enforcement and (len(clean_template) < 150 or is_critical_q2_pattern):
                     sq["text"] = clean_template
                     self.log(f"    ✅ Enforced exact template pattern for sub-question {sq.get('label', idx)}")
                 # For long patterns (with scenarios), we need to preserve the instruction part
@@ -349,6 +390,10 @@ class QuestionWriter(BaseAgent):
                         else:
                             self.log(f"    ⚠️  Long scenario pattern detected - using full template text")
                             sq["text"] = clean_template
+                    elif "design a set of 3nf relations" in clean_template.lower() or "show clearly each stage" in clean_template.lower():
+                        # For 3NF decomposition pattern, use template text exactly
+                        sq["text"] = clean_template
+                        self.log(f"    ✅ Enforced 3NF decomposition pattern for sub-question {sq.get('label', idx)}")
                     else:
                         # For other long patterns, use template text
                         sq["text"] = clean_template
@@ -361,6 +406,7 @@ class QuestionWriter(BaseAgent):
     def _handle_code_segment_references(self, parsed: dict, template: dict, slot: dict) -> dict:
         """
         Detect subquestions that reference "code segment given below" and add appropriate SQL code.
+        Checks both generated text AND template structure to ensure code segments are added.
         
         Args:
             parsed: Generated question dict with text and subquestions
@@ -375,12 +421,20 @@ class QuestionWriter(BaseAgent):
         subquestions = parsed.get("subquestions", [])
         question_text = parsed.get("text", "")
         pattern_label = template.get("pattern_label", "").lower()
+        required_structure = template.get("required_structure", [])
         
         # Check each subquestion for "code segment given below" references
         for idx, sq in enumerate(subquestions):
             sq_text = sq.get("text", "").lower()
+            sq_label = sq.get("label", "")
             
-            # Detect references to code segments
+            # Check if template structure has "code segment given below" for this subquestion
+            template_has_code_ref = False
+            if idx < len(required_structure):
+                template_text = required_structure[idx].get("text", "").lower()
+                template_has_code_ref = "code segment given below" in template_text or "code segment" in template_text
+            
+            # Detect references to code segments in generated text
             code_ref_patterns = [
                 r"code segment given below",
                 r"code snippet given below",
@@ -392,30 +446,115 @@ class QuestionWriter(BaseAgent):
             
             has_code_ref = any(re.search(pattern, sq_text) for pattern in code_ref_patterns)
             
-            if has_code_ref:
-                self.log(f"    🔍 Detected code segment reference in subquestion {sq.get('label', idx)}")
+            # If template has code segment reference OR generated text has it, add the code
+            if has_code_ref or template_has_code_ref:
+                if template_has_code_ref and not has_code_ref:
+                    self.log(f"    🔍 Template requires code segment for subquestion {sq_label} (template has 'code segment given below')")
+                else:
+                    self.log(f"    🔍 Detected code segment reference in subquestion {sq_label}")
                 
                 # Generate appropriate SQL code based on question context
                 sql_code = self._generate_sql_code_for_context(question_text, pattern_label, sq_text)
                 
                 if sql_code:
-                    # Update the subquestion text to reference "shown above" instead of "given below"
                     original_text = sq.get("text", "")
-                    updated_text = re.sub(
-                        r"(code segment|code snippet|code example|code|segment)\s+given below",
-                        r"\1 shown above",
-                        original_text,
-                        flags=re.IGNORECASE
-                    )
+                    
+                    # If generated text doesn't have "code segment given below", add it to the question
+                    if not has_code_ref and template_has_code_ref:
+                        # Template requires code segment but generated text doesn't mention it
+                        # Add the code segment and update the question to reference it
+                        # Check if question asks about "which type of statement" or similar
+                        if "which" in sq_text and ("statement" in sq_text or "type" in sq_text):
+                            # This is likely a JDBC/SQL statement type question
+                            updated_text = original_text
+                            # Ensure the question references the code segment
+                            if "code segment" not in sq_text:
+                                # Add reference if not present
+                                updated_text = original_text + " (Refer to the code segment shown above.)"
+                        else:
+                            updated_text = original_text
+                    else:
+                        # Update the subquestion text to reference "shown above" instead of "given below"
+                        updated_text = re.sub(
+                            r"(code segment|code snippet|code example|code|segment)\s+given below",
+                            r"\1 shown above",
+                            original_text,
+                            flags=re.IGNORECASE
+                        )
                     
                     # Insert code block directly into the subquestion text
                     # Format: Code block first, then the question text
-                    sq_label = sq.get("label", "")
                     code_block = f"Code Segment:\n```sql\n{sql_code}\n```\n\n"
                     
                     # Prepend code block to subquestion text
                     sq["text"] = code_block + updated_text
                     self.log(f"    ✅ Added SQL code segment to subquestion {sq_label}")
+        
+        return parsed
+
+    def _fix_subquestion_references(self, parsed: dict, template: dict) -> dict:
+        """
+        Fix references like "queries (i) to (iv)" when subquestions are labeled a, b, c, d instead.
+        This happens when nested subquestions (a.i, a.ii, etc.) are flattened to a, b, c, d.
+        
+        Args:
+            parsed: Generated question dict with text and subquestions
+            template: Template dict for context
+            
+        Returns:
+            Updated parsed dict with fixed references
+        """
+        import re
+        
+        subquestions = parsed.get("subquestions", [])
+        pattern_label = template.get("pattern_label", "").lower()
+        
+        # Only fix for relational algebra questions (where this pattern occurs)
+        if "relational_algebra" not in pattern_label and "relational algebra" not in pattern_label:
+            return parsed
+        
+        # Check each subquestion for references to (i), (ii), (iii), (iv), etc.
+        for idx, sq in enumerate(subquestions):
+            sq_text = sq.get("text", "")
+            
+            # Detect references to roman numeral or letter subquestions
+            ref_patterns = [
+                r"queries?\s*\(([ivx]+)\)\s*to\s*\(([ivx]+)\)",  # queries (i) to (iv)
+                r"above\s+queries?\s*\(([ivx]+)\)\s*to\s*\(([ivx]+)\)",  # above queries (i) to (iv)
+                r"queries?\s*\(([a-z])\)\s*to\s*\(([a-z])\)",  # queries (a) to (d) - already correct
+            ]
+            
+            for pattern in ref_patterns:
+                match = re.search(pattern, sq_text, re.IGNORECASE)
+                if match:
+                    start_ref = match.group(1).lower()
+                    end_ref = match.group(2).lower()
+                    
+                    # Map roman numerals to letters: i=0, ii=1, iii=2, iv=3, v=4
+                    roman_to_idx = {"i": 0, "ii": 1, "iii": 2, "iv": 3, "v": 4, "vi": 5}
+                    
+                    start_idx = roman_to_idx.get(start_ref, None)
+                    end_idx = roman_to_idx.get(end_ref, None)
+                    
+                    if start_idx is not None and end_idx is not None:
+                        # Convert to actual subquestion labels (a, b, c, d, e, f)
+                        # Assuming the first N subquestions are the relational algebra queries
+                        # and the last one is the tuple calculus question
+                        if start_idx < len(subquestions) - 1 and end_idx < len(subquestions) - 1:
+                            start_label = chr(ord('a') + start_idx)
+                            end_label = chr(ord('a') + end_idx)
+                            
+                            # Replace the reference
+                            new_text = re.sub(
+                                pattern,
+                                f"queries ({start_label}) to ({end_label})",
+                                sq_text,
+                                flags=re.IGNORECASE
+                            )
+                            
+                            sq["text"] = new_text
+                            self.log(f"    🔧 Fixed subquestion reference: ({start_ref}) to ({end_ref}) → ({start_label}) to ({end_label}) in subquestion {sq.get('label', idx)}")
+                            break
         
         return parsed
 
@@ -506,9 +645,10 @@ WHERE PatientID = 'P001';"""
         # CRITICAL: Get exact count required
         required_count = len(structure_fingerprint)
         
-        # Determine if ER/EER or Normalization question
+        # Determine if ER/EER, Normalization, or Relational Algebra question
         is_er_question = "er" in pattern_label or "eer" in pattern_label or "diagram" in pattern_label or "schema" in pattern_label
         is_norm_question = "normalization" in pattern_label or "normal form" in pattern_label
+        is_rel_algebra_question = "relational algebra" in pattern_label or "relational_algebra" in pattern_label or "tuple calculus" in pattern_label
         
         
         er_context = ""
@@ -516,6 +656,8 @@ WHERE PatientID = 'P001';"""
              er_context = "Include a scenario describing entities, relationships, and attributes."
         elif is_norm_question:
              er_context = "Include a relation schema and functional dependencies."
+        elif is_rel_algebra_question:
+             er_context = "Include a relational database schema with ALL relations and their attributes listed explicitly (e.g., 'passenger (pid, pname, pgender, pcity)', 'booking (pid, aid, fid, fdate)')."
         else:
              er_context = "Include relevant context and background information."
 
@@ -595,6 +737,28 @@ WHERE PatientID = 'P001';"""
         {"   " if is_norm_question else ""}
         {"   ⚠️ WITHOUT A RELATION SCHEMA AND FUNCTIONAL DEPENDENCIES IN THE STEM, THE QUESTION WILL BE REJECTED IMMEDIATELY." if is_norm_question else ""}
         {"   Then subquestions should ask for normalization steps to 3NF/BCNF and final decomposition." if is_norm_question else ""}
+        
+        {"6. **RELATIONAL ALGEBRA QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_rel_algebra_question else ""}{"The question stem MUST include:" if is_rel_algebra_question else ""}
+        {"   - A scenario description (2-3 sentences) explaining the database context" if is_rel_algebra_question else ""}
+        {"   - ALL relations with their attributes listed explicitly in the format: 'relation_name (attr1, attr2, attr3)'" if is_rel_algebra_question else ""}
+        {"   - Each relation must be on a separate line for clarity" if is_rel_algebra_question else ""}
+        {"   " if is_rel_algebra_question else ""}
+        {"   EXAMPLE OF CORRECT FORMAT (with newlines between each line):" if is_rel_algebra_question else ""}
+        {"   'Consider the following relational database schema containing airline flight information." if is_rel_algebra_question else ""}
+        {"   Here the passenger relation gives the details of the passengers who book flights." if is_rel_algebra_question else ""}
+        {"   The agency relation keeps the details of agents who book flights for passengers." if is_rel_algebra_question else ""}
+        {"   The flight relation stores the details of each available flight." if is_rel_algebra_question else ""}
+        {"   The booking relation stores required booking details." if is_rel_algebra_question else ""}
+        {"   " if is_rel_algebra_question else ""}
+        {"   passenger (pid, pname, pgender, pcity)" if is_rel_algebra_question else ""}
+        {"   agency (aid, aname, acity)" if is_rel_algebra_question else ""}
+        {"   flight (fid, fdate, time, departs, arrives)" if is_rel_algebra_question else ""}
+        {"   booking (pid, aid, fid, fdate)'" if is_rel_algebra_question else ""}
+        {"   " if is_rel_algebra_question else ""}
+        {"   IMPORTANT: Use actual newline characters between each sentence and relation definition, NOT spaces." if is_rel_algebra_question else ""}
+        {"   " if is_rel_algebra_question else ""}
+        {"   ⚠️ WITHOUT A COMPLETE RELATIONAL SCHEMA WITH ALL RELATIONS AND ATTRIBUTES LISTED, THE QUESTION WILL BE REJECTED IMMEDIATELY." if is_rel_algebra_question else ""}
+        {"   Then subquestions should ask for relational algebra expressions or tuple calculus based on this schema." if is_rel_algebra_question else ""}
         
         ⚠️ CRITICAL: INSTRUCTION PATTERN PRESERVATION (MANDATORY - ZERO TOLERANCE) ⚠️
         The structure above includes "Instruction Pattern" text for each part. These patterns are from historical exam papers and MUST be preserved EXACTLY.

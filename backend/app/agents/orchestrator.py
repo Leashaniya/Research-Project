@@ -667,6 +667,7 @@ class AgentOrchestrator:
         is_er = "er" in intent_lower or "eer" in intent_lower or "diagram" in intent_lower
         is_norm = "normalization" in intent_lower or "normal form" in intent_lower
         is_sql = "sql" in intent_lower or "query" in intent_lower
+        is_rel_algebra = "relational algebra" in intent_lower or "relational_algebra" in intent_lower or "tuple calculus" in intent_lower
         
         # Build stem with required content based on intent
         stem_parts = []
@@ -680,10 +681,27 @@ class AgentOrchestrator:
             stem_parts.append("A → B, B → C, C → D.")
         elif is_sql:
             stem_parts.append("Given a database with tables: Customers (id, name, email), Orders (id, customer_id, date), Products (id, name, price).")
+        elif is_rel_algebra:
+            # CRITICAL: Relational algebra questions MUST include schema with relations
+            # Format with proper line breaks to match past paper format
+            stem_parts.append("Consider the following relational database schema containing airline flight information.")
+            stem_parts.append("Here the passenger relation gives the details of the passengers who book flights.")
+            stem_parts.append("The agency relation keeps the details of agents who book flights for passengers.")
+            stem_parts.append("The flight relation stores the details of each available flight.")
+            stem_parts.append("The booking relation stores required booking details.")
+            stem_parts.append("")  # Empty line before schema definitions
+            stem_parts.append("passenger (pid, pname, pgender, pcity)")
+            stem_parts.append("agency (aid, aname, acity)")
+            stem_parts.append("flight (fid, fdate, time, departs, arrives)")
+            stem_parts.append("booking (pid, aid, fid, fdate)")
         else:
             stem_parts.append("Consider a database management system scenario.")
         
-        stem = " ".join(stem_parts)
+        # For relational algebra, join with newlines; for others, join with spaces
+        if is_rel_algebra:
+            stem = "\n".join(stem_parts)
+        else:
+            stem = " ".join(stem_parts)
         
         # Generate distinct subquestions with unique verbs
         verbs = ["Identify", "Explain", "Describe", "Analyze", "Design", "Calculate", "List", "Compare"]
@@ -769,17 +787,26 @@ class AgentOrchestrator:
                         verb, task = er_combinations[idx % len(er_combinations)]
                         text = f"{verb} {task}."
                     elif is_norm:
+                        # Q2 normalization patterns from canonical template
                         norm_combinations = [
-                            ("Identify", "the functional dependencies in the given relation"),
-                            ("Determine", "the normal form of the relation and justify your answer"),
-                            ("Normalize", "the relation to 3NF showing all decomposition steps"),
-                            ("Find", "the candidate keys and superkeys in the relation"),
-                            ("Perform", "decomposition to achieve BCNF with lossless join"),
-                            ("Explain", "the normalization process and why each step is necessary"),
-                            ("Analyze", "the anomalies in the original relation")
+                            ("Draw", "the functional dependency diagram."),
+                            ("Use the attribute closure and identify", "the primary key for the given relation."),
+                            ("If we insert a row", "into the given relation, what is the update anomaly that is violated? Give reasons."),
+                            ("Assume that the relation has a row", ". If we remove", ", what is the possible update anomaly that can be violated? Give reasons."),
+                            ("Using the above functional dependencies, design a set of 3NF relations for the above given relation. Show clearly each stage in deriving the 3NF relations. Also identify the normal form at each of these stages.", ""),
+                            ("Do the update anomalies of part (c) and (d) hold in the 3NF relations? Discuss briefly.", ""),
+                            ("Are the 3NF relations derived in part (e) still in 3NF? Justify your answer.", ""),
+                            ("Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to BCNF.", "")
                         ]
-                        verb, task = norm_combinations[idx % len(norm_combinations)]
-                        text = f"{verb} {task}."
+                        if idx < len(norm_combinations):
+                            verb, task = norm_combinations[idx]
+                            if task:
+                                text = f"{verb} {task}"
+                            else:
+                                text = verb
+                        else:
+                            verb, task = norm_combinations[0]
+                            text = f"{verb} {task}"
                     elif is_sql:
                         sql_combinations = [
                             ("Write", "a SQL query to retrieve customer orders with order details"),
@@ -791,6 +818,17 @@ class AgentOrchestrator:
                             ("Create", "a SQL query with window functions for analytical operations")
                         ]
                         verb, task = sql_combinations[idx % len(sql_combinations)]
+                        text = f"{verb} {task}."
+                    elif is_rel_algebra:
+                        rel_algebra_combinations = [
+                            ("Find", "the name of the agencies, such that they are located in the same city as passenger with passenger id 123"),
+                            ("Find", "the passenger names for those who do not have any bookings in any flights"),
+                            ("Get", "the details of flights that are scheduled on both dates 01/12/2024 and 02/12/2024 at 16:00 hours"),
+                            ("Retrieve", "the names of the passengers who have booked all available flights"),
+                            ("How many", "passengers have booked the flight f001?"),
+                            ("Express", "the above queries in tuple calculus")
+                        ]
+                        verb, task = rel_algebra_combinations[idx % len(rel_algebra_combinations)]
                         text = f"{verb} {task}."
                     else:
                         generic_combinations = [
@@ -1575,34 +1613,44 @@ class AgentOrchestrator:
                         
                         # If ISA hierarchies are required but not mentioned in description, enhance it
                         if requires_isa and diagram_type == "EER":
-                            if not any(phrase in semantic_description.lower() for phrase in [
+                            desc_lower = semantic_description.lower()
+                            has_isa_mention = any(phrase in desc_lower for phrase in [
                                 "isa", "subtype", "supertype", "graduate", "undergraduate",
-                                "generalization", "specialization", "inheritance"
-                            ]):
+                                "generalization", "specialization", "inheritance", "corecourse", "electivecourse"
+                            ])
+                            
+                            if not has_isa_mention:
                                 # Enhance description to include ISA hierarchies - make it context-aware
                                 # Try to infer the main entity from the description
-                                desc_lower = semantic_description.lower()
                                 main_entity = None
+                                enhancement = ""
                                 
                                 # Common patterns: look for main entities mentioned
-                                if "course" in desc_lower:
+                                if "course" in desc_lower and "student" not in desc_lower:
                                     main_entity = "Course"
-                                    enhancement = " The system includes ISA hierarchies: Course has subtypes CoreCourse and ElectiveCourse. CoreCourse has specific attributes like PrerequisiteCourseID and RequiredCredits. ElectiveCourse has specific attributes like MaxEnrollment and DepartmentRestriction."
+                                    enhancement = "\n\nIMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). Course is the supertype with two subtypes: CoreCourse and ElectiveCourse. CoreCourse has specific attributes: PrerequisiteCourseID (PK), RequiredCredits, Department. ElectiveCourse has specific attributes: MaxEnrollment, DepartmentRestriction, ElectiveType."
                                 elif "student" in desc_lower:
                                     main_entity = "Student"
-                                    enhancement = " The system includes ISA hierarchies: Student has subtypes GraduateStudent and UndergraduateStudent. GraduateStudent has specific attributes like ThesisTitle and AdvisorName. UndergraduateStudent has specific attributes like YearOfStudy and Major."
+                                    enhancement = "\n\nIMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). Student is the supertype with two subtypes: GraduateStudent and UndergraduateStudent. GraduateStudent has specific attributes: ThesisTitle, AdvisorName, ResearchArea. UndergraduateStudent has specific attributes: YearOfStudy, Major, GPA."
                                 elif "employee" in desc_lower or "staff" in desc_lower:
                                     main_entity = "Employee"
-                                    enhancement = " The system includes ISA hierarchies: Employee has subtypes FullTimeEmployee and PartTimeEmployee. FullTimeEmployee has specific attributes like Salary and Benefits. PartTimeEmployee has specific attributes like HourlyRate and MaxHours."
+                                    enhancement = "\n\nIMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). Employee is the supertype with two subtypes: FullTimeEmployee and PartTimeEmployee. FullTimeEmployee has specific attributes: Salary, Benefits, AnnualLeave. PartTimeEmployee has specific attributes: HourlyRate, MaxHours, ContractEndDate."
                                 elif "member" in desc_lower:
                                     main_entity = "Member"
-                                    enhancement = " The system includes ISA hierarchies: Member has subtypes RegularMember and PremiumMember. RegularMember has specific attributes like MembershipStartDate. PremiumMember has specific attributes like PremiumExpiryDate and DiscountRate."
+                                    enhancement = "\n\nIMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). Member is the supertype with two subtypes: RegularMember and PremiumMember. RegularMember has specific attributes: MembershipStartDate, MembershipType. PremiumMember has specific attributes: PremiumExpiryDate, DiscountRate, PremiumLevel."
                                 else:
-                                    # Generic fallback
-                                    enhancement = " The system includes ISA hierarchies: Entity has subtypes TypeA and TypeB. TypeA has specific attributes like AttributeA1 and AttributeA2. TypeB has specific attributes like AttributeB1 and AttributeB2."
+                                    # Generic fallback - use first entity mentioned
+                                    import re
+                                    entity_match = re.search(r'\b([A-Z][a-z]+)\s+(?:entity|has|includes)', semantic_description)
+                                    if entity_match:
+                                        main_entity = entity_match.group(1)
+                                        enhancement = f"\n\nIMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). {main_entity} is the supertype with two subtypes: {main_entity}TypeA and {main_entity}TypeB. {main_entity}TypeA has specific attributes: AttributeA1, AttributeA2. {main_entity}TypeB has specific attributes: AttributeB1, AttributeB2."
+                                    else:
+                                        enhancement = "\n\nIMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). The main entity has subtypes TypeA and TypeB. TypeA has specific attributes: AttributeA1, AttributeA2. TypeB has specific attributes: AttributeB1, AttributeB2."
                                 
                                 semantic_description = semantic_description + enhancement
                                 print(f"    [INFO] Enhanced semantic description to include ISA hierarchies (context-aware for {main_entity or 'generic entity'})")
+                                print(f"    [INFO] Enhanced description preview: {semantic_description[-200:]}")
                         
                         # If question references "following diagram" but doesn't describe it,
                         # use the main question text as semantic description

@@ -226,6 +226,52 @@ class QualityCritic(BaseAgent):
         
         return True, ""
 
+    def _check_relational_algebra_schema_required(self, draft: dict, template: dict) -> Tuple[bool, str]:
+        """Check if Relational Algebra question has required schema with relations and attributes."""
+        pattern_label = template.get("pattern_label", "").lower()
+        draft_text = draft.get("text", "")
+        sub_qs_text = " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])])
+        combined_text = (draft_text + " " + sub_qs_text).lower()
+        
+        # Check if this is a relational algebra question
+        is_rel_algebra_question = (
+            "relational algebra" in pattern_label or "relational_algebra" in pattern_label or
+            "tuple calculus" in pattern_label or
+            ("relational algebra" in combined_text or "tuple calculus" in combined_text) and
+            ("express" in combined_text or "query" in combined_text or "find" in combined_text)
+        )
+        
+        if not is_rel_algebra_question:
+            return True, ""  # Not a relational algebra question, skip check
+        
+        # Check for relation schemas in the format: relation_name (attr1, attr2, attr3)
+        # Look for patterns like: "passenger (pid, pname, pgender, pcity)"
+        relation_patterns = [
+            r'[a-z_]+\s*\([a-z0-9_,\s]+\)',  # relation_name (attr1, attr2, attr3)
+            r'[A-Z][a-z]+\s*\([a-z0-9_,\s]+\)',  # RelationName (attr1, attr2)
+        ]
+        
+        # Count how many relations are defined
+        relation_count = 0
+        for pattern in relation_patterns:
+            matches = re.findall(pattern, draft_text)
+            relation_count += len(matches)
+        
+        # Also check for explicit relation definitions in text
+        if "relation" in combined_text and "(" in draft_text:
+            # Count lines that look like relation definitions
+            lines = draft_text.split('\n')
+            for line in lines:
+                line_lower = line.lower().strip()
+                if '(' in line and ')' in line and any(keyword in line_lower for keyword in ['relation', 'table', 'schema']):
+                    relation_count += 1
+        
+        # Relational algebra questions should have at least 2-3 relations
+        if relation_count < 2:
+            return False, "SCHEMA_MISSING: Relational algebra question must include a complete relational schema with at least 2-3 relations and their attributes listed explicitly (e.g., 'passenger (pid, pname, pgender, pcity)', 'booking (pid, aid, fid, fdate)'). Current text lacks sufficient relation definitions."
+        
+        return True, ""
+
     def _check_reference_above(self, draft: dict) -> Tuple[bool, str]:
         """Check if 'described above' / 'as shown above' references exist without actual content."""
         draft_text = draft.get("text", "").lower()
@@ -352,6 +398,12 @@ class QualityCritic(BaseAgent):
         if not norm_check:
             self.log(f"❌ Deterministic Reject: {norm_msg}")
             return {"approved": False, "feedback": norm_msg, "feedback_code": "SCHEMA_MISSING"}
+        
+        # 9. Relational Algebra Schema Check
+        rel_algebra_check, rel_algebra_msg = self._check_relational_algebra_schema_required(draft, template)
+        if not rel_algebra_check:
+            self.log(f"❌ Deterministic Reject: {rel_algebra_msg}")
+            return {"approved": False, "feedback": rel_algebra_msg, "feedback_code": "SCHEMA_MISSING"}
 
         # 2. Structure Count Check (If template exists)
         required_struct = template.get("required_structure") or template.get("subquestions", [])
