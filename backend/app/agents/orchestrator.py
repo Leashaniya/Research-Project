@@ -1,14 +1,11 @@
 import time
 import json
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 from app.agents import BlueprintAnalyst, ContentResearcher, QuestionWriter, QualityCritic
 from app.services.pdf_service import PDFService
-import random
 from app.core.paths import OUTPUTS_DIR, ARTIFACTS_DIR
 from app.core.config import settings
 
-# Config
 # Config
 MAX_RETRIES = 3
 MAX_PAPER_REPAIR_RETRIES = 3
@@ -221,8 +218,6 @@ class AgentOrchestrator:
 
         print(f"⚠️ No canonical template for {q_no}, using fallback")
         return None
-        self.diagrams = []
-        # ... (diagram loading code remains)
 
     async def _select_template(
         self,
@@ -274,14 +269,12 @@ class AgentOrchestrator:
             pipeline[0]["$match"]["_id"] = { "$nin": list(used_template_ids) }
 
         # Get candidates
-        cursor = self.db.templates.aggregate(pipeline + [{ "$sample": { "size": 30 } }]) # Fetch larger pool for diversity
-        candidates = await cursor.to_list(length=30)
+        candidates = await self.db.templates.aggregate(pipeline + [{ "$sample": { "size": 30 } }]).to_list(length=30) # Fetch larger pool for diversity
         
         # If no candidates after excluding used IDs, try again without exclusion (last resort)
         if not candidates and used_template_ids:
             pipeline[0]["$match"].pop("_id", None)
-            cursor = self.db.templates.aggregate(pipeline + [{ "$sample": { "size": 20 } }])
-        candidates = await cursor.to_list(length=20)
+            candidates = await self.db.templates.aggregate(pipeline + [{ "$sample": { "size": 20 } }]).to_list(length=20)
         
         if not candidates:
             # If a specific topic was required, preserve it even when templates are missing.
@@ -364,8 +357,8 @@ class AgentOrchestrator:
         
         if used_modules is not None:
             used_modules.add(best_template.get('module', 'General'))
-                
-            return best_template
+        
+        return best_template
             
     def _is_placeholder(self, text: str) -> bool:
         """Check if text is a placeholder."""
@@ -861,11 +854,8 @@ class AgentOrchestrator:
             draft["diagram_type"] = diagram_type
             draft["diagram_placeholder_text"] = f"[DIAGRAM PLACEHOLDER: Draw the {diagram_type} diagram for the scenario in the answer booklet.]"
             
-            # INJECT FALLBACK MERMAID CODE (V2)
-            if diagram_type == "ER" or diagram_type == "EER":
-                draft["mermaid_code"] = "erDiagram\n    ENTITY1 ||--o{ ENTITY2 : relates_to\n    ENTITY2 ||--|{ ENTITY3 : contains"
-            else:
-                draft["mermaid_code"] = "graph TD\n    Error[Diagram Missing] -->|Fallback Draft| Generated\n    Generated[Check Logs]"
+            # Note: Mermaid code is not injected here to avoid violating deterministic critic checks
+            # Diagrams are generated via semantic_diagram_service.py which uses Graphviz
         
         return draft
 
@@ -1010,8 +1000,7 @@ class AgentOrchestrator:
             "pattern_label": pattern_label,
             "marks": { "$gte": int(marks) - 5, "$lte": int(marks) + 5 },
         }
-        cursor = self.db.templates.aggregate([{ "$match": match }, { "$count": "n" }])
-        rows = await cursor.to_list(length=1)
+        rows = await self.db.templates.aggregate([{ "$match": match }, { "$count": "n" }]).to_list(length=1)
         return int(rows[0]["n"]) if rows else 0
 
     async def _preview_slot_intents(self, slots: List[dict]) -> Dict[str, str]:
@@ -1163,10 +1152,11 @@ class AgentOrchestrator:
                     print(f"    [WARN] All questions have canonical templates. Skipping {top_topic} enforcement to preserve canonical templates.")
                     print(f"    [INFO] Current topics: {used}")
                     # Don't repair - accept that GENERAL_THEORY is missing
-                    repair_idx = -1  # Signal to skip repair
+                    repair_idx = -1  # Signal to skip repair (use -1 instead of None to distinguish from "not found yet")
             
             # Fallback to last question if still no candidate (but only if repair_idx is valid)
             if repair_idx is None:
+                # Need to repair - use last question
                 repair_idx = len(questions) - 1
                 
             # Only repair if we have a valid index (not -1 which means skip)
@@ -1193,6 +1183,19 @@ class AgentOrchestrator:
                         seen.add(t2)
                 else:
                     seen.add(t)
+
+        # If topics are missing (None or empty), regenerate those questions
+        if any("TOPIC_MISSING_ERROR" in e for e in errors):
+            for i, q in enumerate(questions):
+                t = q.get("pattern_label") or q.get("main_topic")
+                if not t or str(t).strip() == "":
+                    print(f"    [INFO] Regenerating Q{i+1} due to missing topic")
+                    # Get current used topics (excluding None/empty)
+                    current_topics = {q2.get("pattern_label") or q2.get("main_topic") for q2 in questions if (q2.get("pattern_label") or q2.get("main_topic"))}
+                    banned = current_topics - {top_topic} if top_topic else current_topics
+                    # Try to preserve top_topic if it's missing, otherwise use any available topic
+                    required = top_topic if top_topic and top_topic not in current_topics else None
+                    questions[i] = await regenerate_question(i, required=required, banned=banned)
 
         # Recompute total marks field
         paper_json["questions"] = questions[:expected_q_count]
@@ -1260,10 +1263,9 @@ class AgentOrchestrator:
         used_template_ids = set() # Track used template _id to never reuse exact same template
         
         # ENFORCE: Only process exactly 4 slots (Q1-Q4)
-        slots = slots[:4]  # Hard limit to 4 questions
         if len(slots) > 4:
             print(f"⚠️  WARNING: Blueprint has {len(slots)} slots, limiting to 4 (Q1-Q4)")
-            slots = slots[:4]
+            slots = slots[:4]  # Hard limit to 4 questions
         elif len(slots) < 4:
             print(f"⚠️  WARNING: Blueprint has only {len(slots)} slots, expected 4")
         
@@ -1311,7 +1313,7 @@ class AgentOrchestrator:
 
             # Hard topic constraints for this slot
             forced_topic = slot.get("forced_pattern_label")
-            banned_topics: Set[str] = set(used_intents)  # No repeats across the 4 generated questions
+            slot_banned_topics: Set[str] = set(used_intents)  # No repeats across the 4 generated questions
             
             # Build template dict for backward compatibility
             if isinstance(canonical, dict) and "subquestion_structure" in canonical:
@@ -1331,7 +1333,7 @@ class AgentOrchestrator:
                         used_intents,
                         used_template_ids,
                         required_pattern_label=forced_topic if (forced_topic and forced_topic not in used_intents) else None,
-                        banned_pattern_labels=banned_topics,
+                        banned_pattern_labels=slot_banned_topics,
                     )
                 else:
                     template = {
@@ -1352,7 +1354,7 @@ class AgentOrchestrator:
                     used_intents,
                     used_template_ids,
                     required_pattern_label=forced_topic if (forced_topic and forced_topic not in used_intents) else None,
-                    banned_pattern_labels=banned_topics,
+                    banned_pattern_labels=slot_banned_topics,
                 )
             
             # Record the module choice
@@ -1823,12 +1825,15 @@ class AgentOrchestrator:
         all_have_canonical = all((t in canonical_patterns) for t in final_topics if t)
         top_topic_optional = (all_have_canonical and top_topic == "GENERAL_THEORY")
         
-        print(f"✅ Sanity: questions={len(paper.get('questions', []))} unique_topics={len(set(final_topics))} top_topic_included={top_topic in set(final_topics)}")
+        # Filter out None values before checking uniqueness (Bug 3 fix)
+        final_topics_filtered = [t for t in final_topics if t is not None]
+        
+        print(f"✅ Sanity: questions={len(paper.get('questions', []))} unique_topics={len(set(final_topics_filtered))} top_topic_included={top_topic in set(final_topics_filtered)}")
         assert len(paper.get("questions", [])) == expected_q_count, "Sanity check failed: not exactly 4 questions"
-        assert len(set(final_topics)) == expected_q_count, "Sanity check failed: repeated topics"
+        assert len(set(final_topics_filtered)) == expected_q_count, "Sanity check failed: repeated topics"
         # Only assert top_topic if not optional (when all questions have canonical templates)
         if not top_topic_optional:
-            assert top_topic in set(final_topics), "Sanity check failed: top_topic missing"
+            assert top_topic in set(final_topics_filtered), "Sanity check failed: top_topic missing"
         else:
             print(f"    [INFO] Skipping top_topic assertion - all questions have canonical templates")
 

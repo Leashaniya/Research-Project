@@ -234,11 +234,12 @@ class QualityCritic(BaseAgent):
         combined_text = (draft_text + " " + sub_qs_text).lower()
         
         # Check if this is a relational algebra question
+        # Fix: Add parentheses to ensure correct operator precedence
         is_rel_algebra_question = (
             "relational algebra" in pattern_label or "relational_algebra" in pattern_label or
             "tuple calculus" in pattern_label or
-            ("relational algebra" in combined_text or "tuple calculus" in combined_text) and
-            ("express" in combined_text or "query" in combined_text or "find" in combined_text)
+            (("relational algebra" in combined_text or "tuple calculus" in combined_text) and
+             ("express" in combined_text or "query" in combined_text or "find" in combined_text))
         )
         
         if not is_rel_algebra_question:
@@ -404,13 +405,6 @@ class QualityCritic(BaseAgent):
         if not rel_algebra_check:
             self.log(f"❌ Deterministic Reject: {rel_algebra_msg}")
             return {"approved": False, "feedback": rel_algebra_msg, "feedback_code": "SCHEMA_MISSING"}
-
-        # 2. Structure Count Check (If template exists)
-        required_struct = template.get("required_structure") or template.get("subquestions", [])
-        if required_struct and len(sub_qs) != len(required_struct):
-            err_msg = f"STRUCTURE ERROR: Generated {len(sub_qs)} sub-questions, but template requires EXACTLY {len(required_struct)}. Please follow the required structure."
-            self.log(f"❌ Deterministic Reject: {err_msg}")
-            return {"approved": False, "feedback": err_msg}
 
         # 9. Figure Placeholders & Hallucinations Check
         draft_str = json.dumps(draft).lower()

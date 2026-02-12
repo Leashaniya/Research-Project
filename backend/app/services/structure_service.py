@@ -1,15 +1,14 @@
 import sys
+import re
 from pathlib import Path
+import os
+import json
+import openai
 
 # Add the backend root to sys.path
 backend_root = str(Path(__file__).resolve().parents[2])
 if backend_root not in sys.path:
     sys.path.append(backend_root)
-
-from pathlib import Path
-import os
-import json
-import openai
 from app.core.config import OPENAI_API_KEY
 from scripts.structure_topics_template import main
 from app.core.paths import ARTIFACTS_DIR
@@ -81,7 +80,6 @@ def analyze_document_structure(cleaned_text: str, model="gpt-4") -> dict:
             q_ranges = []
             
             # 1. Map Questions to Line Ranges
-            import re
             for i, line in enumerate(lines):
                 m = re.match(r"^Question\s+(\d+)", line, re.IGNORECASE)
                 if m:

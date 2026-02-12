@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-12 20:24:59",
+  "generated_at": "2026-02-13 01:39:12",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -41,19 +41,19 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "698de957bcbaa47032d73940",
+      "template_id": "698e32df621bf1c06476acb6",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research Project\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
       "diagram_source": "semantic_description",
-      "original_semantic_description": "A library management system includes entities such as Book, Author, and Member. The Book entity has attributes like ISBN, Title, and PublishYear. Each Author can write multiple Books, and a single Book can be written by one or more Authors. Members can borrow Books, and each Member can borrow multiple Books at a time. Each Member has a MembershipID and Name, while each Book has a specific ISBN.",
+      "original_semantic_description": "A university database contains information about students, courses, and enrollments. The 'Student' entity has attributes including StudentID (Primary Key), Name, and Email. The 'Course' entity comprises CourseID (Primary Key), Title, and Credits. The 'Enrollment' relationship connects Students to Courses, where each student can enroll in multiple courses, and each course can have multiple students. The university also has 'Instructor' entities with attributes including InstructorID (Primary Key), Name, and Department. Instructors can teach multiple courses.",
       "topic_label": "ER_EER_MODELING"
     },
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(EmployeeID, EmployeeName, DepartmentID, DepartmentName) with the following set of functional dependencies F over R: F = {EmployeeID -> EmployeeName, DepartmentID -> DepartmentName, EmployeeID -> DepartmentID}.",
+      "text": "Consider a relation R(CustomerID, CustomerName, OrderID, OrderDate, ProductID, ProductName) with the following set of functional dependencies F over R: F = {CustomerID -> CustomerName, OrderID -> OrderDate, ProductID -> ProductName, OrderID, ProductID -> CustomerID, OrderID, ProductID -> CustomerName}. Analyze this relation for normalization to 3NF and discuss any potential anomalies.",
       "subquestions": [
         {
           "label": "a",
@@ -67,12 +67,12 @@
         },
         {
           "label": "c",
-          "text": "If we insert a row <E123, John Doe, D1, null> into the given relation, what is the update anomaly that is violated? Give reasons.",
+          "text": "If we insert a row < John, New York, O123, 2023-10-01, P456, Camera> into the given relation, what is the update anomaly that is violated? Give reasons.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Assume that the relation has a row, <E124, Jane Smith, D2, Logistics>. If we remove the department D2, what is the possible update anomaly that can be violated? Give reasons.",
+          "text": "Assume that the relation has a row, < Alice, Boston, O789, 2023-09-15, P112, Laptop>. If we remove the OrderID O789, what is the possible update anomaly that can be violated? Give reasons.",
           "marks": 2
         },
         {
@@ -99,94 +99,94 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "698de957bcbaa47032d73941",
+      "template_id": "698e32df621bf1c06476acb7",
       "topic_label": "NORMALIZATION_FD_KEYS"
     },
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A company named TechSolutions is setting up a new database system to manage its inventory of products and suppliers. The database schema will include tables for Products (product_id: integer, product_name: string, price: real) and Suppliers (supplier_id: integer, supplier_name: string, city: string). The database team is responsible for implementing various operations on this schema. As part of their tasks, they need to ensure data integrity and proper access controls.",
+      "text": "A public library is developing a database system to manage its book inventory and patrons. The library aims to track books, their authors, and the members who borrow them. John is the senior database administrator responsible for designing and overseeing the database system's architecture. Alice and Bob are junior database administrators who assist John with the daily maintenance of the database. Alice is assigned to manage the books and authors database, while Bob oversees the patron records. Clara, a database developer reporting to Alice and Bob, is tasked with creating the database schema that defines the structure of books, authors, and patrons. Write a T-SQL statement to create a login for John with Windows authentication.",
       "subquestions": [
         {
           "label": "a",
-          "text": "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
+          "text": "Accept or refute the above statement justifying your answer.",
           "marks": 2
         },
         {
           "label": "b",
-          "text": "Code Segment:\n```sql\nPreparedStatement pstmt = connection.prepareStatement(\n    \"SELECT * FROM Employees WHERE Department = ?\");\npstmt.setString(1, \"IT\");\nResultSet rs = pstmt.executeQuery();\n```\n\nThere are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
+          "text": "Code Segment:\n```sql\nSELECT PatientID, Name, Age \nFROM Patients \nWHERE Age > 18\nORDER BY Name;\n```\n\nThere are several different statements in the T-SQL language to retrieve data based on various needs. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
           "marks": 2
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
+          "text": "Briefly explain the options available for transferring data between two tables within the library database.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
-          "marks": 3
+          "text": "Briefly explain how authentication and authorization are achieved in Microsoft SQL Server.",
+          "marks": 4
         },
         {
           "label": "e",
-          "text": "A firm is developing a database system to manage its product inventory. Sarah is the lead database administrator tasked with maintaining the entire database system. Tom is a junior database administrator responsible for the Products table while Emily manages data input for the Suppliers table. Write a T-SQL statement to create a login to Sarah with windows authentication.",
+          "text": "In the library's database system, Clara needs to have permissions to create new tables for book catalogs and updating records. Write a T-SQL statement to create a login for Clara with SQL Server authentication.",
           "marks": 3
         },
         {
           "label": "f",
-          "text": "Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role.",
+          "text": "Grant Clara necessary permissions to manage the books and authors tables without giving her full administrative rights.",
           "marks": 3
         },
         {
           "label": "g",
-          "text": "Assuming Emily's username is 'emily.s', write T-SQL statements to assign her the responsibility of managing the Suppliers table using a user-defined server role.",
-          "marks": 4
+          "text": "Assuming Alice's username is 'alice.admin', write T-SQL statements to assign her the responsibility of managing the authors database using a user-defined server role.",
+          "marks": 3
         },
         {
           "label": "h",
-          "text": "Assuming Tom's login name is 'tom.t', write T-SQL statements to grant him permission to create tables within the inventory database.",
+          "text": "Assuming Bob's login name is 'bob.user', write T-SQL statements to grant him permission to view and manage patron information.",
           "marks": 3
         },
         {
           "label": "i",
-          "text": "Assuming the company assigns data entry responsibilities to Michael with login name 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Products and Suppliers tables.",
+          "text": "Assuming John's login name is 'john.senior', write T-SQL statements to allow him to perform all administrative tasks on the library database.",
           "marks": 3
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "698de957bcbaa47032d73942",
+      "template_id": "698e32df621bf1c06476acb8",
       "topic_label": "SQL_DDL_DML"
     },
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following relational database schema containing details about a library system. In this system, the book relation stores information about different books, the member relation holds details about library members, the transaction relation records borrowings and returns, and the author relation contains information about book authors.\n\nbook (bid, title, genre, author_id)\nmember (mid, name, email, phone)\ntransaction (tid, mid, bid, date, status)\nauthor (author_id, author_name, country)",
+      "text": "Consider the following relational database schema that stores information about university courses and student enrollments. The student relation captures details of students enrolled in various courses and the course relation contains information about courses offered by the university. The enrollment relation links students to the courses they are enrolled in. \n\nstudent (sid, sname, sage, major) \ncourse (cid, cname, credits) \nenrollment (sid, cid, semester, grade)",
       "subquestions": [
         {
           "label": "a",
-          "text": "Find the titles of books that have been borrowed at least once.",
+          "text": "Find the names of students who are enrolled in the course with course id 'C101'.",
           "marks": 5
         },
         {
           "label": "b",
-          "text": "Identify the members who have never borrowed any books from the library.",
+          "text": "Find the course names that have been taken by students who are majoring in 'Computer Science'.",
           "marks": 5
         },
         {
           "label": "c",
-          "text": "Get the details of authors who have written books in the 'Science Fiction' genre.",
+          "text": "Get the details of courses that have received an enrollment during the Fall 2023 semester.",
           "marks": 5
         },
         {
           "label": "d",
-          "text": "Retrieve the names of members who have borrowed books by a specific author_id.",
+          "text": "Retrieve the names of students who have received an 'A' grade in any courses they are enrolled in.",
           "marks": 5
         },
         {
           "label": "e",
-          "text": "How many books are currently available (not borrowed)?",
+          "text": "How many students are enrolled in the course with course id 'C202'?",
           "marks": 5
         },
         {
@@ -198,7 +198,7 @@
       "pattern_label": "RELATIONAL_ALGEBRA",
       "main_topic": "RELATIONAL_ALGEBRA",
       "intent": "RELATIONAL_ALGEBRA",
-      "template_id": "698de957bcbaa47032d73943",
+      "template_id": "698e32df621bf1c06476acb9",
       "topic_label": "RELATIONAL_ALGEBRA"
     }
   ]

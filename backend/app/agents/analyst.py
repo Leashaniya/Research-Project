@@ -63,10 +63,6 @@ class BlueprintAnalyst(BaseAgent):
             self.log(f"[WARN] Blueprint has {len(slots)} slots, but exactly {settings.MIN_SLOTS} are required. Using default blueprint.")
             return self._default_blueprint()
         
-        if not slots:
-            self.log("[WARN] Blueprint has no question slots. Using default blueprint.")
-            return self._default_blueprint()
-        
         # Calculate total marks from valid slots and blueprint total (if available)
         valid_marks_sum = sum(slot.get("target_marks", 0) for slot in slots if slot.get("target_marks", 0) > 0)
         invalid_slots = [slot for slot in slots if slot.get("target_marks", 0) <= 0]
