@@ -499,7 +499,8 @@ class QualityCritic(BaseAgent):
         - The template structure includes {len(template_structure)} sub-questions
         {"- ⚠️ NOTE: The template includes JDBC API topics (database connectivity from Java) - this is VALID for Database Systems exams" if has_jdbc else ""}
         {"- ⚠️ NOTE: The template includes T-SQL statements - this is VALID for Database Systems exams" if has_tsql else ""}
-        - If the question follows the template structure, it should be APPROVED even if it contains JDBC API or T-SQL topics
+        - ⚠️ NOTE: SQL Functions (CREATE FUNCTION) and Triggers (CREATE TRIGGER) are VALID topics found in past papers and should be APPROVED
+        - If the question follows the template structure, it should be APPROVED even if it contains JDBC API, T-SQL, Functions, or Triggers
         """
         
         prompt = f"""
@@ -522,6 +523,9 @@ class QualityCritic(BaseAgent):
            - Is it 100% Database Systems? 
            - ✅ ALLOW: JDBC API (Java Database Connectivity) - this is a VALID database connectivity topic
            - ✅ ALLOW: T-SQL (Transact-SQL) statements - this is a VALID database language topic
+           - ✅ ALLOW: SQL Functions (CREATE FUNCTION) - this is a VALID SQL programming topic found in past papers
+           - ✅ ALLOW: SQL Triggers (CREATE TRIGGER) - this is a VALID SQL programming topic found in past papers
+           - ✅ ALLOW: Stored Procedures - this is a VALID SQL programming topic found in past papers
            - ✅ ALLOW: Database connectivity APIs, SQL statements, database administration tasks
            - REJECT if it contains networking topics (TCP/IP, routing, packets, OSI model, etc.)
            - REJECT if it contains OS topics (CPU scheduling, process scheduling, memory management, etc.)

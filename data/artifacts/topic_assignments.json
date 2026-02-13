@@ -1,79 +1,4 @@
 {
-  "2024 II_Q1": {
-    "cluster": 5,
-    "cluster_label_keywords": [
-      "each",
-      "student",
-      "bytes",
-      "recorded",
-      "several",
-      "song",
-      "students",
-      "songs"
-    ],
-    "marks": 20,
-    "text": "The Computer Science Students at SLIIT are planning to design a database to produce music albums. The students have come up with the following requirements. The students who have talent in music (i.e. singing, playing an instrument, etc..) are named as student musician. All student musicians are capable of singing songs. In addition, some of them play instruments and some of them act as producers when albums are produced. For each student musician a unique identification number, name and address are recorded. For those who play instruments, their specialization, and the duration that they play should be stored. For each instrument, a unique identification number and the name (e.g., guitar, violin, flute, etc.) are recorded. Each student capable of playing instruments may play several instruments, and a given instrument is played by one student. A student who plays instruments may supervise several other such students. Each album has a unique identification number, title, copyright date and a format (e.g., CD or MC). Each album has one student who acts as its producer. A student may produce several albums. Each album has several songs on it and a song appears on one album. The date that the songs are recorded on the album should be known. For each song a unique identification number, the title and the author are recorded. Each song is sung by one or more students, and a student sings several songs. The number of times that a song is sung should be recorded. Each song may have several melody types. For each melody type, the tempo, and the key for that song (e.g. C major, D minor etc.) are recorded. Different songs may have the same key."
-  },
-  "2024 II_Q2": {
-    "cluster": 6,
-    "cluster_label_keywords": [
-      "relation",
-      "functional",
-      "dependencies",
-      "set",
-      "over",
-      "land",
-      "deptno",
-      "deptname"
-    ],
-    "marks": 20,
-    "text": "Consider the following relation schema Investment and the functional dependencies FD1, FD2 and FD3. Investment (A, W, O, L, S, D) Here: A - Agent W - Work station of Agent O - Land Owner L - Name of the land S - Size of the land owned by the owner, D - Dividend paid for the land FD1: L → D FD2: A → W FD3: {O,L} → {A,S}"
-  },
-  "2024 II_Q3": {
-    "cluster": 2,
-    "cluster_label_keywords": [
-      "list",
-      "transaction",
-      "properties",
-      "required",
-      "database",
-      "system",
-      "ensure",
-      "integrity"
-    ],
-    "marks": 20,
-    "text": "List the transaction properties that are required for the database system to ensure integrity of the data."
-  },
-  "2024 II_Q4": {
-    "cluster": 1,
-    "cluster_label_keywords": [
-      "relation",
-      "book",
-      "stores",
-      "author",
-      "relational",
-      "flight",
-      "ssn",
-      "prescription"
-    ],
-    "marks": 20,
-    "text": "Consider the following relational database schema containing airline flight information. Here the passenger relation gives the details of the passengers who book flights. The agency relation keeps the details of agent who books a flight for a passenger. The flight relation stores the details of each available flight. The booking relation stores required booking details. passenger (pid, pname, pgender, pcity) agency (aid, aname, acity) flight (fid, fdate, time, departs, arrives) booking (pid, aid, fid, fdate)"
-  },
-  "2024 II_Q5": {
-    "cluster": 5,
-    "cluster_label_keywords": [
-      "each",
-      "student",
-      "bytes",
-      "recorded",
-      "several",
-      "song",
-      "students",
-      "songs"
-    ],
-    "marks": 20,
-    "text": "A file has r = 20,000 STUDENT records of fixed length. Each record has the following fields: Name (30 bytes), Stno (9 bytes), Address (40 bytes), Phone (10 bytes), Birth date (8 bytes), Gender (1 byte), Major_dept code (4 bytes), Minor_dept code (4 bytes), Class_code (4 bytes), and Degree program (3 bytes). An additional byte is used as a deletion marker. Assume that this file is stored on a disk with block size 512 bytes using an unspanned organization."
-  },
   "2024_Q1": {
     "cluster": 0,
     "cluster_label_keywords": [
@@ -84,22 +9,22 @@
     "text": "Consider the following EER Model."
   },
   "2024_Q2": {
-    "cluster": 6,
+    "cluster": 2,
     "cluster_label_keywords": [
       "relation",
+      "set",
       "functional",
       "dependencies",
-      "set",
       "over",
-      "land",
       "deptno",
-      "deptname"
+      "deptname",
+      "projectname"
     ],
     "marks": 15,
     "text": "Consider a relation R (ProjectNo, ProjectName, EmpNo, EmpName, DeptNo, DeptName, HrsWork) with the following set of functional dependencies F over R: F={ ProjecNo->ProjectName DeptNo->DeptName EmpNo->EmpName, DeptNo, DeptName, HrsWork}"
   },
   "2024_Q3": {
-    "cluster": 3,
+    "cluster": 6,
     "cluster_label_keywords": [
       "database",
       "statements",
@@ -114,16 +39,16 @@
     "text": "a) In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer. b) There are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used. ) Briefly explain the options available for transferring data between two sources such as between tables and servers. d) Briefly explain how authentication and authorization are achieved in SQL Server. e) A financial institution is developing a robust database system to manage its clients' sensitive financial data. Different roles are assigned to various team members for database administration and management. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance. Tom and Emily are junior database administrators under Sarah's supervision. Tom manages the client accounts database, while Emily handles the transactions database. Nathan is a database developer reporting to Tom and Emily. His responsibilities include designing and implementing database schemas for client accounts and transactions. Grace and Michael are data entry operators responsible for inputting client information and transaction records into the system. Write a T-SQL statement to create a login to Sarah with windows authentication. Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the transactions database using a user-defined server role. Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the client accounts and transactions databases."
   },
   "2024_Q4": {
-    "cluster": 4,
+    "cluster": 5,
     "cluster_label_keywords": [
-      "int",
       "varchar",
+      "int",
+      "book",
+      "table",
+      "date",
       "name",
-      "char",
-      "relation",
-      "address",
-      "stores",
-      "number"
+      "number",
+      "member"
     ],
     "marks": 40,
     "text": "Consider the following schema of a database designed for a Library: Book (bookId: int, title: varchar(100), author: varchar(100), isbn: varchar(20), publicationYear: int, genre: varchar(50), availableCopies: int) Member (memberId: int, firstName: varchar(50), lastName: varchar(50), email: varchar(50), phone: int, address: varchar(100)) Loan (loanId: int, bookId: int, memberId: int, loanDate: date, dueDate: date, returnDate: date) Fine (fineId: int, memberId: int, amount: real, paymentStatus: varchar(50)) Librarian (librarianId: int, name: varchar(50), email: varchar(50), phone: int, address: varchar(100)) The 'Book' table stores information about books available in the library, including unique book ID, title, author, ISBN, publication year, genre, and the number of available copies. The 'Member' table holds details about library members, such as their unique member ID, first name, last name, email, phone number, and address. The 'Loan' table manages book loans, with each loan having a unique ID and being associated with a specific book and member. It records the loan date, due date, and return date. The 'Fine' table stores information about fines incurred by members for late returns or other penalties. It includes a fine ID, member ID, fine amount, and payment status. The 'Librarian' table contains details about library staff, with each librarian having a unique ID, name, email, phone number, and address."
@@ -138,22 +63,22 @@
     "text": "Consider the following EER Model."
   },
   "2023 II_Q2": {
-    "cluster": 6,
+    "cluster": 2,
     "cluster_label_keywords": [
       "relation",
+      "set",
       "functional",
       "dependencies",
-      "set",
       "over",
-      "land",
       "deptno",
-      "deptname"
+      "deptname",
+      "projectname"
     ],
     "marks": 15,
     "text": "Consider a relation R (A, B, C, D, E, F, G) with the following set of functional dependencies over R: F = {A->BC, B->D, C->EF, AC->G}"
   },
   "2023 II_Q3": {
-    "cluster": 3,
+    "cluster": 6,
     "cluster_label_keywords": [
       "database",
       "statements",
@@ -168,16 +93,16 @@
     "text": "Native API Driver is faster than Java Thin Driver. Accept or refute the above statement justifying your answer. There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used. Briefly explain what is meant by a Full Backup? Briefly explain the three main aspects to focus on when a database is secured? A software company has been assigned the responsibility of automating the tasks of a digital marketing company. This includes designing and developing a database for the company to maintain the records of various functions. It also maintains records of digital channels to market products and services in order to reach consumers. Menaka, a senior DBA is assigned to the project to handle all the administrative tasks related to the databases by the database architect. Menaka creates the required database and assign Nipun the responsibility of managing the CompanyDB. Since there will be lot of users for the project, Amali is assigned with the responsibility of handling logins to the system. Nipun assigns Kasuni with the responsibility of creating tables. In addition, Kasuni should be able to create views, stored procedures and triggers required. Dinethi, who is data entry operator is given the responsibility of inserting the data to the table. Amal is assigned with the responsibility of generating reports from the table in the data. For the above purpose, Amal could directly query the data or call functions and procedures. Write a T-SQL statement to create a login to Menaka. Provide permission using fixed server role to handle all the administrative tasks in the server to Menaka. Assuming that Nipun has the user name nipun.b, write a T-SQL statements required to assign him with the responsibility of handling the companyDB using user defined server role. Assuming that Kasuni has a login name by the name kasuni.a write T-SQL statements required to allow her to create tables, functions, procedures and triggers. Assuming that Amal has a login name amal k. write T-SQL statements required to perform the tasks she is responsible for."
   },
   "2023 II_Q4": {
-    "cluster": 4,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
-      "varchar",
-      "name",
-      "char",
       "relation",
-      "address",
+      "varchar",
+      "char",
+      "name",
+      "module",
       "stores",
-      "number"
+      "has"
     ],
     "marks": 40,
     "text": "Consider the following schema of a database designed for a university: Students (studentId: int, name: varchar(40), email: varchar(30), dob: date, specialization: int, GPA: real) Courses (courseId: int, name: varchar(40), credits: int) Offer (specialization: int, courseId: int, acYear: int, semester: int) Grades (studentId: int, courseId: int, acYear: int, calYear: int, semester: int, status: varchar(10), CAMarks: int, finalMark: int, grade: char(1)) GradePoints (grade: char(1), gradePoint: real) Enrollment (studentId: int, courseId: int, calYear: int, semester: int, basis: varchar(30))"
@@ -192,22 +117,22 @@
     "text": "Consider the following EER Model."
   },
   "2023_Q2": {
-    "cluster": 6,
+    "cluster": 2,
     "cluster_label_keywords": [
       "relation",
+      "set",
       "functional",
       "dependencies",
-      "set",
       "over",
-      "land",
       "deptno",
-      "deptname"
+      "deptname",
+      "projectname"
     ],
     "marks": 15,
     "text": "Consider a relation R (P, Q, R, S, T) with the following set of functional dependencies over R: F = {PR->Q, R->S, P->T}"
   },
   "2023_Q3": {
-    "cluster": 3,
+    "cluster": 6,
     "cluster_label_keywords": [
       "database",
       "statements",
@@ -222,106 +147,106 @@
     "text": "In Native API Driver, vendor-specific driver must be installed on each client machine. Accept or refute the above statement justifying your answer. There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used. Briefly explain what is meant by a BCP Command? Briefly explain how SQL server security framework manages access to securable entities. A software company has been tasked with developing a comprehensive healthcare information technology (IT) system for a large medical facility. The project manager is responsible for overseeing the project's development, and the following roles and responsibilities are assigned: Linda is the senior database administrator who is tasked with creating and managing the databases required for the healthcare IT system. This includes patient records, appointment scheduling, and medical inventory databases. Raj and Eva are junior database administrators who work under Linda's supervision. They are responsible for managing and maintaining specific databases within the healthcare IT system. Raj takes care of the patient records database, while Eva is responsible for the appointment scheduling database. Carla is a database developer who reports to Raj and Eva. Her role involves designing and building the database schemas, including creating tables, views, and stored procedures for the patient records and appointment scheduling databases. Sophie and John are data entry operators responsible for entering patient information, medical records, and appointment data into the system. They work closely with the junior database administrators to ensure accurate and timely data entry. Write a T-SQL statement to create a login to Linda. Provide permission using fixed server role to handle all the administrative tasks in the server to Linda. Assuming that Eva has the user name eva.e, write a T-SQL statements required to assign her with the responsibility of handling the appointmentDB using user defined server role. Assuming that Carla has a login name by the name carla.a, write T-SQL statements required to allow her to create tables, views and stored procedures. Assuming that John has a login name john.k write T-SQL statements required to perform the tasks he is responsible for."
   },
   "2023_Q4": {
-    "cluster": 4,
+    "cluster": 5,
     "cluster_label_keywords": [
-      "int",
       "varchar",
+      "int",
+      "book",
+      "table",
+      "date",
       "name",
-      "char",
-      "relation",
-      "address",
-      "stores",
-      "number"
+      "number",
+      "member"
     ],
     "marks": 40,
     "text": "Consider the following schema of a database designed for a hotel: Guest (guestId: int, fname: varchar(50), lastName: varchar(50), phone: int, email: varchar(50), address: varchar(100)) Room (roomNum: int, roomType: varchar(20), bedType: varchar(50), price: real, isOccupied: boolean) Booking (bookingId: int, guestId: int, roomNum: int, checkInDate: date, checkOutDate: date, totalAmount: real) Bill (billNum: int, bookingId: int, totalAmount: real, paymentMethod: varchar(50), paymentStatus: varchar(50)) Receptionist (repId: int, name: varchar(20), phone: int, address: varchar(30)) The 'Guest' table is designed to store information about the hotel's guests, including their unique guest ID, first name, last name, phone number, email address, and physical address. The 'Room' table tracks details about the hotel's rooms. It includes information such as the room number, room type, bed type, price per night, and a flag (boolean) indicating whether the room is currently occupied. The 'Booking' table manages guest reservations. Each booking is assigned a unique ID and is associated with a specific guest (via guestId) and a room (via roomNum). It also records the check-in and check-out dates, as well as the total booking amount. The 'Bill' table handles billing information for guest stays. It connects to a particular booking (via bookingId) and stores the bill number, the total amount to be paid, the payment method, and the payment status. The 'Receptionist' table contains details about hotel receptionist, with each staff member having a unique ID, name, phone number, and address. This allows the system to keep track of receptionists or other staff members involved in hotel operations."
   },
   "2019 II_Q1": {
-    "cluster": 1,
+    "cluster": 3,
     "cluster_label_keywords": [
-      "relation",
-      "book",
-      "stores",
-      "author",
+      "model",
+      "keys",
+      "convert",
+      "eer",
       "relational",
-      "flight",
-      "ssn",
-      "prescription"
+      "indicate",
+      "primary",
+      "foreign"
     ],
     "marks": 20,
     "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly."
   },
   "2019 II_Q2": {
-    "cluster": 6,
+    "cluster": 2,
     "cluster_label_keywords": [
       "relation",
+      "set",
       "functional",
       "dependencies",
-      "set",
       "over",
-      "land",
       "deptno",
-      "deptname"
+      "deptname",
+      "projectname"
     ],
     "marks": 15,
     "text": "Consider a relation R (A, B, C, D, E, F) with the following set of functional dependencies over R: F={A > BEF,B> E,C > D,AC > B}"
   },
   "2019 II_Q3": {
-    "cluster": 1,
+    "cluster": 5,
     "cluster_label_keywords": [
-      "relation",
+      "varchar",
+      "int",
       "book",
-      "stores",
-      "author",
-      "relational",
-      "flight",
-      "ssn",
-      "prescription"
+      "table",
+      "date",
+      "name",
+      "number",
+      "member"
     ],
     "marks": 25,
     "text": "Consider the database of a printing company, which prints books according to the requests of authors with the following schema: Book table stores the book ID, title, publisher of each book and the year the book is published. Author table stores the author ID, first name and last name of all authors. WrittenBy table stores the author ID of the author, book ID of the book and the position of the author (such as first author, second author) for each book written. Publisher table stores the name of the publisher and country and the city the book is published. Write relational algebra statements to answer the following queries"
   },
   "2019 II_Q4": {
-    "cluster": 4,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
-      "varchar",
-      "name",
-      "char",
       "relation",
-      "address",
+      "varchar",
+      "char",
+      "name",
+      "module",
       "stores",
-      "number"
+      "has"
     ],
     "marks": 40,
     "text": "Consider the following relations in a database created for a university. Module (mCode: char(6), mName: varchar (50), credits: int, specialization: char(4), year: int, semester: int) Student (sld: char(10), sName: varchar(50), age: int, gpa: int, address: varchar(50)) Follow (sld: char(10), mCode: char(6), semester: int, academicYear: int, grade: char(1)) Class (cld: int, mCode: char(6), sld: Char(10), type: varchar(10), day: char(3), time:time, len: int, hld: char(4)) Hall (hld: char(4), building: varchar(15), floorNo: int, capacity: int) Module relation stores the code (mCode), name (mName), number of credits (credits) and the specialization the module belongs to (such as IT, SE, CSN), year and the semester the module is offered for each module offered. Student relation stores the ID (s/d), name(sName), age, cumulative gpa (gpa) and address of all students. For each student following a module in the university the Follow relation stores the ID of the student (sId), code of the module (mCode), the semester the module is offered (such as 1 and 2), the academic year the student has followed the module (such as 2018 and 2019) and the grade he received for the module. The Class relation stores the id(c/d), code(mCode), type of the class (such as lecture and tutorial), day the class is conducted such as (Mon, Tue, Wed), start time of the class (time), length of the class in hours (/en) and the id of the hall the class is conducted (h/d) for each Class. Hall relation stores the ID (h/d), name of the building the hall is in, floor number the hall is in (floorNo) and capacity of each Hall."
   },
   "2019_Q1": {
-    "cluster": 1,
+    "cluster": 3,
     "cluster_label_keywords": [
-      "relation",
-      "book",
-      "stores",
-      "author",
+      "model",
+      "keys",
+      "convert",
+      "eer",
       "relational",
-      "flight",
-      "ssn",
-      "prescription"
+      "indicate",
+      "primary",
+      "foreign"
     ],
     "marks": 20,
     "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly. ISA Constraints: Permanent and Visiting covers Doctor"
   },
   "2019_Q2": {
-    "cluster": 6,
+    "cluster": 2,
     "cluster_label_keywords": [
       "relation",
+      "set",
       "functional",
       "dependencies",
-      "set",
       "over",
-      "land",
       "deptno",
-      "deptname"
+      "deptname",
+      "projectname"
     ],
     "marks": 15,
     "text": "Consider a relation R (A, B, C, D, E) with the following set of functional dependencies over R: F={B->D,D>E,AB~>C,B~>E}"
@@ -329,31 +254,91 @@
   "2019_Q3": {
     "cluster": 1,
     "cluster_label_keywords": [
+      "int",
       "relation",
-      "book",
+      "varchar",
+      "char",
+      "name",
+      "module",
       "stores",
-      "author",
-      "relational",
-      "flight",
-      "ssn",
-      "prescription"
+      "has"
     ],
     "marks": 25,
     "text": "Consider the following relations relate to patient management system database. The Doctor relation has attributes Social Security Number (SSN), first and last names, specialty, the number of experience years, and the phone number. The Patient relation has attributes SSN, first and last names, address, date of birth (DOB), and the SSN of the patient's primary doctor (pDocSSN). Prescription relation has attributes id, the date in which the prescription is written, the SSN of the doctor who wrote the prescription, and the SSN of the patient to whom the prescription is written. The Medicine relation has attributes trade name, unit price, and whether or not the medicine is generic (True or False). The Prescription_Medicine relation stores the medicines written in each prescription along with their quantities (NumOfUnits). Write the following queries in Relational Algebra."
   },
   "2019_Q4": {
-    "cluster": 4,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
-      "varchar",
-      "name",
-      "char",
       "relation",
-      "address",
+      "varchar",
+      "char",
+      "name",
+      "module",
       "stores",
-      "number"
+      "has"
     ],
     "marks": 40,
     "text": "Consider the following relations in a Movie Database. Movie (mID: int, title: varchar(30), year: date, rank: real) Actor (aID: int, fname: varchar(30), lname: varchar(30), gender: char(10)) Director (dID: int, fname: varchar(30), lname: varchar(30), gender: char(10)) Casts (actorID: int, movieID: int, role: varchar(10)) Genre (genID: int, type: varchar(10)) DirectsMovie (directorID: int, movieID: int) MovieGenre (movieID: int, genID: int) Reviewer (reviewID: int, reviewName: varchar(20)) Rating (movieID: int, reviewID: int, reviewStars: int) The attributes of the Movie relation are id (mID), title, year it was made and the rank of the movies. The Actor relation has attributes to record the id (aID), first name (fname), last name (lname) and gender (M or F) of actors. The Director relation has attributes to store the id (dID), first name (fname), last name (lname) and gender (M or F) of directors. The Casts relation associates the movie with actors who had acted in them and contains the role (lead, support, or other) they played. The Genre relation stores information of movies types (such as Romantic, Horror, Action, Fiction, Documentary, Thriller, and Drama). The DirectsMovie relation stores information on movies and their directors. The MovieGenre relation stores information related to movies respective genre. A Rating system is carried out based on the Reviewers number of stars. The Reviewer relation has attributes to record the reviewer id, name. The Rating relation has attributes to store the movie id, reviewer id and reviewer’s number of stars. Primary keys are underlined."
+  },
+  "2018 II_Q1": {
+    "cluster": 3,
+    "cluster_label_keywords": [
+      "model",
+      "keys",
+      "convert",
+      "eer",
+      "relational",
+      "indicate",
+      "primary",
+      "foreign"
+    ],
+    "marks": 20,
+    "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly."
+  },
+  "2018 II_Q2": {
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "relation",
+      "set",
+      "functional",
+      "dependencies",
+      "over",
+      "deptno",
+      "deptname",
+      "projectname"
+    ],
+    "marks": 15,
+    "text": "Consider a relation R (A, B, C, D, E, F) with the following set of functional dependencies: F={AB C,A D,B EF,F->B }"
+  },
+  "2018 II_Q3": {
+    "cluster": 5,
+    "cluster_label_keywords": [
+      "varchar",
+      "int",
+      "book",
+      "table",
+      "date",
+      "name",
+      "number",
+      "member"
+    ],
+    "marks": 25,
+    "text": "Consider the database of a library which rents books and CDs with the following schema: Books (accessNo: int, title: varchar(40), author: varchar(20), publisher: varchar(30)) CDs (accessNo: int, title: varchar(40), publisher: varchar(30)) Member (memNo: int, name: varchar(40), phone: char(10)) Rental (accessNo: int, memNo: int, dateRented: date, dueDate: date, dateReturned: date) Books table stores access number(accessNo), title, author and the publisher of the each Book. CDs table stores the access number (accessNo), title and the publisher of each CD. Member table stores member number (memNo), name and phone number (phone) of each member of the library. Rental table stores the rental details including access number of book/CD (accessNo), member number of the member who had borrowed the book/CD (memNo), the date he/she has rented the book/CD (dateRented), the date on which the book/CD should be returned (dueDate) and the date on which the book is actually returned (dateReturned). Write relational algebra statements, to answer the following queries."
+  },
+  "2018 II_Q4": {
+    "cluster": 4,
+    "cluster_label_keywords": [
+      "int",
+      "sid",
+      "table",
+      "made",
+      "suppliers",
+      "supplies",
+      "date",
+      "stores"
+    ],
+    "marks": 40,
+    "text": "Consider the following relations in a database created for an online store: Products (pid: int, productName: varchar (15), UnitPrice: real, unitsInStock: int, type: varchar (30)) Suppliers (sid:int, supplierName:varchar(15), phone:char(10),address:varchar(50)) Supplies (sid:int, pid:int, suppliedDate:date,amount:int,purchasePrice:real) SupplierPayments (sid:int, dateToPay:date ,amount:real) The Products table contains id (pid), name (productName) unit price (UnitPrice), units in stock (unitsInStock) and type of product such as dairy and poultry for each product in the store. Suppliers table stores a unique id (sid), name (supplierName), phone and address of each supplier supplying products to the store. Supplies table stores information on supplies made by suppliers. For each supply, the table stores id of the supplier (sid), id of the product supplied (pid), supplied date (suppliedDate), amount of product supplied and the price at which the supplied item is purchased by the store (purchasePrice). SupplierPayment table stores information on payments made to suppliers. For supplies made by the suppliers per day, the SupplierPayment table stores the id of the supplier (sid), date on which the supply is made (suppliedDate) and amount of payment to be made for supplies made within that date. Primary keys of the tables are underlined."
   }
 }

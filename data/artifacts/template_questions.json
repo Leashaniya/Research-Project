@@ -1,85 +1,17 @@
 [
   {
-    "pdf_stem": "2024 II",
-    "question_id": "2",
-    "cluster": 6,
-    "cluster_label_keywords": [
-      "relation",
-      "functional",
-      "dependencies",
-      "set",
-      "over",
-      "land",
-      "deptno",
-      "deptname"
-    ],
-    "marks": 20,
-    "full_text": "Consider the following relation schema Investment and the functional dependencies FD1, FD2 and FD3. Investment (A, W, O, L, S, D) Here: A - Agent W - Work station of Agent O - Land Owner L - Name of the land S - Size of the land owned by the owner, D - Dividend paid for the land FD1: L → D FD2: A → W FD3: {O,L} → {A,S}",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "question_id": 2,
-        "marks": 2,
-        "text": "Draw the functional dependency diagram."
-      },
-      {
-        "question_id": 2,
-        "marks": 2,
-        "text": "Use the attribute closure and identify the primary key for the given relation."
-      },
-      {
-        "question_id": 2,
-        "marks": 2,
-        "text": "If we insert a row < Kamal, Colombo, null, Kurundu Wattha, null, 40> into the given relation, what is the update anomaly that is violated? Give reasons."
-      },
-      {
-        "question_id": 2,
-        "marks": 2,
-        "text": "Assume that the relation has a row, < Gamunu, Matara, Miris Wattha, A 5.5, 10>. If we remove the broker Gamunu, what is the possible update anomaly that can be violated? Give reasons."
-      },
-      {
-        "question_id": 2,
-        "marks": 5,
-        "text": "Using the above functional dependencies, design a set of 3NF relations for the above given relation. Show clearly each stage in deriving the 3NF relations. Also identify the normal form at each of these stages."
-      },
-      {
-        "question_id": 2,
-        "marks": 2,
-        "text": "Do the update anomalies of part (c) and (d) hold in the 3NF relations? Discuss briefly."
-      },
-      {
-        "question_id": 2,
-        "marks": 2,
-        "text": "Assume that an additional functional dependency FD4: A → O is given.",
-        "subquestions": [
-          {
-            "question_id": 2,
-            "marks": 2,
-            "text": "Are the 3NF relations derived in part (e) still in 3NF? Justify your answer."
-          },
-          {
-            "question_id": 2,
-            "marks": 3,
-            "text": "Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to BCNF."
-          }
-        ]
-      }
-    ],
-    "pattern_label": "NORMALIZATION_FD_KEYS"
-  },
-  {
     "pdf_stem": "2024",
     "question_id": "2",
-    "cluster": 6,
+    "cluster": 2,
     "cluster_label_keywords": [
       "relation",
+      "set",
       "functional",
       "dependencies",
-      "set",
       "over",
-      "land",
       "deptno",
-      "deptname"
+      "deptname",
+      "projectname"
     ],
     "marks": 15,
     "full_text": "Consider a relation R (ProjectNo, ProjectName, EmpNo, EmpName, DeptNo, DeptName, HrsWork) with the following set of functional dependencies F over R: F={ ProjecNo->ProjectName DeptNo->DeptName EmpNo->EmpName, DeptNo, DeptName, HrsWork}",
@@ -103,16 +35,16 @@
   {
     "pdf_stem": "2023 II",
     "question_id": "2",
-    "cluster": 6,
+    "cluster": 2,
     "cluster_label_keywords": [
       "relation",
+      "set",
       "functional",
       "dependencies",
-      "set",
       "over",
-      "land",
       "deptno",
-      "deptname"
+      "deptname",
+      "projectname"
     ],
     "marks": 15,
     "full_text": "Consider a relation R (A, B, C, D, E, F, G) with the following set of functional dependencies over R: F = {A->BC, B->D, C->EF, AC->G}",
@@ -134,178 +66,57 @@
     "pattern_label": "NORMALIZATION_FD_KEYS"
   },
   {
-    "pdf_stem": "2019",
-    "question_id": "3",
-    "cluster": 1,
-    "cluster_label_keywords": [
-      "relation",
-      "book",
-      "stores",
-      "author",
-      "relational",
-      "flight",
-      "ssn",
-      "prescription"
-    ],
-    "marks": 25,
-    "full_text": "Consider the following relations relate to patient management system database.  The Doctor relation has attributes Social Security Number (SSN), first and last names, specialty, the number of experience years, and the phone number. The Patient relation has attributes SSN, first and last names, address, date of birth (DOB), and the SSN of the patient's primary doctor (pDocSSN). Prescription relation has attributes id, the date in which the prescription is written, the SSN of the doctor who wrote the prescription, and the SSN of the patient to whom the prescription is written. The Medicine relation has attributes trade name, unit price, and whether or not the medicine is generic (True or False). The Prescription_Medicine relation stores the medicines written in each prescription along with their quantities (NumOfUnits). Write the following queries in Relational Algebra.\n[DIAGRAM: page_003_diagram_1.png]",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "question_id": 3.1,
-        "marks": 2,
-        "text": "List the trade names of generic medicine with unit price less than Rs.1000.",
-        "subquestions": []
-      },
-      {
-        "question_id": 3.2,
-        "marks": 4,
-        "text": "List the first and last name of patients whose primary doctor is 'John Smith'.",
-        "subquestions": []
-      },
-      {
-        "question_id": 3.3,
-        "marks": 5,
-        "text": "List the first and last name of doctors who are not primary doctors to any patient.",
-        "subquestions": []
-      },
-      {
-        "question_id": 3.4,
-        "marks": 5,
-        "text": "List the prescription IDs which contain both Vitamin C and Aspirin as trade name.",
-        "subquestions": []
-      },
-      {
-        "question_id": 3.5,
-        "marks": 9,
-        "text": "List the trade name of medicines that appears in the most of the prescriptions.",
-        "subquestions": []
-      }
-    ],
-    "pattern_label": "RELATIONAL_ALGEBRA"
-  },
-  {
     "pdf_stem": "2019 II",
-    "question_id": "3",
-    "cluster": 1,
+    "question_id": "2",
+    "cluster": 2,
     "cluster_label_keywords": [
       "relation",
-      "book",
-      "stores",
-      "author",
-      "relational",
-      "flight",
-      "ssn",
-      "prescription"
+      "set",
+      "functional",
+      "dependencies",
+      "over",
+      "deptno",
+      "deptname",
+      "projectname"
     ],
-    "marks": 25,
-    "full_text": "Consider the database of a printing company, which prints books according to the requests of authors with the following schema:  Book table stores the book ID, title, publisher of each book and the year the book is published. Author table stores the author ID, first name and last name of all authors. WrittenBy table stores the author ID of the author, book ID of the book and the position of the author (such as first author, second author) for each book written. Publisher table stores the name of the publisher and country and the city the book is published. Write relational algebra statements to answer the following queries",
+    "marks": 15,
+    "full_text": "Consider a relation R (A, B, C, D, E, F) with the following set of functional dependencies over R: F={A > BEF,B> E,C > D,AC > B}\n[DIAGRAM: page_003_diagram_1.png]",
     "diagram_refs": [],
     "subquestions": [
       {
-        "question_id": 3.1,
-        "marks": 2,
-        "text": "a) Display the titles of the books printed in 2019.",
+        "question_id": 2.1,
+        "marks": 6,
+        "text": "a) Find all the keys that follow from the given FDs using attribute closure, showing how you obtained them.",
         "subquestions": []
       },
       {
-        "question_id": 3.2,
-        "marks": 4,
-        "text": "b) Display the titles of the books published in New York city.",
+        "question_id": 2.2,
+        "marks": 3,
+        "text": "b) Is R in 3NF? Give reasons for your conclusion.",
         "subquestions": []
       },
       {
-        "question_id": 3.3,
-        "marks": 5,
-        "text": "c) Display the name of the publisher who published both Fundamentals of Database systems and Database Applications in America.",
-        "subquestions": []
-      },
-      {
-        "question_id": 3.4,
-        "marks": 5,
-        "text": "d) Display the first name and last name of authors who are only first authors.",
-        "subquestions": []
-      },
-      {
-        "question_id": 3.5,
-        "marks": 9,
-        "text": "e) Display the titles of books with most number of authors.",
+        "question_id": 2.3,
+        "marks": 6,
+        "text": "c) Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
         "subquestions": []
       }
     ],
-    "pattern_label": "RELATIONAL_ALGEBRA"
-  },
-  {
-    "pdf_stem": "2024 II",
-    "question_id": "4",
-    "cluster": 1,
-    "cluster_label_keywords": [
-      "relation",
-      "book",
-      "stores",
-      "author",
-      "relational",
-      "flight",
-      "ssn",
-      "prescription"
-    ],
-    "marks": 20,
-    "full_text": "Consider the following relational database schema containing airline flight information. Here the passenger relation gives the details of the passengers who book flights. The agency relation keeps the details of agent who books a flight for a passenger. The flight relation stores the details of each available flight. The booking relation stores required booking details. passenger (pid, pname, pgender, pcity) agency (aid, aname, acity) flight (fid, fdate, time, departs, arrives) booking (pid, aid, fid, fdate)",
-    "diagram_refs": [],
-    "subquestions": [
-      {
-        "question_id": 4,
-        "marks": 2,
-        "text": "Express each of the following queries as expressions in relational algebra.",
-        "subquestions": [
-          {
-            "question_id": 4,
-            "marks": 2,
-            "text": "Find the name of the agencies, such that they are located in the same city as passenger with passenger id 123."
-          },
-          {
-            "question_id": 4,
-            "marks": 2,
-            "text": "Find the passenger names for those who do not have any bookings in any flights."
-          },
-          {
-            "question_id": 4,
-            "marks": 3,
-            "text": "Get the details of flights that are scheduled on both dates 01/12/2024 and 02/12/2024 at 16:00 hours."
-          },
-          {
-            "question_id": 4,
-            "marks": 3,
-            "text": "Retrieve the names of the passengers who have booked all available flights."
-          },
-          {
-            "question_id": 4,
-            "marks": 2,
-            "text": "How many passengers have booked the flight f001?"
-          }
-        ]
-      },
-      {
-        "question_id": 4,
-        "marks": 8,
-        "text": "Express the above queries (i) to (iv) in tuple calculus."
-      }
-    ],
-    "pattern_label": "GENERAL_THEORY"
+    "pattern_label": "NORMALIZATION_FD_KEYS"
   },
   {
     "pdf_stem": "2023",
     "question_id": "4",
-    "cluster": 4,
+    "cluster": 5,
     "cluster_label_keywords": [
-      "int",
       "varchar",
+      "int",
+      "book",
+      "table",
+      "date",
       "name",
-      "char",
-      "relation",
-      "address",
-      "stores",
-      "number"
+      "number",
+      "member"
     ],
     "marks": 40,
     "full_text": "Consider the following schema of a database designed for a hotel: Guest (guestId: int, fname: varchar(50), lastName: varchar(50), phone: int, email: varchar(50), address: varchar(100)) Room (roomNum: int, roomType: varchar(20), bedType: varchar(50), price: real, isOccupied: boolean) Booking (bookingId: int, guestId: int, roomNum: int, checkInDate: date, checkOutDate: date, totalAmount: real) Bill (billNum: int, bookingId: int, totalAmount: real, paymentMethod: varchar(50), paymentStatus: varchar(50)) Receptionist (repId: int, name: varchar(20), phone: int, address: varchar(30)) The 'Guest' table is designed to store information about the hotel's guests, including their unique guest ID, first name, last name, phone number, email address, and physical address. The 'Room' table tracks details about the hotel's rooms. It includes information such as the room number, room type, bed type, price per night, and a flag (boolean) indicating whether the room is currently occupied. The 'Booking' table manages guest reservations. Each booking is assigned a unique ID and is associated with a specific guest (via guestId) and a room (via roomNum). It also records the check-in and check-out dates, as well as the total booking amount. The 'Bill' table handles billing information for guest stays. It connects to a particular booking (via bookingId) and stores the bill number, the total amount to be paid, the payment method, and the payment status. The 'Receptionist' table contains details about hotel receptionist, with each staff member having a unique ID, name, phone number, and address. This allows the system to keep track of receptionists or other staff members involved in hotel operations.",
@@ -341,18 +152,110 @@
     "pattern_label": "GENERAL_THEORY"
   },
   {
+    "pdf_stem": "2024",
+    "question_id": "4",
+    "cluster": 5,
+    "cluster_label_keywords": [
+      "varchar",
+      "int",
+      "book",
+      "table",
+      "date",
+      "name",
+      "number",
+      "member"
+    ],
+    "marks": 40,
+    "full_text": "Consider the following schema of a database designed for a Library: Book (bookId: int, title: varchar(100), author: varchar(100), isbn: varchar(20), publicationYear: int, genre: varchar(50), availableCopies: int) Member (memberId: int, firstName: varchar(50), lastName: varchar(50), email: varchar(50), phone: int, address: varchar(100)) Loan (loanId: int, bookId: int, memberId: int, loanDate: date, dueDate: date, returnDate: date) Fine (fineId: int, memberId: int, amount: real, paymentStatus: varchar(50)) Librarian (librarianId: int, name: varchar(50), email: varchar(50), phone: int, address: varchar(100)) The 'Book' table stores information about books available in the library, including unique book ID, title, author, ISBN, publication year, genre, and the number of available copies. The 'Member' table holds details about library members, such as their unique member ID, first name, last name, email, phone number, and address. The 'Loan' table manages book loans, with each loan having a unique ID and being associated with a specific book and member. It records the loan date, due date, and return date. The 'Fine' table stores information about fines incurred by members for late returns or other penalties. It includes a fine ID, member ID, fine amount, and payment status. The 'Librarian' table contains details about library staff, with each librarian having a unique ID, name, email, phone number, and address.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "a) Write SQL Queries to perform the following: i. Find the member's name and phone number who borrowed a book with the title 'The Great'.",
+        "marks": null
+      },
+      {
+        "text": "ii. Find the member who has the highest total amount of fines than all the other total fine amounts. Find the member's id and address.",
+        "marks": 6
+      },
+      {
+        "text": "iii. Find the book titles, authors, and member names of books currently on loan.",
+        "marks": 7
+      },
+      {
+        "text": "b) Create a function to calculate the total fine amount for a given member. This function should account for fines with a late penalty of 10% applied to those marked as 'overdue' payment status.",
+        "marks": 11
+      },
+      {
+        "text": ") Create a trigger that automatically updates the 'TotalFineAmount' column in the 'Members' table whenever a new fine is added, or an existing fine is updated. The 'TotalFineAmount' column should contain the total fine amount for each member. Ensure the trigger adjusts the 'TotalFineAmount' column accurately to reflect any partial payments made by members. The member pays only 50% of the total fine amount as an initial payment when the payment status is marked as 'Partial'.",
+        "marks": 12
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2018 II",
+    "question_id": "3",
+    "cluster": 5,
+    "cluster_label_keywords": [
+      "varchar",
+      "int",
+      "book",
+      "table",
+      "date",
+      "name",
+      "number",
+      "member"
+    ],
+    "marks": 25,
+    "full_text": "Consider the database of a library which rents books and CDs with the following schema: Books (accessNo: int, title: varchar(40), author: varchar(20), publisher: varchar(30)) CDs (accessNo: int, title: varchar(40), publisher: varchar(30)) Member (memNo: int, name: varchar(40), phone: char(10)) Rental (accessNo: int, memNo: int, dateRented: date, dueDate: date, dateReturned: date) Books table stores access number(accessNo), title, author and the publisher of the each Book. CDs table stores the access number (accessNo), title and the publisher of each CD. Member table stores member number (memNo), name and phone number (phone) of each member of the library. Rental table stores the rental details including access number of book/CD (accessNo), member number of the member who had borrowed the book/CD (memNo), the date he/she has rented the book/CD (dateRented), the date on which the book/CD should be returned (dueDate) and the date on which the book is actually returned (dateReturned). Write relational algebra statements, to answer the following queries.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 3.1,
+        "marks": 2,
+        "text": "a) Find the title and author of all books published by McGraw-Hill.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.2,
+        "marks": 4,
+        "text": "b) Find title of books and the name of the member who had borrowed the book for books returned late than they are to be returned.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.3,
+        "marks": 5,
+        "text": "c) Find the names of members who had rented both books and CDs.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.4,
+        "marks": 6,
+        "text": "d) Find the names and the phone numbers of members who have more than 5 CDs which are returned late.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.5,
+        "marks": 8,
+        "text": "e) Find the title and publisher of the CD which is rented the most.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "RELATIONAL_ALGEBRA"
+  },
+  {
     "pdf_stem": "2019 II",
     "question_id": "4",
-    "cluster": 4,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
-      "varchar",
-      "name",
-      "char",
       "relation",
-      "address",
+      "varchar",
+      "char",
+      "name",
+      "module",
       "stores",
-      "number"
+      "has"
     ],
     "marks": 40,
     "full_text": "Consider the following relations in a database created for a university. Module (mCode: char(6), mName: varchar (50), credits: int, specialization: char(4), year: int, semester: int) Student (sld: char(10), sName: varchar(50), age: int, gpa: int, address: varchar(50)) Follow (sld: char(10), mCode: char(6), semester: int, academicYear: int, grade: char(1)) Class (cld: int, mCode: char(6), sld: Char(10), type: varchar(10), day: char(3), time:time, len: int, hld: char(4)) Hall (hld: char(4), building: varchar(15), floorNo: int, capacity: int) Module relation stores the code (mCode), name (mName), number of credits (credits) and the specialization the module belongs to (such as IT, SE, CSN), year and the semester the module is offered for each module offered. Student relation stores the ID (s/d), name(sName), age, cumulative gpa (gpa) and address of all students. For each student following a module in the university the Follow relation stores the ID of the student (sId), code of the module (mCode), the semester the module is offered (such as 1 and 2), the academic year the student has followed the module (such as 2018 and 2019) and the grade he received for the module. The Class relation stores the id(c/d), code(mCode), type of the class (such as lecture and tutorial), day the class is conducted such as (Mon, Tue, Wed), start time of the class (time), length of the class in hours (/en) and the id of the hall the class is conducted (h/d) for each Class. Hall relation stores the ID (h/d), name of the building the hall is in, floor number the hall is in (floorNo) and capacity of each Hall.",
@@ -401,16 +304,16 @@
   {
     "pdf_stem": "2019",
     "question_id": "4",
-    "cluster": 4,
+    "cluster": 1,
     "cluster_label_keywords": [
       "int",
-      "varchar",
-      "name",
-      "char",
       "relation",
-      "address",
+      "varchar",
+      "char",
+      "name",
+      "module",
       "stores",
-      "number"
+      "has"
     ],
     "marks": 40,
     "full_text": "Consider the following relations in a Movie Database. Movie (mID: int, title: varchar(30), year: date, rank: real) Actor (aID: int, fname: varchar(30), lname: varchar(30), gender: char(10)) Director (dID: int, fname: varchar(30), lname: varchar(30), gender: char(10)) Casts (actorID: int, movieID: int, role: varchar(10)) Genre (genID: int, type: varchar(10)) DirectsMovie (directorID: int, movieID: int) MovieGenre (movieID: int, genID: int) Reviewer (reviewID: int, reviewName: varchar(20)) Rating (movieID: int, reviewID: int, reviewStars: int) The attributes of the Movie relation are id (mID), title, year it was made and the rank of the movies. The Actor relation has attributes to record the id (aID), first name (fname), last name (lname) and gender (M or F) of actors. The Director relation has attributes to store the id (dID), first name (fname), last name (lname) and gender (M or F) of directors. The Casts relation associates the movie with actors who had acted in them and contains the role (lead, support, or other) they played. The Genre relation stores information of movies types (such as Romantic, Horror, Action, Fiction, Documentary, Thriller, and Drama). The DirectsMovie relation stores information on movies and their directors. The MovieGenre relation stores information related to movies respective genre. A Rating system is carried out based on the Reviewers number of stars. The Reviewer relation has attributes to record the reviewer id, name. The Rating relation has attributes to store the movie id, reviewer id and reviewer’s number of stars. Primary keys are underlined.",
@@ -448,6 +351,57 @@
       }
     ],
     "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2019",
+    "question_id": "3",
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "int",
+      "relation",
+      "varchar",
+      "char",
+      "name",
+      "module",
+      "stores",
+      "has"
+    ],
+    "marks": 25,
+    "full_text": "Consider the following relations relate to patient management system database.  The Doctor relation has attributes Social Security Number (SSN), first and last names, specialty, the number of experience years, and the phone number. The Patient relation has attributes SSN, first and last names, address, date of birth (DOB), and the SSN of the patient's primary doctor (pDocSSN). Prescription relation has attributes id, the date in which the prescription is written, the SSN of the doctor who wrote the prescription, and the SSN of the patient to whom the prescription is written. The Medicine relation has attributes trade name, unit price, and whether or not the medicine is generic (True or False). The Prescription_Medicine relation stores the medicines written in each prescription along with their quantities (NumOfUnits). Write the following queries in Relational Algebra.\n[DIAGRAM: page_003_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 3.1,
+        "marks": 2,
+        "text": "List the trade names of generic medicine with unit price less than Rs.1000.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.2,
+        "marks": 4,
+        "text": "List the first and last name of patients whose primary doctor is 'John Smith'.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.3,
+        "marks": 5,
+        "text": "List the first and last name of doctors who are not primary doctors to any patient.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.4,
+        "marks": 5,
+        "text": "List the prescription IDs which contain both Vitamin C and Aspirin as trade name.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.5,
+        "marks": 9,
+        "text": "List the trade name of medicines that appears in the most of the prescriptions.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "RELATIONAL_ALGEBRA"
   },
   {
     "pdf_stem": "2024",
@@ -524,7 +478,7 @@
   {
     "pdf_stem": "2023",
     "question_id": "3",
-    "cluster": 3,
+    "cluster": 6,
     "cluster_label_keywords": [
       "database",
       "statements",
@@ -590,7 +544,7 @@
   {
     "pdf_stem": "2023 II",
     "question_id": "3",
-    "cluster": 3,
+    "cluster": 6,
     "cluster_label_keywords": [
       "database",
       "statements",
@@ -653,7 +607,7 @@
   {
     "pdf_stem": "2024",
     "question_id": "3",
-    "cluster": 3,
+    "cluster": 6,
     "cluster_label_keywords": [
       "database",
       "statements",
@@ -708,183 +662,134 @@
     "pattern_label": "GENERAL_THEORY"
   },
   {
-    "pdf_stem": "2024 II",
+    "pdf_stem": "2019",
     "question_id": "1",
-    "cluster": 5,
+    "cluster": 3,
     "cluster_label_keywords": [
-      "each",
-      "student",
-      "bytes",
-      "recorded",
-      "several",
-      "song",
-      "students",
-      "songs"
+      "model",
+      "keys",
+      "convert",
+      "eer",
+      "relational",
+      "indicate",
+      "primary",
+      "foreign"
     ],
     "marks": 20,
-    "full_text": "The Computer Science Students at SLIIT are planning to design a database to produce music albums. The students have come up with the following requirements. The students who have talent in music (i.e. singing, playing an instrument, etc..) are named as student musician. All student musicians are capable of singing songs. In addition, some of them play instruments and some of them act as producers when albums are produced. For each student musician a unique identification number, name and address are recorded. For those who play instruments, their specialization, and the duration that they play should be stored. For each instrument, a unique identification number and the name (e.g., guitar, violin, flute, etc.) are recorded. Each student capable of playing instruments may play several instruments, and a given instrument is played by one student. A student who plays instruments may supervise several other such students. Each album has a unique identification number, title, copyright date and a format (e.g., CD or MC). Each album has one student who acts as its producer. A student may produce several albums. Each album has several songs on it and a song appears on one album. The date that the songs are recorded on the album should be known. For each song a unique identification number, the title and the author are recorded. Each song is sung by one or more students, and a student sings several songs. The number of times that a song is sung should be recorded. Each song may have several melody types. For each melody type, the tempo, and the key for that song (e.g. C major, D minor etc.) are recorded. Different songs may have the same key.",
+    "full_text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly. ISA Constraints: Permanent and Visiting covers Doctor\n[DIAGRAM: page_002_diagram_1.png]",
     "diagram_refs": [],
-    "subquestions": [
-      {
-        "question_id": 1,
-        "marks": 3,
-        "text": "What are the entities that could be used for the above requirements?"
-      },
-      {
-        "question_id": 1,
-        "marks": 3,
-        "text": "Identify suitable attributes and the primary key, if any, for each of the entities that you have identified."
-      },
-      {
-        "question_id": 1,
-        "marks": 2,
-        "text": "Is there a recursive relationship? Justify your answer."
-      },
-      {
-        "question_id": 1,
-        "marks": 2,
-        "text": "Is there any weak entity type? Justify your answer."
-      },
-      {
-        "question_id": 1,
-        "marks": 2,
-        "text": "Identify a likely superclass/subclass relationship. Justify your answer."
-      },
-      {
-        "question_id": 1,
-        "marks": 8,
-        "text": "Construct a suitable EER diagram for the above given requirements. State any assumptions you make. Note: You may avoid showing the attributes on the entity types, but any attributes on the relationships must be shown.",
-        "diagrams": []
-      }
-    ],
-    "pattern_label": "GENERAL_THEORY"
+    "subquestions": [],
+    "pattern_label": "ER_EER_MODELING"
   },
   {
-    "pdf_stem": "2024 II",
-    "question_id": "5",
-    "cluster": 5,
+    "pdf_stem": "2019 II",
+    "question_id": "1",
+    "cluster": 3,
     "cluster_label_keywords": [
-      "each",
-      "student",
-      "bytes",
-      "recorded",
-      "several",
-      "song",
-      "students",
-      "songs"
+      "model",
+      "keys",
+      "convert",
+      "eer",
+      "relational",
+      "indicate",
+      "primary",
+      "foreign"
     ],
     "marks": 20,
-    "full_text": "A file has r = 20,000 STUDENT records of fixed length. Each record has the following fields: Name (30 bytes), Stno (9 bytes), Address (40 bytes), Phone (10 bytes), Birth date (8 bytes), Gender (1 byte), Major_dept code (4 bytes), Minor_dept code (4 bytes), Class_code (4 bytes), and Degree program (3 bytes). An additional byte is used as a deletion marker. Assume that this file is stored on a disk with block size 512 bytes using an unspanned organization.\n[DIAGRAM: page_006_diagram_1.png]",
+    "full_text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.\n[DIAGRAM: page_002_diagram_1.png]",
     "diagram_refs": [],
-    "subquestions": [
-      {
-        "question_id": 5,
-        "marks": 2,
-        "text": "Calculate the record size R in bytes."
-      },
-      {
-        "question_id": 5,
-        "marks": 2,
-        "text": "Calculate the blocking factor bfr and the number of file blocks b."
-      },
-      {
-        "question_id": 5,
-        "marks": 4,
-        "text": "Calculate the average time it takes to find a record by doing a linear search on the file if A. the file blocks are stored contiguously, and double buffering is used; B. the file blocks are not stored contiguously."
-      },
-      {
-        "question_id": 5,
-        "marks": 2,
-        "text": "Assume that the file is ordered by Stno; by doing a binary search, calculate the time it takes to search for a record given its Stno value. Note: Consider that 10g.5000 = 13."
-      },
-      {
-        "question_id": 5,
-        "marks": 2,
-        "text": "List three properties of NoSQL databases."
-      },
-      {
-        "question_id": 5,
-        "marks": 2,
-        "text": "Key-value stores, Column family databases, Document databases, Graph databases are the four types of NoSQL databases. Give two example databases for each of them."
-      },
-      {
-        "question_id": 5,
-        "marks": 6,
-        "text": "Consider the following ER diagram.",
-        "diagrams": [],
-        "subquestions": [
-          {
-            "question_id": 5,
-            "marks": 6,
-            "text": "Map the above ER Model to A. Relational database schema B. Document database C. Graph database."
-          }
-        ]
-      }
-    ],
-    "pattern_label": "GENERAL_THEORY"
+    "subquestions": [],
+    "pattern_label": "ER_EER_MODELING"
   },
   {
-    "pdf_stem": "2024 II",
-    "question_id": "3",
-    "cluster": 2,
+    "pdf_stem": "2018 II",
+    "question_id": "1",
+    "cluster": 3,
     "cluster_label_keywords": [
-      "list",
-      "transaction",
-      "properties",
-      "required",
-      "database",
-      "system",
-      "ensure",
-      "integrity"
+      "model",
+      "keys",
+      "convert",
+      "eer",
+      "relational",
+      "indicate",
+      "primary",
+      "foreign"
     ],
     "marks": 20,
-    "full_text": "List the transaction properties that are required for the database system to ensure integrity of the data.\n[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_005_diagram_1.png]",
+    "full_text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.\n[DIAGRAM: page_002_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [],
+    "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2018 II",
+    "question_id": "4",
+    "cluster": 4,
+    "cluster_label_keywords": [
+      "int",
+      "sid",
+      "table",
+      "made",
+      "suppliers",
+      "supplies",
+      "date",
+      "stores"
+    ],
+    "marks": 40,
+    "full_text": "Consider the following relations in a database created for an online store: Products (pid: int, productName: varchar (15), UnitPrice: real, unitsInStock: int, type: varchar (30)) Suppliers (sid:int, supplierName:varchar(15), phone:char(10),address:varchar(50)) Supplies (sid:int, pid:int, suppliedDate:date,amount:int,purchasePrice:real) SupplierPayments (sid:int, dateToPay:date ,amount:real) The Products table contains id (pid), name (productName) unit price (UnitPrice), units in stock (unitsInStock) and type of product such as dairy and poultry for each product in the store. Suppliers table stores a unique id (sid), name (supplierName), phone and address of each supplier supplying products to the store. Supplies table stores information on supplies made by suppliers. For each supply, the table stores id of the supplier (sid), id of the product supplied (pid), supplied date (suppliedDate), amount of product supplied and the price at which the supplied item is purchased by the store (purchasePrice). SupplierPayment table stores information on payments made to suppliers. For supplies made by the suppliers per day, the SupplierPayment table stores the id of the supplier (sid), date on which the supply is made (suppliedDate) and amount of payment to be made for supplies made within that date. Primary keys of the tables are underlined.",
     "diagram_refs": [],
     "subquestions": [
       {
-        "question_id": 3,
-        "marks": 2,
-        "text": "Consider the following schedules S1 and S2: S1=RI1(X), W20, WI(X) S2 = W1(X), R2(X), W2(X), W3(X) Here Ri(X) means, read the item X of transaction Ti, Wi(X) means write item X of transaction Ti."
-      },
-      {
-        "question_id": 3,
-        "marks": 2,
-        "text": "List all conflict operations of the schedules S1 and S2 separately."
-      },
-      {
-        "question_id": 3,
+        "question_id": 4.1,
         "marks": 4,
-        "text": "Schedule S1 is not serializable and schedule S2 is conflict serializable. Justify this statement and give the equivalent serial schedule for the serializable schedule S2."
-      },
-      {
-        "question_id": 3,
-        "marks": 2,
-        "text": "Let X and Y be two accounts that are accessed by transactions T1 and T2. Transaction T1 updates the balance of account X and transaction T2 gives a bonus for accounts X and Y.",
-        "diagrams": [],
+        "text": "a) Use SQL queries to answer following questions.",
         "subquestions": [
           {
-            "question_id": 3,
-            "marks": 2,
-            "text": "Using the 2PL protocol, add the lock and unlock operations to T1 and T2 and rewrite the transactions T1 and T2."
-          },
-          {
-            "question_id": 3,
-            "marks": 3,
-            "text": "Construct a concurrent execution for the transactions T1 and T2 given in (i) above, such that it prevents the lost update problem."
-          },
-          {
-            "question_id": 3,
-            "marks": 3,
-            "text": "A concurrent execution for the transactions T1 and T2 given in (i) above will not result in a dead lock. Justify this statement."
-          },
-          {
-            "question_id": 3,
+            "question_id": 4.11,
             "marks": 4,
-            "text": "Consider the following schedule. Apply the timestamp ordering algorithm for the transactions T1 and T2 and show the transaction that should be aborted and rolled back. Assume that TS(T1) < TS(T2) and the initial timestamps of read_TS(X) = 0, read_TS(Y) = 0, write_TS(X) = 0 and write_TS(Y) = 0."
+            "text": "i. Find the names and phone numbers of the suppliers living in Malabe who supplies at least one product which are sold at the store with a price more than Rs. 100.",
+            "subquestions": []
+          },
+          {
+            "question_id": 4.1,
+            "marks": 5,
+            "text": "ii. Assuming that the Unit Price of products are fixed, find the names of products which are always sold with a profit margin. Note that the items sold with a profit margin have a unit price for a product greater than the price it is purchased at.",
+            "subquestions": []
+          },
+          {
+            "question_id": 4.1,
+            "marks": 7,
+            "text": "iii. Find the names and phone numbers of customers who supply dairy products but do not supply Poultry products.",
+            "subquestions": []
+          }
+        ]
+      },
+      {
+        "question_id": 4.2,
+        "marks": 9,
+        "text": "b) Create a function named CalcPayment which calculates and returns the total payment to be made to a supplier for supplies made in a particular date, given the id of the supplier and the date the supplies are made.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.3,
+        "marks": 15,
+        "text": "c) Create a trigger named updateSupplyInfo to do the following when a supply is made.",
+        "subquestions": [
+          {
+            "question_id": 4.3,
+            "marks": null,
+            "text": "i. Update the units in stock for the relevant product in the product table.",
+            "subquestions": []
+          },
+          {
+            "question_id": 4.3,
+            "marks": null,
+            "text": "ii. If there is no row already in the supplierPayment table related to the supplier id and the date the supply is made, insert a row with supplier id, supplied date and amount to be paid to the SupplierPayment Table. If a row is already exist with the relevant supplier id and the day the payment should be paid, update only the amount of payment to be made. (Hint: Use the function you have created in b) in order to calculate the payment).",
+            "subquestions": []
           }
         ]
       }
     ],
-    "pattern_label": "TRANSACTIONS_CONCURRENCY"
+    "pattern_label": "GENERAL_THEORY"
   }
 ]

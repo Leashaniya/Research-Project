@@ -1,21 +1,20 @@
 {
   "num_recent_papers_for_trends": 6,
   "recent_papers_used": [
-    "2024 II",
     "2024",
     "2023 II",
     "2023",
     "2019 II",
-    "2019"
+    "2019",
+    "2018 II"
   ],
-  "top_topic": "GENERAL_THEORY",
+  "top_topic": "ER_EER_MODELING",
   "topic_frequencies": {
-    "GENERAL_THEORY": 8,
+    "ER_EER_MODELING": 6,
     "NORMALIZATION_FD_KEYS": 6,
-    "TRANSACTIONS_CONCURRENCY": 1,
-    "ER_EER_MODELING": 5,
     "SQL_DDL_DML": 3,
-    "RELATIONAL_ALGEBRA": 2
+    "GENERAL_THEORY": 6,
+    "RELATIONAL_ALGEBRA": 3
   },
-  "total_questions_counted": 25
+  "total_questions_counted": 24
 }

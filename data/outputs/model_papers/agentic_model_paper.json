@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-13 01:39:12",
+  "generated_at": "2026-02-13 23:16:12",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -17,7 +17,7 @@
       "marks": 25
     },
     "Q4": {
-      "topic": "RELATIONAL_ALGEBRA",
+      "topic": "SQL_DDL_DML",
       "marks": 40
     }
   },
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university manages information about its courses, students, and instructors. Each course has a unique CourseID, a title, and a unit value. Students are assigned a unique StudentID, name, and date of birth, and can enroll in multiple courses. Instructors, identified by a unique InstructorID, have a name and specialization. Courses can be taught by multiple instructors, while each instructor can teach multiple courses. There is a many-to-many 'Teaches' relationship between Courses and Instructors, indicating which instructors are assigned to teach which courses. Additionally, students can have a multivalued attribute for PhoneNumbers and a composite attribute for Address, consisting of Street, City, and ZipCode. The university also has a specialization for graduate and undergraduate students, indicating their level of study.",
       "subquestions": [
         {
           "label": "a",
@@ -41,165 +41,130 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "698e32df621bf1c06476acb6",
+      "template_id": "698f62b3d24f8acfa5cf81f3",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research Project\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
       "diagram_source": "semantic_description",
-      "original_semantic_description": "A university database contains information about students, courses, and enrollments. The 'Student' entity has attributes including StudentID (Primary Key), Name, and Email. The 'Course' entity comprises CourseID (Primary Key), Title, and Credits. The 'Enrollment' relationship connects Students to Courses, where each student can enroll in multiple courses, and each course can have multiple students. The university also has 'Instructor' entities with attributes including InstructorID (Primary Key), Name, and Department. Instructors can teach multiple courses.",
+      "original_semantic_description": "A university manages information about its courses, students, and instructors. Each course has a unique CourseID, a title, and a unit value. Students are assigned a unique StudentID, name, and date of birth, and can enroll in multiple courses. Instructors, identified by a unique InstructorID, have a name and specialization. Courses can be taught by multiple instructors, while each instructor can teach multiple courses. There is a many-to-many 'Teaches' relationship between Courses and Instructors, indicating which instructors are assigned to teach which courses. Additionally, students can have a multivalued attribute for PhoneNumbers and a composite attribute for Address, consisting of Street, City, and ZipCode. The university also has a specialization for graduate and undergraduate students, indicating their level of study.",
       "topic_label": "ER_EER_MODELING"
     },
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(CustomerID, CustomerName, OrderID, OrderDate, ProductID, ProductName) with the following set of functional dependencies F over R: F = {CustomerID -> CustomerName, OrderID -> OrderDate, ProductID -> ProductName, OrderID, ProductID -> CustomerID, OrderID, ProductID -> CustomerName}. Analyze this relation for normalization to 3NF and discuss any potential anomalies.",
+      "text": "Consider a relation R(ProductID, ProductName, SupplierID, SupplierName, Price) with the following set of functional dependencies F over R: F={{ProductID \u2192 ProductName, SupplierID \u2192 SupplierName, ProductID \u2192 Price}}. Analyze this relation for keys and normalization forms.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Draw the functional dependency diagram.",
-          "marks": 1
+          "text": "Find all the keys in relation R using the attribute closure method.",
+          "marks": 4
         },
         {
           "label": "b",
-          "text": "Use the attribute closure and identify the primary key for the given relation.",
-          "marks": 1
-        },
-        {
-          "label": "c",
-          "text": "If we insert a row < John, New York, O123, 2023-10-01, P456, Camera> into the given relation, what is the update anomaly that is violated? Give reasons.",
-          "marks": 2
-        },
-        {
-          "label": "d",
-          "text": "Assume that the relation has a row, < Alice, Boston, O789, 2023-09-15, P112, Laptop>. If we remove the OrderID O789, what is the possible update anomaly that can be violated? Give reasons.",
-          "marks": 2
-        },
-        {
-          "label": "e",
-          "text": "Using the above functional dependencies, design a set of 3NF relations for the above given relation. Show clearly each stage in deriving the 3NF relations. Also identify the normal form at each of these stages.",
+          "text": "Is R in 3NF? Give reasons for your conclusion.",
           "marks": 3
         },
         {
-          "label": "f",
-          "text": "Do the update anomalies of part (c) and (d) hold in the 3NF relations? Discuss briefly.",
-          "marks": 2
-        },
-        {
-          "label": "g",
-          "text": "Are the 3NF relations derived in part (e) still in 3NF? Justify your answer.",
-          "marks": 2
-        },
-        {
-          "label": "h",
-          "text": "Are the 3NF relations derived in part (e) in BCNF? If not, bring the relations to BCNF.",
-          "marks": 2
+          "label": "c",
+          "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+          "marks": 8
         }
       ],
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "698e32df621bf1c06476acb7",
+      "template_id": "698f62b3d24f8acfa5cf81f4",
       "topic_label": "NORMALIZATION_FD_KEYS"
     },
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A public library is developing a database system to manage its book inventory and patrons. The library aims to track books, their authors, and the members who borrow them. John is the senior database administrator responsible for designing and overseeing the database system's architecture. Alice and Bob are junior database administrators who assist John with the daily maintenance of the database. Alice is assigned to manage the books and authors database, while Bob oversees the patron records. Clara, a database developer reporting to Alice and Bob, is tasked with creating the database schema that defines the structure of books, authors, and patrons. Write a T-SQL statement to create a login for John with Windows authentication.",
+      "text": "A university is developing a comprehensive database system to manage its courses, students, and faculty. The database system will handle complex relations such as student enrollments in courses, faculty assignments to classes, and grading systems. The administration team has outlined different roles within the system to facilitate management and access. Olivia is the head database administrator responsible for the entire database infrastructure. Liam and Zoe are junior database administrators supporting Olivia. Liam manages the courses database, while Zoe oversees the student records database. Emma is a database developer working under Liam and Zoe, responsible for designing the schema of the courses and student tables. Adam and Mia are data entry operators tasked with entering and updating course and student information. Explore the structure of this database management system through the following questions.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Accept or refute the above statement justifying your answer.",
+          "text": "Write SQL queries to accept or refute the above statement justifying your answer.",
           "marks": 2
         },
         {
           "label": "b",
-          "text": "Code Segment:\n```sql\nSELECT PatientID, Name, Age \nFROM Patients \nWHERE Age > 18\nORDER BY Name;\n```\n\nThere are several different statements in the T-SQL language to retrieve data based on various needs. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
+          "text": "Code Segment:\n```sql\nPreparedStatement pstmt = connection.prepareStatement(\n    \"SELECT * FROM Employees WHERE Department = ?\");\npstmt.setString(1, \"IT\");\nResultSet rs = pstmt.executeQuery();\n```\n\nThere are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
           "marks": 2
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for transferring data between two tables within the library database.",
+          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how authentication and authorization are achieved in Microsoft SQL Server.",
-          "marks": 4
+          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
+          "marks": 3
         },
         {
           "label": "e",
-          "text": "In the library's database system, Clara needs to have permissions to create new tables for book catalogs and updating records. Write a T-SQL statement to create a login for Clara with SQL Server authentication.",
+          "text": "Olivia is the head database administrator tasked with managing the overall database system access. Write a T-SQL statement to create a login for Olivia with Windows authentication.",
           "marks": 3
         },
         {
           "label": "f",
-          "text": "Grant Clara necessary permissions to manage the books and authors tables without giving her full administrative rights.",
-          "marks": 3
+          "text": "Provide Olivia with the necessary permissions to handle all administrative tasks within the server using a fixed server role.",
+          "marks": 2
         },
         {
           "label": "g",
-          "text": "Assuming Alice's username is 'alice.admin', write T-SQL statements to assign her the responsibility of managing the authors database using a user-defined server role.",
-          "marks": 3
+          "text": "Assuming Zoe's username is 'zoe.z', write T-SQL statements to assign her the responsibility of managing the student records database using a user-defined server role.",
+          "marks": 5
         },
         {
           "label": "h",
-          "text": "Assuming Bob's login name is 'bob.user', write T-SQL statements to grant him permission to view and manage patron information.",
+          "text": "Assuming Emma's login name is 'emma.e', write T-SQL statements to grant her permission to create tables and databases.",
           "marks": 3
         },
         {
           "label": "i",
-          "text": "Assuming John's login name is 'john.senior', write T-SQL statements to allow him to perform all administrative tasks on the library database.",
+          "text": "Assuming Mia's login name is 'mia.m', write T-SQL statements to allow her to perform data entry tasks on the courses and student records databases.",
           "marks": 3
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "698e32df621bf1c06476acb8",
+      "template_id": "698f62b3d24f8acfa5cf81f5",
       "topic_label": "SQL_DDL_DML"
     },
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following relational database schema that stores information about university courses and student enrollments. The student relation captures details of students enrolled in various courses and the course relation contains information about courses offered by the university. The enrollment relation links students to the courses they are enrolled in. \n\nstudent (sid, sname, sage, major) \ncourse (cid, cname, credits) \nenrollment (sid, cid, semester, grade)",
+      "text": "A local library database stores information about members, books, and loans. The 'Members' table contains member_id, name, address, and total_fines. The 'Books' table holds book_id, title, author, and status. The 'Loans' table records loan_id, member_id, book_id, issue_date, and due_date. Utilize this structure to manage loans and fines effectively.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Find the names of students who are enrolled in the course with course id 'C101'.",
-          "marks": 5
+          "text": "ii. Write SQL queries to find the member who has the highest total amount of fines than all the other total fine amounts. Find the member's id and address.",
+          "marks": 7
         },
         {
           "label": "b",
-          "text": "Find the course names that have been taken by students who are majoring in 'Computer Science'.",
-          "marks": 5
+          "text": "iii. Find the book titles, authors, and member names of books currently on loan.",
+          "marks": 8
         },
         {
           "label": "c",
-          "text": "Get the details of courses that have received an enrollment during the Fall 2023 semester.",
-          "marks": 5
+          "text": "Create a function to calculate the total fine amount for a given member. This function should account for fines with a late penalty of 10% applied to those marked as 'overdue' payment status.",
+          "marks": 12
         },
         {
           "label": "d",
-          "text": "Retrieve the names of students who have received an 'A' grade in any courses they are enrolled in.",
-          "marks": 5
-        },
-        {
-          "label": "e",
-          "text": "How many students are enrolled in the course with course id 'C202'?",
-          "marks": 5
-        },
-        {
-          "label": "f",
-          "text": "Express the above queries (a) to (d) in tuple calculus.",
-          "marks": 15
+          "text": ") Create a trigger that automatically updates the 'TotalFineAmount' column in the 'Members' table whenever a new fine is added, or an existing fine is updated. The 'TotalFineAmount' column should contain the total fine amount for each member. Ensure the trigger adjusts the 'TotalFineAmount' column accurately to reflect any partial payments made by members. The member pays only 50% of the total fine amount as an initial payment when the payment status is marked as 'Partial'.",
+          "marks": 13
         }
       ],
-      "pattern_label": "RELATIONAL_ALGEBRA",
-      "main_topic": "RELATIONAL_ALGEBRA",
-      "intent": "RELATIONAL_ALGEBRA",
-      "template_id": "698e32df621bf1c06476acb9",
-      "topic_label": "RELATIONAL_ALGEBRA"
+      "pattern_label": "SQL_DDL_DML",
+      "main_topic": "SQL_DDL_DML",
+      "intent": "SQL_DDL_DML",
+      "template_id": "698f62b3d24f8acfa5cf81f6",
+      "topic_label": "SQL_DDL_DML"
     }
   ]
 }

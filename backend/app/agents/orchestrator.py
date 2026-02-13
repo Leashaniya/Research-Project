@@ -1,5 +1,6 @@
 import time
 import json
+from collections import Counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 from app.agents import BlueprintAnalyst, ContentResearcher, QuestionWriter, QualityCritic
 from app.services.pdf_service import PDFService
@@ -60,7 +61,7 @@ def validate_model_paper(paper_json: dict, *, top_topic: Optional[str] = None, e
     if got_qnos != expected_qnos:
         errors.append(f"NUMBERING_ERROR: expected={expected_qnos} got={got_qnos}")
 
-    # Topic uniqueness + top topic inclusion
+    # Topic uniqueness + top topic inclusion (allow max 2 occurrences per topic)
     topics = []
     for q in questions:
         t = q.get("pattern_label") or q.get("main_topic")
@@ -69,12 +70,18 @@ def validate_model_paper(paper_json: dict, *, top_topic: Optional[str] = None, e
     if any(t is None or str(t).strip() == "" for t in topics):
         errors.append("TOPIC_MISSING_ERROR: one or more questions missing pattern_label/main_topic")
     else:
-        uniq = set(topics)
-        if len(uniq) != expected_q_count:
-            errors.append(f"TOPIC_DUPLICATE_ERROR: unique={len(uniq)} expected={expected_q_count} topics={topics}")
+        # Count occurrences of each topic
+        topic_counts = Counter(topics)
+        
+        # Check if any topic appears more than twice
+        max_occurrences = max(topic_counts.values()) if topic_counts else 0
+        if max_occurrences > 2:
+            overused_topics = [t for t, count in topic_counts.items() if count > 2]
+            errors.append(f"TOPIC_DUPLICATE_ERROR: Topics {overused_topics} appear more than twice. Maximum allowed: 2 occurrences per topic. topics={topics}")
         
         # Top topic check (if specified)
         # BUT: If all questions have canonical templates, GENERAL_THEORY is optional
+        uniq = set(topics)
         if top_topic and top_topic not in uniq:
             # Check if all questions have canonical templates (specific patterns)
             # If so, GENERAL_THEORY is optional (canonical templates take precedence)
@@ -1166,23 +1173,34 @@ class AgentOrchestrator:
             else:
                 print(f"    [INFO] Skipping {top_topic} repair to preserve canonical templates")
 
-        # If duplicates exist, repair duplicates (keep first occurrence)
+        # If duplicates exist, repair only if topic appears more than twice (keep first 2 occurrences)
         if any("TOPIC_DUPLICATE_ERROR" in e for e in errors):
-            seen: Set[str] = set()
-            for i, q in enumerate(questions):
-                t = q.get("pattern_label") or q.get("main_topic")
-                if not t:
-                    continue
-                if t in seen:
-                    banned = set(seen)
-                    if top_topic:
-                        banned.discard(top_topic)
-                    questions[i] = await regenerate_question(i, required=None, banned=banned)
-                    t2 = questions[i].get("pattern_label") or questions[i].get("main_topic")
-                    if t2:
-                        seen.add(t2)
-                else:
-                    seen.add(t)
+            topic_counts = Counter([q.get("pattern_label") or q.get("main_topic") for q in questions])
+            
+            # Find topics that appear more than twice
+            overused_topics = {t for t, count in topic_counts.items() if count > 2}
+            
+            if overused_topics:
+                seen: Dict[str, int] = {}
+                for i, q in enumerate(questions):
+                    t = q.get("pattern_label") or q.get("main_topic")
+                    if not t:
+                        continue
+                    
+                    # Count occurrences so far
+                    count_so_far = seen.get(t, 0)
+                    
+                    if t in overused_topics and count_so_far >= 2:
+                        # This topic already appears twice, regenerate this question
+                        banned = set([topic for topic, count in topic_counts.items() if count >= 2])
+                        if top_topic:
+                            banned.discard(top_topic)
+                        questions[i] = await regenerate_question(i, required=None, banned=banned)
+                        t2 = questions[i].get("pattern_label") or questions[i].get("main_topic")
+                        if t2:
+                            seen[t2] = seen.get(t2, 0) + 1
+                    else:
+                        seen[t] = count_so_far + 1
 
         # If topics are missing (None or empty), regenerate those questions
         if any("TOPIC_MISSING_ERROR" in e for e in errors):
@@ -1371,7 +1389,7 @@ class AgentOrchestrator:
             print(f"       Slot ID: {q_no}")
             print(f"       Template ID: {template_id if template_id else 'N/A (canonical)'}")
             print(f"       Pattern Label/Intent: {template_intent}")
-            print(f"       Already Used Intent: {'Yes [WARN]' if was_intent_used else 'No [OK]'}")
+            print(f"       Already Used Intent: {'Yes [WARN - max 2 allowed]' if was_intent_used else 'No [OK]'}")
             print(f"       Already Used Template ID: {'Yes [WARN]' if was_template_id_used else 'No [OK]'}")
             
             # Track template ID and intent for diversity (AFTER logging)
@@ -1688,26 +1706,53 @@ class AgentOrchestrator:
                             # Remove the detailed entity/relationship description and replace with simple reference
                             original_text = draft.get("text", "")
                             
-                            # Pattern: If text contains detailed entity descriptions, replace with diagram reference
-                            # Look for patterns like "has attributes", "includes", "with attributes", etc.
-                            if any(phrase in original_text.lower() for phrase in [
-                                "has attributes", "includes attributes", "with attributes",
-                                "has entities", "entities include", "entities are",
-                                "the main entities", "entities involved", "entities such as"
-                            ]):
-                                # Replace with simple diagram reference
-                                if diagram_type == "EER":
-                                    replacement_text = f"Consider the following Enhanced Entity-Relationship (EER) diagram:"
-                                elif diagram_type == "ER":
-                                    replacement_text = f"Consider the following Entity-Relationship (ER) diagram:"
-                                elif diagram_type == "Functional Dependency":
-                                    replacement_text = f"Consider the following functional dependency diagram:"
-                                else:
-                                    replacement_text = f"Consider the following {diagram_type} diagram:"
+                            # Always replace when diagram is successfully generated
+                            # Replace with simple diagram reference
+                            if diagram_type == "EER":
+                                replacement_text = f"Consider the following Enhanced Entity-Relationship (EER) diagram:"
+                            elif diagram_type == "ER":
+                                replacement_text = f"Consider the following Entity-Relationship (ER) diagram:"
+                            elif diagram_type == "Functional Dependency":
+                                replacement_text = f"Consider the following functional dependency diagram:"
+                            else:
+                                replacement_text = f"Consider the following {diagram_type} diagram:"
+                            
+                            # Add diagram description with cardinality notation explanation (for EER/ER diagrams)
+                            if diagram_type in ["EER", "ER"]:
+                                diagram_description = """
                                 
-                                draft["text"] = replacement_text
-                                draft["original_semantic_description"] = original_text  # Keep original for reference
-                                print(f"    [INFO] Replaced semantic description with diagram reference: '{replacement_text}'")
+Note: The diagram uses (min, max) cardinality notation where:
+- (1,1) indicates one-to-one relationship (each entity participates exactly once)
+- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)
+- (0,1) indicates optional participation (zero or one)
+- (0,N) or (0,*) indicates optional many participation (zero or many)
+"""
+                                replacement_text = replacement_text + diagram_description
+                                
+                                # Add back the semantic description (EER diagram description)
+                                # Use original_text which contains the full semantic description
+                                if original_text:
+                                    # Extract just the description part (remove "Draw an EER diagram..." if present)
+                                    desc_clean = original_text
+                                    if "Draw an EER diagram" in desc_clean:
+                                        desc_clean = desc_clean.split("Draw an EER diagram")[0].strip()
+                                    if "Draw an ER diagram" in desc_clean:
+                                        desc_clean = desc_clean.split("Draw an ER diagram")[0].strip()
+                                    if "provide a detailed description" in desc_clean.lower():
+                                        desc_clean = desc_clean.split("provide a detailed description")[0].strip()
+                                    if "draw an EER diagram" in desc_clean.lower():
+                                        desc_clean = desc_clean.split("draw an EER diagram")[0].strip()
+                                    if "draw an er diagram" in desc_clean.lower():
+                                        desc_clean = desc_clean.split("draw an er diagram")[0].strip()
+                                    if "representing this scenario" in desc_clean.lower():
+                                        # Remove everything after "representing this scenario"
+                                        desc_clean = desc_clean.split("representing this scenario")[0].strip()
+                                    if desc_clean and len(desc_clean) > 20:  # Only add if meaningful content
+                                        replacement_text = replacement_text + "\n\n" + desc_clean
+                            
+                            draft["text"] = replacement_text
+                            draft["original_semantic_description"] = original_text  # Keep original for reference
+                            print(f"    [INFO] Replaced semantic description with diagram reference and added description")
                         else:
                             # Fallback to text placeholder
                             error_msg = result.get("error", "Unknown error")
@@ -1828,9 +1873,13 @@ class AgentOrchestrator:
         # Filter out None values before checking uniqueness (Bug 3 fix)
         final_topics_filtered = [t for t in final_topics if t is not None]
         
-        print(f"✅ Sanity: questions={len(paper.get('questions', []))} unique_topics={len(set(final_topics_filtered))} top_topic_included={top_topic in set(final_topics_filtered)}")
+        # Check topic distribution (allow max 2 occurrences per topic)
+        topic_counts = Counter(final_topics_filtered)
+        max_occurrences = max(topic_counts.values()) if topic_counts else 0
+        
+        print(f"✅ Sanity: questions={len(paper.get('questions', []))} unique_topics={len(set(final_topics_filtered))} max_occurrences={max_occurrences} top_topic_included={top_topic in set(final_topics_filtered)}")
         assert len(paper.get("questions", [])) == expected_q_count, "Sanity check failed: not exactly 4 questions"
-        assert len(set(final_topics_filtered)) == expected_q_count, "Sanity check failed: repeated topics"
+        assert max_occurrences <= 2, f"Sanity check failed: topic appears more than twice. Topic counts: {dict(topic_counts)}"
         # Only assert top_topic if not optional (when all questions have canonical templates)
         if not top_topic_optional:
             assert top_topic in set(final_topics_filtered), "Sanity check failed: top_topic missing"

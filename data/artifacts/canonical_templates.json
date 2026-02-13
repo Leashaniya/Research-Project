@@ -23,57 +23,27 @@
   "Q2": {
     "dominant_topic": "Functional Dependencies and Normalization",
     "pattern_label": "NORMALIZATION_FD_KEYS",
-    "source_paper": "2024 II",
-    "total_marks": 20,
-    "subquestion_count": 8,
+    "source_paper": "2024",
+    "total_marks": 15,
+    "subquestion_count": 3,
     "subquestion_structure": [
       {
         "label": "?",
-        "marks": 2,
-        "type": "Draw",
-        "text": "Draw the functional dependency diagram."
+        "marks": 4,
+        "type": "Calculate",
+        "text": "a) Find all the keys in relation R using the attribute closure method."
       },
       {
         "label": "?",
-        "marks": 2,
-        "type": "List",
-        "text": "Use the attribute closure and identify the primary key for the given relation."
-      },
-      {
-        "label": "?",
-        "marks": 2,
-        "type": "General",
-        "text": "If we insert a row < Kamal, Colombo, null, Kurundu Wattha, null, 40> into the given relation, what is the update anomaly that is violated? Give reasons."
-      },
-      {
-        "label": "?",
-        "marks": 2,
-        "type": "General",
-        "text": "Assume that the relation has a row, < Gamunu, Matara, Miris Wattha, A 5.5, 10>. If we remove the broker Gamunu, what is the possible update anomaly that can be violated? Give reasons."
-      },
-      {
-        "label": "?",
-        "marks": 5,
-        "type": "General",
-        "text": "Using the above functional dependencies, design a set of 3NF relations for the above given relation. Show clearly each stage in deriving the 3NF relations. Also identify the normal form at each of these stages."
-      },
-      {
-        "label": "?",
-        "marks": 2,
-        "type": "General",
-        "text": "Do the update anomalies of part (c) and (d) hold in the 3NF relations? Discuss briefly."
-      },
-      {
-        "label": "?.?",
-        "marks": 2,
-        "type": "General",
-        "text": "Are the 3NF relations derived in part (e) still in 3NF? Justify your answer."
-      },
-      {
-        "label": "?.?",
         "marks": 3,
         "type": "General",
-        "text": "Are the 3NF relations derived in part (e) in BCNF? If not bring the relations to BCNF."
+        "text": "b) Is R in 3NF? Give reasons for your conclusion."
+      },
+      {
+        "label": "?",
+        "marks": 8,
+        "type": "General",
+        "text": ") Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations."
       }
     ]
   },
@@ -141,47 +111,35 @@
     ]
   },
   "Q4": {
-    "dominant_topic": "Relation Book Stores",
-    "pattern_label": "RELATIONAL_ALGEBRA",
-    "source_paper": "2024 II",
-    "total_marks": 20,
-    "subquestion_count": 6,
+    "dominant_topic": "SQL Database Schema and Queries",
+    "pattern_label": "SQL_DDL_DML",
+    "source_paper": "2024",
+    "total_marks": 36,
+    "subquestion_count": 4,
     "subquestion_structure": [
       {
-        "label": "?.?",
-        "marks": 2,
-        "type": "General",
-        "text": "Find the name of the agencies, such that they are located in the same city as passenger with passenger id 123."
-      },
-      {
-        "label": "?.?",
-        "marks": 2,
-        "type": "General",
-        "text": "Find the passenger names for those who do not have any bookings in any flights."
-      },
-      {
-        "label": "?.?",
-        "marks": 3,
-        "type": "General",
-        "text": "Get the details of flights that are scheduled on both dates 01/12/2024 and 02/12/2024 at 16:00 hours."
-      },
-      {
-        "label": "?.?",
-        "marks": 3,
-        "type": "General",
-        "text": "Retrieve the names of the passengers who have booked all available flights."
-      },
-      {
-        "label": "?.?",
-        "marks": 2,
-        "type": "General",
-        "text": "How many passengers have booked the flight f001?"
+        "label": "?",
+        "marks": 6,
+        "type": "Calculate",
+        "text": "ii. Find the member who has the highest total amount of fines than all the other total fine amounts. Find the member's id and address."
       },
       {
         "label": "?",
-        "marks": 8,
+        "marks": 7,
+        "type": "Calculate",
+        "text": "iii. Find the book titles, authors, and member names of books currently on loan."
+      },
+      {
+        "label": "?",
+        "marks": 11,
+        "type": "Calculate",
+        "text": "b) Create a function to calculate the total fine amount for a given member. This function should account for fines with a late penalty of 10% applied to those marked as 'overdue' payment status."
+      },
+      {
+        "label": "?",
+        "marks": 12,
         "type": "General",
-        "text": "Express the above queries (i) to (iv) in tuple calculus."
+        "text": ") Create a trigger that automatically updates the 'TotalFineAmount' column in the 'Members' table whenever a new fine is added, or an existing fine is updated. The 'TotalFineAmount' column should contain the total fine amount for each member. Ensure the trigger adjusts the 'TotalFineAmount' column accurately to reflect any partial payments made by members. The member pays only 50% of the total fine amount as an initial payment when the payment status is marked as 'Partial'."
       }
     ]
   }

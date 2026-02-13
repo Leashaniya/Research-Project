@@ -1,45 +1,45 @@
 {
   "top_clusters": [
     {
-      "cluster_id": 6,
+      "cluster_id": 2,
       "count": 6,
       "label_keywords": [
         "relation",
+        "set",
         "functional",
         "dependencies",
-        "set",
         "over",
-        "land",
         "deptno",
-        "deptname"
+        "deptname",
+        "projectname"
+      ]
+    },
+    {
+      "cluster_id": 5,
+      "count": 4,
+      "label_keywords": [
+        "varchar",
+        "int",
+        "book",
+        "table",
+        "date",
+        "name",
+        "number",
+        "member"
       ]
     },
     {
       "cluster_id": 1,
-      "count": 5,
-      "label_keywords": [
-        "relation",
-        "book",
-        "stores",
-        "author",
-        "relational",
-        "flight",
-        "ssn",
-        "prescription"
-      ]
-    },
-    {
-      "cluster_id": 4,
-      "count": 5,
+      "count": 4,
       "label_keywords": [
         "int",
-        "varchar",
-        "name",
-        "char",
         "relation",
-        "address",
+        "varchar",
+        "char",
+        "name",
+        "module",
         "stores",
-        "number"
+        "has"
       ]
     },
     {
@@ -51,7 +51,7 @@
       ]
     },
     {
-      "cluster_id": 3,
+      "cluster_id": 6,
       "count": 3,
       "label_keywords": [
         "database",
@@ -65,31 +65,31 @@
       ]
     },
     {
-      "cluster_id": 5,
-      "count": 2,
+      "cluster_id": 3,
+      "count": 3,
       "label_keywords": [
-        "each",
-        "student",
-        "bytes",
-        "recorded",
-        "several",
-        "song",
-        "students",
-        "songs"
+        "model",
+        "keys",
+        "convert",
+        "eer",
+        "relational",
+        "indicate",
+        "primary",
+        "foreign"
       ]
     },
     {
-      "cluster_id": 2,
+      "cluster_id": 4,
       "count": 1,
       "label_keywords": [
-        "list",
-        "transaction",
-        "properties",
-        "required",
-        "database",
-        "system",
-        "ensure",
-        "integrity"
+        "int",
+        "sid",
+        "table",
+        "made",
+        "suppliers",
+        "supplies",
+        "date",
+        "stores"
       ]
     }
   ]

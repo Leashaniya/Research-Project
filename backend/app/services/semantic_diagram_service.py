@@ -107,12 +107,19 @@ Description:
 {isa_requirement_note}
 
 Extract:
-1. Entities with their attributes and primary keys
+1. Entities with their attributes and primary keys (MINIMUM 4-5 entities required)
 2. Relationships between entities with cardinalities AND participation constraints (min/max)
 3. ISA hierarchies (subtype/supertype relationships) with subtype-specific attributes
 4. Weak entities (if any)
+5. Composite attributes (attributes composed of multiple sub-attributes, e.g., Address with Street, City, ZipCode)
+6. Multivalued attributes (attributes that can have multiple values, e.g., PhoneNumbers, EmailAddresses)
+7. Descriptive attributes attached to relationships (attributes that belong to the relationship itself, e.g., EnrollmentDate on Enrolls relationship)
 
 CRITICAL REQUIREMENTS:
+- MINIMUM 4-5 distinct entities must be included
+- At least ONE composite attribute must be included (e.g., Address, Name with FirstName/LastName, Date with Day/Month/Year)
+- At least ONE multivalued attribute must be included (e.g., PhoneNumbers, EmailAddresses, Skills, Hobbies)
+- At least ONE descriptive attribute attached to a relationship must be included (e.g., EnrollmentDate, Grade, Salary, StartDate)
 - For ISA hierarchies: Subtypes MUST have additional attributes specific to them (not just inherited)
   Example: GraduateStudent should have attributes like ThesisTitle, AdvisorName (specific to graduates)
   Example: UndergraduateStudent should have attributes like YearOfStudy, Major, GPA (specific to undergraduates)
@@ -123,7 +130,13 @@ CRITICAL REQUIREMENTS:
 Return strict JSON format:
 {{
     "entities": [
-        {{"name": "EntityName", "attributes": ["attr1", "attr2"], "primary_key": "attr1"}}
+        {{
+            "name": "EntityName", 
+            "attributes": ["attr1", "attr2"], 
+            "primary_key": "attr1",
+            "composite_attributes": ["Address", "Name"],
+            "multivalued_attributes": ["PhoneNumbers", "EmailAddresses"]
+        }}
     ],
     "relationships": [
         {{
@@ -134,7 +147,8 @@ Return strict JSON format:
             "min1": 0,
             "max1": "N",
             "min2": 0,
-            "max2": "N"
+            "max2": "N",
+            "descriptive_attributes": ["EnrollmentDate", "Grade"]
         }}
     ],
     "isa_hierarchies": [
@@ -340,6 +354,8 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             entity_id = entity_name.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "")
             attrs = entity.get("attributes", [])
             pk = entity.get("primary_key", "")
+            composite_attrs = entity.get("composite_attributes", [])
+            multivalued_attrs = entity.get("multivalued_attributes", [])
             
             for attr in attrs:
                 # Clean attribute name for node ID (remove spaces, hyphens, parentheses, etc.)
@@ -354,6 +370,12 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                 # Determine if this is the primary key (underline in label)
                 is_pk = pk and (pk.lower() in attr.lower() or attr.lower().endswith("(pk)"))
                 
+                # Check if this is a composite attribute
+                is_composite = any(comp.lower() in attr.lower() for comp in composite_attrs)
+                
+                # Check if this is a multivalued attribute
+                is_multivalued = any(mv.lower() in attr.lower() for mv in multivalued_attrs)
+                
                 # Escape special characters in label for Graphviz
                 attr_label = attr.replace('"', '\\"').replace('\\', '\\\\')
                 
@@ -362,6 +384,14 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                     attr_label_underlined = f"<u>{attr_label}</u>"
                     lines.append(f'    {attr_id} [label=<{attr_label_underlined}>, shape=ellipse, style="filled", fillcolor=lightyellow];')
                     # Connect attribute to entity with solid line
+                    lines.append(f'    {entity_id} -> {attr_id} [style=solid, arrowhead=none];')
+                elif is_composite:
+                    # Composite attribute: double border or special styling
+                    lines.append(f'    {attr_id} [label="{attr_label}", shape=ellipse, style="filled,bold", fillcolor=lightgreen, penwidth=2];')
+                    lines.append(f'    {entity_id} -> {attr_id} [style=solid, arrowhead=none];')
+                elif is_multivalued:
+                    # Multivalued attribute: double oval (represented with double border)
+                    lines.append(f'    {attr_id} [label="{{{attr_label}}}", shape=ellipse, style="filled", fillcolor=lightcoral, penwidth=2];')
                     lines.append(f'    {entity_id} -> {attr_id} [style=solid, arrowhead=none];')
                 else:
                     # Regular attribute: ellipse shape
@@ -418,6 +448,18 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             else:  # one-to-one
                 lines.append(f'    {entity1} -> {rel_node_id} [label="{label1}", arrowhead=none];')
                 lines.append(f'    {rel_node_id} -> {entity2} [label="{label2}", arrowhead=none];')
+            
+            # Draw descriptive attributes attached to relationships
+            descriptive_attrs = rel.get("descriptive_attributes", [])
+            for desc_attr in descriptive_attrs:
+                if desc_attr:
+                    desc_attr_clean = desc_attr.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "_")
+                    desc_attr_id = f"{rel_node_id}_{desc_attr_clean}"
+                    desc_attr_id = "".join(c if c.isalnum() or c == "_" else "_" for c in desc_attr_id)
+                    desc_attr_label = desc_attr.replace('"', '\\"').replace('\\', '\\\\')
+                    # Descriptive attributes are shown as ovals connected to the relationship diamond
+                    lines.append(f'    {desc_attr_id} [label="{desc_attr_label}", shape=ellipse, style="filled", fillcolor=lightblue];')
+                    lines.append(f'    {rel_node_id} -> {desc_attr_id} [style=solid, arrowhead=none];')
         
         lines.append("")
         
@@ -437,8 +479,8 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                 isa_node = f"ISA_{supertype}"
                 lines.append(f'    {isa_node} [label="ISA\\n(Inheritance)", shape=triangle, style="filled", fillcolor=lightgreen, orientation=0, fontsize=9];')
                 
-                # Connect supertype to ISA node (only once)
-                lines.append(f'    {supertype} -> {isa_node} [style=dashed, arrowhead=none];')
+                # Connect supertype to ISA node (only once) - USE SOLID LINES for ISA hierarchies
+                lines.append(f'    {supertype} -> {isa_node} [style=solid, arrowhead=none];')
                 
                 # Process all subtypes and connect them to the same ISA node
                 for subtype_data in subtypes:
@@ -458,8 +500,8 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                     subtype_id = subtype_raw.replace(" ", "_").replace("-", "_")
                     subtype_id = "".join(c if c.isalnum() or c == "_" else "_" for c in subtype_id)
                     
-                    # Connect subtype to the same ISA node (only one ISA relationship)
-                    lines.append(f'    {isa_node} -> {subtype_id} [style=dashed, arrowhead=none];')
+                    # Connect subtype to the same ISA node (only one ISA relationship) - USE SOLID LINES for ISA hierarchies
+                    lines.append(f'    {isa_node} -> {subtype_id} [style=solid, arrowhead=none];')
                     
                     # Draw ONLY subtype-specific attributes (inherited attributes are NOT repeated)
                     for attr in specific_attrs:

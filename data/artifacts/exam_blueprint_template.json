@@ -4,14 +4,14 @@
   "canonical_num_questions": 4,
   "bloom_guidance": "30% Understand, 40% Apply, 30% Create",
   "note": {
-    "good_papers_available": 15,
+    "good_papers_available": 14,
     "blueprint_papers_used": [
-      "2024 II",
       "2024",
       "2023 II",
       "2023",
       "2019 II",
-      "2019"
+      "2019",
+      "2018 II"
     ],
     "rule": "Blueprint always generates exactly 4 questions (Q1-Q4). Topic frequency analyzed across ALL positions (Q1-Q5+) from latest 6 papers. Most frequent topic forced into Q1."
   },
@@ -21,7 +21,7 @@
       "question_no": "Q1",
       "position": 1,
       "target_marks": 20,
-      "typical_num_subquestions": 2,
+      "typical_num_subquestions": 0,
       "structural_fingerprint": [
         17,
         3
@@ -29,17 +29,17 @@
       "num_samples": 6,
       "topics": [
         "relation",
-        "functional",
-        "dependencies"
+        "set",
+        "functional"
       ],
       "topic_probabilities": {
-        "each, student, bytes": 0.08,
-        "relation, functional, dependencies": 0.24,
-        "list, transaction, properties": 0.04,
-        "relation, book, stores": 0.2,
         "eer, model": 0.12,
+        "relation, set, functional": 0.25,
         "database, statements, sql": 0.12,
-        "int, varchar, name": 0.2
+        "varchar, int, book": 0.17,
+        "int, relation, varchar": 0.17,
+        "model, keys, convert": 0.12,
+        "int, sid, table": 0.04
       },
       "forced_topic": true,
       "topic_source": "most_frequent_across_all_positions"
@@ -83,9 +83,9 @@
         "sql"
       ],
       "topic_probabilities": {
-        "list, transaction, properties": 0.17,
         "database, statements, sql": 0.5,
-        "relation, book, stores": 0.33
+        "varchar, int, book": 0.33,
+        "int, relation, varchar": 0.17
       },
       "forced_topic": false,
       "topic_source": "position_3_most_common"
@@ -95,7 +95,7 @@
       "question_no": "Q4",
       "position": 4,
       "target_marks": 40,
-      "typical_num_subquestions": 5,
+      "typical_num_subquestions": 3,
       "structural_fingerprint": [
         11,
         12
@@ -103,12 +103,13 @@
       "num_samples": 6,
       "topics": [
         "int",
-        "varchar",
-        "name"
+        "relation",
+        "varchar"
       ],
       "topic_probabilities": {
-        "relation, book, stores": 0.17,
-        "int, varchar, name": 0.83
+        "varchar, int, book": 0.33,
+        "int, relation, varchar": 0.5,
+        "int, sid, table": 0.17
       },
       "forced_topic": false,
       "topic_source": "position_4_most_common"

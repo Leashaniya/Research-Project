@@ -171,23 +171,23 @@ class PDFService:
                 img_path_normalized = img_path_str.replace("\\", "/")
                 
                 if os.path.exists(img_path_str):
-                try:
-                    pdf.ln(5)
-                    pdf.set_font("helvetica", "B", 10)
-                    diagram_type = q.get("diagram_type", "Diagram")
-                    pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
-                    
-                    # Calculate available width (A4 width - margins)
-                    avail_width = 180
+                    try:
+                        pdf.ln(5)
+                        pdf.set_font("helvetica", "B", 10)
+                        diagram_type = q.get("diagram_type", "Diagram")
+                        pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
+                        
+                        # Calculate available width (A4 width - margins)
+                        avail_width = 180
                         # Embed diagram image (FPDF.image accepts string path with forward slashes)
                         pdf.image(img_path_normalized, w=avail_width)
-                    pdf.ln(5)
+                        pdf.ln(5)
                         print(f"    [OK] Embedded diagram image: {img_path_normalized}")
-                except Exception as e:
+                    except Exception as e:
                         print(f"    [WARN] Failed to embed diagram image: {e}")
                         import traceback
                         traceback.print_exc()
-                    # Fall through to Mermaid or placeholder
+                        # Fall through to Mermaid or placeholder
                         diagram_image_path = None
                 else:
                     print(f"    [WARN] Diagram image file not found: {img_path_str}")

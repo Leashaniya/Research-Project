@@ -93,7 +93,8 @@ class QuestionWriter(BaseAgent):
                 if required_structure and len(required_structure) > 0:
                     parsed["subquestions"] = self._enforce_instruction_patterns(
                         parsed["subquestions"],
-                        required_structure
+                        required_structure,
+                        template
                     )
                 
                 # Normalize marks to ensure they sum correctly
@@ -286,7 +287,7 @@ class QuestionWriter(BaseAgent):
         
         return subquestions
 
-    def _enforce_instruction_patterns(self, subquestions: list, required_structure: list) -> list:
+    def _enforce_instruction_patterns(self, subquestions: list, required_structure: list, template: dict = None) -> list:
         """
         Enforce instruction patterns from template if LLM deviated.
         For each sub-question, if template has a text pattern, ensure the generated text preserves it.
@@ -294,9 +295,85 @@ class QuestionWriter(BaseAgent):
         if not required_structure or len(required_structure) != len(subquestions):
             return subquestions
         
+        pattern_label = template.get('pattern_label', '').lower() if template else ''
         enforced = []
         for idx, (sq, struct_item) in enumerate(zip(subquestions, required_structure)):
             template_text = struct_item.get("text", "").strip()
+            
+            # Get generated text early for Q4 enforcement (even without template pattern)
+            generated_text = sq.get("text", "").strip()
+            
+            # Clean generated text (remove label prefix like "i.", "ii.", "a)", "b)", etc.)
+            clean_generated = generated_text
+            if clean_generated and len(clean_generated) > 2:
+                # First handle "ii.", "iii.", "iv.", etc. (before single char prefixes)
+                if clean_generated.lower().startswith(("ii. ", "iii. ", "iv. ", "v. ")):
+                    parts = clean_generated.split(". ", 1)
+                    if len(parts) > 1:
+                        clean_generated = parts[1].strip()
+                # Also handle "i. " pattern
+                elif clean_generated.lower().startswith("i. "):
+                    parts = clean_generated.split(". ", 1)
+                    if len(parts) > 1:
+                        clean_generated = parts[1].strip()
+                # Then handle single char prefixes like "a)", "b)", etc.
+                elif len(clean_generated) > 2 and clean_generated[1] in [')', '.', '?']:
+                    clean_generated = clean_generated[2:].strip()
+            
+            # For Q4 first two subquestions, always enforce "Write SQL queries" if they start with "Find"
+            is_q4_first_two = ("sql" in pattern_label and idx < 2)
+            # More robust check: look for "Find" anywhere near the start (after label prefix)
+            text_lower = generated_text.lower().strip()
+            # Check multiple patterns to catch "Find" even with prefixes
+            has_find_pattern = (
+                clean_generated.lower().startswith("find") or 
+                text_lower.startswith("find") or
+                text_lower.startswith("ii. find") or
+                text_lower.startswith("iii. find") or
+                text_lower.startswith("iv. find") or
+                (len(text_lower) > 4 and text_lower[0:5] == "find ") or
+                (len(text_lower) > 7 and "find" in text_lower[4:10]) or  # After "ii. " or "iii. "
+                (len(text_lower) > 8 and "find" in text_lower[5:11])     # After "iii. "
+            )
+            
+            if is_q4_first_two and has_find_pattern and not text_lower.startswith("write sql queries") and "create" not in text_lower and "trigger" not in text_lower and "function" not in text_lower:
+                # Extract the query part - try multiple methods
+                query_part = None
+                if "Find" in clean_generated:
+                    query_part = clean_generated.split("Find", 1)[1].strip()
+                elif "find" in clean_generated.lower():
+                    # Find the position of "find" (case-insensitive)
+                    find_pos = clean_generated.lower().find("find")
+                    if find_pos >= 0:
+                        # Get everything after "find"
+                        remaining = clean_generated[find_pos + 4:].strip()
+                        query_part = remaining
+                
+                if query_part:
+                    # Preserve original label prefix if present
+                    label_prefix = ""
+                    if generated_text and len(generated_text) > 2 and generated_text[1] in [')', '.']:
+                        label_prefix = generated_text[:2] + " "
+                    elif generated_text.lower().startswith(("i. ", "ii. ", "iii. ", "iv. ")):
+                        parts = generated_text.split(". ", 1)
+                        if len(parts) > 1:
+                            label_prefix = parts[0] + ". "
+                    generated_text = f"{label_prefix}Write SQL queries to find {query_part}"
+                    sq["text"] = generated_text
+                    # Update clean_generated after modification
+                    clean_generated = generated_text
+                    if clean_generated and len(clean_generated) > 2:
+                        if clean_generated.lower().startswith(("ii. ", "iii. ", "iv. ", "v. ")):
+                            parts = clean_generated.split(". ", 1)
+                            if len(parts) > 1:
+                                clean_generated = parts[1].strip()
+                        elif clean_generated.lower().startswith("i. "):
+                            parts = clean_generated.split(". ", 1)
+                            if len(parts) > 1:
+                                clean_generated = parts[1].strip()
+                        elif len(clean_generated) > 2 and clean_generated[1] in [')', '.', '?']:
+                            clean_generated = clean_generated[2:].strip()
+                    self.log(f"    🔧 Enforced SQL query pattern: Converted 'Find' to 'Write SQL queries' for subquestion {sq.get('label', idx)}")
             
             # If template has text pattern, check if we should enforce it
             if template_text and len(template_text) > 10:
@@ -305,10 +382,76 @@ class QuestionWriter(BaseAgent):
                 if clean_template and len(clean_template) > 2 and clean_template[1] in [')', '.', '?']:
                     clean_template = clean_template[2:].strip()
                 
+                # For SQL_DDL_DML questions, convert "Find" patterns to "Write SQL queries"
+                if "sql" in pattern_label and clean_template.lower().startswith("find"):
+                    if "find" in clean_template.lower():
+                        query_part = clean_template.split("Find", 1)[1].strip() if "Find" in clean_template else clean_template.split("find", 1)[1].strip()
+                        clean_template = f"Write SQL queries to find {query_part}"
+                
                 # Extract instruction pattern (the task/instruction part, not the scenario)
                 # For patterns like "Briefly explain...", "Write a T-SQL statement...", "Accept or refute..."
                 # We want to preserve these exact phrases
-                generated_text = sq.get("text", "").strip()
+                # Note: generated_text and clean_generated are already set above for Q4 enforcement
+                if "generated_text" not in locals() or "clean_generated" not in locals():
+                    generated_text = sq.get("text", "").strip()
+                    # Clean generated text (remove label prefix like "i.", "ii.", "a)", "b)", etc.)
+                    clean_generated = generated_text
+                    if clean_generated and len(clean_generated) > 2:
+                        # First handle "ii.", "iii.", "iv.", etc. (before single char prefixes)
+                        if clean_generated.lower().startswith(("ii. ", "iii. ", "iv. ", "v. ")):
+                            parts = clean_generated.split(". ", 1)
+                            if len(parts) > 1:
+                                clean_generated = parts[1].strip()
+                        # Also handle "i. " pattern
+                        elif clean_generated.lower().startswith("i. "):
+                            parts = clean_generated.split(". ", 1)
+                            if len(parts) > 1:
+                                clean_generated = parts[1].strip()
+                        # Then handle single char prefixes like "a)", "b)", etc.
+                        elif len(clean_generated) > 2 and clean_generated[1] in [')', '.', '?']:
+                            clean_generated = clean_generated[2:].strip()
+                
+                # For SQL questions with "Find" pattern, enforce "Write SQL queries"
+                # Check if template pattern was converted to "Write SQL queries" OR if template originally starts with "find"
+                template_should_be_sql_query = (
+                    clean_template.lower().startswith("write sql queries") or
+                    ("sql" in pattern_label and clean_template.lower().startswith("find"))
+                )
+                
+                # Also check if this is Q4 (SQL_DDL_DML) and first two subquestions (idx 0 and 1)
+                is_q4_first_two = ("sql" in pattern_label and idx < 2)
+                
+                if template_should_be_sql_query or is_q4_first_two:
+                    # If generated text doesn't start with "Write SQL queries", convert it
+                    if not clean_generated.lower().startswith("write sql queries"):
+                        if clean_generated.lower().startswith("find"):
+                            # Convert "Find X" to "Write SQL queries to find X"
+                            query_part = clean_generated.split("Find", 1)[1].strip() if "Find" in clean_generated else clean_generated.split("find", 1)[1].strip()
+                            # Preserve original label prefix if present
+                            label_prefix = ""
+                            if generated_text and len(generated_text) > 2 and generated_text[1] in [')', '.']:
+                                label_prefix = generated_text[:2] + " "
+                            elif generated_text.lower().startswith(("i. ", "ii. ", "iii. ", "iv. ")):
+                                parts = generated_text.split(". ", 1)
+                                if len(parts) > 1:
+                                    label_prefix = parts[0] + ". "
+                            generated_text = f"{label_prefix}Write SQL queries to find {query_part}"
+                            sq["text"] = generated_text
+                            self.log(f"    🔧 Enforced SQL query pattern: Converted 'Find' to 'Write SQL queries' for subquestion {sq.get('label', idx)}")
+                        elif is_q4_first_two and "create" not in clean_generated.lower() and "trigger" not in clean_generated.lower() and "function" not in clean_generated.lower():
+                            # For Q4 first two parts, if it's not already a create statement, ensure it says "Write SQL queries"
+                            if "query" not in clean_generated.lower() and "sql" not in clean_generated.lower():
+                                # Preserve label prefix
+                                label_prefix = ""
+                                if generated_text and len(generated_text) > 2 and generated_text[1] in [')', '.']:
+                                    label_prefix = generated_text[:2] + " "
+                                elif generated_text.lower().startswith(("i. ", "ii. ", "iii. ", "iv. ")):
+                                    parts = generated_text.split(". ", 1)
+                                    if len(parts) > 1:
+                                        label_prefix = parts[0] + ". "
+                                generated_text = f"{label_prefix}Write SQL queries to {clean_generated.lower()}"
+                                sq["text"] = generated_text
+                                self.log(f"    🔧 Enforced SQL query pattern: Added 'Write SQL queries' prefix for subquestion {sq.get('label', idx)}")
                 
                 # Check if generated text matches the instruction pattern
                 # CRITICAL: "Briefly explain" must be preserved exactly
@@ -400,6 +543,32 @@ class QuestionWriter(BaseAgent):
                         self.log(f"    ✅ Enforced template pattern for long scenario sub-question {sq.get('label', idx)}")
             
             enforced.append(sq)
+        
+        # Final pass: Ensure Q4 first two subquestions have "Write SQL queries" if they start with "Find"
+        if pattern_label and "sql" in pattern_label:
+            for idx, sq in enumerate(enforced):
+                if idx < 2:  # First two subquestions
+                    text = sq.get("text", "").strip()
+                    text_lower = text.lower()
+                    # Check if it starts with "Find" but not "Write SQL queries"
+                    if (text_lower.startswith("find") or 
+                        text_lower.startswith("ii. find") or 
+                        text_lower.startswith("iii. find") or
+                        (len(text_lower) > 4 and text_lower[0:5] == "find ")) and \
+                       not text_lower.startswith("write sql queries") and \
+                       "create" not in text_lower and "trigger" not in text_lower and "function" not in text_lower:
+                        # Extract query part
+                        if "find" in text_lower:
+                            find_pos = text_lower.find("find")
+                            query_part = text[find_pos + 4:].strip()
+                            # Preserve label prefix
+                            label_prefix = ""
+                            if text.lower().startswith(("ii. ", "iii. ", "iv. ")):
+                                parts = text.split(". ", 1)
+                                if len(parts) > 1:
+                                    label_prefix = parts[0] + ". "
+                            sq["text"] = f"{label_prefix}Write SQL queries to find {query_part}"
+                            self.log(f"    🔧 Final enforcement: Converted 'Find' to 'Write SQL queries' for subquestion {sq.get('label', idx)}")
         
         return enforced
 
@@ -614,7 +783,7 @@ WHERE Age BETWEEN 18 AND 65;"""
             # Default: Generic SQL SELECT statement
             return """SELECT * FROM Patients 
 WHERE PatientID = 'P001';"""
-    
+
     def _build_generation_prompt(self, slot, template, context, global_context, feedback=None, *, banned_topics=None) -> str:
         """Mode 1: Pure Generation from Constraints (No past text shown)."""
         
@@ -634,6 +803,16 @@ WHERE PatientID = 'P001';"""
                 clean_pattern = text_pattern.strip()
                 if clean_pattern and len(clean_pattern) > 2 and clean_pattern[1] in [')', '.', '?']:
                     clean_pattern = clean_pattern[2:].strip()
+                
+                # For SQL_DDL_DML questions, if pattern starts with "Find", convert to "Write SQL queries"
+                pattern_label_lower = template.get('pattern_label', '').lower()
+                if "sql" in pattern_label_lower and clean_pattern.lower().startswith("find"):
+                    # Extract the query requirement part
+                    if "find" in clean_pattern.lower():
+                        # Convert "Find X" to "Write SQL queries to find X"
+                        query_part = clean_pattern.split("Find", 1)[1].strip() if "Find" in clean_pattern else clean_pattern.split("find", 1)[1].strip()
+                        clean_pattern = f"Write SQL queries to find {query_part}"
+                
                 instruction_patterns.append(clean_pattern)
                 # Include the instruction pattern for preservation
                 structure_parts.append(f"- Part {label}: {marks} marks\n  Instruction Pattern (MUST PRESERVE EXACTLY): \"{clean_pattern}\"")
@@ -715,6 +894,17 @@ WHERE PatientID = 'P001';"""
         - Any other count will be REJECTED immediately
         - The number of sub-questions MUST match the template structure EXACTLY
         
+        🚨 INSTRUCTION PATTERN PRESERVATION (CRITICAL - ZERO TOLERANCE):
+        - For each sub-question, look at the "Instruction Pattern (MUST PRESERVE EXACTLY)" shown above
+        - You MUST use the EXACT instruction type from the pattern:
+          * If pattern says "Create a function", you MUST say "Create a function" (NOT "Create a procedure" or "Create a SQL command")
+          * If pattern says "Create a trigger", you MUST say "Create a trigger" (NOT "Create a procedure" or "Create a SQL command")
+          * If pattern says "Find the member", you MUST use "Find" (NOT "List" or "Retrieve")
+          * If pattern says "Briefly explain", you MUST use "Briefly explain" (NOT "Explain" or "Describe")
+        - Only change scenario-specific details (entity names, table names, attribute names, organization names)
+        - Keep ALL instruction verbs, qualifiers, and structure EXACTLY as shown in the pattern
+        - Example: If pattern is "Create a function to calculate...", your output MUST start with "Create a function to calculate..." (change only the calculation details, not the instruction type)
+        
         CRITICAL CONSTRAINTS (ZERO TOLERANCE - VIOLATIONS WILL CAUSE REJECTION):
         1. **NO PLACEHOLDERS**: Never use "...", "TBD", "[insert", "[placeholder", or any placeholder text. Every field must have complete, valid content.
         2. **MARKS MUST SUM EXACTLY**: Sub-question marks must sum to exactly {slot.get('target_marks')}. Double-check your math.
@@ -722,20 +912,34 @@ WHERE PatientID = 'P001';"""
         4. **NO "DESCRIBED ABOVE" REFERENCES**: Never say "described above", "as shown above", "diagram above" unless you have already included the described content in the question stem.
         5. **VALID JSON ONLY**: Output must be valid JSON matching the exact schema below. No syntax errors.
         
-        {"6. **ER/EER QUESTION REQUIREMENTS**: " if is_er_question else ""}{"The question stem MUST include a scenario block (2-5 sentences) describing:" if is_er_question else ""}
-        {"   - Entities and their attributes" if is_er_question else ""}
-        {"   - Relationships between entities" if is_er_question else ""}
-        {"   - Real-world context (e.g., university, hospital, library)" if is_er_question else ""}
+        {"6. **ER/EER QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_er_question else ""}{"The question stem MUST include a COMPREHENSIVE scenario block (4-7 sentences) describing:" if is_er_question else ""}
+        {"   - MINIMUM 4-5 distinct entities with their attributes" if is_er_question else ""}
+        {"   - At least ONE composite attribute (e.g., Address with Street, City, ZipCode)" if is_er_question else ""}
+        {"   - At least ONE multivalued attribute (e.g., PhoneNumbers, EmailAddresses)" if is_er_question else ""}
+        {"   - Descriptive attributes attached to relationships (e.g., EnrollmentDate on Enrolls relationship)" if is_er_question else ""}
+        {"   - Relationships between entities with cardinality information" if is_er_question else ""}
+        {"   - Real-world context (e.g., university, hospital, library, company)" if is_er_question else ""}
+        {"   - ISA hierarchies (subtype/supertype relationships) with subtype-specific attributes" if is_er_question else ""}
+        {"   " if is_er_question else ""}
+        {"   After the diagram is generated, you MUST include a description section that explains:" if is_er_question else ""}
+        {"   - The cardinality notation uses (min, max) approach (e.g., (1,1) for one-to-one, (1,N) for one-to-many)" if is_er_question else ""}
+        {"   - Explanation of relationships and their cardinalities" if is_er_question else ""}
+        {"   - Description of composite attributes, multivalued attributes, and descriptive attributes to relationships" if is_er_question else ""}
+        {"   " if is_er_question else ""}
         {"   Then subquestions should: identify entities/attributes, identify relationships/cardinalities, draw ER/EER diagram (use [DIAGRAM PLACEHOLDER]), map to relational schema." if is_er_question else ""}
         
         {"6. **NORMALIZATION QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_norm_question else ""}{"The question stem MUST include BOTH of the following:" if is_norm_question else ""}
-        {"   - A relation schema in EXACT format: 'Consider a relation R(A, B, C, D) with...' OR 'Consider the following relation schema: RelationName (Attr1, Attr2, Attr3)'" if is_norm_question else ""}
-        {"   - Functional dependencies in EXACT format: 'F = {A->B, B->C}' OR 'FD1: A → B, FD2: B → C' OR 'functional dependencies: A->B, B->C'" if is_norm_question else ""}
+        {"   - A relation schema with 5-6 attributes in EXACT format: 'Consider a relation R(A, B, C, D, E) with...' OR 'Consider the following relation schema: RelationName (Attr1, Attr2, Attr3, Attr4, Attr5)'" if is_norm_question else ""}
+        {"   - Functional dependencies in EXACT format using arrow notation: 'F = {{A→B, B→C, C→D}}' OR 'FD1: A → B, FD2: B → C, FD3: CD → E' OR 'functional dependencies: A→B, B→C, AC→D'" if is_norm_question else ""}
+        {"   - Use REAL attribute names (e.g., StudentID, CourseCode, Grade) OR notation format (A, B, C, D, E) - NOT both mixed" if is_norm_question else ""}
+        {"   - Format FDs to make key identification challenging (e.g., use composite determinants like AB→C, or transitive dependencies)" if is_norm_question else ""}
         {"   " if is_norm_question else ""}
-        {"   EXAMPLE OF CORRECT FORMAT:" if is_norm_question else ""}
-        {"   'Consider a relation R(ProjectNo, ProjectName, EmpNo, EmpName, DeptNo, DeptName) with the following set of functional dependencies F over R: F={{ ProjectNo->ProjectName, DeptNo->DeptName, EmpNo->EmpName }}'" if is_norm_question else ""}
+        {"   EXAMPLE OF CORRECT FORMAT (with 5-6 attributes):" if is_norm_question else ""}
+        {"   'Consider a relation R(StudentID, CourseCode, InstructorID, Grade, Semester, Year) with the following set of functional dependencies F over R: F={{ StudentID, CourseCode → Grade, CourseCode → InstructorID, InstructorID → Department, Semester, Year → CourseCode }}'" if is_norm_question else ""}
+        {"   OR using notation:" if is_norm_question else ""}
+        {"   'Consider a relation R(A, B, C, D, E, F) with the following set of functional dependencies F over R: F={{AB→C, B→D, C→E, DE→F}}'" if is_norm_question else ""}
         {"   " if is_norm_question else ""}
-        {"   ⚠️ WITHOUT A RELATION SCHEMA AND FUNCTIONAL DEPENDENCIES IN THE STEM, THE QUESTION WILL BE REJECTED IMMEDIATELY." if is_norm_question else ""}
+        {"   ⚠️ WITHOUT A RELATION SCHEMA WITH 5-6 ATTRIBUTES AND FUNCTIONAL DEPENDENCIES IN THE STEM, THE QUESTION WILL BE REJECTED IMMEDIATELY." if is_norm_question else ""}
         {"   Then subquestions should ask for normalization steps to 3NF/BCNF and final decomposition." if is_norm_question else ""}
         
         {"6. **RELATIONAL ALGEBRA QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_rel_algebra_question else ""}{"The question stem MUST include:" if is_rel_algebra_question else ""}
@@ -866,6 +1070,16 @@ WHERE PatientID = 'P001';"""
                 clean_pattern = text_pattern.strip()
                 if clean_pattern and len(clean_pattern) > 2 and clean_pattern[1] in [')', '.', '?']:
                     clean_pattern = clean_pattern[2:].strip()
+                
+                # For SQL_DDL_DML questions, if pattern starts with "Find", convert to "Write SQL queries"
+                pattern_label_lower = template.get('pattern_label', '').lower()
+                if "sql" in pattern_label_lower and clean_pattern.lower().startswith("find"):
+                    # Extract the query requirement part
+                    if "find" in clean_pattern.lower():
+                        # Convert "Find X" to "Write SQL queries to find X"
+                        query_part = clean_pattern.split("Find", 1)[1].strip() if "Find" in clean_pattern else clean_pattern.split("find", 1)[1].strip()
+                        clean_pattern = f"Write SQL queries to find {query_part}"
+                
                 instruction_patterns.append(clean_pattern)
                 # Include the instruction pattern for preservation
                 structure_parts.append(f"- Part {label}: {marks} marks\n  Instruction Pattern (MUST PRESERVE EXACTLY): \"{clean_pattern}\"")
