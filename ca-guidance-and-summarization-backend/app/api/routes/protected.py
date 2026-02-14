@@ -18,6 +18,8 @@ from app.models.schemas import (
     SaveFlashcardSetRequest,
     FlashcardFeedbackRequest,
     FlashcardUpdateRequest,
+    GuidanceFeedbackRequest,
+    ReinforceGuidanceRequest,
 )
 from app.ca_guidance.crew import create_guidance_crew, create_summarization_crew
 from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR
@@ -186,11 +188,27 @@ async def run_guidance(
 
         logger.info(f"Successfully extracted markdown (length: {len(final_content)})")
         logger.info(f"Found {len(image_paths)} image(s) in response")
+
+        # Store base guidance for reinforcement flow (same style as summarization)
+        try:
+            from app.services.guidance_reinforcement_service import GuidanceReinforcementService
+            svc = GuidanceReinforcementService()
+            guidance_id = svc.store_base_guidance(
+                report_text=final_content,
+                images=image_paths,
+                user_email=user.email,
+            )
+            logger.info(f"Stored base guidance (id: {guidance_id})")
+        except Exception as store_err:
+            logger.warning(f"Failed to store base guidance for reinforcement: {store_err}")
+            guidance_id = None
+
         logger.info("=== Guidance process completed ===")
 
         return {
             "report": final_content,
-            "images": image_paths
+            "images": image_paths,
+            "guidance_id": guidance_id,
         }
 
     except Exception as e:
@@ -1053,4 +1071,213 @@ async def get_summaries_for_topic(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get summaries: {e}"
+        )
+
+
+# ============ Guidance Feedback and Reinforcement (same style as summarization) ============
+
+@router.post("/guidance/feedback")
+async def submit_guidance_feedback(
+    request: GuidanceFeedbackRequest,
+    user: UserInfo = Depends(get_current_user)
+):
+    """Submit feedback for CA guidance. Required before reinforcement."""
+    logger.info(f"=== Submitting feedback for guidance {request.guidance_id} ===")
+    try:
+        from app.services.guidance_reinforcement_service import GuidanceReinforcementService
+        service = GuidanceReinforcementService()
+        base = service.get_guidance(request.guidance_id, user_email=user.email)
+        if not base or base.get("guidance_type") != "base":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Base guidance not found or invalid.",
+            )
+        feedback_id = service.store_feedback(
+            guidance_id=request.guidance_id,
+            rating=request.rating,
+            confused_concept=request.confused_concept,
+            comment=request.comment,
+            feedback_type=request.feedback_type,
+            deadline_text=request.deadline_text,
+            user_email=user.email,
+            session_id=request.session_id,
+        )
+        return {"feedback_id": feedback_id, "message": "Feedback submitted successfully"}
+    except HTTPException:
+        raise
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error storing guidance feedback: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to submit guidance feedback: {e}",
+        )
+
+
+@router.post("/guidance/reinforce")
+async def reinforce_guidance(
+    request: ReinforceGuidanceRequest,
+    user: UserInfo = Depends(get_current_user)
+):
+    """Generate reinforced CA guidance from the latest feedback (same flow as summarization)."""
+    logger.info(f"=== Generating reinforced guidance for {request.guidance_id} (force={request.force}) ===")
+    try:
+        from bson.objectid import ObjectId
+        from app.services.guidance_reinforcement_service import GuidanceReinforcementService
+        service = GuidanceReinforcementService()
+        base = service.get_guidance(request.guidance_id, user_email=user.email)
+        if not base or base.get("guidance_type") != "base":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Base guidance not found.",
+            )
+        if not request.force:
+            reinforced = service.get_reinforced_guidance(request.guidance_id, user_email=user.email)
+            if reinforced:
+                return {
+                    "report": reinforced["report_text"],
+                    "images": reinforced.get("images", []),
+                    "guidance_id": request.guidance_id,
+                    "reinforced_guidance_id": reinforced["_id"],
+                    "guidance_type": "reinforced",
+                    "from_cache": True,
+                    "created_at": reinforced.get("created_at").isoformat() if reinforced.get("created_at") else None,
+                }
+        # Ensure we always work with the most recent version: reinforced (if any) or base.
+        # All feedback (deadline, links, simplify, clarifications) is applied to this version
+        # so the final document incorporates every change.
+        latest_source = service.get_latest_guidance_for_reinforcement(request.guidance_id, user_email=user.email)
+        if not latest_source:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Could not resolve latest guidance to reinforce.",
+            )
+        # Use the feedback that was just submitted (request.feedback_id from frontend) so the deadline is the one the user entered
+        feedback = None
+        feedback_id_to_store = request.feedback_id
+        if request.feedback_id:
+            try:
+                fd = service.feedback_collection.find_one({"_id": ObjectId(request.feedback_id)})
+                if fd:
+                    feedback = {
+                        "rating": fd.get("rating", "not_helpful"),
+                        "confused_concept": fd.get("confused_concept"),
+                        "comment": fd.get("comment"),
+                        "feedback_type": fd.get("feedback_type"),
+                        "deadline_text": fd.get("deadline_text"),
+                    }
+                    feedback_id_to_store = str(fd["_id"])
+                    if fd.get("deadline_text"):
+                        logger.info(f"Using deadline from submitted feedback: {fd.get('deadline_text')!r}")
+            except Exception as e:
+                logger.warning(f"Could not load feedback by id {request.feedback_id}: {e}")
+        if not feedback:
+            feedback_doc = service.get_latest_feedback_for_guidance(
+                request.guidance_id, user_email=user.email, session_id=request.session_id
+            )
+            if feedback_doc:
+                feedback = {
+                    "rating": feedback_doc.get("rating", "not_helpful"),
+                    "confused_concept": feedback_doc.get("confused_concept"),
+                    "comment": feedback_doc.get("comment"),
+                    "feedback_type": feedback_doc.get("feedback_type"),
+                    "deadline_text": feedback_doc.get("deadline_text"),
+                }
+                feedback_id_to_store = feedback_doc.get("_id")
+        if not feedback:
+            feedback = {"rating": "not_helpful"}
+        # For new_deadline_event: use ONLY the user-provided deadline from feedback. Do not use any deadline from the document.
+        calendar_event_message = None
+        user_provided_deadline = (feedback.get("deadline_text") or "").strip()
+        access_token = getattr(user, "access_token", None) or (user.access_token if hasattr(user, "access_token") else None)
+        if feedback.get("feedback_type") == "new_deadline_event" and user_provided_deadline:
+            # Create calendar event with the user's new deadline only (never document-extracted deadline).
+            if access_token:
+                try:
+                    from app.ca_guidance.tools.calendar_tool import create_calendar_event_with_token
+                    calendar_event_message = create_calendar_event_with_token(
+                        access_token=access_token,
+                        title="CA Assignment: New deadline",
+                        start_date=user_provided_deadline,
+                        duration_hours=1,
+                    )
+                    logger.info(f"Calendar event (user deadline only): {calendar_event_message}")
+                except Exception as cal_err:
+                    logger.warning(f"Could not create calendar event: {cal_err}")
+                    calendar_event_message = f"Calendar event could not be created: {cal_err}"
+            else:
+                calendar_event_message = (
+                    "Calendar event was not created. Please sign in with Google to add the deadline to your calendar."
+                )
+                logger.info(f"No access token; calendar not created for deadline: {user_provided_deadline!r}")
+        # Apply feedback to the latest version (never to a stale base)
+        reinforced_text = service.generate_reinforced_guidance(
+            base_report_text=latest_source["report_text"],
+            feedback=feedback,
+        )
+        # 2) If user added a new deadline: remove any existing deadline/calendar section from the LLM output
+        #    (it may contain an old date from the document), then append a single section with the user's date.
+        if feedback.get("feedback_type") == "new_deadline_event" and user_provided_deadline:
+            # Remove any ### heading that mentions Deadline or Calendar and its content up to the next ### or end
+            def remove_deadline_sections(text: str) -> str:
+                lines = text.split("\n")
+                out = []
+                skip_until_next_heading = False
+                for line in lines:
+                    if re.match(r"^#{2,6}\s+.*(?:deadline|calendar\s*confirmation|important\s*dates)", line, re.IGNORECASE):
+                        skip_until_next_heading = True
+                        continue
+                    if skip_until_next_heading and re.match(r"^#{2,6}\s+", line):
+                        skip_until_next_heading = False
+                    if not skip_until_next_heading:
+                        out.append(line)
+                return "\n".join(out).rstrip()
+
+            reinforced_text = remove_deadline_sections(reinforced_text)
+            deadline_section = (
+                "\n\n### Deadline / Calendar Confirmation\n\n"
+                f"Your new deadline is **{user_provided_deadline}**. "
+            )
+            if calendar_event_message and "Successfully scheduled" in (calendar_event_message or ""):
+                deadline_section += "The event has been added to your Google Calendar."
+            elif calendar_event_message:
+                deadline_section += "The calendar event could not be created automatically; please add this date to your calendar manually if needed."
+            else:
+                deadline_section += "Sign in with Google to add this deadline to your calendar."
+            reinforced_text = reinforced_text.rstrip() + deadline_section
+            logger.info(f"Deadline section set to user-provided date: {user_provided_deadline!r}")
+        images = latest_source.get("images", [])  # preserve images from latest version
+        reinforced_id = service.store_reinforced_guidance(
+            base_guidance_id=request.guidance_id,
+            report_text=reinforced_text,
+            feedback_id=feedback_id_to_store,
+            images=images,
+            user_email=user.email,
+            session_id=request.session_id,
+        )
+        stored = service.guidances_collection.find_one({"_id": ObjectId(reinforced_id)})
+        response_data = {
+            "report": reinforced_text,
+            "images": images,
+            "guidance_id": request.guidance_id,
+            "reinforced_guidance_id": reinforced_id,
+            "guidance_type": "reinforced",
+            "from_cache": False,
+            "created_at": stored.get("created_at").isoformat() if stored and stored.get("created_at") else None,
+            "message": "Guidance updated with your feedback. You are viewing the latest version with all changes applied.",
+        }
+        # Always confirm calendar outcome in the response when user set a new deadline
+        if feedback.get("feedback_type") == "new_deadline_event" and user_provided_deadline:
+            response_data["calendar_event_message"] = calendar_event_message or (
+                "Deadline was recorded; calendar event could not be created."
+            )
+        return response_data
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating reinforced guidance: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate reinforced guidance: {e}",
         )

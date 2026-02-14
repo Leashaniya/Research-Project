@@ -1,5 +1,6 @@
 import logging
 import json
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -10,6 +11,14 @@ from app.api.routes import auth, er, public, protected, summaries
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup and shutdown: close MongoDB on exit so Ctrl+C doesn't hang on PyMongo threads."""
+    yield
+    from app.core.database import close_database
+    close_database()
+
 # Configure logging
 logging.basicConfig(
     level=logging.DEBUG,  # Changed to DEBUG to see all messages
@@ -19,12 +28,16 @@ logger = logging.getLogger(__name__)
 # Set specific loggers to appropriate levels
 logging.getLogger("uvicorn.access").setLevel(logging.INFO)
 logging.getLogger("uvicorn.error").setLevel(logging.INFO)
+# Suppress verbose PyMongo/MongoDB driver logs (heartbeats, etc.)
+logging.getLogger("pymongo").setLevel(logging.WARNING)
+logging.getLogger("pymongo.topology").setLevel(logging.WARNING)
 
 # Create FastAPI instance
 app = FastAPI(
     title="CA Guidance Prototype API",
     description="A FastAPI application for CA guidance prototype with Google OAuth",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Ensure audio directory exists

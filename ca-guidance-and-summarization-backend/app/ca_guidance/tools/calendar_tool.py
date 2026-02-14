@@ -166,6 +166,80 @@ def _parse_date_or_datetime(deadline_str: str) -> datetime | None:
     return _parse_date(s)
 
 
+def create_calendar_event_with_token(
+    access_token: str,
+    title: str,
+    start_date: str,
+    duration_hours: int = 1,
+) -> str:
+    """
+    Create a Google Calendar event using the given access token.
+    Use this when calling from API routes (e.g. guidance reinforcement with new deadline).
+
+    When the user provides a new deadline via feedback, pass only that user-provided
+    start_date string here. Do not use any deadline extracted from the guidance document;
+    the user's new deadline takes precedence. The string is parsed internally (supports
+    e.g. "1st February 2026 11:59 PM", "2025-12-01", "Deadline is 31st December 2025").
+    """
+    if not access_token or not access_token.strip():
+        logger.error("Access token not provided")
+        return "Access token not provided. Cannot create calendar event."
+
+    # Handle missing / empty start_date (no deadline case)
+    if not start_date or not start_date.strip():
+        msg = (
+            f"No deadline date/time was provided for '{title}'. "
+            f"I did not create a calendar event."
+        )
+        logger.info(msg)
+        return msg
+
+    try:
+        # Parse the user-provided date string (handles full sentence or just date/time)
+        start_dt = _parse_date_or_datetime(start_date)
+        if not start_dt:
+            return (
+                f"Could not parse date/time from: '{start_date}'. "
+                f"Please use a format like '2025-12-01' or '31st of December 2025 11:59 PM'."
+            )
+        if start_dt.hour == 0 and start_dt.minute == 0 and start_dt.second == 0:
+            start_dt = start_dt.replace(hour=23, minute=59, second=0, microsecond=0)
+        end_dt = start_dt + timedelta(hours=duration_hours)
+        event_data = {
+            "summary": title,
+            "start": {"dateTime": start_dt.isoformat(), "timeZone": "Asia/Colombo"},
+            "end": {"dateTime": end_dt.isoformat(), "timeZone": "Asia/Colombo"},
+        }
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
+        }
+        logger.info(f"Creating calendar event: {title} at {start_dt.isoformat()}")
+        response = httpx.post(
+            "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+            json=event_data,
+            headers=headers,
+            timeout=10.0,
+        )
+        if response.status_code in (200, 201):
+            result = response.json()
+            logger.info(f"Successfully created calendar event: {result.get('id', 'unknown')}")
+            return (
+                f"Successfully scheduled '{title}' for "
+                f"{start_dt.strftime('%B %d, %Y at %I:%M %p')}."
+            )
+        error_msg = (
+            f"Failed to create calendar event. Status: {response.status_code}, "
+            f"Response: {response.text}"
+        )
+        logger.error(error_msg)
+        return error_msg
+    except Exception as e:
+        error_msg = f"An error occurred while creating calendar event: {str(e)}"
+        logger.error(error_msg, exc_info=True)
+        return error_msg
+
+
 @tool
 def create_calendar_event(title: str, start_date: str, duration_hours: int = 1) -> str:
     """
@@ -192,78 +266,4 @@ def create_calendar_event(title: str, start_date: str, duration_hours: int = 1) 
     if not access_token:
         logger.error("Access token not found")
         return "Access token not found in context. Cannot create event."
-
-    # Handle missing / empty start_date (no deadline case)
-    if not start_date or not start_date.strip():
-        msg = (
-            f"No deadline date/time was provided for '{title}'. "
-            f"I did not create a calendar event. "
-            f"Please provide a date like '2025-12-01' or "
-            f"'31st of December 2025 11:59 PM' if you want it scheduled."
-        )
-        logger.info(msg)
-        return msg
-
-    try:
-        # Parse the date or date+time from the given string
-        start_dt = _parse_date_or_datetime(start_date)
-
-        if not start_dt:
-            return (
-                f"Could not parse date/time from: '{start_date}'. "
-                f"Please provide a cleaner date string like '2025-12-01', "
-                f"'31st of December 2025', or '31st of December 2025 11:59 PM'."
-            )
-
-        # If only a date was parsed (00:00:00), default to 23:59 as deadline
-        if start_dt.hour == 0 and start_dt.minute == 0 and start_dt.second == 0:
-            start_dt = start_dt.replace(hour=23, minute=59, second=0, microsecond=0)
-
-        # End time: duration_hours after start
-        end_dt = start_dt + timedelta(hours=duration_hours)
-
-        event_data = {
-            "summary": title,
-            "start": {
-                "dateTime": start_dt.isoformat(),
-                "timeZone": "Asia/Colombo",  # adjust if needed
-            },
-            "end": {
-                "dateTime": end_dt.isoformat(),
-                "timeZone": "Asia/Colombo",
-            },
-        }
-
-        headers = {
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json",
-        }
-
-        logger.info(f"Creating calendar event: {title} at {start_dt.isoformat()}")
-        response = httpx.post(
-            "https://www.googleapis.com/calendar/v3/calendars/primary/events",
-            json=event_data,
-            headers=headers,
-            timeout=10.0,
-        )
-
-        if response.status_code in (200, 201):
-            result = response.json()
-            event_id = result.get("id", "unknown")
-            logger.info(f"Successfully created calendar event: {event_id}")
-            return (
-                f"Successfully scheduled '{title}' for "
-                f"{start_dt.strftime('%B %d, %Y at %I:%M %p')}."
-            )
-        else:
-            error_msg = (
-                f"Failed to create calendar event. "
-                f"Status: {response.status_code}, Response: {response.text}"
-            )
-            logger.error(error_msg)
-            return error_msg
-
-    except Exception as e:
-        error_msg = f"An error occurred while creating calendar event: {str(e)}"
-        logger.error(error_msg, exc_info=True)
-        return error_msg
+    return create_calendar_event_with_token(access_token, title, start_date, duration_hours)

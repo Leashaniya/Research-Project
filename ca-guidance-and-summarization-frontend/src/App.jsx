@@ -71,6 +71,54 @@ function App() {
   const [activeSummaryView, setActiveSummaryView] = useState('base'); // 'base' or 'reinforced'
   const [forceRegenerate, setForceRegenerate] = useState(false);
   const [lastFeedbackId, setLastFeedbackId] = useState(null); // Store feedback_id after submission
+  // Guidance reinforcement state (same style as summarization)
+  const [guidanceId, setGuidanceId] = useState(null);
+  const [baseGuidanceContent, setBaseGuidanceContent] = useState(null);
+  const [baseGuidanceImages, setBaseGuidanceImages] = useState([]);
+  const [reinforcedGuidanceContent, setReinforcedGuidanceContent] = useState(null);
+  const [reinforcedGuidanceImages, setReinforcedGuidanceImages] = useState([]);
+  const [activeGuidanceView, setActiveGuidanceView] = useState('base');
+  const [guidanceFeedbackOpen, setGuidanceFeedbackOpen] = useState(false);
+  const [guidanceLiked, setGuidanceLiked] = useState(false);
+  const [guidanceFeedbackType, setGuidanceFeedbackType] = useState(null);
+  const [guidanceConfusedConcept, setGuidanceConfusedConcept] = useState('');
+  const [guidanceFeedbackComment, setGuidanceFeedbackComment] = useState('');
+  const [guidanceDeadlineText, setGuidanceDeadlineText] = useState('');
+  const [guidanceFeedbackRating, setGuidanceFeedbackRating] = useState(null);
+  const [guidanceFeedbackLoading, setGuidanceFeedbackLoading] = useState(false);
+  const [guidanceReinforceLoading, setGuidanceReinforceLoading] = useState(false);
+  const [guidanceReinforceError, setGuidanceReinforceError] = useState(null);
+  const [guidanceFeedbackError, setGuidanceFeedbackError] = useState(null);
+  const [guidanceReinforceSuccess, setGuidanceReinforceSuccess] = useState(false);
+  const [guidanceCalendarEventMessage, setGuidanceCalendarEventMessage] = useState(null);
+  const [guidanceSessionId, setGuidanceSessionId] = useState(null);
+  const [lastGuidanceFeedbackId, setLastGuidanceFeedbackId] = useState(null);
+  const [currentSystemDateTime, setCurrentSystemDateTime] = useState(() =>
+    new Date().toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+  );
+
+  // Update current system date/time every second when Summary tab has content
+  useEffect(() => {
+    const t = setInterval(() => {
+      setCurrentSystemDateTime(new Date().toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }));
+    }, 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Ensure bare URLs in markdown become clickable links [url](url)
+  const ensureLinksInMarkdown = (text) => {
+    if (!text || typeof text !== 'string') return text;
+    return text.replace(/(?<!\]\()(https?:\/\/[^\s)\]>\"]+)/g, (url) => `[${url}](${url})`);
+  };
+
+  // If the content is wrapped in a markdown code block (```markdown ... ``` or ``` ... ```), unwrap it so ReactMarkdown renders it as formatted content, not as one big code block
+  const unwrapMarkdownFromCodeBlock = (text) => {
+    if (!text || typeof text !== 'string') return text;
+    const trimmed = text.trim();
+    const match = trimmed.match(/^```(?:markdown|md)?\s*\n?([\s\S]*?)\n?```\s*$/);
+    if (match) return match[1].trim();
+    return text;
+  };
 
   // ✅ Helper: make a path absolute using API_URL
   const toAbsoluteUrl = (maybeRelativeUrl) => {
@@ -174,6 +222,32 @@ function App() {
           content: result.report,
           images: result.images || []
         });
+        if (result.guidance_id) {
+          setGuidanceId(result.guidance_id);
+          setBaseGuidanceContent(result.report);
+          setBaseGuidanceImages(result.images || []);
+          setReinforcedGuidanceContent(null);
+          setReinforcedGuidanceImages([]);
+          setActiveGuidanceView('base');
+          setGuidanceSessionId(createSessionId());
+          setGuidanceFeedbackOpen(false);
+          setGuidanceLiked(false);
+          setGuidanceFeedbackType(null);
+          setGuidanceConfusedConcept('');
+          setGuidanceFeedbackComment('');
+          setGuidanceFeedbackRating(null);
+          setGuidanceReinforceError(null);
+          setGuidanceFeedbackError(null);
+          setGuidanceReinforceSuccess(false);
+          setGuidanceCalendarEventMessage(null);
+        } else {
+          setGuidanceId(null);
+          setGuidanceCalendarEventMessage(null);
+          setBaseGuidanceContent(null);
+          setBaseGuidanceImages([]);
+          setReinforcedGuidanceContent(null);
+          setReinforcedGuidanceImages([]);
+        }
       } else {
         console.error('Failed to run guidance');
         setReport({ error: 'Failed to run guidance. Make sure you are logged in.' });
@@ -198,6 +272,9 @@ function App() {
       setSummary(null);
       setSummaryTopic('');
       setSummaryAudio(null);
+      setGuidanceId(null);
+      setBaseGuidanceContent(null);
+      setReinforcedGuidanceContent(null);
     } catch (error) {
       console.error('Error logging out:', error);
     }
@@ -616,6 +693,83 @@ function App() {
     }
   };
 
+  const handleSubmitGuidanceFeedbackAndReinforce = async () => {
+    if (!guidanceId || !baseGuidanceContent) {
+      alert('No guidance available to improve.');
+      return;
+    }
+    if (!guidanceFeedbackRating) {
+      alert('Please select whether the guidance was helpful or not.');
+      return;
+    }
+    setGuidanceFeedbackLoading(true);
+    setGuidanceReinforceLoading(true);
+    setGuidanceFeedbackError(null);
+    setGuidanceReinforceError(null);
+    setGuidanceReinforceSuccess(false);
+    try {
+      const feedbackResp = await fetch(`${API_URL}/protected/guidance/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          guidance_id: guidanceId,
+          rating: guidanceFeedbackRating,
+          confused_concept: guidanceConfusedConcept.trim() || null,
+          comment: guidanceFeedbackComment.trim() || null,
+          feedback_type: guidanceFeedbackType,
+          deadline_text: guidanceFeedbackType === 'new_deadline_event' ? (guidanceDeadlineText.trim() || null) : null,
+          session_id: guidanceSessionId,
+        }),
+      });
+      if (!feedbackResp.ok) {
+        const errData = await feedbackResp.json().catch(() => ({ detail: 'Failed to submit feedback' }));
+        setGuidanceFeedbackError(errData.detail || 'Failed to submit feedback.');
+        return;
+      }
+      const feedbackResult = await feedbackResp.json().catch(() => ({}));
+      if (feedbackResult.feedback_id) setLastGuidanceFeedbackId(feedbackResult.feedback_id);
+
+      const reinforceResp = await fetch(`${API_URL}/protected/guidance/reinforce`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          guidance_id: guidanceId,
+          force: true,
+          feedback_id: feedbackResult.feedback_id,
+          session_id: guidanceSessionId,
+        }),
+      });
+      if (!reinforceResp.ok) {
+        const errData = await reinforceResp.json().catch(() => ({ detail: 'Failed to generate reinforced guidance' }));
+        setGuidanceReinforceError(errData.detail || 'Failed to generate reinforced guidance.');
+        return;
+      }
+      const result = await reinforceResp.json();
+      setReinforcedGuidanceContent(result.report);
+      setReinforcedGuidanceImages(result.images || []);
+      setReport({ content: result.report, images: result.images || [] });
+      setActiveGuidanceView('reinforced');
+      setGuidanceReinforceSuccess(true);
+      setGuidanceCalendarEventMessage(result.calendar_event_message || null);
+      setTimeout(() => { setGuidanceReinforceSuccess(false); setGuidanceCalendarEventMessage(null); }, 6000);
+      setGuidanceFeedbackRating(null);
+      setGuidanceConfusedConcept('');
+      setGuidanceFeedbackComment('');
+      setGuidanceDeadlineText('');
+      setGuidanceFeedbackType(null);
+      setGuidanceFeedbackOpen(false);
+      setGuidanceLiked(false);
+    } catch (error) {
+      console.error('Error submitting guidance feedback and reinforcing:', error);
+      setGuidanceReinforceError('An error occurred while generating reinforced guidance.');
+    } finally {
+      setGuidanceFeedbackLoading(false);
+      setGuidanceReinforceLoading(false);
+    }
+  };
+
   const handleGenerateFlashcards = async (e) => {
     e.preventDefault();
     setFlashLoading(true);
@@ -904,6 +1058,20 @@ function App() {
         />
       );
     },
+
+    a({ node, href, children, ...props }) {
+      return (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: '#336db0', textDecoration: 'underline' }}
+          {...props}
+        >
+          {children}
+        </a>
+      );
+    },
   };
 
   return (
@@ -1014,15 +1182,15 @@ function App() {
 
                     {typeof report === 'string' ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock}>{report}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report))}</ReactMarkdown>
                       </div>
                     ) : report.content ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock}>{report.content}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report.content))}</ReactMarkdown>
                       </div>
                     ) : report.markdown_report ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock}>{report.markdown_report}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report.markdown_report))}</ReactMarkdown>
                       </div>
                     ) : report.error ? (
                       <div className="error-message">{report.error}</div>
@@ -1031,6 +1199,280 @@ function App() {
                         <ReactMarkdown components={CodeBlock}>
                           {JSON.stringify(report, null, 2)}
                         </ReactMarkdown>
+                      </div>
+                    )}
+
+                    {/* Feedback and reinforcement (same style as summarization) - show whenever guidance report is displayed */}
+                    {!report.error && (report.content != null || typeof report === 'string') && (
+                      <div style={{
+                        marginTop: '30px',
+                        padding: '16px 20px',
+                        border: '1px solid #dee2e6',
+                        borderRadius: '8px',
+                        backgroundColor: guidanceLiked ? '#e8f5e9' : '#f8f9fa',
+                        borderColor: guidanceLiked ? '#4caf50' : '#dee2e6',
+                      }}>
+                        {guidanceLiked && !guidanceFeedbackOpen && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <FaCheck style={{ color: '#2e7d32' }} />
+                            <span style={{ color: '#2e7d32', fontWeight: '500', fontSize: '0.95rem' }}>
+                              Thanks for your feedback!
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setGuidanceFeedbackOpen(true)}
+                              style={{
+                                marginLeft: 'auto',
+                                padding: '4px 10px',
+                                backgroundColor: 'transparent',
+                                border: '1px solid #6c757d',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem',
+                                color: '#6c757d',
+                              }}
+                            >
+                              Still want to improve?
+                            </button>
+                          </div>
+                        )}
+
+                        {!guidanceLiked && !guidanceFeedbackOpen && !guidanceReinforceLoading && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <span style={{ fontSize: '0.9rem', color: '#6c757d' }}>Was this helpful?</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setGuidanceLiked(true);
+                                setGuidanceFeedbackRating('helpful');
+                              }}
+                              disabled={guidanceFeedbackLoading}
+                              style={{
+                                padding: '6px 14px',
+                                backgroundColor: guidanceFeedbackLoading ? '#c8e6c9' : '#e8f5e9',
+                                border: '1px solid #4caf50',
+                                borderRadius: '4px',
+                                cursor: guidanceFeedbackLoading ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                color: '#2e7d32',
+                                fontWeight: '500',
+                                transition: 'all 0.2s ease',
+                              }}
+                            >
+                              <FaThumbsUp size={14} /> Yes
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setGuidanceFeedbackOpen(true);
+                                setGuidanceFeedbackRating('not_helpful');
+                              }}
+                              disabled={guidanceFeedbackLoading}
+                              style={{
+                                padding: '6px 14px',
+                                backgroundColor: '#ffebee',
+                                border: '1px solid #f44336',
+                                borderRadius: '4px',
+                                cursor: guidanceFeedbackLoading ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                color: '#c62828',
+                                fontWeight: '500',
+                              }}
+                            >
+                              <FaThumbsDown size={14} /> Improve
+                            </button>
+                          </div>
+                        )}
+
+                        {guidanceReinforceLoading && (
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            color: '#1976d2',
+                            fontSize: '0.9rem',
+                          }}
+                          >
+                            <FaSpinner className="loading-spinner" style={{ animation: 'spin 1s linear infinite' }} />
+                            Improving guidance based on your feedback...
+                          </div>
+                        )}
+
+                        {guidanceFeedbackOpen && !guidanceReinforceLoading && (
+                          <div style={{ marginTop: guidanceLiked ? '12px' : '0' }}>
+                            {!guidanceId && (
+                              <p style={{ fontSize: '0.9rem', marginBottom: '12px', color: '#856404', backgroundColor: '#fff3cd', padding: '10px', borderRadius: '6px', border: '1px solid #ffeaa7' }}>
+                                Improvement is not available for this run. Generate guidance again to enable feedback and improved guidance.
+                              </p>
+                            )}
+                            <p style={{ fontSize: '0.95rem', fontWeight: '600', marginBottom: '12px', color: '#495057' }}>
+                              How can we improve this guidance?
+                            </p>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                              {[
+                                { id: 'add_more_links', label: 'Add more links' },
+                                { id: 'new_deadline_event', label: 'Set new deadline / Create event' },
+                                { id: 'doubt_on_questions', label: 'Ask doubt on questions' },
+                                { id: 'simplify_language', label: 'Simplify language' },
+                              ].map((type) => (
+                                <button
+                                  key={type.id}
+                                  type="button"
+                                  onClick={() => setGuidanceFeedbackType(guidanceFeedbackType === type.id ? null : type.id)}
+                                  style={{
+                                    padding: '6px 12px',
+                                    backgroundColor: guidanceFeedbackType === type.id ? '#336db0' : '#fff',
+                                    color: guidanceFeedbackType === type.id ? '#fff' : '#495057',
+                                    border: `1px solid ${guidanceFeedbackType === type.id ? '#336db0' : '#dee2e6'}`,
+                                    borderRadius: '16px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.85rem',
+                                    transition: 'all 0.2s ease',
+                                  }}
+                                >
+                                  {type.label}
+                                </button>
+                              ))}
+                            </div>
+                            {guidanceFeedbackType === 'new_deadline_event' && (
+                              <input
+                                type="text"
+                                value={guidanceDeadlineText}
+                                onChange={(e) => setGuidanceDeadlineText(e.target.value)}
+                                placeholder="New deadline (e.g. 15th March 2025 11:59 PM)"
+                                disabled={guidanceFeedbackLoading}
+                                style={{
+                                  width: '100%',
+                                  padding: '10px',
+                                  border: '1px solid #dee2e6',
+                                  borderRadius: '6px',
+                                  fontSize: '0.9rem',
+                                  marginBottom: '10px',
+                                }}
+                              />
+                            )}
+                            <input
+                              type="text"
+                              value={guidanceConfusedConcept}
+                              onChange={(e) => setGuidanceConfusedConcept(e.target.value)}
+                              placeholder="Confused about? Or specify your doubt / question (e.g. normalization steps, ER design...)"
+                              disabled={guidanceFeedbackLoading}
+                              style={{
+                                width: '100%',
+                                padding: '10px',
+                                border: '1px solid #dee2e6',
+                                borderRadius: '6px',
+                                fontSize: '0.9rem',
+                                marginBottom: '10px',
+                              }}
+                            />
+                            <textarea
+                              value={guidanceFeedbackComment}
+                              onChange={(e) => setGuidanceFeedbackComment(e.target.value)}
+                              placeholder="Add specific feedback (optional)..."
+                              disabled={guidanceFeedbackLoading}
+                              rows={2}
+                              style={{
+                                width: '100%',
+                                padding: '10px',
+                                border: '1px solid #dee2e6',
+                                borderRadius: '6px',
+                                fontSize: '0.9rem',
+                                fontFamily: 'inherit',
+                                resize: 'vertical',
+                                marginBottom: '12px',
+                              }}
+                            />
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button
+                                type="button"
+                                onClick={handleSubmitGuidanceFeedbackAndReinforce}
+                                disabled={!guidanceId || guidanceFeedbackLoading || !(guidanceFeedbackType || guidanceConfusedConcept.trim() || guidanceFeedbackComment.trim() || (guidanceFeedbackType === 'new_deadline_event' && guidanceDeadlineText.trim()))}
+                                className="btn btn-primary"
+                                style={{
+                                  padding: '8px 16px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  opacity: !guidanceId || guidanceFeedbackLoading || !(guidanceFeedbackType || guidanceConfusedConcept.trim() || guidanceFeedbackComment.trim() || (guidanceFeedbackType === 'new_deadline_event' && guidanceDeadlineText.trim())) ? 0.6 : 1,
+                                  cursor: !guidanceId || guidanceFeedbackLoading || !(guidanceFeedbackType || guidanceConfusedConcept.trim() || guidanceFeedbackComment.trim() || (guidanceFeedbackType === 'new_deadline_event' && guidanceDeadlineText.trim())) ? 'not-allowed' : 'pointer',
+                                }}
+                              >
+                                {guidanceFeedbackLoading ? (
+                                  <>
+                                    <FaSpinner className="loading-spinner" style={{ animation: 'spin 1s linear infinite' }} />
+                                    Submitting...
+                                  </>
+                                ) : (
+                                  <>
+                                    <FaEdit size={14} />
+                                    Submit & Improve
+                                  </>
+                                )}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setGuidanceFeedbackOpen(false);
+                                  setGuidanceFeedbackType(null);
+                                  setGuidanceDeadlineText('');
+                                  if (!guidanceLiked) setGuidanceFeedbackRating(null);
+                                }}
+                                style={{
+                                  padding: '8px 16px',
+                                  backgroundColor: '#fff',
+                                  color: '#495057',
+                                  border: '1px solid #dee2e6',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {guidanceReinforceSuccess && !guidanceFeedbackOpen && (
+                          <div style={{ marginTop: '12px' }}>
+                            <div style={{
+                              padding: '10px',
+                              backgroundColor: '#d4edda',
+                              border: '1px solid #c3e6cb',
+                              borderRadius: '6px',
+                              color: '#155724',
+                              fontSize: '0.9rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                            }}>
+                              <FaCheck /> Guidance improved successfully!
+                            </div>
+                            {guidanceCalendarEventMessage && (
+                              <div style={{
+                                marginTop: '8px',
+                                padding: '10px',
+                                backgroundColor: '#e7f3ff',
+                                border: '1px solid #b3d9ff',
+                                borderRadius: '6px',
+                                color: '#004085',
+                                fontSize: '0.9rem',
+                              }}>
+                                {guidanceCalendarEventMessage}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {guidanceFeedbackError && (
+                          <div className="error-message" style={{ marginTop: '12px' }}>{guidanceFeedbackError}</div>
+                        )}
+                        {guidanceReinforceError && (
+                          <div className="error-message" style={{ marginTop: '12px' }}>{guidanceReinforceError}</div>
+                        )}
                       </div>
                     )}
 
@@ -1148,105 +1590,78 @@ function App() {
                     {summary.topic && (
                       <div style={{ marginBottom: '20px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
-                          <h2 style={{ margin: 0, color: '#495057' }}>
-                            <FaBookOpen style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Summary:{' '}
-                            <span style={{ color: '#336db0' }}>{summary.topic}</span>
-                          </h2>
-                        {summary.summary_type && (
-                          <span style={{
-                            padding: '4px 12px',
-                            borderRadius: '12px',
-                            fontSize: '0.85rem',
-                            fontWeight: '600',
-                            backgroundColor: summary.summary_type === 'reinforced' ? '#28a745' : '#6c757d',
-                            color: '#fff',
-                            textTransform: 'capitalize'
-                          }}>
-                            {summary.summary_type === 'reinforced' ? 'Reinforced' : 'Base'}
-                          </span>
-                        )}
-                        {summary.summary_type === 'reinforced' && summary.audio_duration_seconds != null ? (
-                          <span style={{
-                            padding: '4px 12px',
-                            borderRadius: '12px',
-                            fontSize: '0.85rem',
-                            color: '#6c757d',
-                            backgroundColor: '#f8f9fa',
-                            border: '1px solid #dee2e6'
-                          }} title={summary.created_at ? `Created: ${formatColomboDateTime(summary.created_at)}` : 'Audio duration'}>
-                            {formatDurationMss(summary.audio_duration_seconds) || '0:00'}
-                          </span>
-                        ) : summary.created_at ? (
-                          <span style={{
-                            padding: '4px 12px',
-                            borderRadius: '12px',
-                            fontSize: '0.85rem',
-                            color: '#6c757d',
-                            backgroundColor: '#f8f9fa',
-                            border: '1px solid #dee2e6'
-                          }} title="Created timestamp">
-                            {formatColomboDateTime(summary.created_at)}
-                          </span>
-                        ) : null}
-                        {summary.from_cache && (
-                          <span style={{
-                            padding: '4px 12px',
-                            borderRadius: '12px',
-                            fontSize: '0.85rem',
-                            color: '#6c757d',
-                            backgroundColor: '#e7f3ff',
-                            border: '1px solid #b3d9ff'
-                          }}>
-                            Cached
-                          </span>
-                        )}
-                        </div>
-                        
-                        {/* Summary Type Switcher - Show reinforced ONLY after feedback→generate for THIS topic/session */}
-                        {baseSummary && reinforcementVisible && reinforcedSummary && isSameTopic(reinforcedSummary.topic, loadedTopic) && reinforcedSummary.session_id === sessionId && (
-                          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-                            <button
-                              onClick={() => {
-                                setActiveSummaryView('base');
-                                setSummary(baseSummary);
-                                setSummaryAudio(baseSummary.audio_url);
-                              }}
-                              style={{
-                                padding: '8px 16px',
-                                fontSize: '0.9rem',
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', flex: '1 1 auto' }}>
+                            <h2 style={{ margin: 0, color: '#495057' }}>
+                              <FaBookOpen style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Summary:{' '}
+                              <span style={{ color: '#336db0' }}>{summary.topic}</span>
+                            </h2>
+                            {summary.summary_type && (
+                              <span style={{
+                                padding: '4px 12px',
+                                borderRadius: '12px',
+                                fontSize: '0.85rem',
                                 fontWeight: '600',
-                                backgroundColor: activeSummaryView === 'base' ? '#336db0' : '#fff',
-                                color: activeSummaryView === 'base' ? '#fff' : '#495057',
-                                border: `2px solid ${activeSummaryView === 'base' ? '#336db0' : '#dee2e6'}`,
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease'
-                              }}
-                            >
-                              Base Summary
-                            </button>
-                            <button
-                              onClick={() => {
-                                setActiveSummaryView('reinforced');
-                                setSummary(reinforcedSummary);
-                                setSummaryAudio(reinforcedSummary.audio_url);
-                              }}
-                              style={{
-                                padding: '8px 16px',
-                                fontSize: '0.9rem',
-                                fontWeight: '600',
-                                backgroundColor: activeSummaryView === 'reinforced' ? '#28a745' : '#fff',
-                                color: activeSummaryView === 'reinforced' ? '#fff' : '#495057',
-                                border: `2px solid ${activeSummaryView === 'reinforced' ? '#28a745' : '#dee2e6'}`,
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease'
-                              }}
-                            >
-                              Reinforced Summary
+                                backgroundColor: '#6c757d',
+                                color: '#fff',
+                                textTransform: 'capitalize'
+                              }}>
+                                {summary.summary_type === 'reinforced' ? 'Reinforced' : 'Base'}
+                              </span>
+                            )}
+                            <span style={{
+                              padding: '4px 12px',
+                              borderRadius: '12px',
+                              fontSize: '0.85rem',
+                              color: '#6c757d',
+                              backgroundColor: '#f8f9fa',
+                              border: '1px solid #dee2e6'
+                            }} title="Current system date and time">
+                              {currentSystemDateTime}
+                            </span>
+                            {summary.from_cache && (
+                              <span style={{
+                                padding: '4px 12px',
+                                borderRadius: '12px',
+                                fontSize: '0.85rem',
+                                color: '#6c757d',
+                                backgroundColor: '#e7f3ff',
+                                border: '1px solid #b3d9ff'
+                              }}>
+                                Cached
+                              </span>
+                            )}
+                          </div>
+                          {/* Toggle on the right: Base Summary | Reinforced Summary with sliding circle */}
+                          {baseSummary && (
+                            <div className="summary-toggle-wrap">
+                              <button
+                                type="button"
+                                role="switch"
+                                aria-checked={activeSummaryView === 'reinforced'}
+                                aria-label={activeSummaryView === 'base' ? 'Base Summary selected; switch to Reinforced Summary' : 'Reinforced Summary selected; switch to Base Summary'}
+                                title={activeSummaryView === 'base' && (!reinforcedSummary || !isSameTopic(reinforcedSummary?.topic, loadedTopic)) ? 'Submit feedback and improve to get a reinforced summary' : (activeSummaryView === 'base' ? 'Switch to Reinforced Summary' : 'Switch to Base Summary')}
+                                data-active={activeSummaryView}
+                                className={`summary-toggle ${!(reinforcementVisible && reinforcedSummary && isSameTopic(reinforcedSummary?.topic, loadedTopic) && reinforcedSummary?.session_id === sessionId) ? 'summary-toggle-disabled' : ''}`}
+                                onClick={() => {
+                                  const hasReinforced = reinforcementVisible && reinforcedSummary && isSameTopic(reinforcedSummary?.topic, loadedTopic) && reinforcedSummary?.session_id === sessionId;
+                                  if (activeSummaryView === 'reinforced') {
+                                    setActiveSummaryView('base');
+                                    setSummary(baseSummary);
+                                    setSummaryAudio(baseSummary.audio_url ?? null);
+                                  } else if (hasReinforced) {
+                                    setActiveSummaryView('reinforced');
+                                    setSummary(reinforcedSummary);
+                                    setSummaryAudio(reinforcedSummary.audio_url ?? null);
+                                  }
+                                }}
+                              >
+                              <span className="summary-toggle-option">Base Summary</span>
+                              <span className="summary-toggle-option">Reinforced Summary</span>
+                              <span className="summary-toggle-circle" aria-hidden="true" />
                             </button>
                           </div>
                         )}
+                        </div>
                       </div>
                     )}
 
@@ -1256,7 +1671,7 @@ function App() {
                       <div>
                         <div className="report-content">
                           <ReactMarkdown components={CodeBlock}>
-                            {summary.content}
+                            {ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(summary.content))}
                           </ReactMarkdown>
                         </div>
 

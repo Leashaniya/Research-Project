@@ -531,11 +531,14 @@ REQUIRED STRUCTURE (follow this exactly):
 
 INSTRUCTIONS:
 - Use ONLY information from the lecture context provided
+- Write notes and explanations as normal prose text; put diagrams in markdown (fenced code block or ![alt](url))
+- Format every URL as a markdown link [text](URL) so it is clickable
 - If confused_concept was specified, dedicate extra space to clarifying it
 - Make explanations clear and accessible
 - Use markdown formatting
 - Ensure the summary is comprehensive but not overwhelming
 - The self-check section must have exactly 3 Q&A pairs
+- Output ONLY the raw markdown. Do NOT wrap your entire response in a code block (no ``` at start/end). Your reply must be the summary itself so it renders as formatted text.
 
 Generate the reinforced summary now:"""
     

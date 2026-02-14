@@ -46,6 +46,8 @@ def create_summarization_crew(topic: str):
         IMPORTANT:
         - Use the summarize_lecture_materials tool to retrieve information from the course materials
         - Ensure the summary is accurate and aligned with the course content
+        - Write notes and explanations as normal prose text; put diagrams in markdown (e.g. fenced code block for diagram syntax, or ![alt](url) for images)
+        - Format any URLs as markdown links [text](URL) so they render as clickable links
         - Include references to diagrams and images when available
         - Make the summary clear, well-organized, and easy to understand
         - Focus on the most important information from the lecture materials

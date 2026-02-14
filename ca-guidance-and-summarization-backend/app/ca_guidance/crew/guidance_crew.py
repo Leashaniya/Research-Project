@@ -34,16 +34,17 @@ def create_guidance_crew(assignment_text: str, access_token: str):
         Your output MUST:
         - Be written in clear, structured markdown format.
         - Produce **DBMS-specific guidance**, not programming guidance.
+        - Write all notes and explanations as **normal prose text** (plain paragraphs and lists). Do not put explanatory notes inside code blocks; reserve code blocks only for actual SQL, code, or diagram syntax.
         - Provide step-by-step instructions, explanations, or solutions based on the assignment type.
-        - If the assignment requires drawing: describe how to draw the ERD/EERD.
-        - If SQL queries are required: provide full working SQL statements.
-        - If conceptual answers are required: provide accurate, lecture-aligned explanations.
+        - If the assignment requires drawing: describe how to draw the ERD/EERD; put any diagram syntax (e.g. ASCII, Mermaid, or diagram code) inside a markdown fenced code block so it is clearly a diagram.
+        - If SQL queries are required: provide full working SQL statements in a code block.
+        - If conceptual answers are required: provide accurate, lecture-aligned explanations as normal text.
         - If the assignment involves design (ER models, EER models, normalization, schema design, constraints):
-            → Break down each step clearly.
+            → Break down each step clearly in normal text.
             → Explain reasoning and methodology.
         - If the assignment contains multiple questions:
             → Provide solutions for each question or guidance for each part.
-        - If diagrams are needed: write them in text/ASCII unless the assignment explicitly requires otherwise.
+        - If diagrams are needed: put them in markdown (e.g. a fenced code block for diagram text/ASCII, or use ![alt](url) for images). Do not mix diagram content with notes in one block.
 
         IMPORTANT:
         - Use the **query_lecture_materials** tool to verify accuracy based on course content.
@@ -69,12 +70,12 @@ def create_guidance_crew(assignment_text: str, access_token: str):
             - Valid YouTube video links  
         - Simply insert the tool output **as-is** below this heading.
         - Do NOT rewrite or summarize the tool output; do NOT restate the links manually.
-        - The links should appear in Markdown hyperlink format like:
-            - `[Title of resource](URL)`
+        - Every URL MUST be a clickable markdown link: use exactly `[Title of resource](URL)` or `[URL](URL)` so links render as links. Never output bare URLs as plain text.
         - These links are only for reference; do NOT use their content in the main explanation.
+        - Output ONLY the raw markdown document. Do NOT wrap your entire response in a code block (no \\`\\`\\`markdown or \\`\\`\\` at the start/end). Your reply must be the guidance itself so it renders as formatted text.
         """,
         agent=guidance_agent,
-        expected_output="A full DBMS guidance document or solution set with step-by-step explanations aligned with lecture materials."
+        expected_output="A full DBMS guidance document or solution set with step-by-step explanations aligned with lecture materials (raw markdown, not wrapped in a code block)."
     )
 
     # Task 2: Find deadline and schedule calendar event

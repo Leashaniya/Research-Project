@@ -85,3 +85,24 @@ class FlashcardUpdateRequest(BaseModel):
     bloom_level: str
     feedback_id: str
 
+
+# ============ Guidance Reinforcement Schemas ============
+
+class GuidanceFeedbackRequest(BaseModel):
+    """Request to submit feedback for CA guidance"""
+    guidance_id: str
+    rating: str  # "helpful" or "not_helpful"
+    confused_concept: Optional[str] = None
+    comment: Optional[str] = None
+    feedback_type: Optional[str] = None  # add_more_links, new_deadline_event, doubt_on_questions, simplify_language
+    deadline_text: Optional[str] = None  # when feedback_type is new_deadline_event
+    session_id: Optional[str] = None
+
+
+class ReinforceGuidanceRequest(BaseModel):
+    """Request to generate reinforced guidance from feedback"""
+    guidance_id: str  # base guidance_id
+    feedback_id: Optional[str] = None
+    force: bool = False
+    session_id: Optional[str] = None
+
