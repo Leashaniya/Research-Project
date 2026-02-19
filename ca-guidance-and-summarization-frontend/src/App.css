@@ -380,6 +380,51 @@
   margin-top: 6px; /* ensure consecutive images have minimal gap */
 }
 
+/* Figure and figcaption styling for image explanations */
+.markdown-figure,
+.report-content figure {
+  margin: 24px 0;
+  padding: 0;
+  display: block;
+  text-align: center;
+}
+
+.markdown-figure img,
+.report-content figure img {
+  margin: 0 auto;
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.markdown-figcaption,
+.report-content figcaption {
+  margin-top: 12px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #495057;
+  text-align: left;
+  background: #f8f9fa;
+  border-left: 3px solid #003c8f;
+  border-radius: 4px;
+  font-style: normal;
+}
+
+.markdown-figcaption strong,
+.report-content figcaption strong {
+  color: #003c8f;
+  font-weight: 600;
+}
+
+/* Ensure figures don't break layout */
+.markdown-figure + .markdown-figure,
+.report-content figure + figure {
+  margin-top: 32px;
+}
+
 /* Code block styling */
 .report-content pre {
   background: #1e1e1e;

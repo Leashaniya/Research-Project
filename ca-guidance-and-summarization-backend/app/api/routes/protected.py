@@ -33,16 +33,131 @@ from app.ca_guidance.tools.rag_tool import (
 
 logger = logging.getLogger(__name__)
 
-def extract_and_replace_images(content: str, base_url: str = "/api/images/") -> tuple[str, list[str]]:
+def extract_and_replace_images(
+    content: str, 
+    base_url: str = "/api/images/",
+    topic: Optional[str] = None,
+    generate_explanations: bool = True,
+    context_text: Optional[str] = None
+) -> tuple[str, list[str]]:
     """
     Extract image references from markdown and replace with proper image tags.
-    Returns (cleaned_content, list_of_image_paths)
+    Optionally generates explanations below each image.
+    
+    Args:
+        content: Markdown content with [IMAGE:...] references
+        base_url: Base URL for image paths
+        topic: Topic being summarized (for context-aware explanations)
+        generate_explanations: Whether to generate explanations for images
+        context_text: Optional context text from summary for better explanations
+        
+    Returns:
+        Tuple of (cleaned_content with images and explanations, list_of_image_paths)
     """
     if not content:
         return content, []
 
     image_paths = []
+    image_counter = [0]  # Use list to allow modification in nested function
+
+    # Normalize content: Handle [IMAGE:...], ![alt](IMAGE:...), and ![alt](filename.png) formats
+    # Also handle cases where image names are split across lines
+    def normalize_image_refs(text):
+        # First, handle markdown image syntax: ![alt](IMAGE:filename) - handles multiline
+        def fix_markdown_image(match):
+            alt_text = match.group(1) if match.group(1) else ""
+            img_content = match.group(2)
+            # Remove newlines and normalize whitespace
+            img_content = re.sub(r'\s+', '', img_content)
+            return f'[IMAGE:{img_content}]'
+        
+        # Replace ![alt](IMAGE:filename) with [IMAGE:filename] - handles multiline alt/text
+        # Pattern matches: ![anything](IMAGE:anything) even if split across lines
+        # Use non-greedy matching and DOTALL to handle multiline content
+        text = re.sub(
+            r'!\[([^\]]*?)\]\(\s*IMAGE:\s*([^\)]+?)\s*\)',
+            fix_markdown_image,
+            text,
+            flags=re.DOTALL | re.MULTILINE
+        )
+        
+        # Also handle case where IMAGE: might be lowercase: ![alt](image:filename)
+        text = re.sub(
+            r'!\[([^\]]*?)\]\(\s*image:\s*([^\)]+?)\s*\)',
+            fix_markdown_image,
+            text,
+            flags=re.DOTALL | re.MULTILINE | re.IGNORECASE
+        )
+        
+        # CRITICAL: Handle plain markdown image syntax: ![alt](filename.png)
+        # This is what CrewAI is outputting - plain markdown without IMAGE: prefix
+        # Only match if it looks like an image filename (has image extension and doesn't start with http/https)
+        def fix_plain_markdown_image(match):
+            alt_text = match.group(1) if match.group(1) else ""
+            img_content = match.group(2)
+            # Remove newlines and normalize whitespace
+            img_content = re.sub(r'\s+', '', img_content)
+            
+            # Skip if it already has IMAGE: prefix (should have been processed already, but double-check)
+            if 'IMAGE:' in img_content.upper():
+                return match.group(0)
+            
+            # Only convert if it looks like an image filename (has image extension and is not a URL)
+            img_content_lower = img_content.lower()
+            if (re.search(r'\.(png|jpg|jpeg|gif|webp)$', img_content, re.IGNORECASE) and 
+                not img_content_lower.startswith(('http://', 'https://', '//')) and
+                not img_content.startswith('/')):
+                logger.info(f"Converting plain markdown image to [IMAGE:...]: {img_content[:50]}...")
+                return f'[IMAGE:{img_content}]'
+            # Otherwise, leave it as-is (might be a URL or other link)
+            return match.group(0)
+        
+        # Match ALL markdown images first, then filter in the function
+        # This handles multiline cases better than trying to exclude URLs in the regex
+        # Note: Images with IMAGE: prefix should already be converted above, but we check anyway
+        text = re.sub(
+            r'!\[([^\]]*?)\]\(\s*([^\)]+?)\s*\)',
+            fix_plain_markdown_image,
+            text,
+            flags=re.DOTALL | re.MULTILINE
+        )
+        
+        # Then normalize [IMAGE:...] patterns (remove newlines/whitespace inside)
+        # This handles cases where [IMAGE:filename] is split across lines
+        def fix_ref(match):
+            img_content = match.group(1)
+            # Remove ALL whitespace including newlines, tabs, spaces
+            img_content = re.sub(r'\s+', '', img_content)
+            logger.debug(f"Normalized image reference: {img_content[:80]}...")
+            return f'[IMAGE:{img_content}]'
+        # Use DOTALL to match across newlines, and make it non-greedy
+        text = re.sub(r'\[IMAGE:([^\]]+?)\]', fix_ref, text, flags=re.DOTALL)
+        
+        return text
+    
+    # Log original content for debugging - check for both IMAGE: prefix and plain markdown
+    original_image_refs_with_prefix = re.findall(r'!\[([^\]]*?)\]\(\s*IMAGE:\s*([^\)]+?)\s*\)', content, flags=re.DOTALL | re.MULTILINE)
+    original_plain_image_refs = re.findall(r'!\[([^\]]*?)\]\(\s*([^\)]+?\.(?:png|jpg|jpeg|gif|webp))\s*\)', content, flags=re.DOTALL | re.MULTILINE | re.IGNORECASE)
+    if original_image_refs_with_prefix:
+        logger.info(f"Found {len(original_image_refs_with_prefix)} markdown image reference(s) with IMAGE: prefix before normalization")
+    if original_plain_image_refs:
+        logger.info(f"Found {len(original_plain_image_refs)} plain markdown image reference(s) (without IMAGE: prefix) before normalization: {[ref[1][:50] for ref in original_plain_image_refs[:3]]}")
+    
+    # Normalize image references first
+    content = normalize_image_refs(content)
+
+    # Pattern to match [IMAGE:...] (after normalization)
     image_pattern = r'\[IMAGE:([^\]]+)\]'
+    
+    # Log image references found in content after normalization
+    image_matches = re.findall(image_pattern, content)
+    if image_matches:
+        logger.info(f"✅ Found {len(image_matches)} image reference(s) in content after normalization:")
+        for i, img_match in enumerate(image_matches[:5], 1):
+            logger.info(f"   {i}. [IMAGE:{img_match[:80]}...]")
+    else:
+        logger.warning("⚠ No [IMAGE:...] references found in content after normalization!")
+        logger.debug(f"Content preview (first 500 chars): {content[:500]}")
 
     available_images = {}
     if IMAGE_OUTPUT_DIR.exists():
@@ -50,34 +165,184 @@ def extract_and_replace_images(content: str, base_url: str = "/api/images/") -> 
             if img_file.is_file() and img_file.suffix.lower() in ['.jpeg', '.jpg', '.png', '.gif']:
                 available_images[img_file.name] = img_file.name
                 available_images[img_file.name.lower()] = img_file.name
+        
+        logger.info(f"Found {len(available_images)} available image(s) in {IMAGE_OUTPUT_DIR}")
+        if image_matches and len(available_images) > 0:
+            logger.info(f"Sample available images: {list(available_images.keys())[:5]}")
+    else:
+        logger.warning(f"IMAGE_OUTPUT_DIR does not exist: {IMAGE_OUTPUT_DIR}")
 
     def replace_image(match):
         img_name = match.group(1).strip()
         import urllib.parse
+        
+        logger.debug(f"Processing image reference: '{img_name[:80]}...'")
 
+        actual_name = None
+        # First try exact match
         if img_name in available_images:
             actual_name = available_images[img_name]
+            logger.debug(f"Exact match found: {actual_name}")
+        elif img_name.lower() in available_images:
+            actual_name = available_images[img_name.lower()]
+            logger.debug(f"Case-insensitive exact match found: {actual_name}")
+        else:
+            # Try partial matching for long filenames that might be split across lines
+            img_name_lower = img_name.lower().replace('_', '').replace('-', '')
+            logger.debug(f"Trying partial match for: {img_name_lower[:50]}...")
+            for available_name in available_images.values():
+                available_name_normalized = available_name.lower().replace('_', '').replace('-', '')
+                # Check if the image name is contained in the available name or vice versa
+                if (img_name_lower in available_name_normalized or 
+                    available_name_normalized.startswith(img_name_lower) or
+                    img_name_lower.startswith(available_name_normalized[:len(img_name_lower)])):
+                    actual_name = available_name
+                    logger.info(f"Partial match found: '{img_name[:50]}...' -> '{actual_name}'")
+                    break
+        
+        if actual_name:
             image_paths.append(actual_name)
             encoded_name = urllib.parse.quote(actual_name)
-            return f'![{actual_name}]({base_url}{encoded_name})'
+            image_markdown = f'![{actual_name}]({base_url}{encoded_name})'
+            logger.info(f"Matched image '{img_name[:50]}...' -> '{actual_name}', URL: {base_url}{encoded_name}")
+            
+            # Generate explanation if enabled
+            logger.info(f"🔍 Explanation generation check: generate_explanations={generate_explanations} for image: {actual_name}")
+            if generate_explanations:
+                logger.info(f"✓ Explanation generation ENABLED - proceeding for image: {actual_name}")
+                try:
+                    from app.services.image_explanation_service import generate_image_explanation
+                    logger.info(f"📝 Calling generate_image_explanation for: {actual_name}")
+                    logger.info(f"   Image path: {actual_name}, Topic: {topic}, Context length: {len(context_text) if context_text else 0}")
+                    explanation = generate_image_explanation(
+                        image_path=actual_name,
+                        topic=topic,
+                        context_text=context_text
+                    )
+                    logger.info(f"📝 Explanation result for {actual_name}: {'SUCCESS' if explanation else 'EMPTY'} (length: {len(explanation) if explanation else 0})")
+                    if explanation:
+                        logger.info(f"   Explanation preview for {actual_name}: {explanation[:150]}...")
+                    else:
+                        logger.warning(f"   ⚠ No explanation generated for {actual_name} - will use basic caption")
+                    
+                    if explanation and explanation.strip():
+                        image_counter[0] += 1
+                        figure_num = image_counter[0]
+                        # Use HTML figure/caption with pure HTML img tag (not markdown syntax)
+                        logger.info(f"✓ Added explanation ({len(explanation)} chars) for image {figure_num}: {actual_name}")
+                        logger.debug(f"Explanation preview: {explanation[:100]}...")
+                        html_output = f'<figure>\n<img src="{base_url}{encoded_name}" alt="{actual_name}" class="markdown-image" />\n<figcaption><strong>Figure {figure_num}:</strong> {explanation}</figcaption>\n</figure>'
+                        logger.info(f"Generated HTML figure tag for image {figure_num} (length: {len(html_output)} chars)")
+                        return html_output
+                    else:
+                        logger.warning(f"✗ No explanation generated (empty result) for {actual_name} - using basic caption fallback")
+                        # ALWAYS show a caption - generate basic caption from filename
+                        image_counter[0] += 1
+                        figure_num = image_counter[0]
+                        # Generate a basic caption from filename if explanation failed
+                        basic_caption = actual_name.replace('_', ' ').replace('-', ' ').replace('.png', '').replace('.jpg', '').replace('.jpeg', '').title()
+                        basic_caption = ' '.join(basic_caption.split()[:10])  # Limit to first 10 words
+                        logger.info(f"Using basic caption for image {figure_num}: {basic_caption[:50]}...")
+                        html_output = f'<figure>\n<img src="{base_url}{encoded_name}" alt="{actual_name}" class="markdown-image" />\n<figcaption><strong>Figure {figure_num}:</strong> {basic_caption}</figcaption>\n</figure>'
+                        logger.info(f"Generated HTML figure tag with basic caption for image {figure_num} (length: {len(html_output)} chars)")
+                        return html_output
+                except Exception as e:
+                    error_msg = str(e)
+                    # Don't fail summary generation if image explanation fails due to network issues
+                    if "DNS" in error_msg or "timeout" in error_msg.lower() or "timed out" in error_msg.lower():
+                        logger.warning(f"Image explanation skipped due to network error for {actual_name}: {e}")
+                    else:
+                        logger.error(f"Failed to generate explanation for {actual_name}: {e}", exc_info=True)
+                    # ALWAYS return HTML figure tag with basic caption, even on error
+                    image_counter[0] += 1
+                    figure_num = image_counter[0]
+                    basic_caption = actual_name.replace('_', ' ').replace('-', ' ').replace('.png', '').replace('.jpg', '').replace('.jpeg', '').title()
+                    basic_caption = ' '.join(basic_caption.split()[:10])  # Limit to first 10 words
+                    logger.info(f"Using basic caption fallback for image {figure_num} after error: {basic_caption[:50]}...")
+                    html_output = f'<figure>\n<img src="{base_url}{encoded_name}" alt="{actual_name}" class="markdown-image" />\n<figcaption><strong>Figure {figure_num}:</strong> {basic_caption}</figcaption>\n</figure>'
+                    return html_output
+            else:
+                # Even when explanations are disabled, wrap in figure tag for consistency
+                image_counter[0] += 1
+                figure_num = image_counter[0]
+                basic_caption = actual_name.replace('_', ' ').replace('-', ' ').replace('.png', '').replace('.jpg', '').replace('.jpeg', '').title()
+                basic_caption = ' '.join(basic_caption.split()[:10])  # Limit to first 10 words
+                logger.info(f"Explanations disabled - using basic caption for image {figure_num}: {basic_caption[:50]}...")
+                html_output = f'<figure>\n<img src="{base_url}{encoded_name}" alt="{actual_name}" class="markdown-image" />\n<figcaption><strong>Figure {figure_num}:</strong> {basic_caption}</figcaption>\n</figure>'
+                return html_output
 
-        img_name_lower = img_name.lower()
-        if img_name_lower in available_images:
-            actual_name = available_images[img_name_lower]
-            image_paths.append(actual_name)
-            encoded_name = urllib.parse.quote(actual_name)
-            return f'![{actual_name}]({base_url}{encoded_name})'
-
-        for available_name in available_images.values():
-            if available_name.lower().startswith(img_name_lower) or img_name_lower in available_name.lower():
-                image_paths.append(available_name)
-                encoded_name = urllib.parse.quote(available_name)
-                return f'![{available_name}]({base_url}{encoded_name})'
-
-        return match.group(0)
+        logger.error(f"❌ Image '{img_name[:50]}...' NOT FOUND in available images!")
+        logger.error(f"   Searched for: {img_name}")
+        logger.error(f"   Available images ({len(available_images)}): {list(available_images.keys())[:10]}")
+        logger.warning(f"   Will generate HTML with placeholder - image may not display correctly")
+        # Still generate HTML figure tag even if image not found, so explanation can be shown
+        image_counter[0] += 1
+        figure_num = image_counter[0]
+        encoded_name = urllib.parse.quote(img_name)
+        # Try to generate explanation even if image file not found (might work if path is slightly different)
+        explanation_text = f"Image: {img_name.replace('_', ' ').replace('-', ' ').title()}"
+        if generate_explanations:
+            try:
+                from app.services.image_explanation_service import generate_image_explanation
+                # Try with the img_name as-is, in case the file exists with a slightly different name
+                temp_explanation = generate_image_explanation(
+                    image_path=img_name,
+                    topic=topic,
+                    context_text=context_text
+                )
+                if temp_explanation and temp_explanation.strip():
+                    explanation_text = temp_explanation
+                    logger.info(f"✓ Generated explanation for unmatched image: {img_name[:50]}...")
+            except Exception as e:
+                logger.debug(f"Could not generate explanation for unmatched image: {e}")
+        html_output = f'<figure>\n<img src="{base_url}{encoded_name}" alt="{img_name}" class="markdown-image" onerror="this.style.display=\'none\'" />\n<figcaption><strong>Figure {figure_num}:</strong> {explanation_text}</figcaption>\n</figure>'
+        return html_output
 
     cleaned_content = re.sub(image_pattern, replace_image, content)
-    return cleaned_content, list(set(image_paths))
+    final_image_paths = list(set(image_paths))
+    logger.info(f"Image extraction complete: {len(final_image_paths)} image(s) processed: {final_image_paths[:3]}...")
+    
+    # Verify HTML figure tags are in the content
+    figure_count = cleaned_content.count('<figure>')
+    figcaption_count = cleaned_content.count('<figcaption>')
+    img_count = cleaned_content.count('<img')
+    logger.info(f"📊 HTML verification: Found {figure_count} <figure> tags, {figcaption_count} <figcaption> tags, and {img_count} <img> tags in final content")
+    
+    if figure_count > 0:
+        # Log a sample of the HTML to verify it's correct
+        import re as re_module
+        figure_matches = re_module.findall(r'<figure>.*?</figure>', cleaned_content, flags=re_module.DOTALL)
+        if figure_matches:
+            logger.info(f"✅ Sample figure HTML (first 400 chars): {figure_matches[0][:400]}...")
+            # Check for explanations in figcaption
+            figcaption_matches = re_module.findall(r'<figcaption>.*?</figcaption>', cleaned_content, flags=re_module.DOTALL)
+            if figcaption_matches:
+                logger.info(f"✅ Found {len(figcaption_matches)} figcaption tags with descriptions")
+                for i, caption in enumerate(figcaption_matches[:3], 1):
+                    caption_text = re_module.sub(r'<[^>]+>', '', caption)  # Remove HTML tags for preview
+                    logger.info(f"   Caption {i} preview: {caption_text[:150]}...")
+            # Also check img src attributes
+            img_src_matches = re_module.findall(r'<img[^>]+src=["\']([^"\']+)["\']', cleaned_content)
+            if img_src_matches:
+                logger.info(f"✅ Found {len(img_src_matches)} img src attributes: {img_src_matches[:3]}")
+                # Verify all images have /api/images/ prefix
+                for src in img_src_matches:
+                    if not src.startswith('/api/images/'):
+                        logger.warning(f"⚠ Image src missing /api/images/ prefix: {src}")
+    else:
+        logger.warning(f"⚠ No figure tags found in content!")
+    
+    if figure_count == 0 and len(image_matches) > 0:
+        logger.error(f"❌ CRITICAL: {len(image_matches)} images were matched but NO figure tags were generated!")
+        logger.error(f"Content preview (first 1000 chars): {cleaned_content[:1000]}")
+    
+    if figure_count > 0 and figcaption_count == 0:
+        logger.warning(f"⚠ WARNING: Found {figure_count} figure tags but NO figcaption tags! Images may not have descriptions.")
+    
+    if figure_count != figcaption_count:
+        logger.warning(f"⚠ WARNING: Mismatch - {figure_count} figures but {figcaption_count} figcaptions!")
+    
+    return cleaned_content, final_image_paths
 
 
 def clean_markdown_response(content: str) -> str:
@@ -184,7 +449,14 @@ async def run_guidance(
         cleaned_content = clean_markdown_response(report_str)
 
         base_url = "/api/images/"
-        final_content, image_paths = extract_and_replace_images(cleaned_content, base_url)
+        # For guidance, explanations are optional (set to False by default)
+        final_content, image_paths = extract_and_replace_images(
+            cleaned_content, 
+            base_url=base_url,
+            topic=None,  # Guidance doesn't have a specific topic
+            generate_explanations=False,  # Disable for guidance to keep it focused
+            context_text=None
+        )
 
         logger.info(f"Successfully extracted markdown (length: {len(final_content)})")
         logger.info(f"Found {len(image_paths)} image(s) in response")
@@ -256,8 +528,12 @@ async def summarize_topic(
             
             if existing_summary:
                 logger.info(f"Found existing {existing_summary['summary_type']} summary for topic '{topic}'")
+                # Check if existing summary has figure tags (explanations)
+                existing_content = existing_summary["summary_text"]
+                has_figures = "<figure>" in existing_content if existing_content else False
+                logger.info(f"Existing summary has figure tags: {has_figures}")
                 return {
-                    "summary": existing_summary["summary_text"],
+                    "summary": existing_content,
                     "images": existing_summary.get("images", []),
                     "topic": topic,
                     "audio_url": existing_summary.get("audio_url"),
@@ -300,9 +576,44 @@ async def summarize_topic(
 
         summary_str = str(summary_content)
         cleaned_content = clean_markdown_response(summary_str)
+        
+        # Log to check if image references are in the content
+        if "[IMAGE:" in cleaned_content:
+            logger.info(f"Found [IMAGE:...] references in cleaned summary content")
+        else:
+            logger.warning(f"No [IMAGE:...] references found in cleaned summary content. Content length: {len(cleaned_content)}")
+            # Try to extract images from the tool result if available
+            # (CrewAI might have the tool result with images)
+            if hasattr(result, 'tasks_output') and result.tasks_output:
+                for task_output in result.tasks_output:
+                    if hasattr(task_output, 'raw'):
+                        tool_output = str(task_output.raw)
+                        if "[IMAGE:" in tool_output:
+                            logger.info("Found [IMAGE:...] references in task output, appending to summary")
+                            # Extract image references and append them
+                            import re
+                            image_refs = re.findall(r'\[IMAGE:([^\]]+)\]', tool_output)
+                            if image_refs:
+                                cleaned_content += "\n\n**Related Images:**\n" + "\n".join([f"[IMAGE:{ref}]" for ref in image_refs])
+                                logger.info(f"Added {len(image_refs)} image reference(s) to summary")
 
         base_url = "/api/images/"
-        final_content, image_paths = extract_and_replace_images(cleaned_content, base_url)
+        # Extract context text for image explanations (first 1000 chars of summary)
+        context_for_explanations = cleaned_content[:1000] if len(cleaned_content) > 1000 else cleaned_content
+        # Check if image explanations are enabled (can be disabled via env var if network issues)
+        generate_explanations = settings.ENABLE_IMAGE_EXPLANATIONS
+        logger.info(f"Image explanations setting: ENABLE_IMAGE_EXPLANATIONS = {generate_explanations}")
+        if not generate_explanations:
+            logger.info("⚠ Image explanations DISABLED via ENABLE_IMAGE_EXPLANATIONS setting")
+        else:
+            logger.info("✓ Image explanations ENABLED - will generate explanations for images")
+        final_content, image_paths = extract_and_replace_images(
+            cleaned_content, 
+            base_url=base_url,
+            topic=topic,
+            generate_explanations=generate_explanations,
+            context_text=context_for_explanations
+        )
 
         # ✅ Generate audio from cleaned content
         audio_url = None
@@ -334,6 +645,15 @@ async def summarize_topic(
 
         logger.info(f"Successfully created and stored summary (length: {len(final_content)})")
         logger.info(f"Found {len(image_paths)} image(s) in summary")
+        
+        # Verify HTML is in the final content before storing
+        figure_count = final_content.count('<figure>')
+        figcaption_count = final_content.count('<figcaption>')
+        logger.info(f"📊 Final content verification: {figure_count} <figure> tags, {figcaption_count} <figcaption> tags")
+        if figure_count == 0 and len(image_paths) > 0:
+            logger.warning(f"⚠ WARNING: {len(image_paths)} images found but NO figure tags in final content!")
+            logger.warning(f"Content preview (first 500 chars): {final_content[:500]}")
+        
         logger.info("=== Summarization completed ===")
 
         # Persist audio blob + duration metadata (optional)

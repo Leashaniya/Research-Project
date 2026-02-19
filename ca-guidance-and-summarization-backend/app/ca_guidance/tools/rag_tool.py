@@ -146,8 +146,14 @@ def summarize_lecture_materials(topic: str):
                 "audio_url": None
             }
         
-        # Create a summary-focused query
-        summary_query = (f"Provide a comprehensive summary of {topic}. Include key concepts, main ideas, important details, and examples. If there are diagrams or visual aids related to this topic, make sure to reference them.")
+        # Create a summary-focused query that requests comprehensive, detailed information
+        summary_query = (f"Provide a COMPREHENSIVE, DETAILED summary of {topic}. "
+                        f"Include extensive explanations of key concepts, main ideas, important details, and multiple examples. "
+                        f"Break down complex concepts into clear, detailed explanations. "
+                        f"Include step-by-step explanations where applicable. "
+                        f"Provide context, definitions, relationships between concepts, and practical applications. "
+                        f"If there are diagrams or visual aids related to this topic, make sure to reference them with [IMAGE:filename] format. "
+                        f"Aim for thorough coverage with detailed explanations in each section.")
         
         result = rag_chain.invoke({"question": summary_query})
         answer = result.get("answer", str(result)) if isinstance(result, dict) else str(result)

@@ -49,13 +49,27 @@ def create_rag_chain(
         # ---------------- Prompt ----------------
         prompt = ChatPromptTemplate.from_template(
             """
-Use the following context to answer the question.
-If images are present, mention that related image(s) were found.
+You are an expert educational assistant providing comprehensive, detailed explanations of database management system concepts.
+
+Use the following context from lecture materials to provide a THOROUGH, DETAILED answer to the question.
+If images are present, mention that related image(s) were found and reference them with [IMAGE:filename] format.
+
+Guidelines for your response:
+- Provide EXTENSIVE explanations with multiple paragraphs
+- Break down complex concepts into clear, detailed explanations
+- Include definitions, examples, relationships between concepts, and practical applications
+- Use specific terminology from the lecture materials
+- Explain WHY concepts matter and HOW they relate to each other
+- Include step-by-step explanations where applicable
+- Aim for comprehensive coverage with detailed explanations
+- If images are available, reference them appropriately with [IMAGE:filename] format
 
 Context:
 {context}
 
 Question: {question}
+
+Provide a comprehensive, detailed answer:
 """
         )
 

@@ -24,6 +24,9 @@ class Settings:
     # MongoDB Configuration
     MONGO_URI: str = os.getenv("MONGO_URI", "")
     MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "ca_guidance_db")
+    
+    # Image Explanation Configuration
+    ENABLE_IMAGE_EXPLANATIONS: bool = os.getenv("ENABLE_IMAGE_EXPLANATIONS", "true").lower() == "true"
 
 settings = Settings()
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import {
@@ -1042,7 +1043,24 @@ function App() {
 
     img({ node, src, alt, ...props }) {
       // ✅ Use the same absolute-url function for images too
-      const imageSrc = toAbsoluteUrl(src);
+      // Ensure /api/images/ paths are preserved
+      let imageSrc = src;
+      
+      // If src doesn't start with http/https, make it absolute
+      if (imageSrc && !imageSrc.startsWith('http://') && !imageSrc.startsWith('https://')) {
+        // If it already starts with /api/images/, preserve it
+        if (imageSrc.startsWith('/api/images/')) {
+          imageSrc = toAbsoluteUrl(imageSrc);
+        } else if (imageSrc.startsWith('/')) {
+          // Other absolute paths
+          imageSrc = toAbsoluteUrl(imageSrc);
+        } else {
+          // Relative paths - assume they're in /api/images/
+          imageSrc = toAbsoluteUrl(`/api/images/${imageSrc}`);
+        }
+      }
+      
+      console.log(`Image src: ${src} -> ${imageSrc}`);
 
       return (
         <img
@@ -1052,7 +1070,7 @@ function App() {
           className="markdown-image"
           style={{ maxWidth: '100%', width: 'auto', height: 'auto' }}
           onError={(e) => {
-            console.error('Failed to load image:', imageSrc);
+            console.error('Failed to load image:', imageSrc, 'Original src:', src);
             e.target.style.display = 'none';
           }}
         />
@@ -1182,21 +1200,21 @@ function App() {
 
                     {typeof report === 'string' ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report))}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report))}</ReactMarkdown>
                       </div>
                     ) : report.content ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report.content))}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report.content))}</ReactMarkdown>
                       </div>
                     ) : report.markdown_report ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report.markdown_report))}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report.markdown_report))}</ReactMarkdown>
                       </div>
                     ) : report.error ? (
                       <div className="error-message">{report.error}</div>
                     ) : (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock}>
+                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>
                           {JSON.stringify(report, null, 2)}
                         </ReactMarkdown>
                       </div>
@@ -1670,9 +1688,53 @@ function App() {
                     ) : summary.content ? (
                       <div>
                         <div className="report-content">
-                          <ReactMarkdown components={CodeBlock}>
-                            {ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(summary.content))}
-                          </ReactMarkdown>
+                          {(() => {
+                            const content = ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(summary.content));
+                            // Debug: Check if HTML figure tags are present
+                            if (content.includes('<figure>')) {
+                              console.log('✅ HTML figure tags detected in summary content');
+                              const figureCount = (content.match(/<figure>/g) || []).length;
+                              const figcaptionCount = (content.match(/<figcaption>/g) || []).length;
+                              const imgCount = (content.match(/<img/g) || []).length;
+                              console.log(`📊 Found ${figureCount} <figure> tags, ${figcaptionCount} <figcaption> tags, and ${imgCount} <img> tags`);
+                              
+                              // Extract and log sample captions
+                              const figcaptionMatches = content.match(/<figcaption>.*?<\/figcaption>/gs);
+                              if (figcaptionMatches) {
+                                console.log(`✅ Found ${figcaptionMatches.length} image descriptions:`);
+                                figcaptionMatches.slice(0, 3).forEach((caption, idx) => {
+                                  const textOnly = caption.replace(/<[^>]+>/g, '').substring(0, 100);
+                                  console.log(`   Image ${idx + 1} description: ${textOnly}...`);
+                                });
+                              }
+                              
+                              // Check image sources
+                              const imgSrcMatches = content.match(/<img[^>]+src=["']([^"']+)["']/g);
+                              if (imgSrcMatches) {
+                                console.log(`✅ Found ${imgSrcMatches.length} image sources:`);
+                                imgSrcMatches.slice(0, 3).forEach((src, idx) => {
+                                  const srcMatch = src.match(/src=["']([^"']+)["']/);
+                                  if (srcMatch) {
+                                    console.log(`   Image ${idx + 1} src: ${srcMatch[1]}`);
+                                  }
+                                });
+                              }
+                            } else {
+                              console.warn('⚠ No HTML figure tags found in summary content');
+                              console.log('Content preview (first 500 chars):', content.substring(0, 500));
+                              // Check if there are [IMAGE:...] references that weren't converted
+                              const imageRefs = content.match(/\[IMAGE:[^\]]+\]/g);
+                              if (imageRefs) {
+                                console.warn(`⚠ Found ${imageRefs.length} [IMAGE:...] references that weren't converted to HTML!`);
+                                console.log('Image references:', imageRefs.slice(0, 3));
+                              }
+                            }
+                            return (
+                              <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>
+                                {content}
+                              </ReactMarkdown>
+                            );
+                          })()}
                         </div>
 
                         <div style={{ marginTop: '14px' }}>
