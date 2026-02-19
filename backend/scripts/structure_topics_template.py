@@ -274,7 +274,15 @@ def main():
 
     stats_df = pd.DataFrame(paper_stats).sort_values(["total_marks", "missing_marks"], ascending=[False, True])
     print("\nPer-paper stats (top 15 shown):")
-    print(stats_df.head(15).to_string(index=False))
+    # Print in a PowerShell-friendly format to avoid truncation issues
+    try:
+        print(stats_df.head(15).to_string(index=False))
+    except Exception as e:
+        # Fallback: print row by row if DataFrame display fails
+        print(f"  (Display issue: {e})")
+        print("  Papers loaded:")
+        for idx, row in stats_df.head(15).iterrows():
+            print(f"    {row['pdf_stem']:20s} | {row['num_questions']:2d} questions | {row['total_marks']:3d} marks | {row['missing_marks']:2d} missing")
 
     good_df = stats_df[(stats_df["total_marks"] == EXPECTED_TOTAL_MARKS) & (stats_df["missing_marks"] == 0)].copy()
     good_stems = set(good_df["pdf_stem"].tolist())

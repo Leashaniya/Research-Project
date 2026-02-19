@@ -1,274 +1,349 @@
 from fpdf import FPDF
-from datetime import datetime
 from pathlib import Path
 import os
+import re
+from datetime import datetime
+from typing import Dict, Any, List, Optional
+try:
+    from PIL import Image
+except ImportError:
+    Image = None  # PIL not available, will skip dimension checking
+
 
 class PDFService:
+    """Service for generating PDF documents from question data."""
+    
+    def __init__(self):
+        self.pdf = None
+    
     @staticmethod
     def _sanitize_text(text: str) -> str:
-        """
-        Replaces characters not supported by standard PDF fonts (Latin-1).
-        """
-        if not text:
-            return ""
-        replacements = {
-            "→": "->",
-            "\u2192": "->", # specifically the arrow
-            "•": "-",
-            "\u2022": "-",
-            "“": "\"",
-            "”": "\"",
-            "‘": "'",
-            "’": "'",
-            "–": "-",
-            "—": "--",
-        }
-        for char, replacement in replacements.items():
-            text = text.replace(char, replacement)
+        """Remove or replace characters that FPDF cannot handle."""
+        # Replace problematic characters
+        text = text.replace("→", "->")
+        text = text.replace("←", "<-")
+        text = text.replace("×", "x")
+        text = text.replace("÷", "/")
+        text = text.replace("±", "+/-")
+        # Remove other special characters that might cause issues
+        # Keep basic ASCII and common Unicode
         return text
 
     @staticmethod
-    def generate_pdf(paper_data: dict, output_path: str):
+    def _get_available_width(pdf: FPDF) -> float:
+        """Calculate available width for text (page width minus margins)."""
+        # A4 width is 210mm, get current margins
+        left_margin = pdf.l_margin
+        right_margin = pdf.r_margin
+        return 210 - left_margin - right_margin
+    
+    def generate_pdf(self, paper_data: Dict[str, Any], output_path) -> bool:
         """
-        Converts the paper JSON data into a professional PDF.
+        Generate a PDF from paper data.
+        
+        Args:
+            paper_data: Dictionary containing paper metadata and questions
+            output_path: Path where PDF should be saved
+        
+        Returns:
+            True if successful, False otherwise
         """
-        pdf = FPDF()
-        pdf.set_auto_page_break(auto=True, margin=15)
-        
-        # --- Page 1: COVER PAGE ---
-        pdf.add_page()
-        pdf.set_font("helvetica", "B", 24)
-        pdf.ln(80)
-        pdf.cell(0, 10, "AI-GENERATED MODEL PAPER", ln=True, align="C")
-        
-        pdf.set_font("helvetica", "", 16)
-        pdf.ln(10)
-        subject = PDFService._sanitize_text("Database Management Systems")
-        pdf.cell(0, 10, f"Subject: {subject}", ln=True, align="C")
-        
-        pdf.set_font("helvetica", "I", 12)
-        pdf.ln(20)
-        raw_gen_time = paper_data.get("generated_at", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        gen_time = PDFService._sanitize_text(raw_gen_time)
-        pdf.cell(0, 10, f"Generated on: {gen_time}", ln=True, align="C")
-        pdf.cell(0, 10, f"Total Marks: {paper_data.get('total_marks', 100)}", ln=True, align="C")
-        
-        pdf.ln(100)
-        pdf.set_font("helvetica", "", 10)
-        pdf.cell(0, 10, "Copyright (c) 2025 SLIIT Students Project. All rights reserved.", ln=True, align="C")
-        
-        # --- Page 2 onwards: CONTENT ---
-        pdf.add_page()
-        pdf.set_font("helvetica", "B", 16)
-        pdf.cell(0, 10, "Examination Paper", ln=True, align="L")
-        pdf.ln(5)
-        
-        questions = paper_data.get("questions", [])
-        for q in questions:
-            q_no = q.get("question_no", "?")
-            total_q_marks = q.get("marks", 0)
+        try:
+            pdf = FPDF()
+            # Set explicit margins to ensure proper text wrapping
+            pdf.set_margins(left=15, top=15, right=15)
+            pdf.set_auto_page_break(auto=True, margin=15)
+            pdf.add_page()
             
-            # Question Header
-            pdf.set_font("helvetica", "B", 12)
+            # Header
+            pdf.set_font("helvetica", "B", 16)
+            pdf.cell(0, 10, PDFService._sanitize_text("Model Paper - Database Management Systems"), ln=True, align="C")
+            pdf.ln(5)
+            
+            # Metadata
+            pdf.set_font("helvetica", "", 10)
+            generated_at = paper_data.get("generated_at", "N/A")
+            pdf.cell(0, 5, PDFService._sanitize_text(f"Generated: {generated_at}"), ln=True, align="C")
             pdf.ln(10)
-            pdf.cell(0, 10, f"Question {q_no} ({total_q_marks} marks)", ln=True)
-                
-            pdf.line(pdf.get_x(), pdf.get_y(), pdf.get_x() + 190, pdf.get_y())
+            
+            # Questions
+            questions = paper_data.get("questions", [])
+            for q_idx, q in enumerate(questions):
+                self._add_question_to_pdf(pdf, q, q_idx + 1)
+            
+            # Save PDF
+            output_path_obj = Path(output_path) if isinstance(output_path, str) else output_path
+            output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+            pdf.output(str(output_path_obj))
+            print(f"PDF successfully exported to: {output_path}")
+            return True
+            
+        except Exception as e:
+            print(f"Error generating PDF: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+    
+    def _add_question_to_pdf(self, pdf: FPDF, q: Dict[str, Any], q_no: int):
+        """Add a single question to the PDF."""
+        question_no = q.get("question_no", f"Q{q_no}")
+        marks = q.get("marks", 0)
+        
+        # Question header
+        pdf.set_font("helvetica", "B", 12)
+        pdf.cell(0, 10, PDFService._sanitize_text(f"{question_no} ({marks} marks)"), ln=True)
+        pdf.ln(2)
+        
+        # Question Stem/Text (if exists and no subquestions, or as intro)
+        question_stem = q.get("text", "")
+        if question_stem and question_stem.strip():
+            # Only show stem if it's substantial and not just a placeholder
+            if len(question_stem.strip()) > 20:  # Substantial text
+                pdf.set_font("helvetica", "", 11)
+                # Use multi_cell for proper text wrapping (handles long lines that exceed page width)
+                # Split by newlines first to preserve paragraph structure, then wrap each line if needed
+                available_width = PDFService._get_available_width(pdf)
+                lines = question_stem.split("\n")
+                for line_idx, line in enumerate(lines):
+                    sanitized_line = PDFService._sanitize_text(line.strip())
+                    if sanitized_line:  # Only process non-empty lines
+                        # Use multi_cell with calculated width for automatic wrapping
+                        # h=6 is line height, align='L' is left alignment
+                        # This ensures long descriptions wrap properly and don't overflow
+                        pdf.multi_cell(available_width, 6, sanitized_line, align='L')
+                        # Add spacing between paragraphs (but not after the last line)
+                        if line_idx < len(lines) - 1:
+                            pdf.ln(1)
+                pdf.ln(2)
+        
+        # Check if diagram should be shown after question text (before subquestions)
+        diagram_image_path = q.get("diagram_image_path")
+        diagram_generated = q.get("diagram_generated", False)
+        
+        if diagram_generated and diagram_image_path:
+            # Convert to string and normalize path for FPDF (use forward slashes)
+            img_path_str = str(diagram_image_path) if isinstance(diagram_image_path, Path) else diagram_image_path
+            # Normalize path separators for FPDF (works on both Windows and Unix)
+            img_path_normalized = img_path_str.replace("\\", "/")
+            
+            if os.path.exists(img_path_str):
+                try:
+                    # Check if we need a new page for the diagram
+                    # Get current Y position
+                    current_y = pdf.get_y()
+                    # A4 height is 297mm, bottom margin is 15mm, so available height is 297 - 15 = 282mm
+                    # Reserve at least 50mm for the diagram (with some buffer)
+                    available_height = 297 - current_y - 15  # 15mm bottom margin
+                    
+                    # If less than 50mm available, start a new page
+                    if available_height < 50:
+                        pdf.add_page()
+                        current_y = pdf.get_y()
+                        available_height = 297 - current_y - 15
+                    
+                    pdf.ln(3)
+                    pdf.set_font("helvetica", "B", 10)
+                    diagram_type = q.get("diagram_type", "Diagram")
+                    pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
+                    
+                    # Calculate available width (A4 width - margins)
+                    avail_width = 180
+                    
+                    # Get image dimensions to check if it fits
+                    if Image is not None:
+                        try:
+                            img = Image.open(img_path_str)
+                            img_width, img_height = img.size
+                            # Calculate aspect ratio
+                            aspect_ratio = img_height / img_width if img_width > 0 else 1
+                            # Calculate height in mm (assuming 96 DPI, 1 inch = 25.4mm)
+                            # FPDF uses mm, so we need to convert
+                            # If width is 180mm, height will be 180mm * aspect_ratio
+                            calculated_height_mm = avail_width * aspect_ratio
+                            
+                            # If diagram is too tall, reduce width proportionally to fit on page
+                            max_height = available_height - 20  # Reserve 20mm buffer
+                            if calculated_height_mm > max_height:
+                                # Reduce width to fit height
+                                avail_width = max_height / aspect_ratio
+                                # Ensure minimum readable width (at least 120mm)
+                                if avail_width < 120:
+                                    avail_width = 120
+                                    # If still too tall, we'll let it overflow and add page break
+                                    if (avail_width * aspect_ratio) > max_height:
+                                        # Force page break before diagram
+                                        pdf.add_page()
+                        except Exception as img_error:
+                            # If image reading fails, use default width
+                            print(f"    [WARN] Could not read image dimensions: {img_error}, using default width")
+                    
+                    # Embed diagram image (FPDF.image accepts string path with forward slashes)
+                    pdf.image(img_path_normalized, w=avail_width)
+                    pdf.ln(5)
+                    print(f"    [OK] Embedded diagram image after question text: {img_path_normalized}")
+                except Exception as e:
+                    print(f"    [WARN] Failed to embed diagram image: {e}")
+                    import traceback
+                    traceback.print_exc()
+        
+        # Subquestions
+        subquestions = q.get("subquestions", [])
+        if subquestions:
+            pdf.set_font("helvetica", "", 10)
+            for sq in subquestions:
+                self._add_subquestion_to_pdf(pdf, sq, q)
+        
+        pdf.ln(5)
+    
+    def _add_subquestion_to_pdf(self, pdf: FPDF, sq: Dict[str, Any], parent_q: Dict[str, Any]):
+        """
+        Add a subquestion to the PDF, handling nested subquestions.
+        
+        Supports nested patterns:
+        - Q4 part (a): "a) Write SQL Queries to perform the following:" with nested i, ii, iii
+        - Q3 part (e): "e) [scenario]" with nested i, ii, iii, iv, v
+        
+        Format matches past paper structure:
+        - Parent subquestion: "a) Parent text" (bold)
+        - Nested subquestions: "   i. Nested text (marks)" (indented, regular font)
+        """
+        label = sq.get("label", "")
+        text = sq.get("text", "")
+        marks = sq.get("marks", 0)
+        
+        # Handle nested subquestions (e.g., Q4: "a) Write SQL Queries..." with nested i, ii, iii)
+        # Or Q3 part (e): "e) [scenario]" with nested i, ii, iii, iv, v
+        nested_subquestions = sq.get("subquestions", [])
+        
+        # Calculate available width for text wrapping
+        available_width = PDFService._get_available_width(pdf)
+        
+        if nested_subquestions:
+            # Parent subquestion (bold, e.g., "a) Write SQL Queries to perform the following:")
+            pdf.set_font("helvetica", "B", 10)
+            if marks:
+                # Use multi_cell with calculated width for text wrapping to prevent truncation
+                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text} ({marks} marks)"), align='L')
+            else:
+                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text}"), align='L')
             pdf.ln(2)
             
-            # Question Stem/Text (if exists and no subquestions, or as intro)
-            question_stem = q.get("text", "")
-            if question_stem and question_stem.strip():
-                # Only show stem if it's substantial and not just a placeholder
-                if len(question_stem.strip()) > 20:  # Substantial text
-                    pdf.set_font("helvetica", "", 11)
-                    pdf.ln(3)
-                    pdf.multi_cell(0, 6, PDFService._sanitize_text(question_stem))
-                    pdf.ln(3)
-            
-            # Show diagram immediately after question text (if generated)
-            diagram_image_path = q.get("diagram_image_path")
-            diagram_generated = q.get("diagram_generated", False)
-            if diagram_generated and diagram_image_path:
-                img_path_str = str(diagram_image_path) if isinstance(diagram_image_path, Path) else diagram_image_path
-                img_path_normalized = img_path_str.replace("\\", "/")
-                
-                if os.path.exists(img_path_str):
-                    try:
-                        pdf.ln(3)
-                        pdf.set_font("helvetica", "B", 10)
-                        diagram_type = q.get("diagram_type", "Diagram")
-                        pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
-                        
-                        # Calculate available width (A4 width - margins)
-                        avail_width = 180
-                        # Embed diagram image
-                        pdf.image(img_path_normalized, w=avail_width)
-                        pdf.ln(5)
-                        print(f"    [OK] Embedded diagram image after question text: {img_path_normalized}")
-                    except Exception as e:
-                        print(f"    [WARN] Failed to embed diagram image: {e}")
-                        import traceback
-                        traceback.print_exc()
-            
-            # Sub-questions
-            subquestions = q.get("subquestions", [])
-            if subquestions:
-                for sq in subquestions:
-                    label = PDFService._sanitize_text(sq.get("label", ""))
-                    text = PDFService._sanitize_text(sq.get("text", ""))
-                    marks = sq.get("marks", 0)
-                    
-                    pdf.set_font("helvetica", "", 11)
-                    pdf.ln(3)  # Add spacing before each sub-question
-                    
-                    # Print label and text on the same line
-                    pdf.set_x(15)
-                    
-                    # Use multi_cell for the full text (handles wrapping)
-                    pdf.multi_cell(155, 6, f"{label})  {text}")
-                    
-                    # Now place the marks on the right side of the LAST line
-                    # We need to go back up to align with the last line of text
-                    current_y = pdf.get_y()
-                    pdf.set_y(current_y - 6)  # Move up one line height
-                    pdf.set_x(175)
-                    pdf.set_font("helvetica", "I", 10)
-                    pdf.cell(20, 6, f"({int(marks)})", align="R")
-                    
-                    # Reset Y to continue below
-                    pdf.set_y(current_y)
-                    pdf.ln(2)  # Small gap between sub-questions
-            else:
-                # Fallback for monolithic text
-                text = PDFService._sanitize_text(q.get("text", "No content available."))
-                pdf.set_font("helvetica", "", 11)
-                pdf.multi_cell(0, 7, text)
-                pdf.ln(5)
+            # Nested subquestions (indented, regular font, e.g., "   i. Find...", "   ii. Find...")
+            pdf.set_font("helvetica", "", 10)
+            for nested_sq in nested_subquestions:
+                nested_label = nested_sq.get("label", "")
+                nested_text = nested_sq.get("text", "")
+                nested_marks = nested_sq.get("marks", 0)
 
-            # --- DIAGRAM RENDERING (V3: DALL·E + Mermaid Fallback) ---
-            # Note: If diagram was already shown above (after question text), skip here
-            # Priority 1: DALL·E generated image
-            # Priority 2: Mermaid code rendering
-            # Priority 3: Text placeholder
-            
-            diagram_image_path = q.get("diagram_image_path")
-            diagram_image_url = q.get("diagram_image_url")
-            mermaid_code = q.get("mermaid_code")
-            needs_diagram = q.get("needs_diagram", False)
-            diagram_generated = q.get("diagram_generated", False)
-            diagram_placeholder = q.get("diagram_placeholder")
-            
-            # Skip diagram rendering here if it was already shown above (after question text)
-            if diagram_generated and diagram_image_path:
-                # Diagram already shown above, skip duplicate rendering
-                pass
-            # Priority 1: Generated diagram image (Graphviz or DALL·E) - only if not shown above
-            elif diagram_image_path:
-                # Convert to string and normalize path for FPDF (use forward slashes)
-                img_path_str = str(diagram_image_path) if isinstance(diagram_image_path, Path) else diagram_image_path
-                # Normalize path separators for FPDF (works on both Windows and Unix)
-                img_path_normalized = img_path_str.replace("\\", "/")
-                
-                if os.path.exists(img_path_str):
-                    try:
-                        pdf.ln(5)
-                        pdf.set_font("helvetica", "B", 10)
-                        diagram_type = q.get("diagram_type", "Diagram")
-                        pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
-                        
-                        # Calculate available width (A4 width - margins)
-                        avail_width = 180
-                        # Embed diagram image (FPDF.image accepts string path with forward slashes)
-                        pdf.image(img_path_normalized, w=avail_width)
-                        pdf.ln(5)
-                        print(f"    [OK] Embedded diagram image: {img_path_normalized}")
-                    except Exception as e:
-                        print(f"    [WARN] Failed to embed diagram image: {e}")
-                        import traceback
-                        traceback.print_exc()
-                        # Fall through to Mermaid or placeholder
-                        diagram_image_path = None
+                # CRITICAL: Remove any existing label prefix from nested_text to prevent duplicates (e.g., "i. i. ")
+                import re
+                # Remove label prefixes (i., ii., iii., iv., v.) at the start of text
+                clean_nested_text = nested_text
+                while True:
+                    old_text = clean_nested_text
+                    # Remove label prefixes (with period or space) - remove ALL occurrences
+                    clean_nested_text = re.sub(r'^(i{1,3}|iv|v)[\.\s]+\s*', '', clean_nested_text, flags=re.IGNORECASE).strip()
+                    if clean_nested_text == old_text:
+                        break  # No more labels to remove
+
+                # Format: "   i. Text (marks)" - indented with 3 spaces to show hierarchy
+                # Use multi_cell with calculated width for text wrapping to prevent truncation
+                if nested_marks:
+                    pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"   {nested_label}. {clean_nested_text} ({nested_marks} marks)"), align='L')
                 else:
-                    print(f"    [WARN] Diagram image file not found: {img_path_str}")
+                    pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"   {nested_label}. {clean_nested_text}"), align='L')
+        else:
+            # Regular subquestion (no nesting)
+            pdf.set_font("helvetica", "", 10)
+            # Use multi_cell with calculated width for text wrapping to prevent truncation
+            if marks:
+                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text} ({marks} marks)"), align='L')
+            else:
+                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text}"), align='L')
+        
+        pdf.ln(2)
+        
+        # Check for diagram in subquestion (for code segments, etc.)
+        diagram_image_path = sq.get("diagram_image_path")
+        diagram_generated = sq.get("diagram_generated", False)
+        mermaid_code = sq.get("mermaid_code")
+        diagram_placeholder = sq.get("diagram_placeholder")
+        
+        # Skip diagram rendering here if it was already shown above (after question text)
+        if diagram_generated and diagram_image_path:
+            # Diagram already shown above, skip duplicate rendering
+            pass
+        # Priority 1: Generated diagram image (Graphviz or DALL·E) - only if not shown above
+        elif diagram_image_path:
+            # Convert to string and normalize path for FPDF (use forward slashes)
+            img_path_str = str(diagram_image_path) if isinstance(diagram_image_path, Path) else diagram_image_path
+            # Normalize path separators for FPDF (works on both Windows and Unix)
+            img_path_normalized = img_path_str.replace("\\", "/")
+            
+            if os.path.exists(img_path_str):
+                try:
+                    pdf.ln(5)
+                    pdf.set_font("helvetica", "B", 10)
+                    diagram_type = parent_q.get("diagram_type", "Diagram")
+                    pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
+                    
+                    # Calculate available width (A4 width - margins)
+                    avail_width = 180
+                    # Embed diagram image (FPDF.image accepts string path with forward slashes)
+                    pdf.image(img_path_normalized, w=avail_width)
+                    pdf.ln(5)
+                    print(f"    [OK] Embedded diagram image: {img_path_normalized}")
+                except Exception as e:
+                    print(f"    [WARN] Failed to embed diagram image: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    # Fall through to Mermaid or placeholder
                     diagram_image_path = None
+            else:
+                print(f"    [WARN] Diagram image file not found: {img_path_str}")
+                diagram_image_path = None
             
             # Priority 2: Mermaid code rendering (fallback)
-            elif mermaid_code:
+            if mermaid_code:
                 try:
                     from app.services.diagram_service import DiagramService
                     
                     # Generate temporary path
                     timestamp = int(datetime.now().timestamp())
-                    temp_img_path = str(Path(output_path).parent / "temp_images" / f"q_{q_no}_{timestamp}.png")
+                    # Use parent question number for temp file naming
+                    parent_q_no = parent_q.get("question_no", "Q1")
+                    temp_img_path = str(Path("data/outputs/model_papers").parent / "temp_images" / f"{parent_q_no}_{timestamp}.png")
+                    Path(temp_img_path).parent.mkdir(parents=True, exist_ok=True)
                     
-                    print(f"    [INFO] Rendering Mermaid diagram for {q_no}...")
-                    success = DiagramService.render_mermaid_to_image(mermaid_code, temp_img_path)
+                    # Render Mermaid to image
+                    diagram_service = DiagramService()
+                    success = diagram_service.render_mermaid_to_image(mermaid_code, Path(temp_img_path))
                     
                     if success and os.path.exists(temp_img_path):
                         pdf.ln(5)
                         pdf.set_font("helvetica", "B", 10)
-                        diagram_type = q.get("diagram_type", "Diagram")
+                        diagram_type = parent_q.get("diagram_type", "Diagram")
                         pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
                         
-                        # Calculate available width (A4 width - margins)
-                        avail_width = 180 
-                        # Embed image (auto-scale)
-                        pdf.image(temp_img_path, w=avail_width)
+                        # Normalize path
+                        temp_img_normalized = temp_img_path.replace("\\", "/")
+                        pdf.image(temp_img_normalized, w=180)
                         pdf.ln(5)
-                    else:
-                        # Fallback to text if rendering failed
-                        raise Exception("Mermaid rendering failed")
                         
+                        # Clean up temp file
+                        try:
+                            os.remove(temp_img_path)
+                        except:
+                            pass
                 except Exception as e:
                     print(f"    ⚠️ Mermaid diagram rendering failed: {e}. Using placeholder.")
                     # Fallback Placeholder
                     pdf.ln(5)
-                    pdf.set_fill_color(240, 240, 240)
-                    pdf.rect(20, pdf.get_y(), 170, 30, 'FD')
-                    pdf.set_xy(25, pdf.get_y()+10)
-                    pdf.set_font("helvetica", "I", 10)
-                    pdf.multi_cell(160, 5, f"[Diagram Generation Failed: {str(e)[:50]}...]\nMermaid code available in JSON.")
-                    pdf.ln(20)
+                    pdf.set_font("helvetica", "I", 9)
+                    pdf.cell(0, 5, PDFService._sanitize_text("[DIAGRAM PLACEHOLDER]"), ln=True)
             
-            # Priority 3: Text placeholder (if DALL·E and Mermaid both failed or not available)
-            elif diagram_placeholder or needs_diagram:
-                pdf.ln(5)
-                pdf.set_font("helvetica", "I", 10)
-                placeholder_text = diagram_placeholder or f"[DIAGRAM PLACEHOLDER: Draw the diagram as described in the question]"
-                pdf.multi_cell(0, 5, PDFService._sanitize_text(placeholder_text))
-                pdf.ln(3)
-                 # Standard Placeholder
-                diagram_type = q.get("diagram_type", "Diagram")
-                pdf.ln(5)
-                pdf.set_fill_color(250, 250, 250)
-                pdf.rect(20, pdf.get_y(), 170, 40, 'FD')
-                pdf.set_xy(25, pdf.get_y()+15)
-                pdf.set_font("helvetica", "I", 10)
-                pdf.multi_cell(160, 6, f"[DIAGRAM PLACEHOLDER: Draw the {diagram_type} diagram in the answer booklet.]", align="C")
-                pdf.ln(25)
-            
-            # Legacy support: If mermaid_code exists but no placeholder, render as code (for backward compatibility)
-            mermaid_code = q.get("mermaid_code")
-            if mermaid_code and not needs_diagram:
-                caption = q.get("image_caption", "Figure")
-                pdf.ln(5)
-                pdf.set_font("helvetica", "B", 10)
-                pdf.cell(0, 10, PDFService._sanitize_text(caption), ln=True)
-                
-                pdf.set_fill_color(245, 245, 245) # Light gray background
-                pdf.set_font("courier", "", 9)
-                
-                # Split lines for rendering
-                code_lines = mermaid_code.split("\n")
-                for line in code_lines:
-                    # Sanitize line
-                    safe_line = PDFService._sanitize_text(line)
-                    pdf.set_x(20)
-                    pdf.cell(0, 5, safe_line, ln=True, fill=True)
-                
-                pdf.ln(5)
-        
-        # Final Save
-        pdf.output(output_path)
-        print(f"PDF successfully exported to: {output_path}")
+        # Priority 3: Placeholder text
+        if diagram_placeholder:
+            pdf.ln(3)
+            pdf.set_font("helvetica", "I", 9)
+            pdf.cell(0, 5, PDFService._sanitize_text(diagram_placeholder), ln=True)

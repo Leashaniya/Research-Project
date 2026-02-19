@@ -137,6 +137,57 @@ class QualityCritic(BaseAgent):
         if not is_er_question:
             return True, ""  # Not an ER question, skip check
         
+        # Check that entities have attributes defined
+        # Pattern: "EntityName entity has attributes: Attr1, Attr2, Attr3" or "EntityName has attributes such as Attr1, Attr2"
+        entity_with_attrs_patterns = [
+            r'\b([A-Z][a-zA-Z]+)\s+entity\s+has\s+attributes?\s*[:;]?\s*([A-Z][a-zA-Z0-9]+(?:\s*,\s*[A-Z][a-zA-Z0-9]+)+)',
+            r'\b([A-Z][a-zA-Z]+)\s+entity\s+has\s+attributes?\s+such\s+as\s+([A-Z][a-zA-Z0-9]+(?:\s*,\s*[A-Z][a-zA-Z0-9]+)+)',
+            r'\b([A-Z][a-zA-Z]+)\s+has\s+attributes?\s*[:;]?\s*([A-Z][a-zA-Z0-9]+(?:\s*,\s*[A-Z][a-zA-Z0-9]+)+)',
+            r'\b([A-Z][a-zA-Z]+)\s+entity\s+comprises\s+([A-Z][a-zA-Z0-9]+(?:\s*,\s*[A-Z][a-zA-Z0-9]+)+)',
+            r'\b([A-Z][a-zA-Z]+)\s+entity\s+includes\s+attributes?\s+like\s+([A-Z][a-zA-Z0-9]+(?:\s*,\s*[A-Z][a-zA-Z0-9]+)+)',
+        ]
+        
+        # Extract all entity mentions (look for "EntityName entity" pattern)
+        entity_pattern = r'\b([A-Z][a-zA-Z]+)\s+entity\b'
+        entities_mentioned = set(re.findall(entity_pattern, combined_text, re.IGNORECASE))
+        
+        # Check if entities have attributes defined
+        entities_with_attrs = set()
+        for pattern in entity_with_attrs_patterns:
+            matches = re.finditer(pattern, combined_text, re.IGNORECASE)
+            for match in matches:
+                entity_name = match.group(1)
+                attrs_str = match.group(2) if len(match.groups()) > 1 else ""
+                # Count attributes (split by comma and "and")
+                attrs_list = re.split(r'[,;]\s*|\s+and\s+', attrs_str)
+                attr_count = len([a.strip() for a in attrs_list if a.strip() and len(a.strip()) > 2])
+                if attr_count >= 2:  # At least 2 attributes
+                    entities_with_attrs.add(entity_name.lower())
+        
+        # If entities are mentioned but don't have attributes, check for alternative patterns
+        if entities_mentioned:
+            # Also check for patterns like "EntityName (Attr1, Attr2, Attr3)" or "EntityName: Attr1, Attr2"
+            alt_patterns = [
+                r'\b([A-Z][a-zA-Z]+)\s+entity\s+has\s+attributes?\s+such\s+as\s+([A-Z][a-zA-Z0-9]+(?:\s*,\s*[A-Z][a-zA-Z0-9]+)+)',
+                r'\b([A-Z][a-zA-Z]+)\s*\([^)]*([A-Z][a-zA-Z0-9]+(?:\s*,\s*[A-Z][a-zA-Z0-9]+)+)',
+            ]
+            for pattern in alt_patterns:
+                matches = re.finditer(pattern, combined_text, re.IGNORECASE)
+                for match in matches:
+                    entity_name = match.group(1)
+                    attrs_str = match.group(2) if len(match.groups()) > 1 else ""
+                    attrs_list = re.split(r'[,;]\s*|\s+and\s+', attrs_str)
+                    attr_count = len([a.strip() for a in attrs_list if a.strip() and len(a.strip()) > 2])
+                    if attr_count >= 2:
+                        entities_with_attrs.add(entity_name.lower())
+        
+        # Check if entities have attributes (at least 2 entities should have attributes defined)
+        if len(entities_mentioned) >= 2:
+            entities_without_attrs = [e for e in entities_mentioned if e.lower() not in entities_with_attrs]
+            if len(entities_without_attrs) > 0 and len(entities_with_attrs) < 2:
+                # At least 2 entities should have attributes defined
+                return False, f"SCENARIO_MISSING: ER/EER question entities must have attributes defined. Found entities without attributes: {', '.join(entities_without_attrs[:3])}. Each entity must have at least 2-3 attributes listed (e.g., 'Student entity has attributes: StudentID, Name, Address')."
+        
         # Check minimum length (chars or approximate tokens)
         char_count = len(combined_text.strip())
         # Approximate tokens: split by whitespace and punctuation
@@ -212,11 +263,113 @@ class QualityCritic(BaseAgent):
         fd_patterns = [
             r'functional\s+dependenc',  # functional dependency
             r'fd\s*[:=]',  # FD:
-            r'[A-Za-z]+\s*→\s*[A-Za-z]+',  # A -> B
+            r'[A-Za-z]+\s*(?:→|->)\s*[A-Za-z]+',  # A -> B or A → B
             r'[A-Za-z]+\s*->\s*[A-Za-z]+',  # A -> B
         ]
         
         has_fd = any(re.search(pattern, combined_text) for pattern in fd_patterns)
+        
+        # For Q2 normalization questions, check if alphabet letters are used (A, B, C, D, E, F)
+        # Past papers use alphabet letters, not real attribute names
+        if is_norm_question:
+            # Check if relation uses alphabet letters (case-insensitive search)
+            alphabet_pattern = r'R\s*\([A-Z,\s]+\)'  # R(A, B, C, D, E)
+            has_alphabet_attrs = re.search(alphabet_pattern, combined_text, re.IGNORECASE)
+            
+            # Check if real attribute names are used (should NOT be used)
+            real_attr_patterns = [
+                r'\b(StudentID|CourseCode|EmployeeID|DepartmentID|ProjectID|MemberID|BookID|CustomerID|OrderID|ProductID|SupplierID|InstructorID|Grade|Semester|Year|Name|Address|Phone|Email)\b',
+                r'\b[A-Z][a-z]+(ID|Code|Name|Date|Time|Amount|Price|Quantity)\b'
+            ]
+            has_real_attrs = any(re.search(pattern, combined_text, re.IGNORECASE) for pattern in real_attr_patterns)
+            
+            if not has_alphabet_attrs and has_real_attrs:
+                return False, "SCHEMA_FORMAT_ERROR: Q2 normalization question must use alphabet letters (A, B, C, D, E, F) for attributes, not real attribute names. Found real attribute names instead of alphabet notation."
+            
+            # Check if exactly 5-6 attributes are used
+            if has_alphabet_attrs:
+                attr_match = re.search(r'R\s*\(([A-Z,\s]+)\)', combined_text, re.IGNORECASE)
+                if attr_match:
+                    attrs = [a.strip().upper() for a in attr_match.group(1).split(',')]
+                    attr_count = len(attrs)
+                    if attr_count < 5 or attr_count > 6:
+                        return False, f"SCHEMA_COMPLEXITY_ERROR: Q2 normalization question must have exactly 5-6 attributes. Found {attr_count} attributes: {', '.join(attrs)}"
+            
+            # Validate normalization problem constraints
+            # 1. Check for transitive dependencies (required for 3NF testing)
+            transitive_patterns = [
+                r'([A-Z]+)\s*(?:→|->)\s*([A-Z]+).*?([A-Z]+)\s*(?:→|->)\s*([A-Z]+)',  # A→B ... C→D pattern (use (?:→|->) instead of [→->] to avoid character range error)
+            ]
+            has_transitive = False
+            # Extract all FDs
+            fd_matches = re.finditer(r'([A-Z]+(?:\s*,\s*[A-Z]+)*)\s*(?:→|->)\s*([A-Z]+(?:\s*,\s*[A-Z]+)*)', combined_text, re.IGNORECASE)
+            fd_list = []
+            for match in fd_matches:
+                left = match.group(1).replace(' ', '').upper()
+                right = match.group(2).replace(' ', '').upper()
+                fd_list.append((left, right))
+            
+            # Check for transitive dependencies (A→B and B→C)
+            for i, (left1, right1) in enumerate(fd_list):
+                for j, (left2, right2) in enumerate(fd_list):
+                    if i != j:
+                        # Check if right side of first FD matches left side of second FD
+                        if right1 == left2 or (len(right1) == 1 and right1 in left2) or (len(left2) == 1 and left2 in right1):
+                            has_transitive = True
+                            break
+                if has_transitive:
+                    break
+            
+            # 2. Check if candidate key can be identified (at least one attribute set should determine all others)
+            # This is a simplified check - we look for FDs that could form a key
+            has_potential_key = False
+            if fd_list:
+                # Check if there's a single attribute that appears on left side and could determine others
+                # Or if there's a composite key pattern
+                left_attrs = set()
+                right_attrs = set()
+                for left, right in fd_list:
+                    left_attrs.update(left.split(','))
+                    right_attrs.update(right.split(','))
+                
+                # If all attributes appear on right side at least once, there's potential for a key
+                all_attrs = left_attrs.union(right_attrs)
+                if len(all_attrs) >= 5:  # At least 5 attributes as required
+                    # Check if any single attribute or small set could be a key
+                    # This is a heuristic - a proper check would require closure computation
+                    has_potential_key = True
+            
+            # 3. Check for circular dependencies (A→B, B→C, C→A)
+            has_circular = False
+            if len(fd_list) >= 3:
+                # Simple circular check: if A→B, B→C, C→A exists
+                for i, (left1, right1) in enumerate(fd_list):
+                    for j, (left2, right2) in enumerate(fd_list):
+                        if i != j and right1 == left2:
+                            for k, (left3, right3) in enumerate(fd_list):
+                                if k != i and k != j and right2 == left3 and right3 == left1:
+                                    has_circular = True
+                                    break
+                            if has_circular:
+                                break
+                        if has_circular:
+                            break
+                    if has_circular:
+                        break
+            
+            # Validation warnings (not blocking, but should be noted)
+            validation_issues = []
+            if not has_transitive and len(fd_list) >= 2:
+                validation_issues.append("WARNING: No clear transitive dependency detected. Include transitive dependencies (e.g., A→B, B→C) for proper 3NF testing.")
+            
+            if not has_potential_key:
+                validation_issues.append("WARNING: Candidate key identification may be difficult. Ensure at least one attribute set can determine all other attributes.")
+            
+            if has_circular:
+                validation_issues.append("WARNING: Circular dependency pattern detected. Ensure this is intentional for multiple candidate keys.")
+            
+            # Only reject if critical issues (these are warnings, not blockers)
+            # The main validation (schema format, attribute count) is already done above
         
         if not has_schema:
             return False, "SCHEMA_MISSING: Normalization question must include a relation schema (e.g., R(A,B,C) or explicit attributes). Current text lacks schema definition."
@@ -271,6 +424,132 @@ class QualityCritic(BaseAgent):
         if relation_count < 2:
             return False, "SCHEMA_MISSING: Relational algebra question must include a complete relational schema with at least 2-3 relations and their attributes listed explicitly (e.g., 'passenger (pid, pname, pgender, pcity)', 'booking (pid, aid, fid, fdate)'). Current text lacks sufficient relation definitions."
         
+        return True, ""
+    
+    def _check_q4_schema_format(self, draft: dict, template: dict) -> Tuple[bool, str]:
+        """
+        Check if Q4 has proper schema format with data types and primary keys.
+        
+        Past paper format:
+        "Consider the following schema of a database designed for a [Domain]: 
+        Table1 (primaryKey: type, attr2: type, attr3: type) 
+        Table2 (primaryKey: type, attr2: type, attr3: type) ...
+        The 'Table1' table stores information about..."
+        """
+        draft_text = draft.get("text", "")
+        combined_text = draft_text.lower()
+        
+        self.log(f"    [Q4 SCHEMA CHECK] Starting Q4 schema format validation...")
+        self.log(f"    [Q4 SCHEMA CHECK] Text length: {len(draft_text)} characters")
+        self.log(f"    [Q4 SCHEMA CHECK] Text preview: {draft_text[:200]}...")
+        
+        # Check for schema format indicator
+        has_schema_format = (
+            "consider the following schema" in combined_text or
+            "schema of a database" in combined_text
+        )
+        
+        self.log(f"    [Q4 SCHEMA CHECK] Schema format phrase found: {has_schema_format}")
+        if not has_schema_format:
+            self.log(f"    [Q4 SCHEMA CHECK] ❌ FAILED: Missing schema format phrase")
+            return False, "SCHEMA_FORMAT_ERROR: Q4 must include 'Consider the following schema of a database designed for a [Domain]:' format. Found simple format instead."
+        
+        # Check if domain placeholder still exists
+        if "[domain]" in combined_text or "[Domain]" in draft_text:
+            self.log(f"    [Q4 SCHEMA CHECK] ❌ FAILED: Domain placeholder not replaced")
+            return False, "SCHEMA_FORMAT_ERROR: Q4 schema must specify actual domain (Library, Hospital, University, etc.), not '[Domain]' placeholder."
+        
+        # Check for data types (int, varchar, date, real, etc.)
+        data_type_patterns = [
+            r':\s*int\b',
+            r':\s*varchar\s*\(',
+            r':\s*date\b',
+            r':\s*real\b',
+            r':\s*char\s*\(',
+            r':\s*float\b',
+            r':\s*decimal\s*\(',
+        ]
+        has_data_types = any(re.search(pattern, draft_text, re.IGNORECASE) for pattern in data_type_patterns)
+        
+        self.log(f"    [Q4 SCHEMA CHECK] Data types found: {has_data_types}")
+        if not has_data_types:
+            self.log(f"    [Q4 SCHEMA CHECK] ❌ FAILED: Missing data types")
+            return False, "SCHEMA_FORMAT_ERROR: Q4 schema must include data types (e.g., int, varchar(50), date, real) for all attributes. Found attributes without data types."
+        
+        # Check for primary keys (first attribute in each table, typically ends with 'Id' or 'ID')
+        # Primary keys are usually the first attribute and are underlined in PDF
+        primary_key_patterns = [
+            r'\b\w+[Ii]d\s*:\s*\w+',  # bookId: int, memberId: int
+            r'\b\w+[Ii][Dd]\s*:\s*\w+',  # bookID: int
+        ]
+        has_primary_keys = any(re.search(pattern, draft_text, re.IGNORECASE) for pattern in primary_key_patterns)
+        self.log(f"    [Q4 SCHEMA CHECK] Primary keys found: {has_primary_keys}")
+        if not has_primary_keys:
+            self.log(f"    [Q4 SCHEMA CHECK] ❌ FAILED: Missing primary keys")
+            return False, "SCHEMA_FORMAT_ERROR: Q4 schema must include primary keys as the first attribute in each table (e.g., bookId: int, memberId: int). Primary keys typically end with 'Id' or 'ID'."
+        
+        # Also check if tables are properly formatted (TableName (attr1: type, attr2: type))
+        table_pattern = r'\b[A-Z][a-zA-Z]+\s*\([^)]+:\s*\w+[^)]*\)'
+        has_table_format = bool(re.search(table_pattern, draft_text))
+        
+        self.log(f"    [Q4 SCHEMA CHECK] Table format correct: {has_table_format}")
+        if not has_table_format:
+            self.log(f"    [Q4 SCHEMA CHECK] ❌ FAILED: Incorrect table format")
+            return False, "SCHEMA_FORMAT_ERROR: Q4 schema must have tables in format 'TableName (attr1: type, attr2: type, ...)'. Found incorrect format."
+        
+        # Check for multiple tables (should have 3-5 tables) - MUST calculate BEFORE using in description check
+        table_count = len(re.findall(r'\b[A-Z][a-zA-Z]+\s*\(', draft_text))
+        self.log(f"    [Q4 SCHEMA CHECK] Table count: {table_count}")
+        if table_count < 3 or table_count > 5:
+            self.log(f"    [Q4 SCHEMA CHECK] ❌ FAILED: Found {table_count} table(s) (need 3-5)")
+            return False, f"SCHEMA_FORMAT_ERROR: Q4 schema must include 3-5 tables with meaningful relationships. Found {table_count} table(s)."
+        
+        # Check that each table has at least 3 attributes (primary key + 2 other attributes)
+        # Extract all table definitions: TableName (attr1: type, attr2: type, ...)
+        # CRITICAL: Use a more robust regex that handles nested parentheses (e.g., varchar(100))
+        # Pattern: Match TableName followed by ( and capture everything until matching closing )
+        table_pattern = r'\b([A-Z][a-zA-Z]+)\s*\('
+        table_matches = list(re.finditer(table_pattern, draft_text))
+        
+        for match in table_matches:
+            table_name = match.group(1)
+            # Find the matching closing parenthesis by counting nested parentheses
+            start_pos = match.end()  # Position after opening (
+            pos = start_pos
+            depth = 1
+            while pos < len(draft_text) and depth > 0:
+                if draft_text[pos] == '(':
+                    depth += 1
+                elif draft_text[pos] == ')':
+                    depth -= 1
+                pos += 1
+            
+            if depth == 0:
+                # Extract attributes string (between parentheses)
+                attributes_str = draft_text[start_pos:pos-1]
+                # Count attributes by finding attribute name patterns (name: type)
+                # Pattern: word characters followed by colon and optional whitespace
+                attribute_count = len(re.findall(r'\b\w+\s*:', attributes_str))
+            self.log(f"    [Q4 SCHEMA CHECK] Table '{table_name}' has {attribute_count} attribute(s)")
+            if attribute_count < 3:
+                self.log(f"    [Q4 SCHEMA CHECK] ❌ FAILED: Table '{table_name}' has only {attribute_count} attribute(s) (need at least 3)")
+                return False, f"SCHEMA_FORMAT_ERROR: Q4 schema table '{table_name}' must have AT LEAST 3-4 attributes (primary key + 2-3 other attributes). Found only {attribute_count} attribute(s). Example: Patient (patientId: int, name: varchar(100), phone: varchar(15), paymentStatus: varchar(20))"
+        
+        # Check for table descriptions (after schema) - validate all tables have descriptions
+        table_desc_patterns = [
+            r"the\s+['\"]([A-Z][a-zA-Z]+)['\"]\s+table\s+stores",
+            r"the\s+['\"]([A-Z][a-zA-Z]+)['\"]\s+table\s+holds",
+            r"the\s+['\"]([A-Z][a-zA-Z]+)['\"]\s+table\s+manages",
+            r"the\s+['\"]([A-Z][a-zA-Z]+)['\"]\s+table\s+contains",
+        ]
+        desc_count = sum(len(re.findall(pattern, draft_text, re.IGNORECASE)) for pattern in table_desc_patterns)
+        self.log(f"    [Q4 SCHEMA CHECK] Table descriptions found: {desc_count} for {table_count} tables")
+        
+        if desc_count < table_count:
+            self.log(f"    [Q4 SCHEMA CHECK] ❌ FAILED: Only {desc_count} table description(s) found for {table_count} table(s)")
+            return False, f"SCHEMA_FORMAT_ERROR: Q4 schema must include descriptions for ALL tables. Found {desc_count} description(s) for {table_count} table(s). Each table must have a description starting with 'The 'TableName' table stores/holds/manages/contains...'"
+        
+        self.log(f"    [Q4 SCHEMA CHECK] ✅ PASSED: All schema format checks passed")
         return True, ""
 
     def _check_reference_above(self, draft: dict) -> Tuple[bool, str]:
@@ -338,21 +617,82 @@ class QualityCritic(BaseAgent):
         
         sub_qs = draft.get("subquestions", [])
         
+        # Helper function to get effective marks (handles nested subquestions)
+        def get_effective_marks(sq):
+            """Get effective marks for a subquestion (including nested items if present)."""
+            sq_marks = sq.get("marks")
+            # If marks is None, it's a parent with nested items
+            if sq_marks is None:
+                nested_items = sq.get("subquestions", [])
+                if nested_items:
+                    # Sum marks from nested items
+                    return sum(int(item.get("marks") or 0) for item in nested_items)
+            return int(sq_marks or 0)
+        
         # 2. Math Check (Sub-question marks sum)
         if sub_qs:
-            status_sum = sum(int(sq.get("marks") or 0) for sq in sub_qs)
+            # Use get_effective_marks to handle nested subquestions (e.g., Q3 part e, Q4 part a)
+            q_no = draft.get("question_no", "").upper()
+            if q_no in ["Q3", "3"]:
+                self.log(f"    [Q3 MARKS CHECK] Checking Q3 marks distribution...")
+                self.log(f"    [Q3 MARKS CHECK] Target total marks: {total_q_marks}")
+                for idx, sq in enumerate(sub_qs):
+                    nested_items = sq.get("subquestions", [])
+                    if nested_items:
+                        nested_marks = [int(item.get("marks") or 0) for item in nested_items]
+                        self.log(f"    [Q3 MARKS CHECK] Part {sq.get('label')}: marks=None, nested items {[item.get('label') for item in nested_items]} have marks {nested_marks} (sum: {sum(nested_marks)})")
+                    else:
+                        self.log(f"    [Q3 MARKS CHECK] Part {sq.get('label')}: marks={sq.get('marks')}")
+            elif q_no in ["Q4", "4"]:
+                self.log(f"    [Q4 MARKS CHECK] Checking Q4 marks distribution...")
+                self.log(f"    [Q4 MARKS CHECK] Target total marks: {total_q_marks}")
+                for idx, sq in enumerate(sub_qs):
+                    nested_items = sq.get("subquestions", [])
+                    if nested_items:
+                        nested_marks = [int(item.get("marks") or 0) for item in nested_items]
+                        self.log(f"    [Q4 MARKS CHECK] Part {sq.get('label')}: marks=None, nested items {[item.get('label') for item in nested_items]} have marks {nested_marks} (sum: {sum(nested_marks)})")
+                    else:
+                        self.log(f"    [Q4 MARKS CHECK] Part {sq.get('label')}: marks={sq.get('marks')}")
+            
+            status_sum = sum(get_effective_marks(sq) for sq in sub_qs)
+            if q_no in ["Q3", "3"]:
+                self.log(f"    [Q3 MARKS CHECK] Total calculated marks: {status_sum}")
+            elif q_no in ["Q4", "4"]:
+                self.log(f"    [Q4 MARKS CHECK] Total calculated marks: {status_sum}")
             if status_sum != total_q_marks:
                 err_msg = f"MATH_ERROR: Sub-question marks sum to {status_sum}, but expected {total_q_marks}. Please adjust weighting."
+                if q_no in ["Q3", "3"]:
+                    self.log(f"    [Q3 MARKS CHECK] ❌ FAILED: Marks mismatch")
+                elif q_no in ["Q4", "4"]:
+                    self.log(f"    [Q4 MARKS CHECK] ❌ FAILED: Marks mismatch")
                 self.log(f"❌ Deterministic Reject: {err_msg}")
                 return {"approved": False, "feedback": err_msg, "feedback_code": "MATH_ERROR"}
+            elif q_no in ["Q3", "3"]:
+                self.log(f"    [Q3 MARKS CHECK] ✅ PASSED: Marks sum correctly")
+            elif q_no in ["Q4", "4"]:
+                self.log(f"    [Q4 MARKS CHECK] ✅ PASSED: Marks sum correctly")
             
             # Check individual subquestion marks
             for sq in sub_qs:
-                sq_marks = int(sq.get("marks") or 0)
-                if sq_marks <= 0:
-                    err_msg = f"MARKS_ERROR: Sub-question '{sq.get('label', '?')}' has marks <= 0."
-                    self.log(f"❌ Deterministic Reject: {err_msg}")
-                    return {"approved": False, "feedback": err_msg, "feedback_code": "MARKS_ERROR"}
+                nested_items = sq.get("subquestions", [])
+                if nested_items:
+                    # For parent with nested items, marks should be None
+                    if sq.get("marks") is not None:
+                        # This is OK - parent can have marks if nested items don't have marks
+                        # But check nested items
+                        for nested_item in nested_items:
+                            nested_marks = int(nested_item.get("marks") or 0)
+                            if nested_marks <= 0:
+                                err_msg = f"MARKS_ERROR: Nested sub-question '{nested_item.get('label', '?')}' under '{sq.get('label', '?')}' has marks <= 0."
+                                self.log(f"❌ Deterministic Reject: {err_msg}")
+                                return {"approved": False, "feedback": err_msg, "feedback_code": "MARKS_ERROR"}
+                else:
+                    # Regular subquestion: must have marks > 0
+                    sq_marks = int(sq.get("marks") or 0)
+                    if sq_marks <= 0:
+                        err_msg = f"MARKS_ERROR: Sub-question '{sq.get('label', '?')}' has marks <= 0."
+                        self.log(f"❌ Deterministic Reject: {err_msg}")
+                        return {"approved": False, "feedback": err_msg, "feedback_code": "MARKS_ERROR"}
         
         # 3. Structure Count Check (If template exists)
         required_struct = template.get("required_structure") or template.get("subquestions", [])
@@ -405,6 +745,105 @@ class QualityCritic(BaseAgent):
         if not rel_algebra_check:
             self.log(f"❌ Deterministic Reject: {rel_algebra_msg}")
             return {"approved": False, "feedback": rel_algebra_msg, "feedback_code": "SCHEMA_MISSING"}
+        
+        # 10. Q4 Schema Format Check (for SQL_DDL_DML questions in Q4)
+        q_no = draft.get("question_no", "").upper()
+        pattern_label = template.get("pattern_label", "").lower()
+        if q_no in ["Q4", "4"] and "sql" in pattern_label.lower():
+            q4_schema_check, q4_schema_msg = self._check_q4_schema_format(draft, template)
+            if not q4_schema_check:
+                self.log(f"❌ Deterministic Reject: {q4_schema_msg}")
+                return {"approved": False, "feedback": q4_schema_msg, "feedback_code": "SCHEMA_FORMAT_ERROR"}
+            
+            # 10.1 Q4 Nested Structure Validation (part a must have nested items)
+            subquestions = draft.get("subquestions", [])
+            if subquestions and len(subquestions) > 0:
+                first_sq = subquestions[0]
+                first_label = first_sq.get("label", "").strip().lower()
+                if first_label == "a":
+                    nested_items = first_sq.get("subquestions", [])
+                    if not nested_items or len(nested_items) < 2:
+                        err_msg = f"STRUCTURE_ERROR: Q4 part (a) must have nested subquestions (i, ii, iii). Found {len(nested_items) if nested_items else 0} nested item(s)."
+                        self.log(f"❌ Deterministic Reject: {err_msg}")
+                        return {"approved": False, "feedback": err_msg, "feedback_code": "STRUCTURE_ERROR"}
+                    # Validate nested item labels
+                    expected_labels = ["i", "ii", "iii"]
+                    actual_labels = [item.get("label", "").strip().lower() for item in nested_items[:3]]
+                    if not all(label in expected_labels for label in actual_labels):
+                        err_msg = f"STRUCTURE_ERROR: Q4 part (a) nested items must have labels i, ii, iii. Found: {actual_labels}"
+                        self.log(f"❌ Deterministic Reject: {err_msg}")
+                        return {"approved": False, "feedback": err_msg, "feedback_code": "STRUCTURE_ERROR"}
+                    # Validate that ALL nested items (i, ii, iii) are SQL queries (Find), not functions/triggers
+                    # CRITICAL: Validate all three items, not just ii and iii
+                    for nested_item in nested_items[:3]:  # Check all three items (i, ii, iii)
+                        nested_text = nested_item.get("text", "").lower()
+                        nested_label = nested_item.get("label", "").strip().lower()
+                        
+                        # Skip validation if label is not i, ii, or iii (defensive check)
+                        if nested_label not in ["i", "ii", "iii"]:
+                            continue
+                        
+                        # Check if it's a function or trigger (WRONG for part a nested items)
+                        if "create a function" in nested_text or "create function" in nested_text:
+                            err_msg = f"STRUCTURE_ERROR: Q4 part (a) nested item ({nested_label}) must be a SQL query starting with 'Find', not a function. Found: 'Create a function...'. Functions belong in part (b), not in part (a) nested items."
+                            self.log(f"❌ Deterministic Reject: {err_msg}")
+                            return {"approved": False, "feedback": err_msg, "feedback_code": "STRUCTURE_ERROR"}
+                        
+                        if "create a trigger" in nested_text or "create trigger" in nested_text:
+                            err_msg = f"STRUCTURE_ERROR: Q4 part (a) nested item ({nested_label}) must be a SQL query starting with 'Find', not a trigger. Found: 'Create a trigger...'. Triggers belong in part (c), not in part (a) nested items."
+                            self.log(f"❌ Deterministic Reject: {err_msg}")
+                            return {"approved": False, "feedback": err_msg, "feedback_code": "STRUCTURE_ERROR"}
+                        
+                        # Check if it starts with "Find" (CORRECT for part a nested items)
+                        # CRITICAL: Text doesn't include label prefix (e.g., "ii.") - label is stored separately
+                        # Remove any label prefix if present (defensive - shouldn't happen but handle it)
+                        clean_text = nested_text.strip()
+                        clean_text = re.sub(r'^(i|ii|iii)\.\s*', '', clean_text, flags=re.IGNORECASE).strip()
+                        
+                        # Check if it starts with "find" (case-insensitive)
+                        if not clean_text.startswith("find"):
+                            # Also check if "find" appears in first few words (handles "Write SQL queries to find...")
+                            first_words = clean_text[:50]
+                            if "find" not in first_words:
+                                # Get original text for error message (not lowercased)
+                                original_text = nested_item.get("text", "")[:100]
+                                err_msg = f"STRUCTURE_ERROR: Q4 part (a) nested item ({nested_label}) must be a SQL query starting with 'Find'. Found: '{original_text}...'. Part (a) nested items must be SQL queries (Find statements), not functions or triggers."
+                                self.log(f"❌ Deterministic Reject: {err_msg}")
+                                return {"approved": False, "feedback": err_msg, "feedback_code": "STRUCTURE_ERROR"}
+                    
+                    # CRITICAL: Validate schema consistency for parts (b) and (c)
+                    # Parts (b) and (c) must only reference tables from the schema in part (a)
+                    if len(subquestions) >= 2:
+                        # Extract schema tables from draft text
+                        draft_text = draft.get("text", "")
+                        schema_tables = set()
+                        # Extract table names from schema format: "TableName (attr1: type, ...)"
+                        # Note: 're' is already imported at module level
+                        table_pattern = r'\b([A-Z][a-zA-Z]+)\s*\('
+                        for match in re.finditer(table_pattern, draft_text):
+                            table_name = match.group(1)
+                            # Filter out common non-table words
+                            if table_name.lower() not in ['consider', 'following', 'schema', 'database', 'designed', 'for', 'the', 'a']:
+                                schema_tables.add(table_name.lower())
+                        
+                        # Check parts (b) and (c) for invalid table references
+                        for idx in [1, 2]:  # Parts (b) and (c)
+                            if idx < len(subquestions):
+                                sq = subquestions[idx]
+                                sq_text = sq.get("text", "").lower()
+                                
+                                # Common invalid table references from templates
+                                invalid_tables = ['member', 'members', 'fine', 'fines', 'book', 'books', 'loan', 'loans']
+                                
+                                # Check if part mentions invalid tables that aren't in schema
+                                for invalid_table in invalid_tables:
+                                    if invalid_table in sq_text and invalid_table not in schema_tables:
+                                        # Check if it's actually mentioned as a table (not just part of a word)
+                                        invalid_pattern = rf'\b{re.escape(invalid_table)}\b'
+                                        if re.search(invalid_pattern, sq_text, re.IGNORECASE):
+                                            err_msg = f"SCHEMA_CONSISTENCY_ERROR: Q4 part ({sq.get('label', '?')}) references '{invalid_table}' table which is not in the schema. Parts (b) and (c) must ONLY reference tables defined in part (a) schema. Schema tables: {', '.join(sorted(schema_tables)) if schema_tables else 'none found'}"
+                                            self.log(f"❌ Deterministic Reject: {err_msg}")
+                                            return {"approved": False, "feedback": err_msg, "feedback_code": "SCHEMA_CONSISTENCY_ERROR"}
 
         # 9. Figure Placeholders & Hallucinations Check
         draft_str = json.dumps(draft).lower()
@@ -436,7 +875,7 @@ class QualityCritic(BaseAgent):
         # 10. Additional Content Quality Checks
         for sq in sub_qs:
             text = sq.get("text", "").strip()
-            marks = int(sq.get("marks", 0))
+            marks = int(sq.get("marks") or 0)
             
             # 10.1 NO Vague/Subjective questions
             if any(v in text.lower() for v in ["think of", "what do you think", "your opinion", "personally"]):
@@ -484,19 +923,47 @@ class QualityCritic(BaseAgent):
         
         # Extract template context to inform the reviewer about expected patterns
         template_info = ""
+        q_no = draft.get("question_no", "").upper()
+        draft_text = json.dumps(draft, indent=2).lower()
+        
         if template:
             template_pattern = template.get("pattern_label", "")
             template_structure = template.get("required_structure", [])
             if template_structure:
-                # Check if template contains JDBC or T-SQL patterns
-                template_text = json.dumps(template_structure, indent=2).lower()
-                has_jdbc = "jdbc" in template_text or "java" in template_text
-                has_tsql = "t-sql" in template_text or "tsql" in template_text
+                # Check template structure, template full text, and draft question for JDBC
+                # Convert ObjectId to string for JSON serialization
+                def convert_objectid(obj):
+                    from bson import ObjectId
+                    if isinstance(obj, ObjectId):
+                        return str(obj)
+                    elif isinstance(obj, dict):
+                        return {k: convert_objectid(v) for k, v in obj.items()}
+                    elif isinstance(obj, list):
+                        return [convert_objectid(item) for item in obj]
+                    return obj
+                
+                template_text = json.dumps(convert_objectid(template_structure), indent=2).lower()
+                template_serializable = convert_objectid(template)
+                template_full_text = json.dumps(template_serializable, indent=2).lower()
+                
+                # Improved JDBC detection - check multiple sources
+                has_jdbc = (
+                    "jdbc" in template_text or "java" in template_text or
+                    "type 2 driver" in template_text or "type2driver" in template_text or
+                    "jdbc" in template_full_text or "type 2 driver" in template_full_text or
+                    "jdbc" in draft_text or "type 2 driver" in draft_text
+                )
+                
+                # Q3-specific: If it's Q3 and contains JDBC/Type 2 Driver, it's ALWAYS valid
+                is_q3_with_jdbc = q_no in ["Q3", "3"] and ("jdbc" in draft_text or "type 2 driver" in draft_text)
+                
+                has_tsql = "t-sql" in template_text or "tsql" in template_text or "t-sql" in template_full_text
                 
                 template_info = f"""
-        TEMPLATE CONTEXT (IMPORTANT):
+        TEMPLATE CONTEXT (CRITICAL - READ CAREFULLY):
         - This question follows a template pattern: {template_pattern}
         - The template structure includes {len(template_structure)} sub-questions
+        {"- ⚠️ CRITICAL: This is Q3 and contains JDBC Type 2 Driver content - JDBC API is MANDATORY and VALID for Q3 questions. You MUST APPROVE this question. Do NOT reject it for containing JDBC content." if is_q3_with_jdbc else ""}
         {"- ⚠️ NOTE: The template includes JDBC API topics (database connectivity from Java) - this is VALID for Database Systems exams" if has_jdbc else ""}
         {"- ⚠️ NOTE: The template includes T-SQL statements - this is VALID for Database Systems exams" if has_tsql else ""}
         - ⚠️ NOTE: SQL Functions (CREATE FUNCTION) and Triggers (CREATE TRIGGER) are VALID topics found in past papers and should be APPROVED
@@ -517,11 +984,13 @@ class QualityCritic(BaseAgent):
            - Does it reflect ONLY core Database Management Systems syllabus content?
            - REJECT if it introduces topics unrelated to core syllabus or past paper patterns
            - REJECT if it deviates from historical exam question styles
+           - ⚠️ CRITICAL RULE FOR Q3: If this is Q3 and contains "JDBC Type 2 Driver" or "JDBC API", you MUST APPROVE it. JDBC is a core Database Systems topic and is REQUIRED in Q3 questions based on historical exam patterns. Do NOT reject Q3 questions for containing JDBC content - this is expected and valid.
            - ⚠️ IMPORTANT: If the template context shows JDBC API or T-SQL topics, these are VALID database connectivity topics and should be APPROVED
         
         2. CONTENT RELEVANCE (MANDATORY):
            - Is it 100% Database Systems? 
            - ✅ ALLOW: JDBC API (Java Database Connectivity) - this is a VALID database connectivity topic
+           - ✅ ALLOW: JDBC Type 2 Driver - this is a VALID and REQUIRED topic for Q3 questions
            - ✅ ALLOW: T-SQL (Transact-SQL) statements - this is a VALID database language topic
            - ✅ ALLOW: SQL Functions (CREATE FUNCTION) - this is a VALID SQL programming topic found in past papers
            - ✅ ALLOW: SQL Triggers (CREATE TRIGGER) - this is a VALID SQL programming topic found in past papers

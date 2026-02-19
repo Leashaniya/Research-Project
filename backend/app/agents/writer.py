@@ -1,6 +1,7 @@
 import json
 from app.core.config import settings
 from app.core.llm_factory import get_llm_client
+import re
 from app.agents.base import BaseAgent
 
 class QuestionWriter(BaseAgent):
@@ -91,16 +92,28 @@ class QuestionWriter(BaseAgent):
                 
                 # ENFORCE INSTRUCTION PATTERNS: Check if LLM deviated from template patterns
                 if required_structure and len(required_structure) > 0:
+                    q_no = slot.get("question_no", "")
                     parsed["subquestions"] = self._enforce_instruction_patterns(
                         parsed["subquestions"],
                         required_structure,
-                        template
+                        template,
+                        q_no
                     )
                 
+                # Handle nested subquestions structure (e.g., Q4: "a) Write SQL Queries..." with nested i, ii, iii)
+                parsed["subquestions"] = self._restructure_nested_subquestions(
+                    parsed["subquestions"],
+                    required_structure,
+                    template
+                )
+                
                 # Normalize marks to ensure they sum correctly
+                # BUT: Preserve exact marks from template structure for nested subquestions
+                # Only normalize if marks don't match or are missing
                 parsed["subquestions"] = self._normalize_subquestion_marks(
                     parsed["subquestions"], 
-                    target_marks
+                    target_marks,
+                    template  # Pass template to preserve nested marks
                 )
                 # Update main question marks to match (in case LLM got it wrong)
                 parsed["marks"] = target_marks
@@ -125,6 +138,9 @@ class QuestionWriter(BaseAgent):
             # Fix subquestion references (e.g., "queries (i) to (iv)" when labels are a, b, c, d)
             parsed = self._fix_subquestion_references(parsed, template)
             
+            # CRITICAL: Q3 part (c) scenario placement - scenario should be above part (c), not part (a)
+            parsed = self._fix_q3_scenario_placement(parsed, template, slot)
+            
             # Validation: Check for empty stem
             if not parsed.get("text") or len(parsed.get("text", "").strip()) < 20:
                 raise ValueError("Generated empty or too-short question stem (text field)")
@@ -139,14 +155,16 @@ class QuestionWriter(BaseAgent):
             self.log(f"Error drafting question: {e}")
             raise e
 
-    def _normalize_subquestion_marks(self, subquestions: list, target_marks: int) -> list:
+    def _normalize_subquestion_marks(self, subquestions: list, target_marks: int, template: dict = None) -> list:
         """
         Normalize subquestion marks to ensure they sum exactly to target_marks.
         Uses proportional distribution based on relative weightage.
+        Handles nested subquestions properly (parent with null marks, nested items with marks).
         
         Args:
             subquestions: List of subquestion dicts with 'marks' field
             target_marks: Target total marks for all subquestions
+            template: Optional template dict for nested structure marks
             
         Returns:
             List of subquestions with normalized marks that sum to target_marks
@@ -154,12 +172,33 @@ class QuestionWriter(BaseAgent):
         if not subquestions or target_marks <= 0:
             return subquestions
         
-        # Get current marks (default to 0 if missing)
-        current_marks = [int(sq.get("marks", 0)) for sq in subquestions]
+        # CRITICAL: Handle nested subquestions (Q4 part a, Q3 part e)
+        # For nested subquestions, parent has null marks and nested items have marks
+        # We need to calculate marks including nested items
+        def get_effective_marks(sq):
+            """Get effective marks for a subquestion (including nested items if present)."""
+            sq_marks = sq.get("marks")
+            # If marks is None, it's a parent with nested items
+            if sq_marks is None:
+                nested_items = sq.get("subquestions", [])
+                if nested_items:
+                    # Sum marks from nested items
+                    return sum(int(item.get("marks") or 0) for item in nested_items)
+            return int(sq_marks or 0)
+        
+        # Get current marks (including nested items)
+        current_marks = [get_effective_marks(sq) for sq in subquestions]
         current_sum = sum(current_marks)
         
-        # If sum is already correct, return as-is
+        # If sum is already correct, return as-is (but ensure no 0 marks in nested items)
         if current_sum == target_marks:
+            # Still check for 0 marks in nested items
+            for sq in subquestions:
+                nested_items = sq.get("subquestions", [])
+                if nested_items:
+                    for nested_item in nested_items:
+                        if int(nested_item.get("marks") or 0) <= 0:
+                            nested_item["marks"] = 1
             return subquestions
         
         # If all marks are 0 or invalid, distribute evenly
@@ -168,58 +207,134 @@ class QuestionWriter(BaseAgent):
             remainder = target_marks % len(subquestions)
             normalized = []
             for idx, sq in enumerate(subquestions):
-                marks = marks_per_subq + (1 if idx < remainder else 0)
-                normalized.append({**sq, "marks": marks})
+                # Check if this subquestion has nested items
+                nested_items = sq.get("subquestions", [])
+                if nested_items:
+                    # Distribute marks among nested items
+                    nested_marks_per_item = max(1, marks_per_subq // len(nested_items))
+                    for nested_item in nested_items:
+                        nested_item["marks"] = nested_marks_per_item
+                    sq["marks"] = None  # Parent has null marks
+                else:
+                    marks = marks_per_subq + (1 if idx < remainder else 0)
+                    sq["marks"] = marks
+                normalized.append(sq)
             return normalized
         
         # Proportional distribution: scale each mark by the ratio
-        ratio = target_marks / current_sum
+        ratio = target_marks / current_sum if current_sum > 0 else 1
         normalized_marks = [int(round(m * ratio)) for m in current_marks]
         
+        # CRITICAL: Ensure no subquestion gets 0 marks (minimum is 1)
+        # For nested subquestions, ensure nested items have at least 1 mark each
+        for i, sq in enumerate(subquestions):
+            nested_items = sq.get("subquestions", [])
+            if nested_items:
+                # Distribute normalized_marks[i] among nested items
+                if normalized_marks[i] <= 0:
+                    normalized_marks[i] = len(nested_items)  # At least 1 per nested item
+                nested_marks_per_item = max(1, normalized_marks[i] // len(nested_items))
+                remainder_nested = normalized_marks[i] % len(nested_items)
+                for idx, nested_item in enumerate(nested_items):
+                    nested_item["marks"] = nested_marks_per_item + (1 if idx < remainder_nested else 0)
+                sq["marks"] = None  # Parent has null marks
+            else:
+                if normalized_marks[i] <= 0:
+                    normalized_marks[i] = 1
+                sq["marks"] = normalized_marks[i]
+        
+        # Update subquestions with normalized marks
+        # CRITICAL: Preserve None marks for parents with nested items
+        normalized = []
+        for idx, sq in enumerate(subquestions):
+            nested_items = sq.get("subquestions", [])
+            if nested_items:
+                # Parent with nested items: marks should be None
+                # The marks are already distributed among nested items above
+                normalized.append({**sq, "marks": None})
+            else:
+                # Regular subquestion: use normalized marks
+                normalized.append({**sq, "marks": normalized_marks[idx]})
+        
         # Fix rounding errors: ensure sum equals target_marks exactly
-        normalized_sum = sum(normalized_marks)
+        # Recalculate sum after creating normalized list
+        normalized_sum = sum(get_effective_marks(sq) for sq in normalized)
         diff = target_marks - normalized_sum
         
         if diff != 0:
             # Distribute the difference to the largest subquestions first
             # This preserves the relative weightage better
-            sorted_indices = sorted(
-                range(len(normalized_marks)), 
-                key=lambda i: normalized_marks[i], 
-                reverse=True
-            )
+            # Create a list of (index, effective_marks) for sorting
+            sq_with_marks = []
+            for idx, sq in enumerate(normalized):
+                nested_items = sq.get("subquestions", [])
+                if nested_items:
+                    # For nested, use sum of nested items
+                    effective = sum(int(item.get("marks") or 0) for item in nested_items)
+                else:
+                    effective = int(sq.get("marks") or 0)
+                sq_with_marks.append((idx, effective))
+            
+            sorted_indices = sorted(sq_with_marks, key=lambda x: x[1], reverse=True)
             
             # Add/subtract the difference
-            for i in sorted_indices:
+            for idx, _ in sorted_indices:
                 if diff == 0:
                     break
-                if diff > 0:
-                    normalized_marks[i] += 1
-                    diff -= 1
+                sq = normalized[idx]
+                nested_items = sq.get("subquestions", [])
+                if nested_items:
+                    # Adjust nested items
+                    if diff > 0:
+                        # Add to first nested item
+                        if nested_items:
+                            current = int(nested_items[0].get("marks") or 0)
+                            nested_items[0]["marks"] = current + 1
+                            diff -= 1
+                    else:
+                        # Subtract from first nested item (if > 1)
+                        if nested_items and int(nested_items[0].get("marks") or 0) > 1:
+                            current = int(nested_items[0].get("marks") or 0)
+                            nested_items[0]["marks"] = current - 1
+                            diff += 1
                 else:
-                    if normalized_marks[i] > 1:  # Don't go below 1
-                        normalized_marks[i] -= 1
-                        diff += 1
+                    # Adjust regular subquestion
+                    if diff > 0:
+                        current = int(sq.get("marks") or 0)
+                        sq["marks"] = current + 1
+                        diff -= 1
+                    else:
+                        current = int(sq.get("marks") or 0)
+                        if current > 1:
+                            sq["marks"] = current - 1
+                            diff += 1
         
-        # Update subquestions with normalized marks
-        normalized = []
-        for idx, sq in enumerate(subquestions):
-            normalized.append({**sq, "marks": normalized_marks[idx]})
-        
-        # Final verification
-        final_sum = sum(sq["marks"] for sq in normalized)
+        # Final verification using get_effective_marks helper
+        final_sum = sum(get_effective_marks(sq) for sq in normalized)
         if final_sum != target_marks:
-            # Last resort: adjust the last subquestion
-            if normalized:
-                normalized[-1]["marks"] = target_marks - sum(sq["marks"] for sq in normalized[:-1])
-                # Ensure it's at least 1
-                if normalized[-1]["marks"] < 1:
-                    normalized[-1]["marks"] = 1
-                    # Adjust another subquestion
-                    for sq in normalized[:-1]:
-                        if sq["marks"] > 1:
-                            sq["marks"] -= 1
-                            break
+            # Last resort: adjust marks
+            # Find the last non-nested subquestion or adjust nested items
+            for i in range(len(normalized) - 1, -1, -1):
+                sq = normalized[i]
+                nested_items = sq.get("subquestions", [])
+                if nested_items:
+                    # Adjust nested items if needed
+                    nested_sum = sum(int(item.get("marks") or 0) for item in nested_items)
+                    diff = target_marks - (final_sum - nested_sum)
+                    if diff != 0 and nested_items:
+                        # Distribute difference among nested items
+                        per_item = diff // len(nested_items)
+                        remainder = diff % len(nested_items)
+                        for j, item in enumerate(nested_items):
+                            current = int(item.get("marks") or 0)
+                            item["marks"] = max(1, current + per_item + (1 if j < remainder else 0))
+                    break
+                else:
+                    # Adjust regular subquestion
+                    current = int(sq.get("marks") or 0)
+                    diff = target_marks - final_sum
+                    sq["marks"] = max(1, current + diff)
+                    break
         
         return normalized
 
@@ -287,17 +402,22 @@ class QuestionWriter(BaseAgent):
         
         return subquestions
 
-    def _enforce_instruction_patterns(self, subquestions: list, required_structure: list, template: dict = None) -> list:
+    def _enforce_instruction_patterns(self, subquestions: list, required_structure: list, template: dict = None, q_no: str = None) -> list:
         """
         Enforce instruction patterns from template if LLM deviated.
         For each sub-question, if template has a text pattern, ensure the generated text preserves it.
+        Also ensures marks match the template structure exactly.
         """
         if not required_structure or len(required_structure) != len(subquestions):
             return subquestions
         
         pattern_label = template.get('pattern_label', '').lower() if template else ''
         enforced = []
+        import string
         for idx, (sq, struct_item) in enumerate(zip(subquestions, required_structure)):
+            # Ensure all subquestions have proper labels (a, b, c, d, e, f, g, h, i, ...)
+            if not sq.get("label") or sq.get("label") == "?":
+                sq["label"] = string.ascii_lowercase[idx % 26]
             template_text = struct_item.get("text", "").strip()
             
             # Get generated text early for Q4 enforcement (even without template pattern)
@@ -482,6 +602,121 @@ class QuestionWriter(BaseAgent):
                         needs_enforcement = True
                         self.log(f"    🔧 Enforcing 'Accept or refute' pattern for sub-question {sq.get('label', idx)}")
                 
+                # CRITICAL: Q3 subquestion (a) must include JDBC Type 2 Driver statement
+                # Template pattern: "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute..."
+                if idx == 0 and "sql" in pattern_label.lower() and "type 2 driver" in clean_template.lower():
+                    if "type 2 driver" not in generated_text.lower() and "jdbc" not in generated_text.lower():
+                        needs_enforcement = True
+                        self.log(f"    🔧 CRITICAL: Q3 subquestion (a) missing JDBC Type 2 Driver statement - enforcing template pattern")
+                    # Also check if it incorrectly says "Write SQL queries" instead of JDBC statement
+                    if "write sql queries" in clean_generated.lower() and "type 2 driver" in clean_template.lower():
+                        needs_enforcement = True
+                        self.log(f"    🔧 CRITICAL: Q3 subquestion (a) incorrectly uses 'Write SQL queries' instead of JDBC Type 2 Driver - enforcing template pattern")
+                
+                # CRITICAL: Q1 subquestion (a) must be "Convert the following EER model into the relational model..."
+                # Template pattern: "a) Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulting relations clearly."
+                if q_no and q_no in ["Q1", "1"] and idx == 0 and ("er" in pattern_label.lower() or "eer" in pattern_label.lower()):
+                    if "convert the following eer model" in clean_template.lower() or "convert the following er model" in clean_template.lower():
+                        if "convert" not in generated_text.lower() or "relational model" not in generated_text.lower():
+                            needs_enforcement = True
+                            self.log(f"    🔧 CRITICAL: Q1 subquestion (a) must be 'Convert the following EER model into the relational model...' - enforcing template pattern")
+                
+                # CRITICAL: Q4 subquestion (a) must be "Write SQL Queries to perform the following:" with nested i, ii, iii
+                # Template pattern: "a) Write SQL Queries to perform the following: i. Find..."
+                if q_no and q_no in ["Q4", "4"] and idx == 0 and "sql" in pattern_label.lower():
+                    if "write sql queries to perform the following" not in generated_text.lower():
+                        # Enforce exact template pattern
+                        sq["text"] = "Write SQL Queries to perform the following:"
+                        self.log(f"    🔧 CRITICAL: Q4 subquestion (a) enforced to 'Write SQL Queries to perform the following:'")
+                
+                # CRITICAL: Q4 subquestion (b) must be "Create a function..." not "Create a SQL query..."
+                # Template pattern: "b) Create a function to calculate..."
+                if q_no and q_no in ["Q4", "4"] and idx == 1 and "sql" in pattern_label.lower():
+                    if "create a function" not in generated_text.lower() and "create a sql query" in generated_text.lower():
+                        # Replace "Create a SQL query" with "Create a function"
+                        # Extract the function purpose from the text
+                        function_purpose = ""
+                        if "to" in generated_text.lower():
+                            to_pos = generated_text.lower().find(" to ")
+                            if to_pos > 0:
+                                function_purpose = generated_text[to_pos + 4:].strip()
+                        else:
+                            # Try to extract purpose from context
+                            function_purpose = "calculate the total amount"  # Default
+                        
+                        sq["text"] = f"Create a function to {function_purpose}"
+                        self.log(f"    🔧 CRITICAL: Q4 subquestion (b) enforced to 'Create a function...' instead of 'Create a SQL query...'")
+                
+                # CRITICAL: Q4 subquestion (c) must be "Create a trigger..." not "Create a procedure..." or "Create a SQL command..."
+                # Template pattern: "c) Create a trigger that automatically updates..."
+                if q_no and q_no in ["Q4", "4"] and idx == 2 and "sql" in pattern_label.lower():
+                    if "create a trigger" not in generated_text.lower():
+                        # Check if it says something else like "Create a procedure" or "Create a SQL command"
+                        if "create a procedure" in generated_text.lower() or "create a sql command" in generated_text.lower() or "create a sql statement" in generated_text.lower():
+                            # Extract the trigger purpose from the text
+                            trigger_purpose = ""
+                            if "that" in generated_text.lower():
+                                that_pos = generated_text.lower().find(" that ")
+                                if that_pos > 0:
+                                    trigger_purpose = generated_text[that_pos + 6:].strip()
+                            elif "to" in generated_text.lower():
+                                to_pos = generated_text.lower().find(" to ")
+                                if to_pos > 0:
+                                    trigger_purpose = generated_text[to_pos + 4:].strip()
+                            else:
+                                # Try to extract purpose from context
+                                trigger_purpose = "automatically updates the total amount"  # Default
+                            
+                            sq["text"] = f"Create a trigger that {trigger_purpose}"
+                            self.log(f"    🔧 CRITICAL: Q4 subquestion (c) enforced to 'Create a trigger...' instead of 'Create a procedure/SQL command...'")
+                        elif "trigger" not in generated_text.lower():
+                            # If trigger is completely missing, enforce it from template
+                            if "create a trigger" in clean_template.lower():
+                                sq["text"] = template_text
+                                self.log(f"    🔧 CRITICAL: Q4 subquestion (c) missing trigger - enforcing template pattern")
+                
+                # CRITICAL: Q3 subquestion (b) must NOT include hints that give away the answer
+                # Template pattern: "Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used."
+                # DO NOT include hints like "SQL statements are used to create tables" or "DDL is used to define" - these give away the answer
+                if idx == 1 and "sql" in pattern_label.lower() and q_no and q_no in ["Q3", "3"] and ("which" in clean_template.lower() or "code segment" in clean_template.lower()):
+                    # Check for hints that give away the answer
+                    hint_patterns = [
+                        r'sql\s+statements?\s+are\s+used\s+to',
+                        r'ddl\s+is\s+used\s+to',
+                        r'sql\s+data\s+definition\s+language',
+                        r'to\s+create\s+the\s+tables?\s+mentioned',
+                        r'these?\s+statements?\s+are\s+used\s+to',
+                        r'are\s+used\s+to\s+create\s+the\s+tables?',
+                        r'are\s+used\s+to\s+create',
+                        r'used\s+to\s+create\s+the\s+tables?\s+mentioned\s+in\s+this\s+scenario',
+                        r'used\s+to\s+create\s+the\s+tables?',
+                        r'in\s+this\s+scenario.*are\s+used\s+to\s+create'
+                    ]
+                    has_hints = any(re.search(pattern, generated_text, re.IGNORECASE) for pattern in hint_patterns)
+                    
+                    if has_hints:
+                        # Remove hints and enforce exact template pattern
+                        cleaned_text = generated_text
+                        for pattern in hint_patterns:
+                            cleaned_text = re.sub(pattern, '', cleaned_text, flags=re.IGNORECASE)
+                        # Clean up multiple spaces and punctuation
+                        cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
+                        cleaned_text = re.sub(r'\s*[.,]\s*$', '', cleaned_text)
+                        
+                        # Enforce exact template: "Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used."
+                        if "which type" in cleaned_text.lower():
+                            # Extract just the question part if it exists
+                            which_match = re.search(r'which\s+type[^?]*\?', cleaned_text, re.IGNORECASE)
+                            if which_match and "briefly explain" in cleaned_text.lower():
+                                # Keep the question but ensure it follows template
+                                sq["text"] = "Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used."
+                            else:
+                                sq["text"] = "Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used."
+                        else:
+                            sq["text"] = "Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used."
+                        
+                        self.log(f"    🔧 CRITICAL: Q3 subquestion (b) had hints removed - enforcing template pattern without hints")
+                
                 # Check for "Write a T-SQL statement"
                 if "write a t-sql statement" in clean_template.lower():
                     if "write a t-sql statement" not in generated_text.lower():
@@ -513,6 +748,14 @@ class QuestionWriter(BaseAgent):
                     "show clearly each stage in deriving" in clean_template.lower()
                 )
                 
+                # CRITICAL: Always enforce marks from template structure
+                template_marks = struct_item.get("marks")
+                if template_marks is not None and template_marks > 0:
+                    sq["marks"] = int(template_marks)
+                    current_marks = sq.get("marks")
+                    if current_marks is not None and int(current_marks or 0) != int(template_marks):
+                        self.log(f"    ✅ Enforced marks from template: {template_marks} for sub-question {sq.get('label', idx)}")
+                
                 # For short patterns (< 150 chars) OR critical Q2 patterns, use template text directly
                 if needs_enforcement and (len(clean_template) < 150 or is_critical_q2_pattern):
                     sq["text"] = clean_template
@@ -541,6 +784,14 @@ class QuestionWriter(BaseAgent):
                         # For other long patterns, use template text
                         sq["text"] = clean_template
                         self.log(f"    ✅ Enforced template pattern for long scenario sub-question {sq.get('label', idx)}")
+            
+            # Always ensure marks match template structure (even if text wasn't enforced)
+            template_marks = struct_item.get("marks")
+            if template_marks is not None and template_marks > 0:
+                current_marks = sq.get("marks")
+                if current_marks is None or int(current_marks or 0) != int(template_marks):
+                    sq["marks"] = int(template_marks)
+                    self.log(f"    ✅ Enforced marks from template: {template_marks} for sub-question {sq.get('label', idx)}")
             
             enforced.append(sq)
         
@@ -572,6 +823,245 @@ class QuestionWriter(BaseAgent):
         
         return enforced
 
+    def _restructure_nested_subquestions(self, subquestions: list, required_structure: list, template: dict) -> list:
+        """
+        Restructure flat subquestions into nested structure when template indicates nested pattern.
+        For example, Q4: "a) Write SQL Queries to perform the following:" should contain nested i, ii, iii.
+        Q3 part (e): "e) [scenario] Write a T-SQL statement..." should contain nested i, ii, iii, iv, v.
+        
+        Args:
+            subquestions: Generated flat subquestions
+            required_structure: Template structure (may contain nested items)
+            template: Template dict for context
+            
+        Returns:
+            Restructured subquestions with nested items where appropriate
+        """
+        if not required_structure:
+            return subquestions
+        
+        # Check if any structure item has nested items
+        has_nested = any(
+            struct_item.get("nested") or struct_item.get("nested_items")
+            for struct_item in required_structure
+        )
+        
+        if not has_nested:
+            return subquestions
+        
+        # Find structure items with nested pattern
+        restructured = []
+        sq_idx = 0
+        
+        for struct_item in required_structure:
+            if struct_item.get("nested") and struct_item.get("nested_items"):
+                # This is a parent subquestion with nested items (Q4 pattern)
+                # Find the corresponding generated subquestion
+                if sq_idx < len(subquestions):
+                    parent_sq = subquestions[sq_idx].copy()
+                    
+                    parent_text = parent_sq.get("text", "").strip()
+                    parent_label = parent_sq.get("label", "").lower()
+                    
+                    # Check if this is Q3 part (e) pattern or Q4 pattern
+                    is_q3_e_pattern = (
+                        (parent_label == "e" or parent_text.lower().startswith("e)")) and
+                        ("financial institution" in parent_text.lower() or "developing a robust database system" in parent_text.lower()) and
+                        ("write a t-sql statement" in parent_text.lower() or "write t-sql statement" in parent_text.lower())
+                    )
+                    is_q4_pattern = "write sql queries" in parent_text.lower() and "following" in parent_text.lower()
+                    
+                    # Get nested_struct_items from template structure (needed for marks)
+                    nested_struct_items = struct_item.get("nested_items", [])
+                    
+                    # CRITICAL: For Q3 part (e), extract "Write a T-SQL statement..." as nested item i
+                    first_nested_item = None
+                    if is_q3_e_pattern:
+                        # Extract "Write a T-SQL statement..." part as nested item i
+                        t_sql_match = re.search(r'(write\s+(?:a\s+)?t-sql\s+statement[^.]*\.)', parent_text, re.IGNORECASE)
+                        if t_sql_match:
+                            # Get marks from parent or first nested struct item
+                            first_item_marks = None
+                            if nested_struct_items and len(nested_struct_items) > 0:
+                                first_item_marks = nested_struct_items[0].get("marks")
+                            if first_item_marks is None:
+                                first_item_marks = parent_sq.get("marks")
+                            
+                            # PRIORITY: Use marks from template structure (past paper distribution)
+                            # Check if first nested struct item has marks
+                            first_nested_marks = None
+                            if nested_struct_items and len(nested_struct_items) > 0:
+                                first_nested_marks = nested_struct_items[0].get("marks")
+                            # If template doesn't have marks, use parent or default
+                            if first_nested_marks is None:
+                                first_nested_marks = first_item_marks
+                            if first_nested_marks is None:
+                                first_nested_marks = 0
+                            
+                            # Extract T-SQL statement text and ensure no duplicate label
+                            t_sql_text = t_sql_match.group(1).strip()
+                            # Remove any existing "i. " prefix if present
+                            t_sql_text = re.sub(r'^i\.\s*', '', t_sql_text, flags=re.IGNORECASE).strip()
+                            
+                            first_nested_item = {
+                                "label": "i",
+                                "marks": int(first_nested_marks),
+                                "text": f"i. {t_sql_text}"
+                            }
+                            # Remove the T-SQL statement part from parent text, keep only scenario
+                            parent_text = re.sub(r'write\s+(?:a\s+)?t-sql\s+statement[^.]*\.', '', parent_text, flags=re.IGNORECASE).strip()
+                            # Clean up any trailing punctuation
+                            parent_text = parent_text.rstrip(".,;").strip()
+                            parent_sq["text"] = parent_text
+                    # For Q4 pattern, extract "i." from parent text if present
+                    elif is_q4_pattern and ("i." in parent_text or "i " in parent_text.lower()):
+                        # Extract the "i. Find..." part from parent text
+                        i_pattern = r'i\.\s*([^i]+?)(?:\s*$|\s*ii\.|$)'
+                        i_match = re.search(i_pattern, parent_text, re.IGNORECASE)
+                        if i_match:
+                            i_text = i_match.group(1).strip()
+                            if i_text and len(i_text) > 10:  # Valid content
+                                # Get marks from template or default to 0
+                                i_marks = nested_struct_items[0].get("marks") if nested_struct_items and len(nested_struct_items) > 0 else 0
+                                first_nested_item = {
+                                    "label": "i",
+                                    "marks": int(i_marks) if i_marks is not None else 0,
+                                    "text": f"i. {i_text}"
+                                }
+                                # Remove "i. ..." from parent text, keep only "Write SQL Queries to perform the following:"
+                                parent_text = re.sub(r'i\.\s*[^i]+?(?:\s*$|\s*ii\.)', '', parent_text, flags=re.IGNORECASE).strip()
+                                if not parent_text.endswith(":"):
+                                    parent_text = parent_text.rstrip(".,;")
+                                    if "following" not in parent_text.lower():
+                                        parent_text = "Write SQL Queries to perform the following:"
+                    
+                    # Ensure parent text follows template pattern
+                    if is_q4_pattern and ("write sql queries" not in parent_text.lower() or "following" not in parent_text.lower()):
+                        # Force the template pattern
+                        parent_sq["text"] = "Write SQL Queries to perform the following:"
+                        parent_text = parent_sq["text"]
+                    
+                    # Create nested subquestions
+                    nested_items = []
+                    # Add first nested item (i.) if extracted from parent text
+                    if first_nested_item:
+                        nested_items.append(first_nested_item)
+                    
+                    # nested_struct_items already defined above (before Q3/Q4 pattern checks)
+                    
+                    # Collect nested items from generated subquestions
+                    for nested_idx, nested_struct in enumerate(nested_struct_items):
+                        if sq_idx + 1 + nested_idx < len(subquestions):
+                            nested_sq = subquestions[sq_idx + 1 + nested_idx].copy()
+                            nested_text = nested_sq.get("text", "").strip()
+                            
+                            # Extract the nested label from template (ii, iii, etc.)
+                            nested_label = nested_struct.get("label", f"ii" if nested_idx == 0 else f"iii" if nested_idx == 1 else "iv")
+                            
+                            # Remove label prefix from text if present (e.g., "i. ", "ii. ", "iii. ", "iv. ", "v. ")
+                            # CRITICAL: Remove ALL possible label patterns to avoid duplication
+                            clean_nested_text = nested_text.strip()
+                            # Remove patterns like "i. ", "ii. ", "iii. ", "iv. ", "v. " at the start
+                            clean_nested_text = re.sub(r'^(i{1,3}|iv|v)\.\s*', '', clean_nested_text, flags=re.IGNORECASE).strip()
+                            # Also remove patterns like "i ", "ii ", "iii ", "iv ", "v " (without period)
+                            clean_nested_text = re.sub(r'^(i{1,3}|iv|v)\s+', '', clean_nested_text, flags=re.IGNORECASE).strip()
+                            # Remove any duplicate label patterns that might remain
+                            clean_nested_text = re.sub(r'^(i{1,3}|iv|v)\.\s*(i{1,3}|iv|v)\.\s*', r'\2. ', clean_nested_text, flags=re.IGNORECASE).strip()
+                            
+                            # For Q4 pattern, ensure it starts with "Find" or "Write SQL queries to find"
+                            if is_q4_pattern:
+                                if not clean_nested_text.lower().startswith(("find", "write sql queries")):
+                                    # Try to extract the query part
+                                    if "find" in clean_nested_text.lower():
+                                        find_pos = clean_nested_text.lower().find("find")
+                                        query_part = clean_nested_text[find_pos + 4:].strip()
+                                        clean_nested_text = f"Find {query_part}"
+                            # For Q3 part (e), keep the text as-is (it should be "Provide Sarah...", "Assuming Emily...", etc.)
+                            # No need to modify the text for Q3 part (e)
+                            
+                            # Create nested item with proper label
+                            # PRIORITY: Use marks from template structure (past paper distribution)
+                            # If template has marks, use them; otherwise use generated marks; fallback to 0
+                            nested_marks = nested_struct.get("marks")
+                            if nested_marks is None:
+                                nested_marks = nested_sq.get("marks")
+                            if nested_marks is None:
+                                nested_marks = 0
+                            
+                            # CRITICAL: Text should NOT include label prefix - PDF renderer will add it based on the "label" field
+                            # Remove any remaining label prefixes (handle cases like "i. i. " or "ii. ii. ")
+                            while True:
+                                old_text = clean_nested_text
+                                # Remove label prefixes (with period or space) - remove ALL occurrences
+                                clean_nested_text = re.sub(r'^(i{1,3}|iv|v)[\.\s]+\s*', '', clean_nested_text, flags=re.IGNORECASE).strip()
+                                if clean_nested_text == old_text:
+                                    break  # No more labels to remove
+                            
+                            # Use clean text WITHOUT label prefix (label is stored separately in "label" field)
+                            final_text = clean_nested_text
+                            
+                            nested_items.append({
+                                "label": nested_label,
+                                "marks": int(nested_marks),
+                                "text": final_text
+                            })
+                        else:
+                            # Use template structure if generated subquestion doesn't exist
+                            nested_text = nested_struct.get("text", "").strip()
+                            nested_label = nested_struct.get("label", f"ii" if nested_idx == 0 else f"iii" if nested_idx == 1 else "iv")
+                            nested_items.append({
+                                "label": nested_label,
+                                "marks": int(nested_struct.get("marks") or 0),
+                                "text": nested_text
+                            })
+                    
+                    # Add nested items to parent
+                    parent_sq["subquestions"] = nested_items
+                    # CRITICAL: For ANY parent with nested subquestions, parent should have null marks
+                    # The marks are distributed among nested items, not the parent
+                    if nested_items:  # If there are nested items, parent should have None marks
+                        parent_sq["marks"] = None  # Parent has no marks when nested items have marks
+                    else:
+                        # Only set marks if there are NO nested items
+                        # Ensure parent marks is never None (default to 0 if missing)
+                        parent_marks = struct_item.get("marks")
+                        parent_sq["marks"] = int(parent_marks) if parent_marks is not None else 0
+                    restructured.append(parent_sq)
+                    sq_idx += 1 + len(nested_items)  # Skip the nested items in main list
+                else:
+                    # Parent subquestion doesn't exist, create it from template
+                    parent_sq = {
+                        "label": struct_item.get("label", "a"),
+                        "marks": struct_item.get("marks"),
+                        "text": "Write SQL Queries to perform the following:",
+                        "subquestions": []
+                    }
+                    
+                    # Add nested items from template
+                    for nested_struct in struct_item.get("nested_items", []):
+                        parent_sq["subquestions"].append({
+                            "label": nested_struct.get("label", "ii"),
+                            "marks": nested_struct.get("marks", 0),
+                            "text": nested_struct.get("text", "")
+                        })
+                    
+                    restructured.append(parent_sq)
+            else:
+                # Regular subquestion (not nested)
+                if sq_idx < len(subquestions):
+                    restructured.append(subquestions[sq_idx])
+                    sq_idx += 1
+                else:
+                    # Add from template if doesn't exist
+                    template_marks = struct_item.get("marks")
+                    restructured.append({
+                        "label": struct_item.get("label", "?"),
+                        "marks": int(template_marks) if template_marks is not None else 0,
+                        "text": struct_item.get("text", "")
+                    })
+        
+        return restructured
+
     def _handle_code_segment_references(self, parsed: dict, template: dict, slot: dict) -> dict:
         """
         Detect subquestions that reference "code segment given below" and add appropriate SQL code.
@@ -585,8 +1075,6 @@ class QuestionWriter(BaseAgent):
         Returns:
             Updated parsed dict with code segments inserted
         """
-        import re
-        
         subquestions = parsed.get("subquestions", [])
         question_text = parsed.get("text", "")
         pattern_label = template.get("pattern_label", "").lower()
@@ -635,11 +1123,29 @@ class QuestionWriter(BaseAgent):
                         # Check if question asks about "which type of statement" or similar
                         if "which" in sq_text and ("statement" in sq_text or "type" in sq_text):
                             # This is likely a JDBC/SQL statement type question
+                            # CRITICAL: Follow past paper template exactly - remove any hints that give away the answer
+                            # Template: "Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used."
+                            # DO NOT include hints like "SQL statements are used to..." or "DDL is used to..." - these give away the answer
+                            
+                            # Remove hints that give away the answer
                             updated_text = original_text
-                            # Ensure the question references the code segment
-                            if "code segment" not in sq_text:
-                                # Add reference if not present
-                                updated_text = original_text + " (Refer to the code segment shown above.)"
+                            # Remove phrases like "SQL statements are used to create tables" or "DDL is used to define"
+                            updated_text = re.sub(r'(sql\s+data\s+definition\s+language|ddl|sql\s+statements?)\s+(is\s+used\s+to|are\s+used\s+to|is\s+used\s+for|are\s+used\s+for)[^?]*[.,]?\s*', '', updated_text, flags=re.IGNORECASE)
+                            updated_text = re.sub(r'these?\s+statements?\s+(are\s+used\s+to|is\s+used\s+to|are\s+used\s+for|is\s+used\s+for)[^?]*[.,]?\s*', '', updated_text, flags=re.IGNORECASE)
+                            updated_text = re.sub(r'to\s+create\s+the\s+tables?\s+mentioned\s+in\s+this\s+scenario[^?]*[.,]?\s*', '', updated_text, flags=re.IGNORECASE)
+                            
+                            # Ensure it follows the exact template pattern: "Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used."
+                            if "which type" in updated_text.lower():
+                                # Extract the "which type" question part
+                                which_match = re.search(r'which\s+type[^?]*\?', updated_text, re.IGNORECASE)
+                                if which_match:
+                                    # Use the exact template pattern
+                                    updated_text = "Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used."
+                                else:
+                                    updated_text = "Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used."
+                            else:
+                                # If "which type" is missing, add it using the template
+                                updated_text = "Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used."
                         else:
                             updated_text = original_text
                     else:
@@ -650,6 +1156,29 @@ class QuestionWriter(BaseAgent):
                             original_text,
                             flags=re.IGNORECASE
                         )
+                        
+                        # CRITICAL: Also remove hints that give away the answer (for Q3 subquestion b)
+                        if "which" in updated_text.lower() and ("statement" in updated_text.lower() or "type" in updated_text.lower()):
+                            # Remove hints like "SQL statements are used to..." or "DDL is used to..."
+                            hint_patterns = [
+                                r'sql\s+data\s+definition\s+language[^?]*[.,]?\s*',
+                                r'ddl\s+is\s+used\s+to[^?]*[.,]?\s*',
+                                r'sql\s+statements?\s+are\s+used\s+to[^?]*[.,]?\s*',
+                                r'these?\s+statements?\s+are\s+used\s+to[^?]*[.,]?\s*',
+                                r'to\s+create\s+the\s+tables?\s+mentioned[^?]*[.,]?\s*'
+                            ]
+                            for pattern in hint_patterns:
+                                updated_text = re.sub(pattern, '', updated_text, flags=re.IGNORECASE)
+                            # Clean up multiple spaces
+                            updated_text = re.sub(r'\s+', ' ', updated_text).strip()
+                            
+                            # Ensure it follows the exact template pattern
+                            if "which type" in updated_text.lower() and "briefly explain" in updated_text.lower():
+                                # Keep it but ensure it matches template
+                                if "code segment" not in updated_text.lower():
+                                    updated_text = "Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used."
+                            elif "which type" not in updated_text.lower():
+                                updated_text = "Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used."
                     
                     # Insert code block directly into the subquestion text
                     # Format: Code block first, then the question text
@@ -673,8 +1202,6 @@ class QuestionWriter(BaseAgent):
         Returns:
             Updated parsed dict with fixed references
         """
-        import re
-        
         subquestions = parsed.get("subquestions", [])
         pattern_label = template.get("pattern_label", "").lower()
         
@@ -722,9 +1249,178 @@ class QuestionWriter(BaseAgent):
                             )
                             
                             sq["text"] = new_text
-                            self.log(f"    🔧 Fixed subquestion reference: ({start_ref}) to ({end_ref}) → ({start_label}) to ({end_label}) in subquestion {sq.get('label', idx)}")
+                            self.log(f"    🔧 Fixed subquestion reference: ({start_ref}) to ({end_ref}) -> ({start_label}) to ({end_label}) in subquestion {sq.get('label', idx)}")
                             break
         
+        return parsed
+    
+    def _fix_q3_scenario_placement(self, parsed: dict, template: dict, slot: dict) -> dict:
+        """
+        Fix Q3 scenario placement: scenario paragraph should be above part (c), not part (a).
+        
+        The scenario: "A university is developing a database system to manage its student records, 
+        courses, and faculty details efficiently. The database will include tables for students, 
+        courses, enrollments, and faculty. Each student can enroll in multiple courses, and each 
+        course can have multiple students. The faculty members will manage the courses and assign 
+        grades to the students. The database administrator is responsible for creating the database 
+        schema and ensuring its integrity and security. Write necessary SQL statements to maintain 
+        the database system."
+        
+        This should be placed above part (c), not part (a).
+        """
+        q_no = slot.get("question_no") or slot.get("slot_id", "")
+        if q_no not in ["Q3", "3"]:
+            return parsed
+        
+        subquestions = parsed.get("subquestions", [])
+        if len(subquestions) < 3:
+            return parsed
+        
+        # Find part (c) - index 2 (0-indexed: a=0, b=1, c=2)
+        part_c = None
+        part_c_idx = None
+        for idx, sq in enumerate(subquestions):
+            label = sq.get("label", "").lower().strip()
+            if label == "c" or (isinstance(label, str) and label.strip().rstrip(")") == "c"):
+                part_c = sq
+                part_c_idx = idx
+                break
+        
+        if not part_c or part_c_idx is None:
+            return parsed
+        
+        # Check if part (c) text contains "Write necessary SQL statements" or similar
+        part_c_text = part_c.get("text", "").lower()
+        needs_scenario = (
+            "write necessary sql statements" in part_c_text or
+            "write sql statements" in part_c_text or
+            "write necessary" in part_c_text
+        )
+        
+        if not needs_scenario:
+            return parsed
+        
+        # Check if scenario is already in part (c) text
+        scenario_keywords = ["university", "developing", "database system", "student records", "courses", "faculty"]
+        has_scenario = any(keyword in part_c_text for keyword in scenario_keywords)
+        
+        # Check part (a) for scenario
+        part_a = subquestions[0] if len(subquestions) > 0 else None
+        if part_a:
+            part_a_text = part_a.get("text", "")
+            part_a_has_scenario = any(keyword in part_a_text.lower() for keyword in scenario_keywords)
+            
+            if part_a_has_scenario and not has_scenario:
+                # Scenario is in part (a) but should be in part (c) - move it
+                # Extract scenario from part (a) - scenario typically ends before "In Type 2 Driver" or "JDBC"
+                scenario_pattern = r'(A\s+university.*?)(?:In\s+Type\s+2\s+Driver|JDBC|Accept\s+or\s+refute|which\s+type)'
+                scenario_match = re.search(scenario_pattern, part_a_text, re.IGNORECASE | re.DOTALL)
+                if scenario_match:
+                    scenario_text = scenario_match.group(1).strip()
+                    # Remove scenario from part (a) - keep only the JDBC statement
+                    part_a["text"] = re.sub(scenario_pattern, r'\2', part_a_text, flags=re.IGNORECASE | re.DOTALL).strip()
+                    # Clean up any leading/trailing whitespace
+                    part_a["text"] = part_a["text"].strip()
+                    # Add scenario to part (c)
+                    current_c_text = part_c.get("text", "")
+                    if scenario_text not in current_c_text:
+                        part_c["text"] = scenario_text + "\n\n" + current_c_text
+                        self.log(f"    🔧 Moved scenario from Q3 part (a) to part (c)")
+            elif part_a_has_scenario and has_scenario:
+                # Scenario is in both - remove from part (a)
+                scenario_pattern = r'(A\s+university.*?)(?:In\s+Type\s+2\s+Driver|JDBC|Accept\s+or\s+refute|which\s+type)'
+                part_a["text"] = re.sub(scenario_pattern, r'\2', part_a_text, flags=re.IGNORECASE | re.DOTALL).strip()
+                part_a["text"] = part_a["text"].strip()
+                self.log(f"    🔧 Removed scenario from Q3 part (a) - scenario should only be in part (c)")
+        
+        # 2. Handle part (e) scenario placement - ensure scenario stays in part (e) parent text
+        part_e = None
+        for idx, sq in enumerate(subquestions):
+            label = sq.get("label", "").lower().strip()
+            if label == "e" or (isinstance(label, str) and label.strip().rstrip(")") == "e"):
+                part_e = sq
+                break
+        
+        if part_e:
+            part_e_text = part_e.get("text", "")
+            # Check if part (e) has the financial institution scenario or healthcare scenario
+            has_financial_scenario = (
+                "financial institution" in part_e_text.lower() or
+                "developing a robust database system" in part_e_text.lower()
+            )
+            has_healthcare_scenario = (
+                "healthcare organization" in part_e_text.lower() or
+                "healthcare" in part_e_text.lower() and "database system" in part_e_text.lower()
+            )
+            
+            # The scenario should be in the parent part (e) text, before "Write a T-SQL statement"
+            # Ensure scenario is not moved to nested items
+            if has_financial_scenario or has_healthcare_scenario:
+                # Check nested subquestions if they exist
+                nested_subs = part_e.get("subquestions", [])
+                for nested_sq in nested_subs:
+                    nested_text = nested_sq.get("text", "")
+                    # If a nested item has the scenario keywords but shouldn't (scenario should be in parent)
+                    if ("financial institution" in nested_text.lower() or "healthcare organization" in nested_text.lower()) and "write a t-sql statement" not in nested_text.lower():
+                        # Remove scenario from nested item - it should only be in parent
+                        nested_sq["text"] = re.sub(r'A\s+(?:financial\s+institution|healthcare\s+organization).*?\.', '', nested_text, flags=re.IGNORECASE | re.DOTALL).strip()
+                        self.log(f"    🔧 Removed scenario from Q3 part (e) nested item - scenario should be in parent text")
+            
+            # Ensure the scenario paragraph is properly placed in parent text
+            # Scenario should come before "Write a T-SQL statement" in the parent text
+            if "write a t-sql statement" in part_e_text.lower() or "write t-sql statement" in part_e_text.lower():
+                # Check if scenario is before the T-SQL statement
+                t_sql_pos = part_e_text.lower().find("write")
+                if t_sql_pos > 0:
+                    scenario_part = part_e_text[:t_sql_pos].strip()
+                    # If scenario is present and properly positioned, log success
+                    if len(scenario_part) > 50 and ("financial institution" in scenario_part.lower() or "healthcare organization" in scenario_part.lower() or "developing" in scenario_part.lower()):
+                        self.log(f"    ✅ Q3 part (e) scenario is correctly placed in parent text above nested subquestions")
+        
+        # 3. CRITICAL: Remove healthcare/financial institution scenario from main question text
+        # The scenario should ONLY be in part (e), not in the main question text
+        main_text = parsed.get("text", "")
+        if main_text:
+            # Check for healthcare organization scenario in main text
+            healthcare_patterns = [
+                r'A\s+healthcare\s+organization\s+is\s+implementing.*?system\.',
+                r'A\s+healthcare\s+organization\s+aims\s+to\s+manage.*?system\.',
+                r'Different\s+roles\s+are\s+assigned\s+to\s+team\s+members.*?system\.',
+            ]
+            
+            # Check for financial institution scenario in main text
+            financial_patterns = [
+                r'A\s+financial\s+institution.*?system\.',
+                r'A\s+software\s+company.*?system\.',
+            ]
+            
+            # Remove healthcare scenario from main text if present
+            for pattern in healthcare_patterns:
+                if re.search(pattern, main_text, re.IGNORECASE | re.DOTALL):
+                    # Check if part (e) has the scenario (it should)
+                    if part_e and ("healthcare" in part_e.get("text", "").lower() or "healthcare organization" in part_e.get("text", "").lower()):
+                        # Remove from main text
+                        main_text = re.sub(pattern, '', main_text, flags=re.IGNORECASE | re.DOTALL).strip()
+                        # Clean up multiple spaces and newlines
+                        main_text = re.sub(r'\s+', ' ', main_text).strip()
+                        parsed["text"] = main_text
+                        self.log(f"    🔧 Removed healthcare scenario from Q3 main question text - scenario should only be in part (e)")
+                        break
+            
+            # Remove financial institution scenario from main text if present
+            for pattern in financial_patterns:
+                if re.search(pattern, main_text, re.IGNORECASE | re.DOTALL):
+                    # Check if part (e) has the scenario (it should)
+                    if part_e and ("financial institution" in part_e.get("text", "").lower() or "developing a robust database system" in part_e.get("text", "").lower()):
+                        # Remove from main text
+                        main_text = re.sub(pattern, '', main_text, flags=re.IGNORECASE | re.DOTALL).strip()
+                        # Clean up multiple spaces and newlines
+                        main_text = re.sub(r'\s+', ' ', main_text).strip()
+                        parsed["text"] = main_text
+                        self.log(f"    🔧 Removed financial institution scenario from Q3 main question text - scenario should only be in part (e)")
+                        break
+        
+        parsed["subquestions"] = subquestions
         return parsed
 
     def _generate_sql_code_for_context(self, question_text: str, pattern_label: str, subquestion_text: str) -> str:
@@ -787,6 +1483,7 @@ WHERE PatientID = 'P001';"""
     def _build_generation_prompt(self, slot, template, context, global_context, feedback=None, *, banned_topics=None) -> str:
         """Mode 1: Pure Generation from Constraints (No past text shown)."""
         
+        q_no = slot.get("question_no") or slot.get("slot_id", "")
         topic = slot.get('topics', ['General'])[0]
         structure_fingerprint = template.get("required_structure") or [{"label": "a", "marks": slot.get("target_marks")}]
         pattern_label = template.get('pattern_label', topic).lower()
@@ -851,6 +1548,17 @@ WHERE PatientID = 'P001';"""
         - Follow the exact structure and style of historical exam questions
         - Do NOT introduce topics unrelated to the core syllabus or past paper patterns
         
+        ⚠️ CRITICAL: NO HINTS OR ANSWERS IN QUESTIONS ⚠️
+        - Questions MUST challenge students' understanding and require them to apply knowledge
+        - DO NOT include hints, answers, or solution steps within the question text
+        - DO NOT state what type of statement/query/approach is used - ask the student to identify it
+        - DO NOT say "SQL statements are used to..." - instead ask "Which type of statements is used..."
+        - DO NOT include phrases that give away the answer (e.g., "SQL statements are used to create tables" - this tells the answer)
+        - Questions should assess problem-solving abilities, not provide solutions
+        - Example CORRECT: "Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used."
+        - Example INCORRECT: "SQL statements are used to create the tables mentioned in this scenario. Which type of statements is used..."
+        - Focus on asking questions that require students to analyze, identify, explain, or solve - not questions that tell them what to do
+        
         🚫 STRICT NON-DATABASE TOPIC PROHIBITION 🚫
         ABSOLUTELY DO NOT include any topics from:
         - Networking: TCP/IP, routing, switching, packets, datagrams, OSI model, network layers, sockets, DNS, DHCP, VPN, firewall
@@ -913,7 +1621,12 @@ WHERE PatientID = 'P001';"""
         5. **VALID JSON ONLY**: Output must be valid JSON matching the exact schema below. No syntax errors.
         
         {"6. **ER/EER QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_er_question else ""}{"The question stem MUST include a COMPREHENSIVE scenario block (4-7 sentences) describing:" if is_er_question else ""}
-        {"   - MINIMUM 4-5 distinct entities with their attributes" if is_er_question else ""}
+        {"   - MINIMUM 4 distinct entities with their attributes (at least 4 entities)" if is_er_question else ""}
+        {"   - ⚠️ CRITICAL: Each entity MUST have AT LEAST 2-3 attributes defined. DO NOT create entities without attributes." if is_er_question else ""}
+        {"   - ⚠️ Example CORRECT: 'Student entity has attributes: StudentID, Name, Address, PhoneNumbers' - has multiple attributes" if is_er_question else ""}
+        {"   - ⚠️ Example WRONG: 'Student entity exists' - no attributes listed, will be REJECTED" if is_er_question else ""}
+        {"   - ⚠️ ALL entities MUST be connected through relationships - NO standalone entities" if is_er_question else ""}
+        {"   - ⚠️ ISA hierarchies MUST be subtype/supertype only (e.g., Student → GraduateStudent, NOT Student → Course)" if is_er_question else ""}
         {"   - At least ONE composite attribute (e.g., Address with Street, City, ZipCode)" if is_er_question else ""}
         {"   - At least ONE multivalued attribute (e.g., PhoneNumbers, EmailAddresses)" if is_er_question else ""}
         {"   - Descriptive attributes attached to relationships (e.g., EnrollmentDate on Enrolls relationship)" if is_er_question else ""}
@@ -929,17 +1642,44 @@ WHERE PatientID = 'P001';"""
         {"   Then subquestions should: identify entities/attributes, identify relationships/cardinalities, draw ER/EER diagram (use [DIAGRAM PLACEHOLDER]), map to relational schema." if is_er_question else ""}
         
         {"6. **NORMALIZATION QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_norm_question else ""}{"The question stem MUST include BOTH of the following:" if is_norm_question else ""}
-        {"   - A relation schema with 5-6 attributes in EXACT format: 'Consider a relation R(A, B, C, D, E) with...' OR 'Consider the following relation schema: RelationName (Attr1, Attr2, Attr3, Attr4, Attr5)'" if is_norm_question else ""}
-        {"   - Functional dependencies in EXACT format using arrow notation: 'F = {{A→B, B→C, C→D}}' OR 'FD1: A → B, FD2: B → C, FD3: CD → E' OR 'functional dependencies: A→B, B→C, AC→D'" if is_norm_question else ""}
-        {"   - Use REAL attribute names (e.g., StudentID, CourseCode, Grade) OR notation format (A, B, C, D, E) - NOT both mixed" if is_norm_question else ""}
-        {"   - Format FDs to make key identification challenging (e.g., use composite determinants like AB→C, or transitive dependencies)" if is_norm_question else ""}
+        {"   - A relation schema with EXACTLY 5-6 attributes using ALPHABET LETTERS (A, B, C, D, E, F) in EXACT format: 'Consider a relation R(A, B, C, D, E) with...' OR 'Consider a relation R(A, B, C, D, E, F) with...'" if is_norm_question else ""}
+        {"   - Functional dependencies in EXACT format using arrow notation: 'F = {{A->B, B->C, C->D}}' OR 'F = {{A->BC, B->D, C->EF, AC->G}}' OR 'F={{AB->C, B->D, C->E, DE->F}}'" if is_norm_question else ""}
+        {"   - ⚠️ MANDATORY: Use ONLY alphabet letters (A, B, C, D, E, F, G) for attributes - DO NOT use real attribute names like StudentID, CourseCode, etc." if is_norm_question else ""}
+        {"   - Format FDs to make key identification challenging and complex:" if is_norm_question else ""}
+        {"     * Use composite determinants (e.g., AB->C, AC->G, DE->F)" if is_norm_question else ""}
+        {"     * Use transitive dependencies (e.g., A->B, B->C, C->D)" if is_norm_question else ""}
+        {"     * Use multiple attributes on right side (e.g., A->BC, C->EF)" if is_norm_question else ""}
+        {"     * Make it difficult for students to easily figure out the key" if is_norm_question else ""}
         {"   " if is_norm_question else ""}
-        {"   EXAMPLE OF CORRECT FORMAT (with 5-6 attributes):" if is_norm_question else ""}
-        {"   'Consider a relation R(StudentID, CourseCode, InstructorID, Grade, Semester, Year) with the following set of functional dependencies F over R: F={{ StudentID, CourseCode → Grade, CourseCode → InstructorID, InstructorID → Department, Semester, Year → CourseCode }}'" if is_norm_question else ""}
-        {"   OR using notation:" if is_norm_question else ""}
-        {"   'Consider a relation R(A, B, C, D, E, F) with the following set of functional dependencies F over R: F={{AB→C, B→D, C→E, DE→F}}'" if is_norm_question else ""}
+        {"   EXAMPLE OF CORRECT FORMAT (MANDATORY - USE THIS PATTERN):" if is_norm_question else ""}
+        {"   'Consider a relation R(A, B, C, D, E, F) with the following set of functional dependencies F over R: F={{AB->C, B->D, CD->E, E->A, F->B}}'" if is_norm_question else ""}
+        {"   OR:" if is_norm_question else ""}
+        {"   'Consider a relation R(A, B, C, D, E) with the following set of functional dependencies over R: F={{AC->B, B->D, CD->E, E->A}}'" if is_norm_question else ""}
+        {"   OR:" if is_norm_question else ""}
+        {"   'Consider a relation R(A, B, C, D, E, F) with the following set of functional dependencies over R: F={{AB->CD, C->E, D->F, EF->A}}'" if is_norm_question else ""}
         {"   " if is_norm_question else ""}
-        {"   ⚠️ WITHOUT A RELATION SCHEMA WITH 5-6 ATTRIBUTES AND FUNCTIONAL DEPENDENCIES IN THE STEM, THE QUESTION WILL BE REJECTED IMMEDIATELY." if is_norm_question else ""}
+        {"   ⚠️ CRITICAL REQUIREMENTS:" if is_norm_question else ""}
+        {"   - MUST use alphabet letters (A, B, C, D, E, F) - NOT real attribute names" if is_norm_question else ""}
+        {"   - MUST have exactly 5-6 attributes in the relation" if is_norm_question else ""}
+        {"   - MUST use arrow notation (->) for functional dependencies" if is_norm_question else ""}
+        {"   - ⚠️ MUST make FDs complex so students CANNOT easily figure out the key - use composite determinants (AB->C, AC->D), multiple attributes on right side (A->BC), and transitive dependencies that obscure the key" if is_norm_question else ""}
+        {"   - ⚠️ AVOID simple patterns like A->B, B->C, C->D, A->E where A is obviously the key - instead use patterns like AB->C, B->D, CD->E where the key requires closure calculation" if is_norm_question else ""}
+        {"   - ⚠️ DO NOT add extra descriptive text like 'In a company database' or 'attributes represent different aspects' - ONLY include the relation schema and functional dependencies" if is_norm_question else ""}
+        {"   - WITHOUT A RELATION SCHEMA WITH 5-6 ALPHABET LETTER ATTRIBUTES AND FUNCTIONAL DEPENDENCIES IN THE STEM, THE QUESTION WILL BE REJECTED IMMEDIATELY." if is_norm_question else ""}
+        {"   " if is_norm_question else ""}
+        {"   ⚠️ VALID NORMALIZATION PROBLEM CONSTRAINTS (CRITICAL - MUST FOLLOW):" if is_norm_question else ""}
+        {"   1. Candidate Key Requirement: The set of Functional Dependencies MUST allow for the identification of at least one Candidate Key." if is_norm_question else ""}
+        {"      - Ensure that there exists at least one set of attributes whose closure covers all attributes in the relation" if is_norm_question else ""}
+        {"      - Example: If R(A, B, C, D, E) with F={{A->B, B->C, C->D, D->E}}, then A is a candidate key (A+ = {A, B, C, D, E})" if is_norm_question else ""}
+        {"   2. Transitive Dependency Requirement: Include at least one transitive dependency (e.g., X->Y and Y->Z) if testing 3NF." if is_norm_question else ""}
+        {"      - This is essential for demonstrating 3NF violations" if is_norm_question else ""}
+        {"      - Example: A->B, B->C creates a transitive dependency A->C (transitive through B)" if is_norm_question else ""}
+        {"   3. Non-Circular FD Set: Ensure the FD set is not 'circular' unless specifically intended to have multiple candidate keys." if is_norm_question else ""}
+        {"      - Avoid patterns like A->B, B->C, C->A unless you want multiple candidate keys" if is_norm_question else ""}
+        {"      - If multiple candidate keys are intended, ensure they are clearly identifiable" if is_norm_question else ""}
+        {"   4. Full Relation Schema: Always provide the complete relation schema R(A, B, C, D, E) so the universal set of attributes is explicitly known." if is_norm_question else ""}
+        {"      - Format: 'Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{...}}'" if is_norm_question else ""}
+        {"      - All attributes in the relation must be listed explicitly" if is_norm_question else ""}
         {"   Then subquestions should ask for normalization steps to 3NF/BCNF and final decomposition." if is_norm_question else ""}
         
         {"6. **RELATIONAL ALGEBRA QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_rel_algebra_question else ""}{"The question stem MUST include:" if is_rel_algebra_question else ""}
@@ -947,6 +1687,29 @@ WHERE PatientID = 'P001';"""
         {"   - ALL relations with their attributes listed explicitly in the format: 'relation_name (attr1, attr2, attr3)'" if is_rel_algebra_question else ""}
         {"   - Each relation must be on a separate line for clarity" if is_rel_algebra_question else ""}
         {"   " if is_rel_algebra_question else ""}
+        {"7. **Q4 SCHEMA REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   The question stem MUST include a COMPREHENSIVE database schema in the EXACT format from past papers:" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - Format: 'Consider the following schema of a database designed for a [Domain]: Table1 (primaryKey: type, attr2: type, attr3: type) Table2 (primaryKey: type, attr2: type, attr3: type) ...'" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - Primary keys MUST be the FIRST attribute in each table (e.g., bookId, memberId, loanId)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - Primary keys should be indicated (in PDF they are underlined, in text they are the first attribute)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - ALL attributes MUST include data types (e.g., int, varchar(50), date, real)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - Include 3-5 tables with meaningful relationships. You can use ANY domain: Library (Book, Member, Loan, Fine), Hospital (Patient, Doctor, Appointment), University (Student, Course, Enrollment), School (Student, Teacher, Class), E-commerce (Product, Order, Customer), Airline (Flight, Passenger, Booking), etc." if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - ⚠️🚨 CRITICAL ATTRIBUTE REQUIREMENT (MANDATORY - ZERO TOLERANCE):" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Each table MUST have AT LEAST 3-4 attributes total (primary key + 2-3 other attributes)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Tables with ONLY 2 attributes (primary key + 1 other) will be AUTOMATICALLY REJECTED" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Tables with ONLY 1 attribute (just primary key) will be AUTOMATICALLY REJECTED" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * ⚠️ BEFORE OUTPUTTING: Count attributes in EACH table - if any table has < 3 attributes, ADD MORE ATTRIBUTES" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - ✅ CORRECT EXAMPLES (MUST FOLLOW THIS PATTERN):" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Patient (patientId: int, name: varchar(100), address: varchar(150), dob: date) - 4 attributes ✅" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Book (bookId: int, title: varchar(100), author: varchar(50), isbn: varchar(20), publicationYear: int) - 5 attributes ✅" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Student (studentId: int, name: varchar(100), email: varchar(50), phone: varchar(15)) - 4 attributes ✅" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - ❌ WRONG EXAMPLES (WILL BE REJECTED):" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Patient (patientId: int, name: varchar(100)) - only 2 attributes ❌ REJECTED" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Book (bookId: int) - only 1 attribute ❌ REJECTED" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Student (studentId: int, name: varchar(100)) - only 2 attributes ❌ REJECTED" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - After the schema, include a description of each table explaining what it stores" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - Example format: 'The 'Book' table stores information about books available in the library, including unique book ID, title, author, ISBN, publication year, genre, and the number of available copies.'" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - DO NOT use simple format like 'Given a database with tables: Customers (id, name, email)' - use full schema with data types" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
         {"   EXAMPLE OF CORRECT FORMAT (with newlines between each line):" if is_rel_algebra_question else ""}
         {"   'Consider the following relational database schema containing airline flight information." if is_rel_algebra_question else ""}
         {"   Here the passenger relation gives the details of the passengers who book flights." if is_rel_algebra_question else ""}
@@ -984,7 +1747,14 @@ WHERE PatientID = 'P001';"""
         6. **JDBC API RULE**: 
            - If pattern mentions JDBC API, Type 2 Driver, or Java database connectivity, these are VALID database topics
            - Preserve these topics exactly as they appear in the pattern
-        7. ONLY change scenario-specific details (person names, organization names, database names, entity names, relation names)
+        7. {"**Q4 SCHEMA CONSISTENCY RULE (CRITICAL - OVERRIDES PATTERN PRESERVATION)**: " if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else "ONLY change scenario-specific details (person names, organization names, database names, entity names, relation names)"}
+           {"   - ⚠️ FOR Q4 ONLY: ALL subquestions (parts a, b, c) MUST reference ONLY the tables/entities YOU define in YOUR schema above" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+           {"   - ⚠️ You can use ANY domain: Library (Book, Member, Loan, Fine), Hospital (Patient, Doctor, Appointment), University (Student, Course, Enrollment), School (Student, Teacher, Class), E-commerce (Product, Order, Customer), Airline (Flight, Passenger, Booking), etc." if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+           {"   - ⚠️ Template patterns use library domain (Member, Fine) - you MUST adapt ALL references to match YOUR chosen domain" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+           {"   - ⚠️ Example adaptations: 'Member' → 'Patient' (hospital) or 'Student' (university); 'Fine' → 'Appointment' (hospital) or 'Enrollment' (university); 'TotalFineAmount' → 'TotalAppointmentAmount' (hospital) or 'TotalEnrollmentFee' (university)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+           {"   - ⚠️ Adapt concepts too: 'fines' → 'appointment fees' (hospital) or 'course fees' (university); 'overdue' → 'missed' (hospital) or 'late enrollment' (university)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+           {"   - ⚠️ Template patterns are GUIDES - you MUST adapt table names, column names, concepts, and entities to match YOUR schema domain" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+           {"   - ⚠️ VIOLATION: If you generate ANY schema but parts (b) and (c) reference tables/concepts from a different domain, the question will be REJECTED" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
         8. Keep ALL task verbs, qualifiers ("Briefly", "Assuming", etc.), and instruction structure EXACTLY as shown
         
         **VALIDATION CHECKLIST (Before outputting):**
@@ -1043,6 +1813,22 @@ WHERE PatientID = 'P001';"""
         - All subquestions must be semantically distinct.
         """
         
+        # Add schema consistency rule for Q4 SQL questions
+        if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower():
+            prompt += (
+                "\n\n"
+                "⚠️ CRITICAL SCHEMA CONSISTENCY RULE FOR Q4:\n"
+                "ALL subquestions (parts a, b, c) MUST reference ONLY the tables/entities you define in the schema above.\n"
+                "- You can use ANY domain: Library (Book, Member, Loan, Fine), Hospital (Patient, Doctor, Appointment), University (Student, Course, Enrollment), School (Student, Teacher, Class), E-commerce (Product, Order, Customer), Airline (Flight, Passenger, Booking), etc.\n"
+                "- Template patterns use library domain (Member, Fine) - you MUST adapt ALL references to match YOUR chosen domain.\n"
+                "- Adapt table names: 'Member' → 'Patient' (hospital) or 'Student' (university); 'Fine' → 'Appointment' (hospital) or 'Enrollment' (university).\n"
+                "- Adapt column names: 'TotalFineAmount' → 'TotalAppointmentAmount' (hospital) or 'TotalEnrollmentFee' (university).\n"
+                "- Adapt concepts: 'fines' → 'appointment fees' (hospital) or 'course fees' (university); 'overdue' → 'missed' (hospital) or 'late enrollment' (university).\n"
+                "- Example: If template says 'Members' table but you generated 'Patients' table, change 'Members' to 'Patients' AND adapt concepts (fines → appointment fees).\n"
+                "- Example: If template says 'Fine' table but you generated 'Appointment' table, adapt the function/trigger to work with 'Appointment' AND adapt column names ('TotalFineAmount' → 'TotalAppointmentAmount').\n"
+                "⚠️ VIOLATION OF THIS RULE WILL CAUSE IMMEDIATE REJECTION.\n"
+            )
+        
         if feedback:
             prompt += f"\n\nCRITIC FEEDBACK FROM PREVIOUS ATTEMPT (YOU MUST FIX THESE):\n{feedback}\n"
             
@@ -1050,6 +1836,7 @@ WHERE PatientID = 'P001';"""
 
     
     def _build_paraphrase_prompt(self, slot, template, context, global_context, feedback=None, *, banned_topics=None) -> str:
+        q_no = slot.get("question_no") or slot.get("slot_id", "")
         """Mode 2: Paraphrasing (Keep structure, change content)."""
         pattern_label = template.get('pattern_label', '').lower()
         is_er_question = "er" in pattern_label or "eer" in pattern_label or "diagram" in pattern_label or "schema" in pattern_label
@@ -1143,7 +1930,7 @@ WHERE PatientID = 'P001';"""
            **FOR EACH SUB-QUESTION:**
            - Look at the "Instruction Pattern" provided in the structure above
            - Copy the EXACT instruction wording from that pattern
-           - ONLY change scenario-specific details (person names, organization names, database names, entity names, relation names)
+           {"   - ⚠️ **Q4 SCHEMA CONSISTENCY (CRITICAL - OVERRIDES PATTERN PRESERVATION)**: For Q4 ONLY, ALL subquestions MUST reference ONLY the tables/entities YOU define in YOUR schema. You can use ANY domain (Library, Hospital, University, School, E-commerce, Airline, etc.). Template patterns use library domain - adapt table names ('Member' → 'Patient'/'Student'), column names ('TotalFineAmount' → domain-appropriate), and concepts ('fines' → domain-appropriate) to match YOUR schema." if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else "   - ONLY change scenario-specific details (person names, organization names, database names, entity names, relation names)"}
            - Keep ALL task verbs, qualifiers, and instruction structure EXACTLY as shown
            
            **EXAMPLES:**
@@ -1211,10 +1998,51 @@ WHERE PatientID = 'P001';"""
         {"9. **ER/EER QUESTION REQUIREMENTS**: " if is_er_question else ""}{"The question stem MUST include a scenario block (2-5 sentences) describing entities, relationships, and attributes. Then subquestions should: identify entities/attributes, identify relationships/cardinalities, draw ER/EER diagram (use [DIAGRAM PLACEHOLDER]), map to relational schema." if is_er_question else ""}
         
         {"9. **NORMALIZATION QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_norm_question else ""}{"The question stem MUST include BOTH:" if is_norm_question else ""}
-        {"   - A relation schema in EXACT format: 'Consider a relation R(A, B, C, D) with...' OR 'Consider the following relation schema: RelationName (Attr1, Attr2, Attr3)'" if is_norm_question else ""}
-        {"   - Functional dependencies in EXACT format: 'F = {{A->B, B->C}}' OR 'FD1: A → B, FD2: B → C'" if is_norm_question else ""}
-        {"   ⚠️ WITHOUT A RELATION SCHEMA AND FUNCTIONAL DEPENDENCIES IN THE STEM, THE QUESTION WILL BE REJECTED IMMEDIATELY." if is_norm_question else ""}
+        {"   - A relation schema with EXACTLY 5-6 attributes using ALPHABET LETTERS (A, B, C, D, E, F) in EXACT format: 'Consider a relation R(A, B, C, D, E) with...' OR 'Consider a relation R(A, B, C, D, E, F) with...'" if is_norm_question else ""}
+        {"   - Functional dependencies in EXACT format using arrow notation: 'F = {{A->BC, B->D, C->EF, AC->G}}' OR 'F={{AB->C, B->D, C->E, DE->F}}'" if is_norm_question else ""}
+        {"   - ⚠️ MANDATORY: Use ONLY alphabet letters (A, B, C, D, E, F, G) for attributes - DO NOT use real attribute names" if is_norm_question else ""}
+        {"   - Format FDs to make key identification challenging: use composite determinants (AB->C), transitive dependencies (A->B, B->C), multiple attributes on right side (A->BC)" if is_norm_question else ""}
+        {"   ⚠️ CRITICAL: WITHOUT A RELATION SCHEMA WITH 5-6 ALPHABET LETTER ATTRIBUTES AND COMPLEX FUNCTIONAL DEPENDENCIES IN THE STEM, THE QUESTION WILL BE REJECTED IMMEDIATELY." if is_norm_question else ""}
         {"   Then subquestions should ask for normalization steps to 3NF/BCNF and final decomposition." if is_norm_question else ""}
+        
+        {"10. **Q4 SCHEMA REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   The question stem MUST include a COMPREHENSIVE database schema in the EXACT format from past papers:" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - Format: 'Consider the following schema of a database designed for a [Domain]: Table1 (primaryKey: type, attr2: type, attr3: type) Table2 (primaryKey: type, attr2: type, attr3: type) ...'" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - Primary keys MUST be the FIRST attribute in each table (e.g., bookId, memberId, loanId) - these are underlined in PDF" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - ALL attributes MUST include data types (e.g., int, varchar(50), date, real)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - Include 3-5 tables with meaningful relationships. You can use ANY domain: Library (Book, Member, Loan, Fine), Hospital (Patient, Doctor, Appointment), University (Student, Course, Enrollment), School (Student, Teacher, Class), E-commerce (Product, Order, Customer), Airline (Flight, Passenger, Booking), etc." if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - After the schema, include a description of each table explaining what it stores" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - EXAMPLE FROM PAST PAPER (MUST FOLLOW THIS EXACT FORMAT - NO DEVIATIONS):" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   Format: 'Consider the following schema of a database designed for a [ACTUAL_DOMAIN_NAME]: Table1 (primaryKeyId: int, attr2: varchar(50), attr3: date) Table2 (primaryKeyId: int, attr2: varchar(50)) ... The Table1 table stores information about [description]. The Table2 table holds details about [description].'" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - CRITICAL REQUIREMENTS:" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Replace [ACTUAL_DOMAIN_NAME] with real domain (Library, Hospital, University, School, E-commerce, Airline, etc.) - DO NOT leave [Domain] placeholder" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Every table MUST have primary key as FIRST attribute (e.g., bookId: int, memberId: int)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Every attribute MUST have data type (int, varchar(50), date, real, etc.)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * MUST have 3-5 tables (not 2, not 6)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * ⚠️🚨 CRITICAL ATTRIBUTE REQUIREMENT (MANDATORY - ZERO TOLERANCE):" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"       - Each table MUST have AT LEAST 3-4 attributes total (primary key + 2-3 other attributes)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"       - Tables with ONLY 2 attributes (primary key + 1 other) will be AUTOMATICALLY REJECTED" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"       - Tables with ONLY 1 attribute (just primary key) will be AUTOMATICALLY REJECTED" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"       - ⚠️ BEFORE OUTPUTTING: Count attributes in EACH table - if any table has < 3 attributes, ADD MORE ATTRIBUTES" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * ✅ CORRECT EXAMPLES (MUST FOLLOW THIS PATTERN):" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"       - Patient (patientId: int, name: varchar(100), address: varchar(150), dob: date) - 4 attributes ✅" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"       - Book (bookId: int, title: varchar(100), author: varchar(50), isbn: varchar(20), publicationYear: int) - 5 attributes ✅" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"       - Student (studentId: int, name: varchar(100), email: varchar(50), phone: varchar(15)) - 4 attributes ✅" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * ❌ WRONG EXAMPLES (WILL BE REJECTED):" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"       - Patient (patientId: int, name: varchar(100)) - only 2 attributes ❌ REJECTED" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"       - Book (bookId: int) - only 1 attribute ❌ REJECTED" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"       - Student (studentId: int, name: varchar(100)) - only 2 attributes ❌ REJECTED" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * MUST include description for EACH table after schema (format: The TableName table stores/holds/manages...)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - DO NOT use simple format like 'Given a database with tables: Customers (id, name, email)' - use full schema with data types" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"   - ⚠️ CRITICAL Q4 STRUCTURE REQUIREMENT (MANDATORY):" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Part (a) MUST have nested subquestions (i, ii, iii)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Part (a) parent text: 'Write SQL Queries to perform the following: i. Find [something]...'" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Part (a) nested item (ii): MUST be a SQL query starting with 'Find' (e.g., 'Find the [entity] who has...' or 'Find the [attributes] of [entities]...')" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Part (a) nested item (iii): MUST be a SQL query starting with 'Find' (e.g., 'Find the [attributes] of [entities]...')" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Part (b): MUST be 'Create a function to calculate...' (NOT in part (a) nested items)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * Part (c): MUST be 'Create a trigger that automatically updates...' (NOT in part (a) nested items)" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * ⚠️ VIOLATION: If part (a) nested items (ii, iii) contain 'Create a function' or 'Create a trigger', the question will be REJECTED" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
+        {"     * ⚠️ CORRECT STRUCTURE: Part (a) nested items = SQL queries (Find), Part (b) = Function, Part (c) = Trigger" if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower() else ""}
         
         Output valid JSON (STRICT SCHEMA):
         {{
@@ -1235,6 +2063,38 @@ WHERE PatientID = 'P001';"""
         - Marks must sum exactly to {slot.get('target_marks')}.
         - All subquestions must be semantically distinct.
         """
+
+        # Add schema consistency rule for Q4 SQL questions
+        if q_no and q_no in ["Q4", "4"] and "sql" in pattern_label.lower():
+            base_prompt += (
+                "\n\n"
+                "🚨 CRITICAL SCHEMA CONSISTENCY RULE FOR Q4 (MANDATORY - ZERO TOLERANCE):\n"
+                "ALL subquestions (parts a, b, c) MUST reference ONLY the tables/entities you define in YOUR schema above.\n"
+                "\n"
+                "⚠️ CRITICAL RULES:\n"
+                "1. **SCHEMA FIRST**: Before writing parts (b) and (c), look at YOUR schema in part (a) and identify ALL table names.\n"
+                "2. **NO CROSS-DOMAIN REFERENCES**: If your schema uses Hospital domain (Patient, Doctor, Appointment), parts (b) and (c) MUST use ONLY these tables.\n"
+                "3. **NO TEMPLATE TABLES**: Template patterns mention 'Member', 'Fine', 'Book' - these are EXAMPLES only. You MUST use YOUR schema tables.\n"
+                "4. **FUNCTION/TRIGGER CONSISTENCY**: Parts (b) and (c) functions/triggers MUST work with YOUR schema tables, not template tables.\n"
+                "\n"
+                "✅ CORRECT EXAMPLES:\n"
+                "- Schema: Hospital (Patient, Doctor, Appointment) → Part (b): 'Create a function to calculate total appointment amount for a patient'\n"
+                "- Schema: University (Student, Course, Enrollment) → Part (c): 'Create a trigger to update student enrollment count'\n"
+                "- Schema: Library (Book, Member, Loan) → Part (b): 'Create a function to calculate total fine amount for a member'\n"
+                "\n"
+                "❌ WRONG EXAMPLES (WILL BE REJECTED):\n"
+                "- Schema: Hospital (Patient, Doctor) → Part (b): 'Create a function for Members table' ❌ (Member not in schema)\n"
+                "- Schema: University (Student, Course) → Part (c): 'Create a trigger on Fine table' ❌ (Fine not in schema)\n"
+                "- Schema: Hospital → Part (b): References 'Book' or 'Loan' tables ❌ (Wrong domain)\n"
+                "\n"
+                "🔍 VALIDATION CHECKLIST:\n"
+                "- [ ] Part (b) function references ONLY tables from YOUR schema\n"
+                "- [ ] Part (c) trigger references ONLY tables from YOUR schema\n"
+                "- [ ] No mention of 'Member', 'Fine', 'Book', 'Loan' unless they are in YOUR schema\n"
+                "- [ ] Column names match YOUR schema (e.g., if schema has 'appointmentAmount', use that, not 'fineAmount')\n"
+                "\n"
+                "⚠️ VIOLATION OF THIS RULE WILL CAUSE IMMEDIATE REJECTION BY THE CRITIC.\n"
+            )
 
         if feedback:
             base_prompt += f"\n\nCRITIC FEEDBACK FROM PREVIOUS ATTEMPT (YOU MUST FIX THESE ERRORS):\n{feedback}\n"

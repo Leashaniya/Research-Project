@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-13 23:16:12",
+  "generated_at": "2026-02-19 23:34:17",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university manages information about its courses, students, and instructors. Each course has a unique CourseID, a title, and a unit value. Students are assigned a unique StudentID, name, and date of birth, and can enroll in multiple courses. Instructors, identified by a unique InstructorID, have a name and specialization. Courses can be taught by multiple instructors, while each instructor can teach multiple courses. There is a many-to-many 'Teaches' relationship between Courses and Instructors, indicating which instructors are assigned to teach which courses. Additionally, students can have a multivalued attribute for PhoneNumbers and a composite attribute for Address, consisting of Street, City, and ZipCode. The university also has a specialization for graduate and undergraduate students, indicating their level of study.",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA library management system involves several entities including: Book (attributes: BookID, Title, Author, Genre), Member (attributes: MemberID, Name, MembershipType), Loan (attributes: LoanID, LoanDate, ReturnDate), and Staff (attributes: StaffID, Name, Position). The relationships include: a Member can borrow multiple Books, a Book can be loaned out multiple times, and a Staff member manages Loans. Moreover, the MembershipType indicates whether a member is a Regular or Student member, hence creating an ISA hierarchy between Member and its subtypes. Each Loan record is associated with a LoanDate and ReturnDate",
       "subquestions": [
         {
           "label": "a",
@@ -41,19 +41,19 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "698f62b3d24f8acfa5cf81f3",
+      "template_id": "6997502f6cda4a5c46b3ee3b",
+      "original_semantic_description": "A library management system involves several entities including: Book (attributes: BookID, Title, Author, Genre), Member (attributes: MemberID, Name, MembershipType), Loan (attributes: LoanID, LoanDate, ReturnDate), and Staff (attributes: StaffID, Name, Position). The relationships include: a Member can borrow multiple Books, a Book can be loaned out multiple times, and a Staff member manages Loans. Moreover, the MembershipType indicates whether a member is a Regular or Student member, hence creating an ISA hierarchy between Member and its subtypes. Each Loan record is associated with a LoanDate and ReturnDate.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research Project\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
       "diagram_source": "semantic_description",
-      "original_semantic_description": "A university manages information about its courses, students, and instructors. Each course has a unique CourseID, a title, and a unit value. Students are assigned a unique StudentID, name, and date of birth, and can enroll in multiple courses. Instructors, identified by a unique InstructorID, have a name and specialization. Courses can be taught by multiple instructors, while each instructor can teach multiple courses. There is a many-to-many 'Teaches' relationship between Courses and Instructors, indicating which instructors are assigned to teach which courses. Additionally, students can have a multivalued attribute for PhoneNumbers and a composite attribute for Address, consisting of Street, City, and ZipCode. The university also has a specialization for graduate and undergraduate students, indicating their level of study.",
       "topic_label": "ER_EER_MODELING"
     },
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(ProductID, ProductName, SupplierID, SupplierName, Price) with the following set of functional dependencies F over R: F={{ProductID \u2192 ProductName, SupplierID \u2192 SupplierName, ProductID \u2192 Price}}. Analyze this relation for keys and normalization forms.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, BC->D, A->E, D->B}}. Analyze the relation to identify the candidate keys, and determine its normal form.",
       "subquestions": [
         {
           "label": "a",
@@ -74,96 +74,125 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "698f62b3d24f8acfa5cf81f4",
+      "template_id": "6997502f6cda4a5c46b3ee3c",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": true,
+      "diagram_placeholder": "[DIAGRAM PLACEHOLDER: None diagram should be shown here based on the description]",
       "topic_label": "NORMALIZATION_FD_KEYS"
     },
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A university is developing a comprehensive database system to manage its courses, students, and faculty. The database system will handle complex relations such as student enrollments in courses, faculty assignments to classes, and grading systems. The administration team has outlined different roles within the system to facilitate management and access. Olivia is the head database administrator responsible for the entire database infrastructure. Liam and Zoe are junior database administrators supporting Olivia. Liam manages the courses database, while Zoe oversees the student records database. Emma is a database developer working under Liam and Zoe, responsible for designing the schema of the courses and student tables. Adam and Mia are data entry operators tasked with entering and updating course and student information. Explore the structure of this database management system through the following questions.",
+      "text": "A university is designing a Database Management System to maintain student records, course enrollment, and grades. The main relation will be 'Students(sid: string, name: string, major: string, age: integer, gpa: real)'. Additionally, they will manage course details in 'Courses(cid: string, title: string, credits: integer, instructor: string)'. The objective is to ensure data integrity while supporting frequent queries and updates.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Write SQL queries to accept or refute the above statement justifying your answer.",
+          "text": "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
           "marks": 2
         },
         {
           "label": "b",
-          "text": "Code Segment:\n```sql\nPreparedStatement pstmt = connection.prepareStatement(\n    \"SELECT * FROM Employees WHERE Department = ?\");\npstmt.setString(1, \"IT\");\nResultSet rs = pstmt.executeQuery();\n```\n\nThere are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
+          "text": "Code Segment:\n```sql\nSELECT * FROM Courses \nWHERE PatientID = 'P001';\n```\n\nWhich type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
           "marks": 2
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
+          "text": "Briefly explain the options available for defining and enforcing integrity constraints within the Students relation to ensure data accuracy.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
+          "text": "Briefly explain how transactions are managed to ensure data consistency while updating records in both the Students and Courses relations.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "Olivia is the head database administrator tasked with managing the overall database system access. Write a T-SQL statement to create a login for Olivia with Windows authentication.",
-          "marks": 3
-        },
-        {
-          "label": "f",
-          "text": "Provide Olivia with the necessary permissions to handle all administrative tasks within the server using a fixed server role.",
-          "marks": 2
-        },
-        {
-          "label": "g",
-          "text": "Assuming Zoe's username is 'zoe.z', write T-SQL statements to assign her the responsibility of managing the student records database using a user-defined server role.",
-          "marks": 5
-        },
-        {
-          "label": "h",
-          "text": "Assuming Emma's login name is 'emma.e', write T-SQL statements to grant her permission to create tables and databases.",
-          "marks": 3
-        },
-        {
-          "label": "i",
-          "text": "Assuming Mia's login name is 'mia.m', write T-SQL statements to allow her to perform data entry tasks on the courses and student records databases.",
-          "marks": 3
+          "text": "The university decides to implement a new feature that allows students to enroll in courses but prevents them from exceeding a certain credit limit per semester. Write a T-SQL statement to set this restriction in the Courses relation.",
+          "marks": null,
+          "subquestions": [
+            {
+              "label": "i",
+              "marks": 2,
+              "text": "i. Write a T-SQL statement to create a login to Sarah with windows authentication."
+            },
+            {
+              "label": "ii",
+              "marks": 3,
+              "text": "ii. Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role."
+            },
+            {
+              "label": "iii",
+              "marks": 5,
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the transactions database using a user-defined server role."
+            },
+            {
+              "label": "iv",
+              "marks": 3,
+              "text": "iv. Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases."
+            },
+            {
+              "label": "v",
+              "marks": 3,
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the client accounts and transactions databases."
+            }
+          ]
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "698f62b3d24f8acfa5cf81f5",
+      "template_id": "6997502f6cda4a5c46b3ee3d",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": true,
+      "diagram_placeholder": "[DIAGRAM PLACEHOLDER: None diagram should be shown here based on the description]",
       "topic_label": "SQL_DDL_DML"
     },
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "A local library database stores information about members, books, and loans. The 'Members' table contains member_id, name, address, and total_fines. The 'Books' table holds book_id, title, author, and status. The 'Loans' table records loan_id, member_id, book_id, issue_date, and due_date. Utilize this structure to manage loans and fines effectively.",
+      "text": "Consider the following schema of a database designed for a Library: Book (bookId: int, title: varchar(100), author: varchar(100), isbn: varchar(20), publicationYear: int, genre: varchar(50), availableCopies: int) Member (memberId: int, firstName: varchar(50), lastName: varchar(50), email: varchar(50), phone: int, address: varchar(100)) Loan (loanId: int, bookId: int, memberId: int, loanDate: date, dueDate: date, returnDate: date) Fine (fineId: int, memberId: int, amount: real, paymentStatus: varchar(50)) The 'Book' table stores information about books available in the library, including unique book ID, title, author, ISBN, publication year, genre, and the number of available copies. The 'Member' table holds details about library members, such as their unique member ID, first name, last name, email, phone number, and address. The 'Loan' table manages book loans, with each loan having a unique ID and being associated with a specific book and member. It records the loan date, due date, and return date. The 'Fine' table contains information about fines incurred by members for late returns or other penalties. It includes a fine ID, member ID, fine amount, and payment status.",
       "subquestions": [
         {
           "label": "a",
-          "text": "ii. Write SQL queries to find the member who has the highest total amount of fines than all the other total fine amounts. Find the member's id and address.",
-          "marks": 7
+          "marks": null,
+          "text": "Write SQL Queries to perform the following:",
+          "subquestions": [
+            {
+              "label": "i",
+              "marks": 4,
+              "text": "Find the title of books that match specific conditions."
+            },
+            {
+              "label": "ii",
+              "marks": 4,
+              "text": "Find books that match specific criteria using WHERE clauses."
+            },
+            {
+              "label": "iii",
+              "marks": 4,
+              "text": "Find the titles and related information from books, varchars, and varchars using joins."
+            }
+          ]
         },
         {
           "label": "b",
-          "text": "iii. Find the book titles, authors, and member names of books currently on loan.",
-          "marks": 8
+          "marks": 13,
+          "text": "Create a SQL query with appropriate joins between multiple tables."
         },
         {
           "label": "c",
-          "text": "Create a function to calculate the total fine amount for a given member. This function should account for fines with a late penalty of 10% applied to those marked as 'overdue' payment status.",
-          "marks": 12
-        },
-        {
-          "label": "d",
-          "text": ") Create a trigger that automatically updates the 'TotalFineAmount' column in the 'Members' table whenever a new fine is added, or an existing fine is updated. The 'TotalFineAmount' column should contain the total fine amount for each member. Ensure the trigger adjusts the 'TotalFineAmount' column accurately to reflect any partial payments made by members. The member pays only 50% of the total fine amount as an initial payment when the payment status is marked as 'Partial'.",
-          "marks": 13
+          "marks": 15,
+          "text": "Create a trigger that automatically updates the 'Fine' column in the 'Member' table whenever a new fine is added, or an existing fine is updated. The 'Fine' column should contain the total fine amount for each member. Ensure the trigger adjusts the 'Fine' column accurately to reflect any partial payments made by members. The member pays only 50% of the total fine amount as an initial payment when the payment status is marked as 'Partial'."
         }
       ],
+      "template_id": "6997502f6cda4a5c46b3ee3e",
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "698f62b3d24f8acfa5cf81f6",
       "topic_label": "SQL_DDL_DML"
     }
   ]

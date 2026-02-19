@@ -88,15 +88,71 @@ class SemanticDiagramService:
         if requires_isa:
             isa_requirement_note = """
 ⚠️ MANDATORY ISA REQUIREMENT: This description MUST include ISA hierarchies (subtype/supertype relationships).
+⚠️ CRITICAL: ISA hierarchies are ONLY for subtype/supertype relationships - subtypes are specializations of the supertype.
+⚠️ ISA means "is a" - the subtype IS A type of the supertype (e.g., GraduateStudent IS A Student).
+⚠️ DO NOT create ISA between unrelated entities (e.g., Student → Course is WRONG - use a relationship instead).
+
 If the description mentions entities like Student, Course, Employee, Member, etc., you MUST create appropriate subtypes.
 Examples:
-- Student → GraduateStudent, UndergraduateStudent
-- Course → CoreCourse, ElectiveCourse  
-- Employee → FullTimeEmployee, PartTimeEmployee
-- Member → RegularMember, PremiumMember
+- Student → GraduateStudent, UndergraduateStudent (CORRECT - subtypes of Student)
+- Course → CoreCourse, ElectiveCourse (CORRECT - subtypes of Course)
+- Employee → FullTimeEmployee, PartTimeEmployee (CORRECT - subtypes of Employee)
+- Member → RegularMember, PremiumMember (CORRECT - subtypes of Member)
+- Student → Course (WRONG - this is a relationship, NOT an ISA hierarchy)
 
 Each subtype MUST have at least 2-3 specific attributes that are NOT in the parent entity.
 """
+        
+        # Escape curly braces in JSON example to avoid format string errors
+        json_example = """{
+    "entities": [
+        {
+            "name": "EntityName", 
+            "attributes": ["attr1", "attr2", "Address", "PhoneNumbers"], 
+            "primary_key": "attr1",
+            "composite_attributes": [
+                {
+                    "name": "Address",
+                    "sub_attributes": ["Street", "City", "ZipCode"]
+                },
+                {
+                    "name": "Name",
+                    "sub_attributes": ["FirstName", "LastName"]
+                }
+            ],
+            "multivalued_attributes": ["PhoneNumbers", "EmailAddresses"]
+        }
+    ],
+    "relationships": [
+        {
+            "name": "RelationshipName", 
+            "entity1": "Entity1", 
+            "entity2": "Entity2", 
+            "cardinality": "many-to-many",
+            "min1": 0,
+            "max1": "N",
+            "min2": 0,
+            "max2": "N",
+            "descriptive_attributes": ["EnrollmentDate", "Grade"]
+        }
+    ],
+    "isa_hierarchies": [
+        {
+            "supertype": "SuperType",
+            "subtypes": [
+                {
+                    "name": "SubType1",
+                    "specific_attributes": ["AttrSpecificToSubType1", "AnotherAttr"]
+                },
+                {
+                    "name": "SubType2",
+                    "specific_attributes": ["AttrSpecificToSubType2"]
+                }
+            ]
+        }
+    ],
+    "weak_entities": []
+}"""
         
         prompt = f"""
 Parse the following database description and extract ER/EER diagram components.
@@ -107,16 +163,27 @@ Description:
 {isa_requirement_note}
 
 Extract:
-1. Entities with their attributes and primary keys (MINIMUM 4-5 entities required)
+1. Entities with their attributes and primary keys (MINIMUM 4 entities required)
 2. Relationships between entities with cardinalities AND participation constraints (min/max)
 3. ISA hierarchies (subtype/supertype relationships) with subtype-specific attributes
+   ⚠️ CRITICAL: ISA hierarchies are ONLY for subtype/supertype relationships (e.g., Student → GraduateStudent, UndergraduateStudent)
+   ⚠️ ISA is NOT for regular relationships (e.g., Student → Course is a RELATIONSHIP, NOT an ISA hierarchy)
+   ⚠️ ISA means "is a" - subtypes are specializations of the supertype (e.g., GraduateStudent IS A Student)
+   ⚠️ DO NOT create ISA between unrelated entities (e.g., Student → Course is WRONG - use a relationship instead)
 4. Weak entities (if any)
 5. Composite attributes (attributes composed of multiple sub-attributes, e.g., Address with Street, City, ZipCode)
+   - For composite attributes, you MUST extract the sub-attributes explicitly
+   - Example: If description says "Address, consisting of Street, City, and ZipCode", extract:
+     composite_attributes: [{{"name": "Address", "sub_attributes": ["Street", "City", "ZipCode"]}}]
 6. Multivalued attributes (attributes that can have multiple values, e.g., PhoneNumbers, EmailAddresses)
+   - These should be listed in the attributes array AND in multivalued_attributes array
 7. Descriptive attributes attached to relationships (attributes that belong to the relationship itself, e.g., EnrollmentDate on Enrolls relationship)
 
 CRITICAL REQUIREMENTS:
-- MINIMUM 4-5 distinct entities must be included
+- MINIMUM 4 distinct entities must be included (at least 4 entities)
+- ⚠️ ALL entities MUST be connected through relationships - NO standalone entities
+- ⚠️ If an entity like "Instructor" or "Department" exists, it MUST be connected to at least one other entity via a relationship
+- ⚠️ ISA hierarchies MUST be subtype/supertype only (e.g., Student → GraduateStudent, NOT Student → Course)
 - At least ONE composite attribute must be included (e.g., Address, Name with FirstName/LastName, Date with Day/Month/Year)
 - At least ONE multivalued attribute must be included (e.g., PhoneNumbers, EmailAddresses, Skills, Hobbies)
 - At least ONE descriptive attribute attached to a relationship must be included (e.g., EnrollmentDate, Grade, Salary, StartDate)
@@ -127,47 +194,20 @@ CRITICAL REQUIREMENTS:
 - Subtypes inherit all attributes from parent entity PLUS have their own specific attributes
 - {"⚠️ ISA hierarchies are REQUIRED for this diagram. If not explicitly mentioned, infer appropriate subtypes based on the main entities." if requires_isa else ""}
 
+⚠️ CRITICAL CONSTRAINT: AVOID REDUNDANT/STANDALONE ENTITIES ⚠️
+- If a process/transaction (e.g., "Enrollment", "Enrollments") is described as a link between two other entities (e.g., "Students" and "Courses"), represent it EITHER as:
+  * A Relationship Diamond with descriptive attributes (e.g., "Enrolls" relationship with attributes like EnrollmentDate, Grade), OR
+  * An Associative Entity connected to both entities (e.g., "Enrollment" entity connected to both Student and Course)
+- DO NOT create BOTH a standalone entity box AND a relationship diamond for the same data - this creates a logical conflict
+- DO NOT create a standalone transaction entity (like "Enrollments", "Registrations", "Reservations") that is not connected to any relationship - this is wrong
+- Example of CORRECT approach: If "Enrollments" links Students and Courses, create a relationship "Enrolls" with descriptive attributes (EnrollmentDate, Grade) - DO NOT also create a standalone "Enrollments" entity
+- Example of INCORRECT approach: Creating both an "Enrollments" entity box AND an "Enrolls" relationship - this is redundant and wrong
+- Example of INCORRECT approach: Creating a standalone "Enrollments" entity that is not connected to any relationship - this is wrong
+- Rule: If an entity name (singular or plural) matches or is similar to a relationship name, and both connect the same two entities, remove the standalone entity and use the relationship with descriptive attributes instead
+- Rule: If an entity has transaction-like attributes (dates, IDs, statuses, grades) and is not connected to any relationship, it should be removed or converted to a relationship with descriptive attributes
+
 Return strict JSON format:
-{{
-    "entities": [
-        {{
-            "name": "EntityName", 
-            "attributes": ["attr1", "attr2"], 
-            "primary_key": "attr1",
-            "composite_attributes": ["Address", "Name"],
-            "multivalued_attributes": ["PhoneNumbers", "EmailAddresses"]
-        }}
-    ],
-    "relationships": [
-        {{
-            "name": "RelationshipName", 
-            "entity1": "Entity1", 
-            "entity2": "Entity2", 
-            "cardinality": "many-to-many",
-            "min1": 0,
-            "max1": "N",
-            "min2": 0,
-            "max2": "N",
-            "descriptive_attributes": ["EnrollmentDate", "Grade"]
-        }}
-    ],
-    "isa_hierarchies": [
-        {{
-            "supertype": "SuperType",
-            "subtypes": [
-                {{
-                    "name": "SubType1",
-                    "specific_attributes": ["AttrSpecificToSubType1", "AnotherAttr"]
-                }},
-                {{
-                    "name": "SubType2",
-                    "specific_attributes": ["AttrSpecificToSubType2"]
-                }}
-            ]
-        }}
-    ],
-    "weak_entities": []
-}}
+{json_example}
 
 Cardinality options: "one-to-one", "one-to-many", "many-to-one", "many-to-many"
 
@@ -238,6 +278,219 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             # Fallback: try to extract basic entities
             return self._fallback_parse(description)
     
+    def _remove_redundant_entities(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Remove redundant standalone entities that are already represented as relationships.
+        
+        Rule: If an entity (e.g., "Enrollments") represents a transaction/link between two other entities
+        and there's already a relationship (e.g., "Enrolls") connecting those same entities,
+        remove the standalone entity and move its attributes to the relationship's descriptive_attributes.
+        
+        Also removes standalone transaction entities that are not connected to any relationship.
+        
+        Example:
+        - Entity: "Enrollments" with attributes [EnrollmentID, EnrollmentDate, Grade]
+        - Relationship: "Enrolls" between "Student" and "Course"
+        - Action: Remove "Enrollments" entity, add [EnrollmentDate, Grade] to "Enrolls" relationship's descriptive_attributes
+        """
+        entities = parsed_data.get("entities", [])
+        relationships = parsed_data.get("relationships", [])
+        
+        if not entities:
+            return parsed_data
+        
+        # Track which entities to remove
+        entities_to_remove = []
+        entities_to_keep = []
+        
+        # Get all entity names that are connected via relationships
+        connected_entity_names = set()
+        for rel in relationships:
+            entity1 = rel.get("entity1", "").lower()
+            entity2 = rel.get("entity2", "").lower()
+            connected_entity_names.add(entity1)
+            connected_entity_names.add(entity2)
+        
+        for entity in entities:
+            entity_name = entity["name"]
+            entity_name_lower = entity_name.lower()
+            
+            # Check if this entity name is similar to any relationship name
+            # and if it connects the same entities as that relationship
+            is_redundant = False
+            matching_relationship = None
+            
+            # First, check if entity matches a relationship name pattern
+            for rel in relationships:
+                rel_name = rel.get("name", "").lower()
+                
+                # Enhanced name matching: check for common transaction entity patterns
+                # "Enrollments" vs "Enrolls", "Enrollment" vs "Enrolls", "Registrations" vs "Registers"
+                name_matches = (
+                    entity_name_lower == rel_name or
+                    entity_name_lower == rel_name + "s" or
+                    entity_name_lower == rel_name + "ment" or
+                    entity_name_lower == rel_name + "ments" or
+                    (rel_name.endswith("s") and entity_name_lower == rel_name[:-1]) or
+                    (rel_name.endswith("s") and entity_name_lower == rel_name[:-1] + "ment") or
+                    (rel_name.endswith("s") and entity_name_lower == rel_name[:-1] + "ments") or
+                    rel_name == entity_name_lower + "s" or
+                    (entity_name_lower.endswith("s") and rel_name == entity_name_lower[:-1]) or
+                    (entity_name_lower.endswith("ment") and rel_name == entity_name_lower[:-4]) or
+                    (entity_name_lower.endswith("ments") and rel_name == entity_name_lower[:-5]) or
+                    (entity_name_lower.endswith("ments") and rel_name == entity_name_lower[:-5] + "s")
+                )
+                
+                # Also check if entity name contains relationship name or vice versa
+                if not name_matches:
+                    # Check for common patterns: "Enrollments" vs "Enrolls", "Registrations" vs "Registers"
+                    # Extract root words (remove common suffixes)
+                    entity_root = entity_name_lower.rstrip("s").rstrip("ment").rstrip("ments").replace("medical ", "").replace("medical", "")
+                    rel_root = rel_name.rstrip("s")
+                    if entity_root == rel_root or rel_root == entity_root:
+                        name_matches = True
+                    elif (entity_name_lower.startswith(rel_root) or rel_name.startswith(entity_root)) and len(rel_root) > 3:
+                        name_matches = True
+                    # Special handling for medical domain: "Treatment" matches "Treats", "Medical Record" matches "Records"
+                    elif entity_name_lower in ["treatment", "medical record", "medicalrecord"] and rel_name in ["treats", "provides", "receives", "records", "has record", "maintains"]:
+                        name_matches = True
+                
+                if name_matches:
+                    # Check if this entity's attributes suggest it's a transaction/link entity
+                    # Transaction entities typically have attributes like dates, IDs, statuses
+                    entity_attrs = entity.get("attributes", [])
+                    transaction_keywords = ["date", "time", "id", "status", "grade", "amount", "quantity", "type", "enrollment", "registration", "transaction", "treatment", "record", "diagnosis", "prescription", "appointment", "visit"]
+                    has_transaction_attrs = any(
+                        any(keyword in attr.lower() for keyword in transaction_keywords)
+                        for attr in entity_attrs
+                    )
+                    
+                    # If entity has transaction-like attributes and matches relationship name, it's likely redundant
+                    if has_transaction_attrs:
+                        is_redundant = True
+                        matching_relationship = rel
+                        break
+            
+            # If not matched to a relationship, check if it's a standalone transaction entity
+            if not is_redundant:
+                # Check if entity is not connected to any relationship (standalone)
+                is_standalone = entity_name_lower not in connected_entity_names
+                
+                # Check if it's a transaction-like entity (has transaction keywords in name or attributes)
+                entity_attrs = entity.get("attributes", [])
+                transaction_keywords = ["date", "time", "id", "status", "grade", "amount", "quantity", "type", "treatment", "record", "diagnosis", "prescription", "appointment", "visit"]
+                has_transaction_attrs = any(
+                    any(keyword in attr.lower() for keyword in transaction_keywords)
+                    for attr in entity_attrs
+                )
+                
+                # Transaction entity name patterns (plural forms, -ment/-ments suffixes, medical domain)
+                transaction_name_patterns = ["enrollment", "registration", "transaction", "reservation", "subscription", "membership", "treatment", "medical record", "medicalrecord", "record", "appointment", "visit", "diagnosis", "prescription"]
+                is_transaction_name = any(pattern in entity_name_lower for pattern in transaction_name_patterns)
+                
+                # If it's standalone AND has transaction characteristics, it's likely redundant
+                if is_standalone and (has_transaction_attrs or is_transaction_name):
+                    # Try to find a related relationship that might represent this
+                    # Look for relationships that might connect entities related to this transaction
+                    for rel in relationships:
+                        rel_name = rel.get("name", "").lower()
+                        # Check if relationship name is related to entity name
+                        entity_root = entity_name_lower.rstrip("s").rstrip("ment").rstrip("ments").replace("medical ", "").replace("medical", "")
+                        rel_root = rel_name.rstrip("s")
+                        if entity_root == rel_root or (len(entity_root) > 4 and entity_root in rel_root) or (len(rel_root) > 4 and rel_root in entity_root):
+                            is_redundant = True
+                            matching_relationship = rel
+                            break
+                        # Special handling for medical domain: "Treatment" matches "Treats", "Medical Record" matches "Records"
+                        elif entity_name_lower in ["treatment", "medical record", "medicalrecord"] and rel_name in ["treats", "provides", "receives", "records", "has record", "maintains"]:
+                            is_redundant = True
+                            matching_relationship = rel
+                            break
+            
+            if is_redundant and matching_relationship:
+                # Move entity's attributes to relationship's descriptive_attributes
+                entity_attrs = entity.get("attributes", [])
+                # Filter out primary key attributes (they're not descriptive)
+                pk = entity.get("primary_key", "")
+                descriptive_attrs = [attr for attr in entity_attrs if attr.lower() != pk.lower() and attr.lower() != (pk + "id").lower()]
+                
+                # Add to relationship's descriptive_attributes
+                if "descriptive_attributes" not in matching_relationship:
+                    matching_relationship["descriptive_attributes"] = []
+                # Avoid duplicates
+                for attr in descriptive_attrs:
+                    if attr not in matching_relationship["descriptive_attributes"]:
+                        matching_relationship["descriptive_attributes"].append(attr)
+                
+                # Mark entity for removal
+                entities_to_remove.append(entity_name)
+                print(f"   [INFO] Removed redundant entity '{entity_name}' - data already represented by relationship '{matching_relationship.get('name')}'")
+            else:
+                entities_to_keep.append(entity)
+        
+        # Update entities list
+        parsed_data["entities"] = entities_to_keep
+        parsed_data["relationships"] = relationships
+        
+        # Store removed entity names for description update
+        if entities_to_remove:
+            parsed_data["_removed_entities"] = entities_to_remove
+            print(f"   [INFO] Removed {len(entities_to_remove)} redundant entities: {', '.join(entities_to_remove)}")
+        
+        # Validate that all entities are connected (no standalone entities)
+        parsed_data = self._validate_all_entities_connected(parsed_data)
+        
+        return parsed_data
+    
+    def _validate_all_entities_connected(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Validate that all entities are connected via relationships or ISA hierarchies.
+        If an entity is standalone, log a warning.
+        """
+        entities = parsed_data.get("entities", [])
+        relationships = parsed_data.get("relationships", [])
+        
+        if not entities:
+            return parsed_data
+        
+        # Get all entity names that are connected via relationships
+        connected_entity_names = set()
+        for rel in relationships:
+            entity1 = rel.get("entity1", "").lower()
+            entity2 = rel.get("entity2", "").lower()
+            connected_entity_names.add(entity1)
+            connected_entity_names.add(entity2)
+        
+        # Also check ISA hierarchies - entities in ISA are considered connected
+        isa_hierarchies = parsed_data.get("isa_hierarchies", [])
+        for isa in isa_hierarchies:
+            supertype = isa.get("supertype", "").lower()
+            connected_entity_names.add(supertype)
+            subtypes = isa.get("subtypes", [])
+            for subtype_data in subtypes:
+                if isinstance(subtype_data, dict):
+                    subtype = subtype_data.get("name", "").lower()
+                else:
+                    subtype = str(subtype_data).lower()
+                connected_entity_names.add(subtype)
+        
+        # Check for standalone entities
+        standalone_entities = []
+        for entity in entities:
+            entity_name = entity["name"]
+            entity_name_lower = entity_name.lower()
+            if entity_name_lower not in connected_entity_names:
+                standalone_entities.append(entity_name)
+        
+        # If there are standalone entities, log a warning
+        if standalone_entities:
+            print(f"   [WARN] Found {len(standalone_entities)} standalone entities (not connected via relationships or ISA): {', '.join(standalone_entities)}")
+            print(f"   [WARN] These entities should be connected via relationships. Consider adding relationships or removing unnecessary entities.")
+            # Store standalone entities for potential future removal or connection
+            parsed_data["_standalone_entities"] = standalone_entities
+        
+        return parsed_data
+    
     def _fallback_parse(self, description: str) -> Dict[str, Any]:
         """Fallback parser using regex if GPT parsing fails"""
         entities = []
@@ -304,6 +557,74 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             "weak_entities": []
         }
     
+    def _update_description_after_removal(self, description: str, removed_entities: List[str], parsed_data: Dict[str, Any]) -> str:
+        """
+        Update the description text to remove references to redundant entities that were removed.
+        
+        Args:
+            description: Original description text
+            removed_entities: List of entity names that were removed
+            parsed_data: Updated parsed data with relationships that now contain the attributes
+        
+        Returns:
+            Updated description text with references to removed entities cleaned up
+        """
+        if not removed_entities:
+            return description
+        
+        updated_description = description
+        import re
+        
+        for entity_name in removed_entities:
+            # Find the matching relationship that now contains this entity's data
+            matching_rel = None
+            for rel in parsed_data.get("relationships", []):
+                rel_name = rel.get("name", "").lower()
+                entity_lower = entity_name.lower()
+                # Check if relationship name matches entity name pattern
+                if (entity_lower in rel_name or rel_name in entity_lower or
+                    entity_lower.rstrip("s").rstrip("ment") == rel_name.rstrip("s")):
+                    matching_rel = rel
+                    break
+            
+            # Remove standalone entity references from description
+            # Pattern 1: "The 'EntityName' entity has attributes..." -> Remove this sentence/paragraph
+            patterns_to_remove = [
+                rf"The\s+['\"]?{re.escape(entity_name)}['\"]?\s+entity\s+[^.]*\.",  # "The 'Treatment' entity has..."
+                rf"The\s+{re.escape(entity_name)}\s+entity\s+[^.]*\.",  # "The Treatment entity has..."
+                rf"['\"]?{re.escape(entity_name)}['\"]?\s+entity\s+[^.]*\.",  # "'Treatment' entity has..."
+                rf"Entity\s+['\"]?{re.escape(entity_name)}['\"]?\s+[^.]*\.",  # "Entity 'Treatment' has..."
+                rf"Each\s+['\"]?{re.escape(entity_name)}['\"]?\s+[^.]*\.",  # "Each 'Treatment' has..."
+            ]
+            
+            for pattern in patterns_to_remove:
+                updated_description = re.sub(pattern, '', updated_description, flags=re.IGNORECASE)
+            
+            # If we found a matching relationship, update the description to mention the relationship instead
+            if matching_rel:
+                rel_name = matching_rel.get("name", "")
+                # Replace entity references with relationship references where appropriate
+                entity_patterns = [
+                    rf"\b{re.escape(entity_name)}\s+entity\b",
+                    rf"entity\s+['\"]?{re.escape(entity_name)}['\"]?\b",
+                ]
+                for pattern in entity_patterns:
+                    # Check if relationship is already mentioned nearby
+                    if rel_name.lower() in updated_description.lower():
+                        # Just remove the entity reference
+                        updated_description = re.sub(pattern, '', updated_description, flags=re.IGNORECASE)
+                    else:
+                        # Replace with relationship reference
+                        updated_description = re.sub(pattern, f"{rel_name} relationship", updated_description, flags=re.IGNORECASE)
+        
+        # Clean up multiple spaces and empty sentences
+        updated_description = re.sub(r'\s+', ' ', updated_description)  # Multiple spaces to single
+        updated_description = re.sub(r'\.\s*\.', '.', updated_description)  # Double periods
+        updated_description = re.sub(r'\s+\.', '.', updated_description)  # Space before period
+        updated_description = updated_description.strip()
+        
+        return updated_description
+    
     def generate_graphviz_code(self, parsed_data: Dict[str, Any], diagram_type: str = "EER") -> str:
         """
         Generate Graphviz DOT code from parsed ER/EER components.
@@ -357,7 +678,87 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             composite_attrs = entity.get("composite_attributes", [])
             multivalued_attrs = entity.get("multivalued_attributes", [])
             
+            # First, draw composite attributes with their sub-attributes
+            for comp_attr_data in composite_attrs:
+                # Handle both formats: string or object with sub_attributes
+                if isinstance(comp_attr_data, dict):
+                    comp_attr_name = comp_attr_data.get("name", "")
+                    sub_attrs = comp_attr_data.get("sub_attributes", [])
+                else:
+                    # Backward compatibility: string format
+                    comp_attr_name = str(comp_attr_data) if not isinstance(comp_attr_data, str) else comp_attr_data
+                    # Try to infer sub-attributes from common patterns
+                    if isinstance(comp_attr_name, str):
+                        if "address" in comp_attr_name.lower():
+                            sub_attrs = ["Street", "City", "ZipCode"]
+                        elif "name" in comp_attr_name.lower():
+                            sub_attrs = ["FirstName", "LastName"]
+                        elif "date" in comp_attr_name.lower():
+                            sub_attrs = ["Day", "Month", "Year"]
+                        else:
+                            sub_attrs = []
+                    else:
+                        sub_attrs = []
+                
+                # Ensure comp_attr_name is a string
+                if not isinstance(comp_attr_name, str):
+                    comp_attr_name = str(comp_attr_name)
+                
+                # Find the composite attribute in the attributes list
+                comp_attr = None
+                for attr in attrs:
+                    # CRITICAL: Ensure attr is a string before calling .lower()
+                    attr_str = str(attr) if not isinstance(attr, str) else attr
+                    if isinstance(comp_attr_name, str) and isinstance(attr_str, str):
+                        if comp_attr_name.lower() in attr_str.lower() or attr_str.lower() in comp_attr_name.lower():
+                            comp_attr = attr_str
+                            break
+                
+                # If not found in attributes list, use the name directly
+                if not comp_attr:
+                    comp_attr = comp_attr_name
+                
+                # Draw the composite attribute (e.g., "Address")
+                comp_attr_clean = comp_attr.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "_")
+                comp_attr_clean = comp_attr_clean.replace("_PK", "").replace("_pk", "")
+                comp_attr_id = f"{entity_id}_{comp_attr_clean}"
+                comp_attr_id = "".join(c if c.isalnum() or c == "_" else "_" for c in comp_attr_id)
+                comp_attr_label = comp_attr.replace('"', '\\"').replace('\\', '\\\\')
+                
+                # Composite attribute: ellipse shape with special styling
+                lines.append(f'    {comp_attr_id} [label="{comp_attr_label}", shape=ellipse, style="filled,bold", fillcolor=lightgreen, penwidth=2];')
+                lines.append(f'    {entity_id} -> {comp_attr_id} [style=solid, arrowhead=none];')
+                
+                # Draw sub-attributes (Street, City, ZipCode) connected to the composite attribute
+                for sub_attr in sub_attrs:
+                    sub_attr_clean = sub_attr.replace(" ", "_").replace("-", "_")
+                    sub_attr_id = f"{comp_attr_id}_{sub_attr_clean}"
+                    sub_attr_id = "".join(c if c.isalnum() or c == "_" else "_" for c in sub_attr_id)
+                    lines.append(f'    {sub_attr_id} [label="{sub_attr}", shape=ellipse, style="filled", fillcolor=lightblue];')
+                    lines.append(f'    {comp_attr_id} -> {sub_attr_id} [style=solid, arrowhead=none];')
+            
+            # Draw regular and multivalued attributes
             for attr in attrs:
+                # CRITICAL: Ensure attr is a string (handle cases where LLM returns list/dict)
+                if not isinstance(attr, str):
+                    if isinstance(attr, dict):
+                        attr = attr.get("name", str(attr))
+                    else:
+                        attr = str(attr)
+                
+                # Skip if this attribute is a composite (already drawn above)
+                is_composite_attr = False
+                for comp_attr_data in composite_attrs:
+                    if isinstance(comp_attr_data, dict):
+                        comp_name = comp_attr_data.get("name", "")
+                    else:
+                        comp_name = str(comp_attr_data) if not isinstance(comp_attr_data, str) else comp_attr_data
+                    if comp_name.lower() in attr.lower() or attr.lower() in comp_name.lower():
+                        is_composite_attr = True
+                        break
+                if is_composite_attr:
+                    continue
+                
                 # Clean attribute name for node ID (remove spaces, hyphens, parentheses, etc.)
                 attr_clean = attr.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "_")
                 # Remove (PK) suffix if present for node ID
@@ -368,13 +769,27 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                 attr_id = "".join(c if c.isalnum() or c == "_" else "_" for c in attr_id)
                 
                 # Determine if this is the primary key (underline in label)
-                is_pk = pk and (pk.lower() in attr.lower() or attr.lower().endswith("(pk)"))
-                
-                # Check if this is a composite attribute
-                is_composite = any(comp.lower() in attr.lower() for comp in composite_attrs)
+                is_pk = pk and isinstance(pk, str) and (pk.lower() in attr.lower() or attr.lower().endswith("(pk)"))
                 
                 # Check if this is a multivalued attribute
-                is_multivalued = any(mv.lower() in attr.lower() for mv in multivalued_attrs)
+                # CRITICAL: Ensure mv is a string before calling .lower()
+                is_multivalued = False
+                for mv in multivalued_attrs:
+                    if isinstance(mv, str):
+                        if mv.lower() in attr.lower():
+                            is_multivalued = True
+                            break
+                    elif isinstance(mv, dict):
+                        mv_name = mv.get("name", "")
+                        if isinstance(mv_name, str) and mv_name.lower() in attr.lower():
+                            is_multivalued = True
+                            break
+                    else:
+                        # Convert to string and check
+                        mv_str = str(mv)
+                        if mv_str.lower() in attr.lower():
+                            is_multivalued = True
+                            break
                 
                 # Escape special characters in label for Graphviz
                 attr_label = attr.replace('"', '\\"').replace('\\', '\\\\')
@@ -385,13 +800,11 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                     lines.append(f'    {attr_id} [label=<{attr_label_underlined}>, shape=ellipse, style="filled", fillcolor=lightyellow];')
                     # Connect attribute to entity with solid line
                     lines.append(f'    {entity_id} -> {attr_id} [style=solid, arrowhead=none];')
-                elif is_composite:
-                    # Composite attribute: double border or special styling
-                    lines.append(f'    {attr_id} [label="{attr_label}", shape=ellipse, style="filled,bold", fillcolor=lightgreen, penwidth=2];')
-                    lines.append(f'    {entity_id} -> {attr_id} [style=solid, arrowhead=none];')
                 elif is_multivalued:
-                    # Multivalued attribute: double oval (represented with double border)
-                    lines.append(f'    {attr_id} [label="{{{attr_label}}}", shape=ellipse, style="filled", fillcolor=lightcoral, penwidth=2];')
+                    # Multivalued attribute: double oval (use double border/peripheries)
+                    # In EER diagrams, multivalued attributes are shown with double ovals (concentric circles)
+                    # Use peripheries=2 to create double border effect
+                    lines.append(f'    {attr_id} [label="{attr_label}", shape=ellipse, style="filled", fillcolor=lightcoral, penwidth=2, peripheries=2];')
                     lines.append(f'    {entity_id} -> {attr_id} [style=solid, arrowhead=none];')
                 else:
                     # Regular attribute: ellipse shape
@@ -499,6 +912,27 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                     
                     subtype_id = subtype_raw.replace(" ", "_").replace("-", "_")
                     subtype_id = "".join(c if c.isalnum() or c == "_" else "_" for c in subtype_id)
+                    
+                    # CRITICAL: Ensure subtype is drawn as an entity box (rectangle), not an oval
+                    # Subtypes must be entity rectangles, same as the supertype
+                    # Check if subtype entity box was already drawn in the entities section
+                    subtype_label = subtype_raw.replace('"', '\\"').replace('\\', '\\\\')
+                    
+                    # Check if this subtype node was already defined as a box in the entities section
+                    # We need to check the actual lines that were already added
+                    subtype_entity_exists = False
+                    for existing_line in lines:
+                        # Check if this subtype_id is already defined as a node
+                        if f'{subtype_id} [' in existing_line and 'shape=box' in existing_line:
+                            subtype_entity_exists = True
+                            break
+                    
+                    # If subtype wasn't drawn as a box in entities section, explicitly draw it here
+                    # This ensures subtypes are ALWAYS drawn as entity boxes (rectangles), not ovals
+                    if not subtype_entity_exists:
+                        # Explicitly draw subtype as an entity box (rectangle) BEFORE connecting to ISA
+                        # Insert it right before the ISA connection to ensure proper rendering
+                        lines.append(f'    {subtype_id} [label="{subtype_label}", shape=box, style="rounded, filled", fillcolor=lightblue];')
                     
                     # Connect subtype to the same ISA node (only one ISA relationship) - USE SOLID LINES for ISA hierarchies
                     lines.append(f'    {isa_node} -> {subtype_id} [style=solid, arrowhead=none];')
@@ -816,6 +1250,18 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             
             print(f"   [OK] Parsed {len(parsed_data.get('entities', []))} entities, {len(parsed_data.get('relationships', []))} relationships, {len(parsed_data.get('isa_hierarchies', []))} ISA hierarchies")
             
+            # Step 1.5: Post-process to remove redundant standalone entities
+            parsed_data = self._remove_redundant_entities(parsed_data)
+            print(f"   [OK] After removing redundant entities: {len(parsed_data.get('entities', []))} entities, {len(parsed_data.get('relationships', []))} relationships")
+            
+            # Step 1.6: Update description to reflect removed entities
+            removed_entities = parsed_data.get("_removed_entities", [])
+            if removed_entities:
+                description = self._update_description_after_removal(description, removed_entities, parsed_data)
+                # Store updated description in parsed_data for later use
+                parsed_data["updated_description"] = description
+                print(f"   [INFO] Updated description after removing {len(removed_entities)} redundant entities")
+            
             # Step 2: Generate Graphviz code
             print(f"   [INFO] Generating Graphviz DOT code...")
             dot_code = self.generate_graphviz_code(parsed_data, diagram_type)
@@ -825,12 +1271,16 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             success = self.render_graphviz_to_image(dot_code, output_path, format=format)
             
             if success:
-                return {
+                result = {
                     "success": True,
                     "image_path": str(output_path),
                     "dot_code": dot_code,
                     "parsed_data": parsed_data
                 }
+                # Include updated description if entities were removed
+                if "updated_description" in parsed_data:
+                    result["updated_description"] = parsed_data["updated_description"]
+                return result
             else:
                 return {
                     "success": False,

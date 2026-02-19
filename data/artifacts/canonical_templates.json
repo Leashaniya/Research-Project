@@ -51,8 +51,8 @@
     "dominant_topic": "SQL Database Schema and Queries",
     "pattern_label": "SQL_DDL_DML",
     "source_paper": "2024",
-    "total_marks": 25,
-    "subquestion_count": 9,
+    "total_marks": 9,
+    "subquestion_count": 5,
     "subquestion_structure": [
       {
         "label": "?",
@@ -80,33 +80,42 @@
       },
       {
         "label": "?",
-        "marks": 2,
+        "marks": null,
         "type": "General",
-        "text": "e) A financial institution is developing a robust database system to manage its clients' sensitive financial data. Different roles are assigned to various team members for database administration and management. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance. Tom and Emily are junior database administrators under Sarah's supervision. Tom manages the client accounts database, while Emily handles the transactions database. Nathan is a database developer reporting to Tom and Emily. His responsibilities include designing and implementing database schemas for client accounts and transactions. Grace and Michael are data entry operators responsible for inputting client information and transaction records into the system. Write a T-SQL statement to create a login to Sarah with windows authentication."
-      },
-      {
-        "label": "?",
-        "marks": 3,
-        "type": "General",
-        "text": "Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role."
-      },
-      {
-        "label": "?",
-        "marks": 5,
-        "type": "List",
-        "text": "Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the transactions database using a user-defined server role."
-      },
-      {
-        "label": "?",
-        "marks": 3,
-        "type": "List",
-        "text": "Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases."
-      },
-      {
-        "label": "?",
-        "marks": 3,
-        "type": "List",
-        "text": "Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the client accounts and transactions databases."
+        "text": "e) A financial institution is developing a robust database system to manage its clients' sensitive financial data. Different roles are assigned to various team members for database administration and management. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance. Tom and Emily are junior database administrators under Sarah's supervision. Tom manages the client accounts database, while Emily handles the transactions database. Nathan is a database developer reporting to Tom and Emily. His responsibilities include designing and implementing database schemas for client accounts and transactions. Grace and Michael are data entry operators responsible for inputting client information and transaction records into the system.",
+        "nested": true,
+        "nested_items": [
+          {
+            "label": "i",
+            "marks": 2,
+            "text": "i. Write a T-SQL statement to create a login to Sarah with windows authentication.",
+            "type": "General"
+          },
+          {
+            "label": "ii",
+            "marks": 3,
+            "text": "ii. Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role.",
+            "type": "General"
+          },
+          {
+            "label": "iii",
+            "marks": 5,
+            "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the transactions database using a user-defined server role.",
+            "type": "General"
+          },
+          {
+            "label": "iv",
+            "marks": 3,
+            "text": "iv. Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases.",
+            "type": "General"
+          },
+          {
+            "label": "v",
+            "marks": 3,
+            "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the client accounts and transactions databases.",
+            "type": "General"
+          }
+        ]
       }
     ]
   },
@@ -114,20 +123,29 @@
     "dominant_topic": "SQL Database Schema and Queries",
     "pattern_label": "SQL_DDL_DML",
     "source_paper": "2024",
-    "total_marks": 36,
-    "subquestion_count": 4,
+    "total_marks": 23,
+    "subquestion_count": 3,
     "subquestion_structure": [
       {
         "label": "?",
-        "marks": 6,
-        "type": "Calculate",
-        "text": "ii. Find the member who has the highest total amount of fines than all the other total fine amounts. Find the member's id and address."
-      },
-      {
-        "label": "?",
-        "marks": 7,
-        "type": "Calculate",
-        "text": "iii. Find the book titles, authors, and member names of books currently on loan."
+        "marks": null,
+        "type": "General",
+        "text": "a) Write SQL Queries to perform the following: i. Find the member's name and phone number who borrowed a book with the title 'The Great'.",
+        "nested": true,
+        "nested_items": [
+          {
+            "label": "ii",
+            "marks": 6,
+            "text": "ii. Find the member who has the highest total amount of fines than all the other total fine amounts. Find the member's id and address.",
+            "type": "General"
+          },
+          {
+            "label": "iii",
+            "marks": 7,
+            "text": "iii. Find the book titles, authors, and member names of books currently on loan.",
+            "type": "General"
+          }
+        ]
       },
       {
         "label": "?",

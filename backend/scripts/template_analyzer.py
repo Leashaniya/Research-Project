@@ -235,7 +235,11 @@ def analyze_templates():
         subquestions = most_recent.get("subquestions", [])
         structure = []
         
-        for sq in subquestions:
+        # Detect nested subquestions pattern: "a) Write SQL Queries..." followed by "ii.", "iii." without labels
+        # This happens when the blueprint extraction flattens nested structures
+        i = 0
+        while i < len(subquestions):
+            sq = subquestions[i]
             label = sq.get("label", "?")
             marks = sq.get("marks")
             full_text = sq.get("text", "").strip()  # Store FULL text for pattern preservation
@@ -253,9 +257,10 @@ def analyze_templates():
             elif any(word in text_lower for word in ["calculate", "compute", "find"]):
                 q_type = "Calculate"
             
-            # Handle nested sub-questions (e.g., a.i, a.ii)
+            # Check if this subquestion has nested subquestions in the structure
             nested = sq.get("subquestions", [])
             if nested:
+                # Properly nested structure exists
                 for nsq in nested:
                     nlabel = f"{label}.{nsq.get('label', '?')}"
                     nmarks = nsq.get("marks")
@@ -267,7 +272,133 @@ def analyze_templates():
                             "type": q_type,
                             "text": ntext  # Store full text for pattern preservation
                         })
+            # Check if this is a parent subquestion that should have nested items
+            # Pattern 1: "a) Write SQL Queries to perform the following:" (Q4 pattern)
+            # Pattern 2: "e) [scenario] Write a T-SQL statement..." (Q3 part e pattern)
+            is_q4_pattern = ("write sql queries to perform" in full_text.lower() or 
+                            "write sql queries" in full_text.lower() and "following" in full_text.lower() or
+                            ("perform the following" in full_text.lower() and "sql" in full_text.lower()))
+            
+            is_q3_e_pattern = (
+                (label.lower() == "e" or full_text.lower().startswith("e)")) and
+                ("financial institution" in full_text.lower() or "developing a robust database system" in full_text.lower()) and
+                ("write a t-sql statement" in full_text.lower() or "write t-sql statement" in full_text.lower())
+            )
+            
+            if full_text and (is_q4_pattern or is_q3_e_pattern):
+                # This is likely a parent subquestion with nested items
+                nested_items = []
+                j = i + 1
+                
+                # For Q3 part (e), extract "i." from parent text if present
+                if is_q3_e_pattern:
+                    import re
+                    # Extract "Write a T-SQL statement..." part as nested item i
+                    t_sql_match = re.search(r'(write\s+(?:a\s+)?t-sql\s+statement[^.]*\.)', full_text, re.IGNORECASE)
+                    if t_sql_match:
+                        nested_items.append({
+                            "label": "i",
+                            "marks": marks,  # Use parent marks for first item
+                            "text": f"i. {t_sql_match.group(1).strip()}",
+                            "type": q_type
+                        })
+                        # Remove the T-SQL statement part from parent text, keep only scenario
+                        full_text = re.sub(r'write\s+(?:a\s+)?t-sql\s+statement[^.]*\.', '', full_text, flags=re.IGNORECASE).strip()
+                
+                # Check if next items are "ii.", "iii.", "iv.", "v." without proper labels
+                while j < len(subquestions):
+                    next_sq = subquestions[j]
+                    next_text = next_sq.get("text", "").strip()
+                    next_label = next_sq.get("label", "?")
+                    
+                    # Check if next item starts with "ii.", "iii.", "iv.", "v." (nested pattern)
+                    if (next_text.lower().startswith(("ii.", "iii.", "iv.", "v.")) or
+                        next_text.lower().startswith(("ii ", "iii ", "iv ", "v "))):
+                        # This is a nested subquestion
+                        nested_items.append({
+                            "label": next_text[:3].strip().rstrip("."),  # Extract "ii", "iii", etc.
+                            "marks": next_sq.get("marks"),
+                            "text": next_text,
+                            "type": q_type
+                        })
+                        j += 1
+                    # For Q3 part (e), also check for items that should be nested (ii, iii, iv, v)
+                    # These are items that come after the scenario but don't have labels
+                    elif is_q3_e_pattern and j < len(subquestions):
+                        # Check if it's "Provide Sarah..." (should be ii)
+                        if "provide sarah" in next_text.lower() or "provide" in next_text.lower() and "sarah" in next_text.lower():
+                            nested_items.append({
+                                "label": "ii",
+                                "marks": next_sq.get("marks"),
+                                "text": f"ii. {next_text}",
+                                "type": q_type
+                            })
+                            j += 1
+                        # Check if it's "Assuming Emily..." (should be iii)
+                        elif "assuming emily" in next_text.lower():
+                            nested_items.append({
+                                "label": "iii",
+                                "marks": next_sq.get("marks"),
+                                "text": f"iii. {next_text}",
+                                "type": q_type
+                            })
+                            j += 1
+                        # Check if it's "Assuming Nathan..." (should be iv)
+                        elif "assuming nathan" in next_text.lower():
+                            nested_items.append({
+                                "label": "iv",
+                                "marks": next_sq.get("marks"),
+                                "text": f"iv. {next_text}",
+                                "type": q_type
+                            })
+                            j += 1
+                        # Check if it's "Assuming Michael..." (should be v)
+                        elif "assuming michael" in next_text.lower():
+                            nested_items.append({
+                                "label": "v",
+                                "marks": next_sq.get("marks"),
+                                "text": f"v. {next_text}",
+                                "type": q_type
+                            })
+                            j += 1
+                        else:
+                            # Not a nested item, stop
+                            break
+                    elif next_text.lower().startswith(("i.", "i ")) and "find" in next_text.lower():
+                        # First nested item might be in the parent text (Q4 pattern)
+                        # Extract it from parent if present
+                        if "i." in full_text or "i " in full_text:
+                            # Extract the i. part from parent text
+                            import re
+                            i_match = re.search(r"i\.\s*(.+?)(?:\s*ii\.|$)", full_text, re.IGNORECASE)
+                            if i_match:
+                                nested_items.insert(0, {
+                                    "label": "i",
+                                    "marks": None,  # No marks for first item typically
+                                    "text": f"i. {i_match.group(1).strip()}",
+                                    "type": q_type
+                                })
+                        j += 1
+                    else:
+                        # Not a nested item, stop
+                        break
+                
+                # If we found nested items, create proper structure
+                if nested_items:
+                    # Add parent subquestion with nested structure
+                    structure.append({
+                        "label": label,
+                        "marks": None,  # Parent might not have marks
+                        "type": q_type,
+                        "text": full_text,
+                        "nested": True,  # Flag to indicate nested structure
+                        "nested_items": nested_items
+                    })
+                    # Skip the nested items we've processed
+                    i = j
+                    continue
             elif marks:
+                # Regular subquestion with marks
                 structure.append({
                     "label": label,
                     "marks": marks,
@@ -275,7 +406,9 @@ def analyze_templates():
                     "text": full_text  # Store full text for pattern preservation
                 })
         
-        total_marks = sum(s["marks"] for s in structure)
+            i += 1
+        
+        total_marks = sum(s.get("marks", 0) or 0 for s in structure)
         print(f"  Structure: {len(structure)} sub-questions, {total_marks} marks")
         
         # Keep a human-friendly topic name too (optional), but canonical dominance is pattern_label
