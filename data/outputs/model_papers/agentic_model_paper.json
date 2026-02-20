@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-19 23:34:17",
+  "generated_at": "2026-02-20 13:40:28",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA library management system involves several entities including: Book (attributes: BookID, Title, Author, Genre), Member (attributes: MemberID, Name, MembershipType), Loan (attributes: LoanID, LoanDate, ReturnDate), and Staff (attributes: StaffID, Name, Position). The relationships include: a Member can borrow multiple Books, a Book can be loaned out multiple times, and a Staff member manages Loans. Moreover, the MembershipType indicates whether a member is a Regular or Student member, hence creating an ISA hierarchy between Member and its subtypes. Each Loan record is associated with a LoanDate and ReturnDate",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nIn a university database system, the entities include Student (StudentID, Name, EmailAddress, PhoneNumbers), Course (CourseID, Title, Credits), Instructor (InstructorID, Name, Department), and Department (DepartmentID, Name, OfficeLocation). Students enroll in Courses through an Enrollment relationship, which has attributes EnrollmentDate and Grade. Courses are taught by Instructors, and each Instructor belongs to a Department. There are subtypes for Student such as GraduateStudent (ThesisTitle) and UndergraduateStudent (Major), both inheriting attributes from Student. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrollment' relationship (Student participation is optional, Course participation is optional). A Instructor can be related to many Courses through the 'Teaching' relationship (Instructor participation is optional). Many Instructors can be related to one Department through the 'Belongs' relationship (Department participation is optional). Draw the EER diagram",
       "subquestions": [
         {
           "label": "a",
@@ -41,8 +41,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "6997502f6cda4a5c46b3ee3b",
-      "original_semantic_description": "A library management system involves several entities including: Book (attributes: BookID, Title, Author, Genre), Member (attributes: MemberID, Name, MembershipType), Loan (attributes: LoanID, LoanDate, ReturnDate), and Staff (attributes: StaffID, Name, Position). The relationships include: a Member can borrow multiple Books, a Book can be loaned out multiple times, and a Staff member manages Loans. Moreover, the MembershipType indicates whether a member is a Regular or Student member, hence creating an ISA hierarchy between Member and its subtypes. Each Loan record is associated with a LoanDate and ReturnDate.",
+      "template_id": "6998167c488ce21fc303a639",
+      "original_semantic_description": "In a university database system, the entities include Student (StudentID, Name, EmailAddress, PhoneNumbers), Course (CourseID, Title, Credits), Instructor (InstructorID, Name, Department), and Department (DepartmentID, Name, OfficeLocation). Students enroll in Courses through an Enrollment relationship, which has attributes EnrollmentDate and Grade. Courses are taught by Instructors, and each Instructor belongs to a Department. There are subtypes for Student such as GraduateStudent (ThesisTitle) and UndergraduateStudent (Major), both inheriting attributes from Student. Draw the EER diagram representing this scenario, including the ISA relationships and cardinalities.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research Project\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, BC->D, A->E, D->B}}. Analyze the relation to identify the candidate keys, and determine its normal form.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, C->E, A->BD}}. Analyze this relation to determine its keys, normal form compliance, and any necessary decompositions.",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "6997502f6cda4a5c46b3ee3c",
+      "template_id": "6998167c488ce21fc303a63a",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -85,7 +85,7 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A university is designing a Database Management System to maintain student records, course enrollment, and grades. The main relation will be 'Students(sid: string, name: string, major: string, age: integer, gpa: real)'. Additionally, they will manage course details in 'Courses(cid: string, title: string, credits: integer, instructor: string)'. The objective is to ensure data integrity while supporting frequent queries and updates.",
+      "text": "A university is developing a database to manage its course offerings and student enrollments. The database will include tables for Courses, Students, and Enrollments. Each course will have attributes such as CourseID, CourseName, and Credits. Students will have attributes like StudentID, Name, and Major. Enrollments will link Students to Courses and have attributes like EnrollmentID and Grade. The university aims to maintain data integrity and optimize queries using various constraints and statements.",
       "subquestions": [
         {
           "label": "a",
@@ -94,22 +94,22 @@
         },
         {
           "label": "b",
-          "text": "Code Segment:\n```sql\nSELECT * FROM Courses \nWHERE PatientID = 'P001';\n```\n\nWhich type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
+          "text": "Code Segment:\n```sql\nCREATE TABLE Courses (\n    CoursesID CHAR(10) PRIMARY KEY,\n    Name VARCHAR(50) NOT NULL,\n    NIC CHAR(10) UNIQUE,\n    Age INT,\n    GPA FLOAT,\n    StudentsID VARCHAR(10) DEFAULT 'D001',\n    EnrollmentDate DATE DEFAULT GETDATE(),\n    CONSTRAINT courses_students_fk FOREIGN KEY (StudentsID)\n        REFERENCES Students(StudentsID) \n        ON DELETE SET DEFAULT \n        ON UPDATE CASCADE,\n    CONSTRAINT gpa_check CHECK (GPA >= 0.0 AND GPA <= 4.0),\n    CONSTRAINT age_check CHECK (Age >= 18 AND Age <= 100)\n);\n```\n\nConsider the SQL code provided below. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
           "marks": 2
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for defining and enforcing integrity constraints within the Students relation to ensure data accuracy.",
+          "text": "Briefly explain the different types of integrity constraints that can be implemented in the above database schema.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how transactions are managed to ensure data consistency while updating records in both the Students and Courses relations.",
+          "text": "Briefly explain how cascading updates and deletes can enhance referential integrity in the context of the Enrollments table.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "The university decides to implement a new feature that allows students to enroll in courses but prevents them from exceeding a certain credit limit per semester. Write a T-SQL statement to set this restriction in the Courses relation.",
+          "text": "A student named Alex is enrolling in a new course.. Michael is a data entry operator responsible for inputting data into the system.. Nathan is a database developer responsible for designing and implementing database schemas.. Emily is a junior database administrator managing specific databases within the system.. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance.. Write a T-SQL statement to insert a new record into the Enrollments table capturing Alex's enrollment details for a specific CourseID.",
           "marks": null,
           "subquestions": [
             {
@@ -143,7 +143,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "6997502f6cda4a5c46b3ee3d",
+      "template_id": "6998167c488ce21fc303a63b",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -154,45 +154,50 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for a Library: Book (bookId: int, title: varchar(100), author: varchar(100), isbn: varchar(20), publicationYear: int, genre: varchar(50), availableCopies: int) Member (memberId: int, firstName: varchar(50), lastName: varchar(50), email: varchar(50), phone: int, address: varchar(100)) Loan (loanId: int, bookId: int, memberId: int, loanDate: date, dueDate: date, returnDate: date) Fine (fineId: int, memberId: int, amount: real, paymentStatus: varchar(50)) The 'Book' table stores information about books available in the library, including unique book ID, title, author, ISBN, publication year, genre, and the number of available copies. The 'Member' table holds details about library members, such as their unique member ID, first name, last name, email, phone number, and address. The 'Loan' table manages book loans, with each loan having a unique ID and being associated with a specific book and member. It records the loan date, due date, and return date. The 'Fine' table contains information about fines incurred by members for late returns or other penalties. It includes a fine ID, member ID, fine amount, and payment status.",
+      "text": "Consider the following schema of a database designed for an E-commerce platform: Product (productId: int, productName: varchar(100), price: real, stockQuantity: int) Order (orderId: int, customerId: int, orderDate: date, totalAmount: real) Customer (customerId: int, customerName: varchar(100), email: varchar(50)) OrderDetails (orderDetailId: int, orderId: int, productId: int, quantity: int, subTotal: real). The 'Product' table stores details about products available for sale, including a unique product ID, name, price, and the quantity in stock. The 'Order' table contains information about customer orders, including a unique order ID, the customer who placed it, the date of the order, and the total amount. The 'Customer' table maintains customer information with unique customer IDs, names, and email addresses. The 'OrderDetails' table captures details about the products within an order, including the quantities ordered and their respective subtotals. The 'Customer' table manages details about customers, including unique customer ID, name, email, and address. The 'OrderDetails' table contains order records, tracking customer orders with order ID, customer ID, order date, and total amount.",
       "subquestions": [
         {
           "label": "a",
+          "text": "Write SQL Queries to perform the following: i. Find the customer name and email for all customers who have placed an order on '2023-10-05'.",
           "marks": null,
-          "text": "Write SQL Queries to perform the following:",
           "subquestions": [
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the title of books that match specific conditions."
+              "text": "Find the customer name and email for all customers who have placed an order on '2023-10-05'."
             },
             {
               "label": "ii",
-              "marks": 4,
-              "text": "Find books that match specific criteria using WHERE clauses."
+              "marks": 6,
+              "text": "Find the customer who has the highest total totalamount compared to all other customers. Find the customerId and customerName."
             },
             {
               "label": "iii",
-              "marks": 4,
-              "text": "Find the titles and related information from books, varchars, and varchars using joins."
+              "marks": 7,
+              "text": "Find the productName and customerName from Product, Customer, and Order for currently active records."
             }
           ]
         },
         {
           "label": "b",
-          "marks": 13,
-          "text": "Create a SQL query with appropriate joins between multiple tables."
+          "marks": 11,
+          "text": "b) Create a function to calculate the total product amount for a given customer. This function should account for product with a late penalty of 10% applied to those marked as 'overdue' payment status."
         },
         {
           "label": "c",
-          "marks": 15,
-          "text": "Create a trigger that automatically updates the 'Fine' column in the 'Member' table whenever a new fine is added, or an existing fine is updated. The 'Fine' column should contain the total fine amount for each member. Ensure the trigger adjusts the 'Fine' column accurately to reflect any partial payments made by members. The member pays only 50% of the total fine amount as an initial payment when the payment status is marked as 'Partial'."
+          "marks": 12,
+          "text": "c) Create a trigger that automatically updates the 'totalAmount' column in the 'Order' table whenever a new order record is added, or an existing order record is updated. The 'totalAmount' column should contain the total product amount for each customer. Ensure the trigger adjusts the 'totalAmount' column accurately to reflect any partial payments made by customer. The customer pays only 50% of the total product amount as an initial payment when the payment status is marked as 'Partial'."
         }
       ],
-      "template_id": "6997502f6cda4a5c46b3ee3e",
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
+      "template_id": "6998167c488ce21fc303a63c",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": true,
+      "diagram_placeholder": "[DIAGRAM PLACEHOLDER: None diagram should be shown here based on the description]",
       "topic_label": "SQL_DDL_DML"
     }
   ]

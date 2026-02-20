@@ -184,14 +184,15 @@ CRITICAL REQUIREMENTS:
 - ⚠️ ALL entities MUST be connected through relationships - NO standalone entities
 - ⚠️ If an entity like "Instructor" or "Department" exists, it MUST be connected to at least one other entity via a relationship
 - ⚠️ ISA hierarchies MUST be subtype/supertype only (e.g., Student → GraduateStudent, NOT Student → Course)
+- ⚠️ DO NOT repeat the same attribute multiple times within an entity - each attribute should appear only once per entity
 - At least ONE composite attribute must be included (e.g., Address, Name with FirstName/LastName, Date with Day/Month/Year)
 - At least ONE multivalued attribute must be included (e.g., PhoneNumbers, EmailAddresses, Skills, Hobbies)
 - At least ONE descriptive attribute attached to a relationship must be included (e.g., EnrollmentDate, Grade, Salary, StartDate)
 - For ISA hierarchies: Subtypes MUST have additional attributes specific to them (not just inherited)
   Example: GraduateStudent should have attributes like ThesisTitle, AdvisorName (specific to graduates)
   Example: UndergraduateStudent should have attributes like YearOfStudy, Major, GPA (specific to undergraduates)
+  ⚠️ IMPORTANT: When listing child entity (subtype) attributes, ONLY include the subtype-specific attributes. DO NOT include parent entity attributes - subtypes inherit them automatically.
 - For relationships: Include participation constraints (min, max) - is participation mandatory (1) or optional (0)?
-- Subtypes inherit all attributes from parent entity PLUS have their own specific attributes
 - {"⚠️ ISA hierarchies are REQUIRED for this diagram. If not explicitly mentioned, infer appropriate subtypes based on the main entities." if requires_isa else ""}
 
 ⚠️ CRITICAL CONSTRAINT: AVOID REDUNDANT/STANDALONE ENTITIES ⚠️
@@ -265,6 +266,8 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                 content = content.decode('utf-8')
             
             result = json.loads(content)
+            # Remove duplicate attributes from entities
+            result = self._remove_duplicate_attributes(result)
             return result
         except json.JSONDecodeError as e:
             print(f"[WARN] JSON parsing error: {e}")
@@ -277,6 +280,208 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             traceback.print_exc()
             # Fallback: try to extract basic entities
             return self._fallback_parse(description)
+    
+    def _remove_duplicate_attributes(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Remove duplicate attributes from entities (case-insensitive check).
+        Also removes parent attributes from child entities (subtypes).
+        After removal, ensures each entity has at least 2-3 attributes.
+        
+        Steps:
+        1. Identify subtype entities from ISA hierarchies
+        2. Get parent entity attributes
+        3. Remove parent attributes from subtype entities
+        4. Remove duplicates within each entity
+        5. Ensure minimum attributes are met
+        """
+        MIN_ATTRIBUTES = 2  # Minimum required attributes per entity
+        
+        # Default attributes for common entity types (used when entity has too few attributes)
+        default_attributes_map = {
+            "student": ["StudentID", "Name", "Email", "DateOfBirth"],
+            "course": ["CourseID", "Title", "Credits", "Description"],
+            "instructor": ["InstructorID", "Name", "Department", "Email"],
+            "department": ["DepartmentID", "DepartmentName", "Location", "Budget"],
+            "book": ["BookID", "Title", "Author", "ISBN", "PublicationYear"],
+            "member": ["MemberID", "Name", "Address", "Phone", "Email"],
+            "patient": ["PatientID", "Name", "DateOfBirth", "Phone", "Address"],
+            "doctor": ["DoctorID", "Name", "Specialization", "Phone", "Email"],
+            "appointment": ["AppointmentID", "AppointmentDate", "Status", "Notes"],
+            "employee": ["EmployeeID", "Name", "Position", "Salary", "HireDate"],
+            "product": ["ProductID", "ProductName", "Price", "StockQuantity", "Category"],
+            "order": ["OrderID", "OrderDate", "TotalAmount", "Status"],
+            "customer": ["CustomerID", "Name", "Email", "Phone", "Address"],
+            "graduate": ["GraduateDegree", "ThesisTitle", "AdvisorName"],
+            "undergraduate": ["Major", "YearOfStudy", "GPA"],
+        }
+        
+        entities = parsed_data.get("entities", [])
+        isa_hierarchies = parsed_data.get("isa_hierarchies", [])
+        
+        # Step 1 & 2: Build a map of subtype name -> parent entity name and parent attributes
+        subtype_to_parent = {}
+        parent_attributes_map = {}
+        
+        for isa in isa_hierarchies:
+            supertype_name = isa.get("supertype", "")
+            subtypes = isa.get("subtypes", [])
+            
+            # Find parent entity to get its attributes
+            parent_entity = next((e for e in entities if e.get("name", "").lower() == supertype_name.lower()), None)
+            if parent_entity:
+                parent_attrs = {attr.lower() for attr in parent_entity.get("attributes", [])}
+                parent_attributes_map[supertype_name.lower()] = parent_attrs
+                
+                for subtype in subtypes:
+                    subtype_name = subtype.get("name", "")
+                    subtype_to_parent[subtype_name.lower()] = supertype_name.lower()
+        
+        # Step 3: Remove parent attributes from subtype entities
+        for entity in entities:
+            entity_name = entity.get("name", "")
+            entity_lower = entity_name.lower()
+            
+            # Check if this entity is a subtype
+            if entity_lower in subtype_to_parent:
+                parent_name = subtype_to_parent[entity_lower]
+                parent_attrs = parent_attributes_map.get(parent_name, set())
+                
+                if parent_attrs:
+                    current_attrs = entity.get("attributes", []) or []
+                    # Remove parent attributes (case-insensitive)
+                    subtype_specific_attrs = [
+                        attr for attr in current_attrs 
+                        if attr.lower() not in parent_attrs
+                    ]
+                    
+                    removed_count = len(current_attrs) - len(subtype_specific_attrs)
+                    if removed_count > 0:
+                        entity["attributes"] = subtype_specific_attrs
+                        print(f"   [INFO] Removed {removed_count} parent attribute(s) from subtype entity '{entity_name}' (parent: {parent_name})")
+        
+        # Step 4: Remove duplicates within each entity
+        for entity in entities:
+            attributes = entity.get("attributes", []) or []
+            entity_name = entity.get("name", "Unknown")
+            
+            if attributes:
+                # Remove duplicates (case-insensitive)
+                seen = set()
+                unique_attributes = []
+                for attr in attributes:
+                    attr_lower = attr.lower()
+                    if attr_lower not in seen:
+                        seen.add(attr_lower)
+                        unique_attributes.append(attr)
+                
+                if len(unique_attributes) < len(attributes):
+                    print(f"   [INFO] Removed {len(attributes) - len(unique_attributes)} duplicate attribute(s) from entity '{entity_name}'")
+                    entity["attributes"] = unique_attributes
+                else:
+                    entity["attributes"] = unique_attributes
+            else:
+                entity["attributes"] = []
+        
+        # Step 5: Ensure minimum attributes are met and track added attributes
+        entities_with_added_attrs = {}  # Track which entities had attributes added: {entity_name: [list of added attributes]}
+        
+        for entity in entities:
+            entity_name = entity.get("name", "Unknown")
+            current_attrs = entity.get("attributes", []) or []
+            
+            if len(current_attrs) < MIN_ATTRIBUTES:
+                # Try to find default attributes based on entity name
+                entity_lower = entity_name.lower()
+                default_attrs = None
+                for key, attrs in default_attributes_map.items():
+                    if key in entity_lower:
+                        default_attrs = attrs
+                        break
+                
+                if default_attrs:
+                    # Add default attributes that don't already exist (case-insensitive)
+                    existing_attr_lower = {attr.lower() for attr in current_attrs}
+                    attrs_to_add = []
+                    for attr in default_attrs:
+                        if attr.lower() not in existing_attr_lower:
+                            attrs_to_add.append(attr)
+                            existing_attr_lower.add(attr.lower())
+                            if len(current_attrs) + len(attrs_to_add) >= MIN_ATTRIBUTES:
+                                break
+                    
+                    if attrs_to_add:
+                        entity["attributes"] = current_attrs + attrs_to_add
+                        entities_with_added_attrs[entity_name] = attrs_to_add
+                        print(f"   [WARN] Entity '{entity_name}' had only {len(current_attrs)} attribute(s) after duplicate removal. Added {len(attrs_to_add)} default attribute(s): {', '.join(attrs_to_add)}")
+                else:
+                    print(f"   [WARN] Entity '{entity_name}' has only {len(current_attrs)} attribute(s) after duplicate removal (minimum required: {MIN_ATTRIBUTES}). Consider adding more attributes.")
+        
+        # Store information about added attributes for description update
+        if entities_with_added_attrs:
+            parsed_data["_entities_with_added_attrs"] = entities_with_added_attrs
+        
+        # Also check ISA hierarchy subtypes (in subtype definitions, not entities)
+        for isa in isa_hierarchies:
+            subtypes = isa.get("subtypes", [])
+            for subtype in subtypes:
+                specific_attrs = subtype.get("specific_attributes", []) or []
+                subtype_name = subtype.get("name", "Unknown")
+                
+                if specific_attrs:
+                    # Remove duplicates (case-insensitive)
+                    seen = set()
+                    unique_attrs = []
+                    for attr in specific_attrs:
+                        attr_lower = attr.lower()
+                        if attr_lower not in seen:
+                            seen.add(attr_lower)
+                            unique_attrs.append(attr)
+                    
+                    if len(unique_attrs) < len(specific_attrs):
+                        print(f"   [INFO] Removed {len(specific_attrs) - len(unique_attrs)} duplicate attribute(s) from subtype definition '{subtype_name}'")
+                        subtype["specific_attributes"] = unique_attrs
+                    else:
+                        subtype["specific_attributes"] = unique_attrs
+                else:
+                    subtype["specific_attributes"] = []
+                
+                # Check if subtype has enough attributes after duplicate removal
+                current_attrs = subtype.get("specific_attributes", []) or []
+                if len(current_attrs) < MIN_ATTRIBUTES:
+                    # Try to find default attributes based on subtype name
+                    subtype_lower = subtype_name.lower()
+                    default_attrs = None
+                    for key, attrs in default_attributes_map.items():
+                        if key in subtype_lower:
+                            default_attrs = attrs
+                            break
+                    
+                    if default_attrs:
+                        # Add default attributes that don't already exist (case-insensitive)
+                        existing_attr_lower = {attr.lower() for attr in current_attrs}
+                        attrs_to_add = []
+                        for attr in default_attrs:
+                            if attr.lower() not in existing_attr_lower:
+                                attrs_to_add.append(attr)
+                                existing_attr_lower.add(attr.lower())
+                                if len(current_attrs) + len(attrs_to_add) >= MIN_ATTRIBUTES:
+                                    break
+                        
+                        if attrs_to_add:
+                            subtype["specific_attributes"] = current_attrs + attrs_to_add
+                            # Also track if this subtype exists as an entity
+                            subtype_entity = next((e for e in entities if e.get("name", "").lower() == subtype_name.lower()), None)
+                            if subtype_entity:
+                                if "_entities_with_added_attrs" not in parsed_data:
+                                    parsed_data["_entities_with_added_attrs"] = {}
+                                if subtype_name not in parsed_data["_entities_with_added_attrs"]:
+                                    parsed_data["_entities_with_added_attrs"][subtype_name] = []
+                                parsed_data["_entities_with_added_attrs"][subtype_name].extend(attrs_to_add)
+                            print(f"   [WARN] Subtype '{subtype_name}' had only {len(current_attrs)} attribute(s) after duplicate removal. Added {len(attrs_to_add)} default attribute(s): {', '.join(attrs_to_add)}")
+                    else:
+                        print(f"   [WARN] Subtype '{subtype_name}' has only {len(current_attrs)} attribute(s) after duplicate removal (minimum required: {MIN_ATTRIBUTES}). Consider adding more attributes.")
+        
+        return parsed_data
     
     def _remove_redundant_entities(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -623,6 +828,244 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         updated_description = re.sub(r'\s+\.', '.', updated_description)  # Space before period
         updated_description = updated_description.strip()
         
+        return updated_description
+    
+    def _update_description_after_attribute_addition(self, description: str, entities_with_added_attrs: Dict[str, List[str]], parsed_data: Dict[str, Any]) -> str:
+        """
+        Update the description text to include newly added default attributes for entities.
+        
+        Args:
+            description: Original description text
+            entities_with_added_attrs: Dictionary mapping entity names to lists of added attributes
+            parsed_data: Updated parsed data with entities containing all attributes
+        
+        Returns:
+            Updated description text with added attributes included
+        """
+        if not entities_with_added_attrs:
+            return description
+        
+        updated_description = description
+        import re
+        
+        for entity_name, added_attrs in entities_with_added_attrs.items():
+            if not added_attrs:
+                continue
+            
+            # Find the entity in parsed_data to get all current attributes
+            entity = next((e for e in parsed_data.get("entities", []) if e.get("name", "").lower() == entity_name.lower()), None)
+            if not entity:
+                continue
+            
+            all_attrs = entity.get("attributes", [])
+            if not all_attrs:
+                continue
+            
+            # Pattern 1: Find existing entity attribute descriptions
+            # Look for patterns like: "The 'EntityName' entity has attributes: Attr1, Attr2"
+            entity_patterns = [
+                rf"(The\s+['\"]?{re.escape(entity_name)}['\"]?\s+entity\s+has\s+attributes?\s*[:;]?\s*)([A-Z][a-zA-Z0-9]+(?:\s*,\s*[A-Z][a-zA-Z0-9]+)*)",
+                rf"(['\"]?{re.escape(entity_name)}['\"]?\s+entity\s+has\s+attributes?\s*[:;]?\s*)([A-Z][a-zA-Z0-9]+(?:\s*,\s*[A-Z][a-zA-Z0-9]+)*)",
+                rf"(The\s+['\"]?{re.escape(entity_name)}['\"]?\s+has\s+attributes?\s*[:;]?\s*)([A-Z][a-zA-Z0-9]+(?:\s*,\s*[A-Z][a-zA-Z0-9]+)*)",
+            ]
+            
+            found_pattern = False
+            for pattern in entity_patterns:
+                match = re.search(pattern, updated_description, re.IGNORECASE)
+                if match:
+                    # Update the attributes list to include all current attributes
+                    prefix = match.group(1)
+                    # Create updated attribute list
+                    attrs_str = ", ".join(all_attrs)
+                    replacement = f"{prefix}{attrs_str}"
+                    updated_description = re.sub(pattern, replacement, updated_description, flags=re.IGNORECASE)
+                    found_pattern = True
+                    print(f"   [INFO] Updated description for entity '{entity_name}' to include added attributes: {', '.join(added_attrs)}")
+                    break
+            
+            # Pattern 2: If entity is mentioned but attributes aren't listed, add them
+            if not found_pattern:
+                # Look for entity mentions without attributes
+                entity_mention_patterns = [
+                    rf"(['\"]?{re.escape(entity_name)}['\"]?\s+entity\s+)([^.]*?)(\.)",
+                    rf"(The\s+['\"]?{re.escape(entity_name)}['\"]?\s+entity\s+)([^.]*?)(\.)",
+                ]
+                
+                for pattern in entity_mention_patterns:
+                    match = re.search(pattern, updated_description, re.IGNORECASE)
+                    if match:
+                        prefix = match.group(1)
+                        middle = match.group(2)
+                        suffix = match.group(3)
+                        
+                        # Check if attributes are already mentioned
+                        if not re.search(r'attributes?', middle, re.IGNORECASE):
+                            # Add attributes description
+                            attrs_str = ", ".join(all_attrs)
+                            replacement = f"{prefix}has attributes: {attrs_str}{suffix}"
+                            updated_description = re.sub(pattern, replacement, updated_description, flags=re.IGNORECASE)
+                            found_pattern = True
+                            print(f"   [INFO] Added attribute description for entity '{entity_name}' with attributes: {attrs_str}")
+                            break
+        
+        # Clean up multiple spaces and formatting
+        updated_description = re.sub(r'\s+', ' ', updated_description)  # Multiple spaces to single
+        updated_description = re.sub(r'\.\s*\.', '.', updated_description)  # Double periods
+        updated_description = re.sub(r'\s+\.', '.', updated_description)  # Space before period
+        updated_description = updated_description.strip()
+        
+        return updated_description
+    
+    def _add_cardinality_descriptions_to_description(self, description: str, parsed_data: Dict[str, Any]) -> str:
+        """
+        Add cardinality descriptions to the description text.
+        Adds sentences like "A Student can enroll in many Courses" for each relationship.
+        
+        Args:
+            description: Original description text
+            parsed_data: Parsed data containing relationships with cardinality information
+        
+        Returns:
+            Updated description text with cardinality descriptions added
+        """
+        relationships = parsed_data.get("relationships", [])
+        if not relationships:
+            return description
+        
+        updated_description = description
+        import re
+        
+        # Build cardinality descriptions for each relationship
+        cardinality_descriptions = []
+        
+        for rel in relationships:
+            rel_name = rel.get("name", "")
+            entity1 = rel.get("entity1", "")
+            entity2 = rel.get("entity2", "")
+            cardinality = rel.get("cardinality", "many-to-many")
+            min1 = rel.get("min1", 0)
+            max1 = rel.get("max1", "N")
+            min2 = rel.get("min2", 0)
+            max2 = rel.get("max2", "N")
+            
+            if not entity1 or not entity2:
+                continue
+            
+            # Generate natural language description based on cardinality
+            desc = ""
+            if cardinality == "one-to-many":
+                # Entity1 is "one", Entity2 is "many"
+                desc = f"A {entity1} can be related to many {entity2}s through the '{rel_name}' relationship"
+            elif cardinality == "many-to-one":
+                # Entity1 is "many", Entity2 is "one"
+                desc = f"Many {entity1}s can be related to one {entity2} through the '{rel_name}' relationship"
+            elif cardinality == "many-to-many":
+                # Both are "many"
+                desc = f"A {entity1} can be related to many {entity2}s, and a {entity2} can be related to many {entity1}s through the '{rel_name}' relationship"
+            elif cardinality == "one-to-one":
+                # Both are "one"
+                desc = f"A {entity1} is related to exactly one {entity2} through the '{rel_name}' relationship"
+            
+            # Add participation constraint information if available
+            if desc and (min1 == 0 or min2 == 0):
+                participation_note = []
+                if min1 == 0:
+                    participation_note.append(f"{entity1} participation is optional")
+                if min2 == 0:
+                    participation_note.append(f"{entity2} participation is optional")
+                if participation_note:
+                    desc += f" ({', '.join(participation_note)})"
+            
+            if desc:
+                cardinality_descriptions.append(desc)
+        
+        # Add cardinality descriptions to the description
+        if cardinality_descriptions:
+            # Check if there's already a section about relationships
+            if re.search(r'relationship|cardinality', updated_description, re.IGNORECASE):
+                # Add after the last sentence, before any existing relationship descriptions
+                # Find a good insertion point (after entity descriptions, before diagram instructions)
+                insertion_pattern = r'(\.\s*)(Draw|Create|Consider|Note:)'
+                match = re.search(insertion_pattern, updated_description, re.IGNORECASE)
+                if match:
+                    insert_pos = match.start(1)
+                    cardinality_text = ". " + ". ".join(cardinality_descriptions) + ". "
+                    updated_description = updated_description[:insert_pos] + cardinality_text + updated_description[insert_pos:]
+                else:
+                    # Add at the end before any diagram instructions
+                    cardinality_text = " " + ". ".join(cardinality_descriptions) + ". "
+                    updated_description = updated_description.rstrip() + cardinality_text
+            else:
+                # Add relationship descriptions
+                cardinality_text = " " + ". ".join(cardinality_descriptions) + ". "
+                updated_description = updated_description.rstrip() + cardinality_text
+            
+            print(f"   [INFO] Added cardinality descriptions for {len(cardinality_descriptions)} relationships")
+        
+        # Clean up multiple spaces
+        updated_description = re.sub(r'\s+', ' ', updated_description)
+        updated_description = re.sub(r'\.\s*\.', '.', updated_description)
+        updated_description = updated_description.strip()
+        
+        return updated_description
+    
+    def _remove_standalone_entities_from_description(self, description: str, standalone_entities: List[str], parsed_data: Dict[str, Any]) -> str:
+        """
+        Remove references to standalone entities (entities not connected via relationships) from the description.
+        
+        Args:
+            description: Original description text
+            standalone_entities: List of entity names that are standalone (not connected)
+            parsed_data: Parsed data for reference
+        
+        Returns:
+            Updated description text with standalone entity references removed
+        """
+        if not standalone_entities:
+            return description
+        
+        updated_description = description
+        original_description = description
+        import re
+        
+        for entity_name in standalone_entities:
+            # Remove entity references from description
+            # Pattern 1: "The 'EntityName' entity has attributes..." -> Remove this sentence
+            # Keep patterns strict so we only remove explicit standalone entity
+            # definition sentences, not broader scenario/ISA content.
+            patterns_to_remove = [
+                rf"The\s+['\"]?{re.escape(entity_name)}['\"]?\s+entity\s+[^.]*\.",  # "The 'EntityName' entity has..."
+                rf"The\s+{re.escape(entity_name)}\s+entity\s+[^.]*\.",  # "The EntityName entity has..."
+                rf"['\"]?{re.escape(entity_name)}['\"]?\s+entity\s+[^.]*\.",  # "'EntityName' entity has..."
+                rf"Entity\s+['\"]?{re.escape(entity_name)}['\"]?\s+[^.]*\.",  # "Entity 'EntityName' has..."
+                rf"Each\s+['\"]?{re.escape(entity_name)}['\"]?\s+[^.]*\.",  # "Each 'EntityName' has..."
+                rf"The\s+['\"]?{re.escape(entity_name)}['\"]?\s+has\s+attributes?\s*[:;]?\s*[^.]*\.",  # "The 'EntityName' has attributes..."
+            ]
+            
+            for pattern in patterns_to_remove:
+                updated_description = re.sub(pattern, '', updated_description, flags=re.IGNORECASE)
+            
+            # Intentionally avoid loose token-level removals (e.g., "X contains ..."),
+            # which can accidentally strip valid scenario/ISA sentences.
+        
+        # Clean up multiple spaces and empty sentences
+        updated_description = re.sub(r'\s+', ' ', updated_description)  # Multiple spaces to single
+        updated_description = re.sub(r'\.\s*\.', '.', updated_description)  # Double periods
+        updated_description = re.sub(r'\s+\.', '.', updated_description)  # Space before period
+        updated_description = re.sub(r'\.\s*,', ',', updated_description)  # Period before comma
+        updated_description = updated_description.strip()
+        
+        if standalone_entities:
+            print(f"   [INFO] Removed references to {len(standalone_entities)} standalone entities from description: {', '.join(standalone_entities)}")
+
+        # Safety fallback: never return an over-pruned description.
+        # If cleanup removed too much signal, keep the original description.
+        has_isa_in_original = bool(re.search(r'\b(isa|subtype|supertype|specialization|generalization)\b', original_description, re.IGNORECASE))
+        has_isa_in_updated = bool(re.search(r'\b(isa|subtype|supertype|specialization|generalization)\b', updated_description, re.IGNORECASE))
+        if len(updated_description) < max(60, int(0.35 * len(original_description))) or (has_isa_in_original and not has_isa_in_updated):
+            print("   [WARN] Standalone-entity cleanup became too aggressive; reverting to original description.")
+            return original_description
+
         return updated_description
     
     def generate_graphviz_code(self, parsed_data: Dict[str, Any], diagram_type: str = "EER") -> str:
@@ -1250,17 +1693,43 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             
             print(f"   [OK] Parsed {len(parsed_data.get('entities', []))} entities, {len(parsed_data.get('relationships', []))} relationships, {len(parsed_data.get('isa_hierarchies', []))} ISA hierarchies")
             
-            # Step 1.5: Post-process to remove redundant standalone entities
+            # Step 1.5: Remove duplicate attributes from entities
+            parsed_data = self._remove_duplicate_attributes(parsed_data)
+            
+            # Step 1.5.5: Update description to reflect added default attributes
+            entities_with_added_attrs = parsed_data.get("_entities_with_added_attrs", {})
+            if entities_with_added_attrs:
+                description = self._update_description_after_attribute_addition(description, entities_with_added_attrs, parsed_data)
+                # Store updated description in parsed_data for later use
+                parsed_data["updated_description"] = description
+                print(f"   [INFO] Updated description after adding default attributes to {len(entities_with_added_attrs)} entities")
+            
+            # Step 1.6: Post-process to remove redundant standalone entities
             parsed_data = self._remove_redundant_entities(parsed_data)
             print(f"   [OK] After removing redundant entities: {len(parsed_data.get('entities', []))} entities, {len(parsed_data.get('relationships', []))} relationships")
             
-            # Step 1.6: Update description to reflect removed entities
+            # Step 1.7: Update description to reflect removed entities
             removed_entities = parsed_data.get("_removed_entities", [])
             if removed_entities:
-                description = self._update_description_after_removal(description, removed_entities, parsed_data)
+                # Use updated description if available, otherwise use original
+                desc_to_update = parsed_data.get("updated_description", description)
+                description = self._update_description_after_removal(desc_to_update, removed_entities, parsed_data)
                 # Store updated description in parsed_data for later use
                 parsed_data["updated_description"] = description
                 print(f"   [INFO] Updated description after removing {len(removed_entities)} redundant entities")
+            
+            # Step 1.8: Remove standalone entities from description
+            standalone_entities = parsed_data.get("_standalone_entities", [])
+            if standalone_entities and parsed_data.get("relationships"):
+                desc_to_update = parsed_data.get("updated_description", description)
+                description = self._remove_standalone_entities_from_description(desc_to_update, standalone_entities, parsed_data)
+                parsed_data["updated_description"] = description
+                print(f"   [INFO] Removed {len(standalone_entities)} standalone entities from description")
+            
+            # Step 1.9: Add cardinality descriptions to description
+            desc_to_update = parsed_data.get("updated_description", description)
+            description = self._add_cardinality_descriptions_to_description(desc_to_update, parsed_data)
+            parsed_data["updated_description"] = description
             
             # Step 2: Generate Graphviz code
             print(f"   [INFO] Generating Graphviz DOT code...")

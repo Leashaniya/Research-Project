@@ -1110,7 +1110,7 @@ class QuestionWriter(BaseAgent):
                 else:
                     self.log(f"    🔍 Detected code segment reference in subquestion {sq_label}")
                 
-                # Generate appropriate SQL code based on question context
+                # Generate appropriate code snippet based on question context
                 sql_code = self._generate_sql_code_for_context(question_text, pattern_label, sq_text)
                 
                 if sql_code:
@@ -1180,9 +1180,11 @@ class QuestionWriter(BaseAgent):
                             elif "which type" not in updated_text.lower():
                                 updated_text = "Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used."
                     
+                    # Use java fence for JDBC snippets, sql otherwise.
+                    code_lang = "java" if ("preparedstatement" in sql_code.lower() or "resultset" in sql_code.lower() or "connection.preparestatement" in sql_code.lower()) else "sql"
                     # Insert code block directly into the subquestion text
                     # Format: Code block first, then the question text
-                    code_block = f"Code Segment:\n```sql\n{sql_code}\n```\n\n"
+                    code_block = f"Code Segment:\n```{code_lang}\n{sql_code}\n```\n\n"
                     
                     # Prepend code block to subquestion text
                     sq["text"] = code_block + updated_text
@@ -1426,6 +1428,7 @@ class QuestionWriter(BaseAgent):
     def _generate_sql_code_for_context(self, question_text: str, pattern_label: str, subquestion_text: str) -> str:
         """
         Generate appropriate SQL code based on question context.
+        Makes code segments more complex to match past paper patterns.
         
         Args:
             question_text: Main question text
@@ -1435,50 +1438,125 @@ class QuestionWriter(BaseAgent):
         Returns:
             SQL code string or empty string if no code needed
         """
+        import re
+        
         # Determine SQL code type based on context
         question_lower = question_text.lower()
         sq_lower = subquestion_text.lower()
         
+        # Extract table names from question text for context-aware code generation.
+        # Keep deterministic order and sanitize identifiers to avoid invalid names like "and".
+        schema_tables = []
+        seen_tables = set()
+
+        def _add_table(name: str):
+            cleaned = (name or "").strip()
+            if not cleaned:
+                return
+            # Keep only valid SQL identifiers and drop conjunction/noise words.
+            cleaned = re.sub(r'[^A-Za-z0-9_]', '', cleaned)
+            if not cleaned or cleaned.lower() in {"and", "table", "tables"}:
+                return
+            if not re.match(r'^[A-Za-z_][A-Za-z0-9_]*$', cleaned):
+                return
+            if cleaned.lower() not in seen_tables:
+                seen_tables.add(cleaned.lower())
+                schema_tables.append(cleaned)
+
+        # METHOD 1: explicit table declarations: "TableName(attr1, ...)"
+        table_pattern = r'\b([A-Za-z_][A-Za-z0-9_]*)\s*\('
+        for match in re.findall(table_pattern, question_text):
+            _add_table(match)
+
+        # METHOD 2: narrative list: "tables for Products, Orders, Customers, and OrderDetails"
+        narrative_pattern = r'tables?\s+for\s+([^.;\n]+)'
+        narrative_match = re.search(narrative_pattern, question_text, re.IGNORECASE)
+        if narrative_match:
+            tables_str = narrative_match.group(1)
+            # Normalize "and X" to ", X" then split.
+            tables_str = re.sub(r'\band\b', ',', tables_str, flags=re.IGNORECASE)
+            for candidate in tables_str.split(','):
+                _add_table(candidate)
+
+        # Use extracted tables if available, otherwise fallback defaults.
+        primary_table = schema_tables[0] if schema_tables else "Students"
+        secondary_table = schema_tables[1] if len(schema_tables) > 1 else "Departments"
+        
         # Check what type of SQL statement is being asked about
         if "jdbc" in sq_lower or "jdbc api" in sq_lower:
-            # JDBC-related code
+            # JDBC-related code - keep existing complexity
             return """PreparedStatement pstmt = connection.prepareStatement(
     "SELECT * FROM Employees WHERE Department = ?");
 pstmt.setString(1, "IT");
 ResultSet rs = pstmt.executeQuery();"""
         
         elif "dml" in sq_lower or "data manipulation" in sq_lower or "insert" in sq_lower or "update" in sq_lower or "delete" in sq_lower:
-            # DML statement
-            return """UPDATE Patients 
-SET Age = 25, MedicalHistory = 'Updated record'
-WHERE PatientID = 'P001';"""
+            # DML statement - make more complex with multiple operations
+            return f"""UPDATE {primary_table} 
+SET Age = 25, Status = 'Active', LastModified = GETDATE()
+WHERE {primary_table}ID = 'P001';
+
+INSERT INTO {primary_table} ({primary_table}ID, Name, Age, {secondary_table}ID)
+VALUES ('P002', 'John Doe', 30, 'D001');"""
         
-        elif "ddl" in sq_lower or "data definition" in sq_lower or "create table" in sq_lower:
-            # DDL statement
-            return """CREATE TABLE Patients (
-    PatientID CHAR(10) PRIMARY KEY,
-    Name VARCHAR(50),
+        elif "ddl" in sq_lower or "data definition" in sq_lower or "create table" in sq_lower or ("which type" in sq_lower and "statement" in sq_lower):
+            # DDL statement - make it complex like past paper patterns
+            # Include multiple constraints: PRIMARY KEY, NOT NULL, UNIQUE, DEFAULT, FOREIGN KEY, CHECK
+            return f"""CREATE TABLE {primary_table} (
+    {primary_table}ID CHAR(10) PRIMARY KEY,
+    Name VARCHAR(50) NOT NULL,
+    NIC CHAR(10) UNIQUE,
     Age INT,
-    MedicalHistory VARCHAR(500)
+    GPA FLOAT,
+    {secondary_table}ID VARCHAR(10) DEFAULT 'D001',
+    EnrollmentDate DATE DEFAULT GETDATE(),
+    CONSTRAINT {primary_table.lower()}_{secondary_table.lower()}_fk FOREIGN KEY ({secondary_table}ID)
+        REFERENCES {secondary_table}({secondary_table}ID) 
+        ON DELETE SET DEFAULT 
+        ON UPDATE CASCADE,
+    CONSTRAINT gpa_check CHECK (GPA >= 0.0 AND GPA <= 4.0),
+    CONSTRAINT age_check CHECK (Age >= 18 AND Age <= 100)
 );"""
         
         elif "select" in sq_lower or "query" in sq_lower or "retrieve" in sq_lower:
-            # SELECT statement
-            return """SELECT PatientID, Name, Age 
-FROM Patients 
-WHERE Age > 18
-ORDER BY Name;"""
+            # SELECT statement - make more complex with JOINs and aggregations
+            if len(schema_tables) >= 2:
+                return f"""SELECT {primary_table}.{primary_table}ID, {primary_table}.Name, {secondary_table}.{secondary_table}Name
+FROM {primary_table}
+INNER JOIN {secondary_table} ON {primary_table}.{secondary_table}ID = {secondary_table}.{secondary_table}ID
+WHERE {primary_table}.Age > 18
+ORDER BY {primary_table}.Name;"""
+            else:
+                return f"""SELECT {primary_table}ID, Name, Age 
+FROM {primary_table} 
+WHERE Age > 18 AND Status = 'Active'
+ORDER BY Name DESC
+LIMIT 10;"""
         
         elif "t-sql" in sq_lower or "transact-sql" in sq_lower:
-            # T-SQL statement
-            return """SELECT PatientID, Name, Age
-FROM Patients
-WHERE Age BETWEEN 18 AND 65;"""
+            # T-SQL statement - make more complex
+            return f"""SELECT {primary_table}ID, Name, Age, 
+       CASE 
+           WHEN Age < 25 THEN 'Young'
+           WHEN Age BETWEEN 25 AND 65 THEN 'Adult'
+           ELSE 'Senior'
+       END AS AgeCategory
+FROM {primary_table}
+WHERE Age BETWEEN 18 AND 65
+ORDER BY Age;"""
         
         else:
-            # Default: Generic SQL SELECT statement
-            return """SELECT * FROM Patients 
-WHERE PatientID = 'P001';"""
+            # Default: Complex SQL with multiple statements
+            return f"""CREATE TABLE {primary_table} (
+    {primary_table}ID INT PRIMARY KEY IDENTITY(1,1),
+    Name VARCHAR(50) NOT NULL,
+    Email VARCHAR(100) UNIQUE,
+    Age INT CHECK (Age >= 18),
+    Status VARCHAR(20) DEFAULT 'Active'
+);
+
+INSERT INTO {primary_table} (Name, Email, Age)
+VALUES ('John Smith', 'john@example.com', 25);"""
 
     def _build_generation_prompt(self, slot, template, context, global_context, feedback=None, *, banned_topics=None) -> str:
         """Mode 1: Pure Generation from Constraints (No past text shown)."""
@@ -1623,6 +1701,7 @@ WHERE PatientID = 'P001';"""
         {"6. **ER/EER QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_er_question else ""}{"The question stem MUST include a COMPREHENSIVE scenario block (4-7 sentences) describing:" if is_er_question else ""}
         {"   - MINIMUM 4 distinct entities with their attributes (at least 4 entities)" if is_er_question else ""}
         {"   - ⚠️ CRITICAL: Each entity MUST have AT LEAST 2-3 attributes defined. DO NOT create entities without attributes." if is_er_question else ""}
+        {"   - ⚠️ DO NOT repeat the same attribute multiple times within an entity - each attribute should appear only once per entity" if is_er_question else ""}
         {"   - ⚠️ Example CORRECT: 'Student entity has attributes: StudentID, Name, Address, PhoneNumbers' - has multiple attributes" if is_er_question else ""}
         {"   - ⚠️ Example WRONG: 'Student entity exists' - no attributes listed, will be REJECTED" if is_er_question else ""}
         {"   - ⚠️ ALL entities MUST be connected through relationships - NO standalone entities" if is_er_question else ""}
@@ -1633,6 +1712,7 @@ WHERE PatientID = 'P001';"""
         {"   - Relationships between entities with cardinality information" if is_er_question else ""}
         {"   - Real-world context (e.g., university, hospital, library, company)" if is_er_question else ""}
         {"   - ISA hierarchies (subtype/supertype relationships) with subtype-specific attributes" if is_er_question else ""}
+        {"   - ⚠️ IMPORTANT: When describing child entities (subtypes), ONLY list the subtype-specific attributes. DO NOT include parent entity attributes - subtypes inherit them automatically." if is_er_question else ""}
         {"   " if is_er_question else ""}
         {"   After the diagram is generated, you MUST include a description section that explains:" if is_er_question else ""}
         {"   - The cardinality notation uses (min, max) approach (e.g., (1,1) for one-to-one, (1,N) for one-to-many)" if is_er_question else ""}

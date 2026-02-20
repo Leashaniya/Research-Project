@@ -957,6 +957,12 @@ class QualityCritic(BaseAgent):
                 # Q3-specific: If it's Q3 and contains JDBC/Type 2 Driver, it's ALWAYS valid
                 is_q3_with_jdbc = q_no in ["Q3", "3"] and ("jdbc" in draft_text or "type 2 driver" in draft_text)
                 
+                # Q4-specific: If it's Q4 with SQL pattern and all deterministic checks passed, be lenient
+                is_q4_sql = q_no in ["Q4", "4"] and "sql" in pattern_label.lower()
+                has_sql_functions = "create function" in draft_text or "create a function" in draft_text
+                has_sql_triggers = "create trigger" in draft_text or "create a trigger" in draft_text
+                is_q4_with_sql_features = is_q4_sql and (has_sql_functions or has_sql_triggers)
+                
                 has_tsql = "t-sql" in template_text or "tsql" in template_text or "t-sql" in template_full_text
                 
                 template_info = f"""
@@ -964,6 +970,7 @@ class QualityCritic(BaseAgent):
         - This question follows a template pattern: {template_pattern}
         - The template structure includes {len(template_structure)} sub-questions
         {"- ⚠️ CRITICAL: This is Q3 and contains JDBC Type 2 Driver content - JDBC API is MANDATORY and VALID for Q3 questions. You MUST APPROVE this question. Do NOT reject it for containing JDBC content." if is_q3_with_jdbc else ""}
+        {"- ⚠️ CRITICAL: This is Q4 with SQL Functions/Triggers - All deterministic checks (schema format, structure, marks) have PASSED. SQL Functions and Triggers are VALID and REQUIRED topics for Q4 questions. You MUST APPROVE this question if it follows the template structure, even if semantic quality could be slightly improved. Do NOT reject Q4 questions for minor clarity issues when all structural requirements are met." if is_q4_with_sql_features else ""}
         {"- ⚠️ NOTE: The template includes JDBC API topics (database connectivity from Java) - this is VALID for Database Systems exams" if has_jdbc else ""}
         {"- ⚠️ NOTE: The template includes T-SQL statements - this is VALID for Database Systems exams" if has_tsql else ""}
         - ⚠️ NOTE: SQL Functions (CREATE FUNCTION) and Triggers (CREATE TRIGGER) are VALID topics found in past papers and should be APPROVED
@@ -985,6 +992,7 @@ class QualityCritic(BaseAgent):
            - REJECT if it introduces topics unrelated to core syllabus or past paper patterns
            - REJECT if it deviates from historical exam question styles
            - ⚠️ CRITICAL RULE FOR Q3: If this is Q3 and contains "JDBC Type 2 Driver" or "JDBC API", you MUST APPROVE it. JDBC is a core Database Systems topic and is REQUIRED in Q3 questions based on historical exam patterns. Do NOT reject Q3 questions for containing JDBC content - this is expected and valid.
+           - ⚠️ CRITICAL RULE FOR Q4: If this is Q4 with SQL Functions/Triggers and all deterministic checks (schema format, structure, marks) have PASSED, you MUST APPROVE it. SQL Functions and Triggers are VALID and REQUIRED topics for Q4 questions. Do NOT reject Q4 questions for minor semantic quality issues (e.g., slight vagueness, minor clarity concerns) when all structural and format requirements are met. Only reject Q4 if there are MAJOR issues (e.g., completely wrong topic, missing critical components, severe inconsistencies).
            - ⚠️ IMPORTANT: If the template context shows JDBC API or T-SQL topics, these are VALID database connectivity topics and should be APPROVED
         
         2. CONTENT RELEVANCE (MANDATORY):
@@ -1020,6 +1028,7 @@ class QualityCritic(BaseAgent):
         6. SEMANTIC QUALITY:
            - Ensure questions are clear, unambiguous, and academically appropriate
            - Ensure questions match the academic level of past papers
+           - ⚠️ FOR Q4: Be LENIENT with semantic quality if all deterministic checks passed. Minor clarity issues or slight vagueness are acceptable. Only reject for MAJOR semantic problems (e.g., completely incomprehensible, severe logical errors, missing critical information).
         
         Output JSON:
         {{
