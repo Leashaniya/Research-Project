@@ -13,7 +13,6 @@ import {
   FaBookOpen,
   FaCheck,
   FaCopy,
-  FaChartLine,
   FaThumbsUp,
   FaThumbsDown,
   FaEdit,
@@ -47,10 +46,6 @@ function App() {
   const [flashcardFeedbackLoading, setFlashcardFeedbackLoading] = useState({}); // {cardId: true/false}
   const [flashcardImproving, setFlashcardImproving] = useState({}); // {cardId: true/false}
   const [flashcardLiked, setFlashcardLiked] = useState({}); // {cardId: true/false} - tracks "Yes" clicks
-  const [summaryAccuracy, setSummaryAccuracy] = useState(null);
-  const [summaryAccuracyLoading, setSummaryAccuracyLoading] = useState(false);
-  const [guidanceAccuracy, setGuidanceAccuracy] = useState(null);
-  const [guidanceAccuracyLoading, setGuidanceAccuracyLoading] = useState(false);
   // Feedback and reinforcement state
   const [feedbackRating, setFeedbackRating] = useState(null);
   const [confusedConcept, setConfusedConcept] = useState('');
@@ -71,6 +66,7 @@ function App() {
   const [reinforcedSummary, setReinforcedSummary] = useState(null);
   const [activeSummaryView, setActiveSummaryView] = useState('base'); // 'base' or 'reinforced'
   const [forceRegenerate, setForceRegenerate] = useState(false);
+  const [forceRegenerateFlashcards, setForceRegenerateFlashcards] = useState(false);
   const [lastFeedbackId, setLastFeedbackId] = useState(null); // Store feedback_id after submission
   // Guidance reinforcement state (same style as summarization)
   const [guidanceId, setGuidanceId] = useState(null);
@@ -195,7 +191,6 @@ function App() {
     e.preventDefault();
     setLoading(true);
     setReport(null);
-    setGuidanceAccuracy(null); // Clear previous accuracy results
 
     if (!assignmentFile) {
       setReport({ error: 'Please select a PDF file to upload.' });
@@ -299,7 +294,6 @@ function App() {
     setSummaryFeedbackType(null);
     setSummary(null);
     setSummaryAudio(null); // ✅ clear old audio immediately
-    setSummaryAccuracy(null); // Clear previous accuracy results
 
     if (!summaryTopic || !summaryTopic.trim()) {
       setSummary({ error: 'Please enter a topic to summarize.' });
@@ -622,78 +616,6 @@ function App() {
     }
   };
 
-  const handleCheckSummaryAccuracy = async () => {
-    if (!summary || !summary.content || !summary.topic) {
-      alert('Please generate a summary first before checking accuracy.');
-      return;
-    }
-
-    setSummaryAccuracyLoading(true);
-    setSummaryAccuracy(null);
-
-    try {
-      const response = await fetch(`${API_URL}/protected/check-summary-accuracy`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          topic: summary.topic,
-          summary_content: summary.content
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setSummaryAccuracy(result);
-      } else {
-        const errorData = await response.json().catch(() => ({ detail: 'Failed to check accuracy' }));
-        setSummaryAccuracy({ error: errorData.detail || 'Failed to check summary accuracy.' });
-      }
-    } catch (error) {
-      console.error('Error checking summary accuracy:', error);
-      setSummaryAccuracy({ error: 'An error occurred while checking accuracy.' });
-    } finally {
-      setSummaryAccuracyLoading(false);
-    }
-  };
-
-  const handleCheckGuidanceAccuracy = async () => {
-    if (!report || (!report.content && typeof report !== 'string')) {
-      alert('Please generate guidance first before checking accuracy.');
-      return;
-    }
-
-    setGuidanceAccuracyLoading(true);
-    setGuidanceAccuracy(null);
-
-    try {
-      const guidanceContent = typeof report === 'string' ? report : report.content || '';
-      
-      const response = await fetch(`${API_URL}/protected/check-guidance-accuracy`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          guidance_content: guidanceContent,
-          assignment_topic: null
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setGuidanceAccuracy(result);
-      } else {
-        const errorData = await response.json().catch(() => ({ detail: 'Failed to check accuracy' }));
-        setGuidanceAccuracy({ error: errorData.detail || 'Failed to check guidance accuracy.' });
-      }
-    } catch (error) {
-      console.error('Error checking guidance accuracy:', error);
-      setGuidanceAccuracy({ error: 'An error occurred while checking accuracy.' });
-    } finally {
-      setGuidanceAccuracyLoading(false);
-    }
-  };
-
   const handleSubmitGuidanceFeedbackAndReinforce = async () => {
     if (!guidanceId || !baseGuidanceContent) {
       alert('No guidance available to improve.');
@@ -789,35 +711,31 @@ function App() {
     }
 
     try {
-      // First check if we have saved flashcards for this topic
-      const existingResponse = await fetch(`${API_URL}/protected/flashcards/topic/${encodeURIComponent(flashcardTopic.trim())}`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (existingResponse.ok) {
-        const existingData = await existingResponse.json();
-        if (existingData.found) {
-          // Use existing (possibly improved) flashcards
-          setFlashcards({ topic: existingData.topic, flashcards: existingData.flashcards });
-          setFlashcardSetId(existingData._id);
-          setFlashLoading(false);
-          return;
-        }
-      }
-
-      // Generate new flashcards
+      // Backend returns saved set or generates new based on force flag
       const response = await fetch(`${API_URL}/protected/generate-flashcards`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ topic: flashcardTopic.trim() }),
+        body: JSON.stringify({
+          topic: flashcardTopic.trim(),
+          force: forceRegenerateFlashcards,
+        }),
       });
 
       if (response.ok) {
         const result = await response.json();
-        
-        // Add unique IDs to flashcards and save to database
+
+        // Backend returned saved set (same concept as summarization from_cache — no need to save again)
+        if ((result.from_saved || result.from_cache) && result.flashcard_set_id) {
+          setFlashcardSetId(result.flashcard_set_id);
+          setFlashcards({ topic: result.topic, flashcards: result.flashcards });
+          const levels = Object.keys(result.flashcards || {});
+          if (levels.length > 0) setSelectedBloomLevel(levels[0]);
+          setFlashLoading(false);
+          return;
+        }
+
+        // Newly generated: add unique IDs and save to database
         const flashcardsWithIds = {};
         for (const level of Object.keys(result.flashcards)) {
           flashcardsWithIds[level] = result.flashcards[level].map((card, i) => ({
@@ -827,15 +745,14 @@ function App() {
           }));
         }
 
-        // Save to database
         try {
           const saveResponse = await fetch(`${API_URL}/protected/flashcards/save`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
               topic: result.topic,
-              flashcards: flashcardsWithIds 
+              flashcards: flashcardsWithIds
             }),
           });
 
@@ -847,12 +764,10 @@ function App() {
           } else {
             const saveError = await saveResponse.json().catch(() => ({}));
             console.warn('Failed to save flashcards:', saveError);
-            // If save fails, still show flashcards but without feedback capability
             setFlashcards({ topic: result.topic, flashcards: flashcardsWithIds });
           }
         } catch (saveErr) {
           console.warn('Error saving flashcards:', saveErr);
-          // If save fails, still show flashcards but without feedback capability
           setFlashcards({ topic: result.topic, flashcards: flashcardsWithIds });
         }
       } else {
@@ -1494,62 +1409,6 @@ function App() {
                       </div>
                     )}
 
-                    {/* Accuracy Check Button and Results */}
-                    {!report.error && (
-                      <div style={{ marginTop: '30px', padding: '20px', border: '1px solid #dee2e6', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
-                        <button
-                          onClick={handleCheckGuidanceAccuracy}
-                          className="btn btn-primary"
-                          disabled={guidanceAccuracyLoading}
-                          style={{ marginBottom: '20px' }}
-                        >
-                          {guidanceAccuracyLoading ? (
-                            <>
-                              <span className="loading-spinner"></span>
-                              Checking Accuracy...
-                            </>
-                          ) : (
-                            <>
-                              <FaChartLine style={{ marginRight: '8px' }} />
-                              Check Accuracy
-                            </>
-                          )}
-                        </button>
-
-                        {guidanceAccuracy && (
-                          <div style={{ marginTop: '20px' }}>
-                            {guidanceAccuracy.error ? (
-                              <div className="error-message">{guidanceAccuracy.error}</div>
-                            ) : (
-                              <div>
-                                <h3 style={{ marginBottom: '15px', color: '#495057' }}>
-                                  <FaChartLine style={{ marginRight: '8px' }} />
-                                  Accuracy Assessment
-                                </h3>
-                                {guidanceAccuracy.overall && (
-                                  <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#fff', borderRadius: '6px', border: '1px solid #dee2e6' }}>
-                                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '10px' }}>
-                                      Overall Accuracy: {guidanceAccuracy.overall.avg_fmeasure_pct?.toFixed(2) || 0}%
-                                    </div>
-                                    <div style={{ fontSize: '1rem', marginBottom: '5px' }}>
-                                      Level: <strong>{guidanceAccuracy.overall.accuracy_level}</strong>
-                                    </div>
-                                    <div style={{ fontSize: '0.95rem', color: '#6c757d', marginTop: '10px' }}>
-                                      {guidanceAccuracy.overall.recommendation}
-                                    </div>
-                                  </div>
-                                )}
-                                <div style={{ backgroundColor: '#fff', padding: '15px', borderRadius: '6px', border: '1px solid #dee2e6' }}>
-                                  <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.9rem', margin: 0 }}>
-                                    {guidanceAccuracy.report}
-                                  </pre>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
@@ -2004,61 +1863,6 @@ function App() {
                             </div>
                           )}
                         </div>
-
-                        {/* Accuracy Check Button and Results */}
-                        <div style={{ marginTop: '30px', padding: '20px', border: '1px solid #dee2e6', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
-                          <button
-                            onClick={handleCheckSummaryAccuracy}
-                            className="btn btn-primary"
-                            disabled={summaryAccuracyLoading}
-                            style={{ marginBottom: '20px' }}
-                          >
-                            {summaryAccuracyLoading ? (
-                              <>
-                                <span className="loading-spinner"></span>
-                                Checking Accuracy...
-                              </>
-                            ) : (
-                              <>
-                                <FaChartLine style={{ marginRight: '8px' }} />
-                                Check Accuracy
-                              </>
-                            )}
-                          </button>
-
-                          {summaryAccuracy && (
-                            <div style={{ marginTop: '20px' }}>
-                              {summaryAccuracy.error ? (
-                                <div className="error-message">{summaryAccuracy.error}</div>
-                              ) : (
-                                <div>
-                                  <h3 style={{ marginBottom: '15px', color: '#495057' }}>
-                                    <FaChartLine style={{ marginRight: '8px' }} />
-                                    Accuracy Assessment
-                                  </h3>
-                                  {summaryAccuracy.overall && (
-                                    <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#fff', borderRadius: '6px', border: '1px solid #dee2e6' }}>
-                                      <div style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '10px' }}>
-                                        Overall Accuracy: {summaryAccuracy.overall.avg_fmeasure_pct?.toFixed(2) || 0}%
-                                      </div>
-                                      <div style={{ fontSize: '1rem', marginBottom: '5px' }}>
-                                        Level: <strong>{summaryAccuracy.overall.accuracy_level}</strong>
-                                      </div>
-                                      <div style={{ fontSize: '0.95rem', color: '#6c757d', marginTop: '10px' }}>
-                                        {summaryAccuracy.overall.recommendation}
-                                      </div>
-                                    </div>
-                                  )}
-                                  <div style={{ backgroundColor: '#fff', padding: '15px', borderRadius: '6px', border: '1px solid #dee2e6' }}>
-                                    <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.9rem', margin: 0 }}>
-                                      {summaryAccuracy.report}
-                                    </pre>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
                       </div>
                     ) : null}
                   </div>
@@ -2088,6 +1892,20 @@ function App() {
                     <p style={{ marginTop: '8px', fontSize: '0.9rem', color: '#6c757d' }}>
                       Enter a topic to generate short Q&A flashcards.
                     </p>
+                    <div style={{ marginTop: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input
+                          type="checkbox"
+                          id="force-regenerate-flashcards"
+                          checked={forceRegenerateFlashcards}
+                          onChange={(e) => setForceRegenerateFlashcards(e.target.checked)}
+                          disabled={flashLoading}
+                        />
+                        <label htmlFor="force-regenerate-flashcards" style={{ fontSize: '0.9rem', color: '#495057', cursor: 'pointer' }}>
+                          Force regenerate (generate new and save for future access)
+                        </label>
+                      </div>
+                    </div>
                   </div>
                   <button type="submit" className="btn btn-primary" disabled={flashLoading}>
                     {flashLoading ? (

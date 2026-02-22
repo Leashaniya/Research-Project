@@ -704,6 +704,7 @@ class CheckGuidanceAccuracyRequest(BaseModel):
 
 class FlashcardRequest(BaseModel):
     topic: str
+    force: bool = False  # If True, regenerate even if exists in DB (same as SummarizeRequest)
 
 
 @router.post("/check-summary-accuracy")
@@ -798,21 +799,57 @@ async def generate_flashcards(
     user: UserInfo = Depends(get_current_user)
 ):
     """
-    Generate Bloom's Taxonomy-based flashcards for a given topic.
-    
-    Returns:
-        JSON response with flashcards organized by Bloom's taxonomy levels
+    Create or retrieve Bloom's Taxonomy-based flashcards for a given topic.
+
+    Default (force=False): Returns this user's previously saved flashcards for the topic
+    from the database—their most recently stored set for that topic. User-specific; always
+    the latest version available for that topic.
+
+    Force regenerate (force=True): Generates new flashcards for the topic, then the frontend
+    saves them to the database under this user's profile for future access. New sets are
+    stored and can be accessed whenever needed.
+
+    Storage and viewability: All sets are stored per user (user_email). Whether pulled
+    from DB or newly generated, the flashcards returned are recent and specific to the user.
     """
     topic = request.topic.strip()
-    logger.info(f"=== Starting flashcard generation for topic: {topic} ===")
-    
+    force = request.force
+    logger.info(f"=== Starting flashcard get/generate for topic: {topic} (force={force}) ===")
+
     if not topic:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Topic is required and cannot be empty."
         )
-    
+
     try:
+        from app.core.config import settings as _settings
+        # Check for existing flashcard set if not forcing regeneration (same pattern as summarize_topic)
+        if not force:
+            from pymongo import MongoClient
+            import certifi
+
+            client = MongoClient(_settings.MONGO_URI, tlsCAFile=certifi.where())
+            db = client.ca_guidance
+            flashcard_sets = db.flashcard_sets
+            # Most recent saved set for this user and topic (case-insensitive topic match)
+            topic_regex = re.compile(f"^{re.escape(topic)}$", re.IGNORECASE)
+            flashcard_set = flashcard_sets.find_one(
+                {"topic": topic_regex, "user_email": user.email},
+                sort=[("created_at", -1)]
+            )
+            if flashcard_set:
+                logger.info(f"Found saved flashcard set for topic '{topic}' (user-specific)")
+                return {
+                    "topic": flashcard_set["topic"],
+                    "flashcards": flashcard_set["flashcards"],
+                    "flashcard_set_id": str(flashcard_set["_id"]),
+                    "from_saved": True,
+                    "from_cache": True,  # Same key as summarization when returning stored
+                }
+            logger.info(f"No saved set for topic '{topic}', will generate")
+
+        # Generate new flashcards
         from langchain_openai import ChatOpenAI
         from app.ca_guidance.agents.flashcard_agent import FlashcardAgent
         
@@ -821,7 +858,7 @@ async def generate_flashcards(
         model_name = "gpt-4o-mini"  # Use GPT model for flashcard generation
         llm = ChatOpenAI(
             model=model_name,
-            api_key=settings.OPENAI_API_KEY,
+            api_key=_settings.OPENAI_API_KEY,
             temperature=0.3,  # Lower temperature for more consistent flashcard generation
         )
         
@@ -852,7 +889,8 @@ async def save_flashcard_set(
     user: UserInfo = Depends(get_current_user)
 ):
     """
-    Save a generated flashcard set to the database with unique IDs.
+    Save a generated flashcard set to the database under this user's profile.
+    Stored sets are available for future access (default flow will pull them by topic).
     """
     logger.info(f"=== Saving flashcard set for topic: {request.topic} ===")
     
@@ -1055,12 +1093,51 @@ async def improve_flashcard(
         )
 
 
+@router.get("/flashcards/recent")
+async def get_recent_flashcards(
+    user: UserInfo = Depends(get_current_user)
+):
+    """Get the most recently created flashcard set for the current user."""
+    logger.info("=== Getting recent flashcard set for user ===")
+    try:
+        from app.core.config import settings
+        from pymongo import MongoClient
+        import certifi
+
+        client = MongoClient(settings.MONGO_URI, tlsCAFile=certifi.where())
+        db = client.ca_guidance
+        flashcard_sets = db.flashcard_sets
+
+        flashcard_set = flashcard_sets.find_one(
+            {"user_email": user.email},
+            sort=[("created_at", -1)]
+        )
+        if not flashcard_set:
+            return {"found": False, "message": "No flashcards found for this user"}
+
+        return {
+            "found": True,
+            "_id": str(flashcard_set["_id"]),
+            "topic": flashcard_set["topic"],
+            "flashcards": flashcard_set["flashcards"],
+            "version": flashcard_set.get("version", 1),
+            "created_at": flashcard_set["created_at"].isoformat() if flashcard_set.get("created_at") else None,
+            "updated_at": flashcard_set["updated_at"].isoformat() if flashcard_set.get("updated_at") else None,
+        }
+    except Exception as e:
+        logger.error(f"Error getting recent flashcards: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get recent flashcards: {str(e)}"
+        )
+
+
 @router.get("/flashcards/topic/{topic}")
 async def get_flashcards_by_topic(
     topic: str,
     user: UserInfo = Depends(get_current_user)
 ):
-    """Get the latest flashcard set for a topic."""
+    """Get the most recently saved flashcard set for this user and topic."""
     logger.info(f"=== Getting flashcards for topic: {topic} ===")
     
     try:
@@ -1074,7 +1151,7 @@ async def get_flashcards_by_topic(
         
         flashcard_set = flashcard_sets.find_one(
             {"topic": topic, "user_email": user.email},
-            sort=[("version", -1)]
+            sort=[("created_at", -1)]
         )
         
         if not flashcard_set:
