@@ -1,10 +1,11 @@
 """Service for summary reinforcement and MongoDB operations."""
 
 import logging
+import re
 from datetime import datetime
 import wave
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
 from bson.objectid import ObjectId
 from pymongo.errors import DuplicateKeyError
 from gridfs import GridFS
@@ -361,6 +362,7 @@ class SummaryReinforcementService:
         rating: str,
         confused_concept: Optional[str] = None,
         comment: Optional[str] = None,
+        feedback_type: Optional[str] = None,
         user_email: Optional[str] = None,
         session_id: Optional[str] = None,
     ) -> str:
@@ -373,6 +375,7 @@ class SummaryReinforcementService:
             rating: "helpful" or "not_helpful"
             confused_concept: Optional concept the user found confusing
             comment: Optional additional comment
+            feedback_type: Optional "add_examples", "simplify", "more_detail", "clarify"
             
         Returns:
             The inserted feedback document ID as string
@@ -389,6 +392,7 @@ class SummaryReinforcementService:
                 "rating": rating,
                 "confused_concept": confused_concept.strip() if confused_concept else None,
                 "comment": comment.strip() if comment else None,
+                "feedback_type": feedback_type,
                 "created_at": datetime.utcnow()
             }
             
@@ -399,6 +403,18 @@ class SummaryReinforcementService:
             logger.error(f"Failed to store feedback: {e}", exc_info=True)
             raise
     
+    def _split_into_sections(self, text: str) -> List[str]:
+        """Split summary into sections by ## or ### headers. Preserves all content including <figure> blocks."""
+        if not (text or text.strip()):
+            return [text] if text else []
+        # Split before lines that start with ## or ### (at line start)
+        parts = re.split(r"\n(?=##+\s)", text.strip())
+        return [p.strip() for p in parts if p.strip()]
+
+    def _normalize_header(self, line: str) -> str:
+        """Normalize a section header for comparison (strip, single spaces)."""
+        return " ".join(line.strip().split())
+
     def generate_reinforced_summary(
         self,
         topic: str,
@@ -406,46 +422,29 @@ class SummaryReinforcementService:
         feedback: Dict[str, Any]
     ) -> str:
         """
-        Generate a reinforced summary based on feedback and lecture context.
-        
-        Args:
-            topic: The topic being summarized
-            base_summary_text: The original base summary
-            feedback: Feedback dictionary with rating, confused_concept, etc.
-            
-        Returns:
-            Generated reinforced summary text
+        Generate a reinforced summary based on feedback. Only the section that
+        addresses the feedback is revised; all other content, images, and image
+        explanations are preserved unchanged.
         """
-        logger.info(f"Generating reinforced summary for topic: {topic}")
+        logger.info(f"Generating reinforced summary for topic: {topic} (only requested part will change)")
         
         # Retrieve relevant lecture context using RAG
         rag_chain = _get_rag_chain()
         if rag_chain is None:
             raise ValueError("RAG system is not available")
         
-        # Build query to get relevant context
         query = f"Provide detailed information about {topic} from lecture materials. Include examples, common mistakes, and clarification of concepts."
         result = rag_chain.invoke({"question": query})
         context_text = _extract_context_text(result)
-        
         if not context_text:
             context_text = result.get("answer", "") if isinstance(result, dict) else str(result)
         
-        # Build reinforcement prompt
-        confused_concept = feedback.get("confused_concept", "")
-        comment = feedback.get("comment", "")
+        confused_concept = feedback.get("confused_concept", "") or ""
+        comment = feedback.get("comment", "") or ""
         rating = feedback.get("rating", "not_helpful")
+        feedback_type = feedback.get("feedback_type") or ""
         
-        prompt = self._build_reinforcement_prompt(
-            topic=topic,
-            base_summary=base_summary_text,
-            context=context_text,
-            confused_concept=confused_concept,
-            comment=comment,
-            rating=rating
-        )
-        
-        # Generate reinforced summary using LLM
+        sections = self._split_into_sections(base_summary_text)
         llm = ChatOpenAI(
             model="gpt-4o-mini",
             api_key=settings.OPENAI_API_KEY,
@@ -453,13 +452,152 @@ class SummaryReinforcementService:
         )
         
         try:
+            # If we have multiple sections, revise only the one that matches the feedback
+            if len(sections) >= 2:
+                revised = self._generate_and_merge_revised_section(
+                    llm=llm,
+                    topic=topic,
+                    base_summary_text=base_summary_text,
+                    sections=sections,
+                    context_text=context_text,
+                    confused_concept=confused_concept,
+                    comment=comment,
+                    rating=rating,
+                    feedback_type=feedback_type,
+                )
+                if revised is not None:
+                    logger.info("Reinforced summary generated (only requested section changed)")
+                    return revised
+                logger.warning("Section-based revision did not succeed, falling back to full summary with preserve instructions")
+            
+            # Fallback: full summary with strict instructions to preserve unchanged parts and figures
+            prompt = self._build_reinforcement_prompt(
+                topic=topic,
+                base_summary=base_summary_text,
+                context=context_text,
+                confused_concept=confused_concept,
+                comment=comment,
+                rating=rating,
+                feedback_type=feedback_type,
+            )
             response = llm.invoke([HumanMessage(content=prompt)])
             reinforced_summary = response.content if hasattr(response, "content") else str(response)
-            logger.info("Reinforced summary generated successfully")
+            logger.info("Reinforced summary generated (full summary with preserve instructions)")
             return reinforced_summary
         except Exception as e:
             logger.error(f"Failed to generate reinforced summary: {e}", exc_info=True)
             raise
+
+    def _generate_and_merge_revised_section(
+        self,
+        llm,
+        topic: str,
+        base_summary_text: str,
+        sections: List[str],
+        context_text: str,
+        confused_concept: str,
+        comment: str,
+        rating: str,
+        feedback_type: str = "",
+    ) -> Optional[str]:
+        """Ask LLM to revise only one section; merge it back and return full summary or None on failure."""
+        prompt = self._build_revise_section_prompt(
+            topic=topic,
+            base_summary=base_summary_text,
+            context=context_text[:4000],
+            confused_concept=confused_concept,
+            comment=comment,
+            rating=rating,
+            feedback_type=feedback_type,
+        )
+        response = llm.invoke([HumanMessage(content=prompt)])
+        raw = response.content if hasattr(response, "content") else str(response)
+        raw = (raw or "").strip()
+        
+        # Parse SECTION_HEADER: ... and REVISED_SECTION: ...
+        header_match = re.search(r"SECTION_HEADER:\s*\n?\s*(##+\s+.+?)(?=\n|REVISED_SECTION:|$)", raw, re.DOTALL | re.IGNORECASE)
+        section_match = re.search(r"REVISED_SECTION:\s*\n?(.+)", raw, re.DOTALL | re.IGNORECASE)
+        if not header_match or not section_match:
+            return None
+        section_header = self._normalize_header(header_match.group(1).strip())
+        revised_section = section_match.group(1).strip()
+        
+        # Ensure revised section starts with the same header for consistency
+        if not revised_section.startswith("##"):
+            revised_section = section_header + "\n\n" + revised_section
+        elif self._normalize_header(revised_section.split("\n")[0]) != section_header:
+            first_line = revised_section.split("\n")[0]
+            section_header = self._normalize_header(first_line)
+        
+        # Find which section to replace (match by header)
+        for i, sec in enumerate(sections):
+            first_line = sec.split("\n")[0] if sec else ""
+            if self._normalize_header(first_line) == section_header:
+                new_sections = sections[:i] + [revised_section] + sections[i + 1:]
+                return "\n\n".join(new_sections)
+            if first_line.strip().startswith("##") and section_header in self._normalize_header(first_line):
+                new_sections = sections[:i] + [revised_section] + sections[i + 1:]
+                return "\n\n".join(new_sections)
+        return None
+
+    def _feedback_type_instruction(self, feedback_type: str) -> str:
+        """Return instruction line for feedback_type (more_detail, simplify, clarify, add_examples)."""
+        if not feedback_type:
+            return ""
+        ft = (feedback_type or "").strip().lower().replace("-", "_")
+        if ft == "more_detail":
+            return "\nUSER REQUEST: More detail. Make the relevant section and any image explanations (figcaption) in it more detailed and informative.\n"
+        if ft == "simplify":
+            return "\nUSER REQUEST: Simplify. Use simpler language in the relevant section and simplify any image explanations (figcaption) in that section.\n"
+        if ft == "clarify":
+            return "\nUSER REQUEST: Clarify concepts. Make the explanation clearer in the relevant section and clarify any image explanations (figcaption) in that section.\n"
+        if ft == "add_examples":
+            return "\nUSER REQUEST: Add examples. Add concrete examples in the relevant section; if the section has figure captions, make them more example-oriented where appropriate.\n"
+        return f"\nUSER REQUEST: {feedback_type.replace('_', ' ').title()}. Address this in the relevant section and in any image explanations in that section.\n"
+
+    def _build_revise_section_prompt(
+        self,
+        topic: str,
+        base_summary: str,
+        context: str,
+        confused_concept: str,
+        comment: str,
+        rating: str,
+        feedback_type: str = "",
+    ) -> str:
+        """Build prompt that asks for only the revised section (and its header), including image explanations."""
+        confused_section = ""
+        if confused_concept:
+            confused_section = f'\nThe user found the concept "{confused_concept}" confusing. Focus on clarifying that concept in the relevant section.\n'
+        comment_section = ""
+        if comment and str(comment).strip():
+            comment_section = f"\nUSER COMMENT to incorporate: {str(comment).strip()}\n"
+        rating_note = ""
+        if rating == "not_helpful":
+            rating_note = "\nThe user found the summary not helpful; simplify and add examples in the relevant section.\n"
+        feedback_type_line = self._feedback_type_instruction(feedback_type)
+        return f"""You are an expert educational assistant. The user gave feedback on a summary. Your task is to revise ONLY THE ONE SECTION that should change based on the feedback. Do NOT change any other section.
+{confused_section}{comment_section}{rating_note}{feedback_type_line}
+
+IMPORTANT - Images and image explanations: If the section you are revising contains <figure>...</figure> blocks (image with <figcaption> explanation), you MUST include them in your revised section and UPDATE the figcaption text to match the feedback (e.g. more detailed, simpler, or clearer). Keep the same <figure> structure and the same img src= URL; only change the explanation text inside <figcaption> so it addresses the user's request. If there are no figures in that section, just revise the text.
+
+ORIGINAL FULL SUMMARY (with sections; do not change sections you are not revising):
+{base_summary}
+
+LECTURE CONTEXT (use for accuracy):
+{context[:3500]}
+
+INSTRUCTIONS:
+1. Identify the single section (e.g. ## Key Concepts, ## Overview) that should be revised to address the feedback.
+2. Output your response in this EXACT format (copy the labels exactly):
+
+SECTION_HEADER:
+## Section Name
+
+REVISED_SECTION:
+[Paste here ONLY the revised section content, starting with the same ## header. Include any <figure>...</figure> blocks that belong to this section; if you update their <figcaption> text to match the feedback, do so. Use markdown and HTML as in the original. No other sections.]
+
+Output nothing else after the revised section."""
     
     def _build_reinforcement_prompt(
         self,
@@ -468,77 +606,54 @@ class SummaryReinforcementService:
         context: str,
         confused_concept: str,
         comment: str,
-        rating: str
+        rating: str,
+        feedback_type: str = "",
     ) -> str:
-        """Build the prompt for generating a reinforced summary."""
+        """Build the prompt for full-summary fallback: change only the part that addresses feedback; allow updating image explanations in that part."""
         
         confused_section = ""
         if confused_concept:
             confused_section = f"""
-SPECIFIC FOCUS: The user found the concept "{confused_concept}" confusing. 
-You MUST provide extra clarification, examples, and step-by-step explanations for this concept.
+SPECIFIC FOCUS: The user found the concept "{confused_concept}" confusing. Revise ONLY the section that covers this concept.
 """
 
         comment_section = ""
         if comment and str(comment).strip():
             comment_section = f"""
-USER COMMENT:
-{str(comment).strip()}
-
-You MUST incorporate this comment into the improved summary.
+USER COMMENT: {str(comment).strip()}
+Incorporate this only in the relevant section.
 """
         
         rating_note = ""
         if rating == "not_helpful":
             rating_note = """
-The user found the original summary not helpful. You need to:
-- Simplify explanations
-- Add more concrete examples
-- Break down complex concepts into smaller steps
-- Use analogies where appropriate
+The user found the summary not helpful. Simplify and add examples only in the section that needs improvement.
 """
+        feedback_type_line = self._feedback_type_instruction(feedback_type)
         
-        return f"""You are an expert educational assistant. Generate a REINFORCED SUMMARY for the topic: "{topic}"
+        return f"""You are an expert educational assistant. The user gave feedback on a summary. Your task is to output the FULL summary with ONLY the minimal change: revise only the part that addresses the feedback. All other content must stay EXACTLY the same.
+{feedback_type_line}
 
-The user has provided feedback on the original summary. Your task is to create an improved, more helpful summary.
+CRITICAL:
+- Preserve EXACTLY every section that does NOT relate to the feedback (same text, same <figure> blocks).
+- In the ONE section that you revise to address the feedback: you MAY update both the prose and any <figure>...</figure> blocks in that section. For figures in the revised section: keep the same <figure> structure and img src= URL; you MAY change the <figcaption> explanation text to match the feedback (more detailed, simpler, or clearer).
+- Do not change any other section or any figure outside the revised section.
 
 {confused_section}
 {comment_section}
 {rating_note}
 
-ORIGINAL SUMMARY:
+ORIGINAL SUMMARY (preserve all of this except the one part you revise and its image explanations):
 {base_summary}
 
-LECTURE CONTEXT (use this to ensure accuracy):
+LECTURE CONTEXT (use for accuracy when revising):
 {context[:4000]}
 
-REQUIRED STRUCTURE (follow this exactly):
-
-## Overview
-[Brief introduction to the topic]
-
-## Key Concepts
-[Break down the main concepts clearly. If a confused concept was mentioned, give it extra detail here]
-
-## Worked Example
-[Provide a concrete, step-by-step example that demonstrates the concepts]
-
-## Common Mistakes
-[Explain common mistakes students make with this topic]
-
-## Self-Check
-[Provide exactly 3 question-answer pairs that help students verify their understanding]
-
 INSTRUCTIONS:
-- Use ONLY information from the lecture context provided
-- Write notes and explanations as normal prose text; put diagrams in markdown (fenced code block or ![alt](url))
-- Format every URL as a markdown link [text](URL) so it is clickable
-- If confused_concept was specified, dedicate extra space to clarifying it
-- Make explanations clear and accessible
-- Use markdown formatting
-- Ensure the summary is comprehensive but not overwhelming
-- The self-check section must have exactly 3 Q&A pairs
-- Output ONLY the raw markdown. Do NOT wrap your entire response in a code block (no ``` at start/end). Your reply must be the summary itself so it renders as formatted text.
+- Output the COMPLETE summary: same structure, same sections.
+- Change ONLY the section that addresses the confused concept or user comment; within that section you may also update image explanations (figcaption) to match the feedback.
+- Copy every other section and every <figure> block outside that section exactly from the original.
+- Use markdown formatting. Output ONLY the raw markdown (no ``` wrapper).
 
 Generate the reinforced summary now:"""
     

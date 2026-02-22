@@ -25,6 +25,7 @@ class SummaryFeedbackRequest(BaseModel):
     rating: str  # "helpful" or "not_helpful"
     confused_concept: Optional[str] = None
     comment: Optional[str] = None
+    feedback_type: Optional[str] = None  # "add_examples", "simplify", "more_detail", "clarify"
     session_id: Optional[str] = None
 
 

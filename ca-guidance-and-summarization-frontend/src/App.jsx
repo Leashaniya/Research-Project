@@ -90,17 +90,6 @@ function App() {
   const [guidanceCalendarEventMessage, setGuidanceCalendarEventMessage] = useState(null);
   const [guidanceSessionId, setGuidanceSessionId] = useState(null);
   const [lastGuidanceFeedbackId, setLastGuidanceFeedbackId] = useState(null);
-  const [currentSystemDateTime, setCurrentSystemDateTime] = useState(() =>
-    new Date().toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
-  );
-
-  // Update current system date/time every second when Summary tab has content
-  useEffect(() => {
-    const t = setInterval(() => {
-      setCurrentSystemDateTime(new Date().toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }));
-    }, 1000);
-    return () => clearInterval(t);
-  }, []);
 
   // Ensure bare URLs in markdown become clickable links [url](url)
   const ensureLinksInMarkdown = (text) => {
@@ -326,7 +315,7 @@ function App() {
         // ✅ (AUDIO CHANGE) Use backend-provided audio_url directly
         const audioUrl = toAbsoluteUrl(result.audio_url);
 
-        // Fetch summaries and ALWAYS load/show ONLY the base summary for this topic
+        // Fetch summaries and show the recent summary (reinforced if available, else base)
         try {
           const allSummariesResponse = await fetch(`${API_URL}/protected/summaries/topic/${encodeURIComponent(requestedTopic)}`, {
             method: 'GET',
@@ -343,18 +332,30 @@ function App() {
               created_at: allSummaries.base.created_at,
               audio_duration_seconds: allSummaries.base.audio_duration_seconds ?? null
             } : null;
-
-            // Never show/load reinforcement summary on topic load
-            setReinforcedSummary(null);
-            setReinforcementVisible(false);
+            const reinforced = allSummaries.reinforced ? {
+              ...allSummaries.reinforced,
+              content: allSummaries.reinforced.summary_text,
+              summary_id: allSummaries.reinforced.summary_id || allSummaries.reinforced._id,
+              audio_url: toAbsoluteUrl(allSummaries.reinforced.audio_url),
+              created_at: allSummaries.reinforced.created_at,
+              audio_duration_seconds: allSummaries.reinforced.audio_duration_seconds ?? null
+            } : null;
 
             if (base) setBaseSummary(base);
+            if (reinforced) {
+              setReinforcedSummary(reinforced);
+              setReinforcementVisible(true);
+            } else {
+              setReinforcedSummary(null);
+              setReinforcementVisible(false);
+            }
 
-            // Always show Base summary by default (if available)
-            if (base) {
-              setActiveSummaryView('base');
-              setSummary(base);
-              setSummaryAudio(base.audio_url);
+            // Show recent summary: reinforced if available, else base
+            const toShow = reinforced || base;
+            if (toShow) {
+              setActiveSummaryView(reinforced ? 'reinforced' : 'base');
+              setSummary(toShow);
+              setSummaryAudio(toShow.audio_url);
             } else {
               // Fallback: show the response as base-like if base missing
               const fallback = {
@@ -417,7 +418,8 @@ function App() {
           summary_id: summaryId,
           rating: feedbackRating,
           confused_concept: confusedConcept.trim() || null,
-          comment: feedbackComment.trim() || null
+          comment: feedbackComment.trim() || null,
+          feedback_type: summaryFeedbackType || null
         }),
       });
 
@@ -476,6 +478,7 @@ function App() {
           rating: feedbackRating,
           confused_concept: confusedConcept.trim() || null,
           comment: feedbackComment.trim() || null,
+          feedback_type: summaryFeedbackType || null,
           session_id: sessionId
         }),
       });
@@ -1472,29 +1475,6 @@ function App() {
                               <FaBookOpen style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Summary:{' '}
                               <span style={{ color: '#336db0' }}>{summary.topic}</span>
                             </h2>
-                            {summary.summary_type && (
-                              <span style={{
-                                padding: '4px 12px',
-                                borderRadius: '12px',
-                                fontSize: '0.85rem',
-                                fontWeight: '600',
-                                backgroundColor: '#6c757d',
-                                color: '#fff',
-                                textTransform: 'capitalize'
-                              }}>
-                                {summary.summary_type === 'reinforced' ? 'Reinforced' : 'Base'}
-                              </span>
-                            )}
-                            <span style={{
-                              padding: '4px 12px',
-                              borderRadius: '12px',
-                              fontSize: '0.85rem',
-                              color: '#6c757d',
-                              backgroundColor: '#f8f9fa',
-                              border: '1px solid #dee2e6'
-                            }} title="Current system date and time">
-                              {currentSystemDateTime}
-                            </span>
                             {summary.from_cache && (
                               <span style={{
                                 padding: '4px 12px',
@@ -1508,36 +1488,6 @@ function App() {
                               </span>
                             )}
                           </div>
-                          {/* Toggle on the right: Base Summary | Reinforced Summary with sliding circle */}
-                          {baseSummary && (
-                            <div className="summary-toggle-wrap">
-                              <button
-                                type="button"
-                                role="switch"
-                                aria-checked={activeSummaryView === 'reinforced'}
-                                aria-label={activeSummaryView === 'base' ? 'Base Summary selected; switch to Reinforced Summary' : 'Reinforced Summary selected; switch to Base Summary'}
-                                title={activeSummaryView === 'base' && (!reinforcedSummary || !isSameTopic(reinforcedSummary?.topic, loadedTopic)) ? 'Submit feedback and improve to get a reinforced summary' : (activeSummaryView === 'base' ? 'Switch to Reinforced Summary' : 'Switch to Base Summary')}
-                                data-active={activeSummaryView}
-                                className={`summary-toggle ${!(reinforcementVisible && reinforcedSummary && isSameTopic(reinforcedSummary?.topic, loadedTopic) && reinforcedSummary?.session_id === sessionId) ? 'summary-toggle-disabled' : ''}`}
-                                onClick={() => {
-                                  const hasReinforced = reinforcementVisible && reinforcedSummary && isSameTopic(reinforcedSummary?.topic, loadedTopic) && reinforcedSummary?.session_id === sessionId;
-                                  if (activeSummaryView === 'reinforced') {
-                                    setActiveSummaryView('base');
-                                    setSummary(baseSummary);
-                                    setSummaryAudio(baseSummary.audio_url ?? null);
-                                  } else if (hasReinforced) {
-                                    setActiveSummaryView('reinforced');
-                                    setSummary(reinforcedSummary);
-                                    setSummaryAudio(reinforcedSummary.audio_url ?? null);
-                                  }
-                                }}
-                              >
-                              <span className="summary-toggle-option">Base Summary</span>
-                              <span className="summary-toggle-option">Reinforced Summary</span>
-                              <span className="summary-toggle-circle" aria-hidden="true" />
-                            </button>
-                          </div>
-                        )}
                         </div>
                       </div>
                     )}

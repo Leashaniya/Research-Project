@@ -684,7 +684,15 @@ async def summarize_topic(
             "from_cache": False
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
+        err_msg = str(e)
+        if "space quota" in err_msg.lower() or "over your space quota" in err_msg.lower():
+            raise HTTPException(
+                status_code=507,  # Insufficient Storage
+                detail="Database storage quota exceeded. Please free space in MongoDB Atlas or upgrade your plan, then try again."
+            )
         logger.error(f"Error creating summary: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1242,6 +1250,7 @@ async def submit_summary_feedback(
             rating=request.rating,
             confused_concept=request.confused_concept,
             comment=request.comment,
+            feedback_type=request.feedback_type,
             user_email=user.email,
             session_id=request.session_id,
         )
@@ -1333,7 +1342,8 @@ async def reinforce_summary(
                     feedback = {
                         "rating": feedback_doc.get("rating", "not_helpful"),
                         "confused_concept": feedback_doc.get("confused_concept"),
-                        "comment": feedback_doc.get("comment")
+                        "comment": feedback_doc.get("comment"),
+                        "feedback_type": feedback_doc.get("feedback_type"),
                     }
                     feedback_id_to_store = str(feedback_obj_id)
                     logger.info(f"Using specific feedback_id: {feedback_id_to_store}")
@@ -1349,7 +1359,8 @@ async def reinforce_summary(
                 feedback = {
                     "rating": latest_feedback.get("rating", "not_helpful"),
                     "confused_concept": latest_feedback.get("confused_concept"),
-                    "comment": latest_feedback.get("comment")
+                    "comment": latest_feedback.get("comment"),
+                    "feedback_type": latest_feedback.get("feedback_type"),
                 }
                 feedback_id_to_store = latest_feedback.get("_id")
                 logger.info(f"Using latest feedback for summary: {feedback_id_to_store}")
