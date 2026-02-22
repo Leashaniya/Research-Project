@@ -11,6 +11,10 @@ function App() {
   const [files, setFiles] = useState({ past_papers: [], lecture_slides: [] });
   const [showFiles, setShowFiles] = useState(false);
   const [loadingFiles, setLoadingFiles] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [shortNotes, setShortNotes] = useState(null);
+  const [loadingNotes, setLoadingNotes] = useState(false);
 
   const addLog = (msg) => {
     setLogs(prev => [...prev.slice(-50), `[${new Date().toLocaleTimeString()}] ${msg}`]);
@@ -175,6 +179,26 @@ function App() {
     window.open(`${API_BASE}/model-paper/download-pdf`, "_blank");
   };
 
+  const fetchShortNotes = async (questionNo, question) => {
+    setSelectedQuestion({ questionNo, question });
+    setShowNotesModal(true);
+    setLoadingNotes(true);
+    setShortNotes(null);
+    
+    try {
+      const resp = await fetch(`${API_BASE}/model-paper/short-notes/${questionNo}`);
+      if (!resp.ok) {
+        throw new Error("Failed to fetch short notes");
+      }
+      const data = await resp.json();
+      setShortNotes(data.short_notes);
+    } catch (err) {
+      setShortNotes(`Error loading short notes: ${err.message}`);
+    } finally {
+      setLoadingNotes(false);
+    }
+  };
+
   return (
     <div className="Dashboard">
       <header>
@@ -278,7 +302,37 @@ function App() {
           </div>
           {paper.questions?.map((q, i) => (
             <div key={i} className="Question">
-              <strong>Question {q.question_no} ({q.marks} Marks)</strong>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <strong>Question {q.question_no} ({q.marks} Marks)</strong>
+                <button
+                  onClick={() => fetchShortNotes(q.question_no, q)}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '0.5rem',
+                    padding: '0.5rem 0.75rem',
+                    cursor: 'pointer',
+                    color: '#818cf8',
+                    fontSize: '1.2rem',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = 'rgba(129, 140, 248, 0.1)';
+                    e.target.style.borderColor = '#818cf8';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'transparent';
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                  }}
+                  title="View Short Notes"
+                >
+                  <span>✉️</span>
+                  <span style={{ fontSize: '0.9rem' }}>Short Notes</span>
+                </button>
+              </div>
               <div style={{ 
                 whiteSpace: 'pre-wrap', 
                 marginTop: '1rem', 
@@ -365,6 +419,97 @@ function App() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Short Notes Modal */}
+      {showNotesModal && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '2rem'
+          }}
+          onClick={() => setShowNotesModal(false)}
+        >
+          <div 
+            style={{
+              background: 'var(--bg-dark)',
+              border: '1px solid var(--glass-border)',
+              borderRadius: '1.5rem',
+              padding: '2rem',
+              maxWidth: '800px',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+              width: '100%',
+              position: 'relative',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ margin: 0, color: '#818cf8' }}>
+                Short Notes: Question {selectedQuestion?.questionNo}
+              </h2>
+              <button
+                onClick={() => setShowNotesModal(false)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#94a3b8',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                  padding: '0.5rem',
+                  borderRadius: '0.5rem',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                  e.target.style.color = '#f8fafc';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'transparent';
+                  e.target.style.color = '#94a3b8';
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            {loadingNotes ? (
+              <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                <p>Generating short notes from lecture slides...</p>
+                <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>This may take a few seconds</p>
+              </div>
+            ) : shortNotes ? (
+              <div 
+                style={{
+                  color: '#cbd5e1',
+                  lineHeight: '1.8',
+                  whiteSpace: 'pre-wrap',
+                  wordWrap: 'break-word'
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: shortNotes
+                    .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #818cf8;">$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/^### (.*$)/gm, '<h3 style="color: #818cf8; margin-top: 1.5rem; margin-bottom: 0.5rem;">$1</h3>')
+                    .replace(/^## (.*$)/gm, '<h2 style="color: #818cf8; margin-top: 2rem; margin-bottom: 1rem;">$1</h2>')
+                    .replace(/^# (.*$)/gm, '<h1 style="color: #818cf8; margin-top: 2rem; margin-bottom: 1rem;">$1</h1>')
+                    .replace(/^- (.*$)/gm, '<li style="margin-left: 1.5rem; margin-bottom: 0.5rem;">$1</li>')
+                    .replace(/\n/g, '<br>')
+                }}
+              />
+            ) : null}
+          </div>
         </div>
       )}
     </div>
