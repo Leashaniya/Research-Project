@@ -178,4 +178,19 @@ h1 {
   border-radius: 1rem;
   margin-bottom: 1.5rem;
   text-align: left;
+  /* Ensure full text is visible - no truncation */
+  overflow: visible;
+  max-height: none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.Question > div {
+  /* Ensure the text container shows all content */
+  max-height: none;
+  overflow: visible;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.6;
 }

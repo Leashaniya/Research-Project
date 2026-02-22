@@ -690,6 +690,22 @@ class AgentOrchestrator:
         draft["text"] = stem
         return draft
 
+    def _sanitize_generated_text_artifacts(self, obj):
+        """
+        Recursively remove common generation artifacts from strings in a draft.
+        Handles tokens like </s>, <s>, and cleans extra whitespace.
+        """
+        import re
+        if isinstance(obj, str):
+            cleaned = re.sub(r"</?s>", "", obj, flags=re.IGNORECASE)
+            cleaned = re.sub(r"\s+", " ", cleaned).strip()
+            return cleaned
+        if isinstance(obj, list):
+            return [self._sanitize_generated_text_artifacts(item) for item in obj]
+        if isinstance(obj, dict):
+            return {k: self._sanitize_generated_text_artifacts(v) for k, v in obj.items()}
+        return obj
+
     def _extract_schema_metadata(self, schema_text: str) -> Tuple[Dict[str, str], Dict[str, List[str]]]:
         """
         Extract table names and column names from schema text.
@@ -1029,6 +1045,79 @@ class AgentOrchestrator:
 
         return fixed
 
+    def _normalize_q4_payment_semantics(self, text: str, table_map: Dict[str, str], columns_map: Dict[str, List[str]]) -> str:
+        """
+        Normalize Q4(b)/(c) payment wording so actor/amount phrases stay schema-consistent.
+        This prevents semantic drift such as "book pays" or "total book amount".
+        """
+        import re
+        fixed = text or ""
+        if not fixed:
+            return fixed
+
+        table_names = [t.lower() for t in (table_map or {}).keys()]
+        all_columns = [c.lower() for cols in (columns_map or {}).values() for c in cols]
+
+        # Determine payer/entity term from schema domain.
+        if any("member" in t for t in table_names):
+            payer = "member"
+        elif any("customer" in t for t in table_names):
+            payer = "customer"
+        elif any("student" in t for t in table_names):
+            payer = "student"
+        elif any("patient" in t for t in table_names):
+            payer = "patient"
+        else:
+            payer = "entity"
+
+        # Determine amount term from schema semantics.
+        has_fine_semantics = any("fine" in t for t in table_names) or any("fine" in c for c in all_columns)
+        has_payment_semantics = any("payment" in c for c in all_columns)
+        if has_fine_semantics:
+            amount_term = "fine amount"
+            total_amount_term = "total fine amount"
+        elif has_payment_semantics:
+            amount_term = "payment amount"
+            total_amount_term = "total payment amount"
+        else:
+            amount_term = "amount"
+            total_amount_term = "total amount"
+
+        replacements = [
+            (r"\btotal\s+book\s+amount\b", total_amount_term),
+            (r"\btotal\s+product\s+amount\b", total_amount_term),
+            (r"\btotal\s+item\s+amount\b", total_amount_term),
+            (r"\bbook\s+amount\b", amount_term),
+            (r"\bproduct\s+amount\b", amount_term),
+            (r"\bitem\s+amount\b", amount_term),
+            (r"\bfor\s+each\s+book\b", f"for each {payer}"),
+            (r"\bfor\s+each\s+product\b", f"for each {payer}"),
+            (r"\bfor\s+each\s+item\b", f"for each {payer}"),
+            (r"\bpayments?\s+made\s+by\s+books?\b", f"payments made by {payer}"),
+            (r"\bpayments?\s+made\s+by\s+products?\b", f"payments made by {payer}"),
+            (r"\bpayments?\s+made\s+by\s+items?\b", f"payments made by {payer}"),
+            (r"\bbook\s+pays\b", f"{payer} pays"),
+            (r"\bproduct\s+pays\b", f"{payer} pays"),
+            (r"\bitem\s+pays\b", f"{payer} pays"),
+            (r"\bbooks\s+pay\b", f"{payer}s pay"),
+            (r"\bproducts\s+pay\b", f"{payer}s pay"),
+            (r"\bitems\s+pay\b", f"{payer}s pay"),
+            (r"\baccount\s+for\s+books?\b", f"account for {payer}"),
+            (r"\baccount\s+for\s+products?\b", f"account for {payer}"),
+            (r"\baccount\s+for\s+items?\b", f"account for {payer}"),
+            (r"\bbooks?\s+with\s+late\s+penalt(?:y|ies)\b", f"{payer} with late penalty"),
+            (r"\bproducts?\s+with\s+late\s+penalt(?:y|ies)\b", f"{payer} with late penalty"),
+            (r"\bitems?\s+with\s+late\s+penalt(?:y|ies)\b", f"{payer} with late penalty"),
+            (r"\boverdue\s+book\s+payment\s+status\b", f"overdue {payer} payment status"),
+            (r"\boverdue\s+product\s+payment\s+status\b", f"overdue {payer} payment status"),
+            (r"\boverdue\s+item\s+payment\s+status\b", f"overdue {payer} payment status"),
+        ]
+        for pattern, replacement in replacements:
+            fixed = re.sub(pattern, replacement, fixed, flags=re.IGNORECASE)
+
+        fixed = re.sub(r"\s+", " ", fixed).strip()
+        return fixed
+
     def _ensure_q4_amount_table_in_schema(self, question_text: str, subquestions: List[dict]) -> str:
         """
         Ensure Q4 schema includes an amount/payment table if part (b)/(c) requires amount-based function/trigger.
@@ -1252,19 +1341,48 @@ class AgentOrchestrator:
 
         elif query_type == "iii" or nested_label == "iii":
             # Multi-table join query with explicit output attributes.
+            # Find a date column in link_table to replace vague "currently active records"
+            date_attr = next(
+                (a for a in link_attrs if any(x in a.lower() for x in ["date", "time", "enroll", "loan", "return"])),
+                None,
+            )
+            # If we have a date column, use it; otherwise use a meaningful condition
+            if date_attr:
+                condition = f"where {link_table}.{date_attr} is not null"
+            elif status_attr:
+                condition = f"where {status_attr} is not null"
+            else:
+                # Fallback: use a join condition that makes sense
+                condition = "using appropriate joins"
+            
             if subject_secondary and status_attr:
+                if date_attr:
+                    return (
+                        f"Find the {subject_title}, {subject_secondary}, and {person_name} from {subject_table}, {person_table}, and "
+                        f"{link_table} {condition}."
+                    )
                 return (
                     f"Find the {subject_title}, {subject_secondary}, and {person_name} from {subject_table}, {person_table}, and "
-                    f"{link_table} for records where {status_attr} indicates currently active entries."
+                    f"{link_table} where {status_attr} is not null."
                 )
             if subject_secondary:
+                if date_attr or status_attr:
+                    return (
+                        f"Find the {subject_title}, {subject_secondary}, and {person_name} from {subject_table}, {person_table}, and "
+                        f"{link_table} {condition}."
+                    )
                 return (
                     f"Find the {subject_title}, {subject_secondary}, and {person_name} from {subject_table}, {person_table}, and "
                     f"{link_table} using appropriate joins."
                 )
+            if date_attr or status_attr:
+                return (
+                    f"Find the {subject_title} and {person_name} from {subject_table}, {person_table}, and {link_table} "
+                    f"{condition}."
+                )
             return (
                 f"Find the {subject_title} and {person_name} from {subject_table}, {person_table}, and {link_table} "
-                f"for currently active records."
+                f"using appropriate joins."
             )
         
         else:
@@ -1714,6 +1832,7 @@ class AgentOrchestrator:
                     "diagram_type": None,
                 }
                 draft = await self.writer.run(writer_input)
+                draft = self._sanitize_generated_text_artifacts(draft)
                 draft["question_no"] = q_no
                 draft["marks"] = target_marks
                 draft["pattern_label"] = template.get("pattern_label")
@@ -2111,16 +2230,19 @@ class AgentOrchestrator:
                     "referring to the diagram"
                 ]):
                     # Determine diagram type from pattern_label
+                    # CRITICAL: Only Q1 should have diagrams (ER/EER). Q2 normalization doesn't need diagrams.
                     pattern_lower = template_intent.lower()
-                    if "eer" in pattern_lower:
+                    is_q1 = q_no in ["Q1", "1"]
+                    if is_q1 and "eer" in pattern_lower:
                         needs_diagram = True
                         diagram_type = "EER"
-                    elif "er" in pattern_lower:
+                    elif is_q1 and "er" in pattern_lower:
                         needs_diagram = True
                         diagram_type = "ER"
-                    elif "normalization" in pattern_lower or "fd" in pattern_lower:
-                        needs_diagram = True
-                        diagram_type = "FD"  # Functional Dependency
+                    # Q2 normalization questions don't need diagrams - removed FD diagram generation
+                    # elif "normalization" in pattern_lower or "fd" in pattern_lower:
+                    #     needs_diagram = True
+                    #     diagram_type = "FD"  # Functional Dependency
                     
                     if needs_diagram:
                         print(f"    [INFO] Question references existing diagram - will generate {diagram_type} diagram")
@@ -2149,6 +2271,7 @@ class AgentOrchestrator:
                     }
                     
                     draft = await self.writer.run(writer_input)
+                    draft = self._sanitize_generated_text_artifacts(draft)
                     # Force stable topic label onto draft (single source of truth for validators)
                     draft["pattern_label"] = template_intent
                     draft["main_topic"] = template_intent
@@ -2255,6 +2378,15 @@ class AgentOrchestrator:
                                 
                                 # Update question text
                                 if updated_text != question_text:
+                                    # Guard against duplicate insertion artifacts like:
+                                    # "The Course entity The Course entity has attributes ..."
+                                    updated_text = re.sub(
+                                        r"\bThe\s+([A-Za-z][A-Za-z0-9_]*)\s+entity\s+The\s+\1\s+entity\b",
+                                        r"The \1 entity",
+                                        updated_text,
+                                        flags=re.IGNORECASE
+                                    )
+                                    updated_text = re.sub(r'\s+', ' ', updated_text).strip()
                                     draft["text"] = updated_text
                                     print(f"    [Q1 PRE-CRITIC FIX] ✅ Updated question text with entity attributes")
                     
@@ -3434,6 +3566,12 @@ class AgentOrchestrator:
                                             if aligned_text != sq_text:
                                                 print(f"    [Q4 SCHEMA FIX] 🔧 Aligned part (c) table/column references with schema")
                                                 sq_text = aligned_text
+
+                                        # Normalize actor/amount semantics (e.g., "book pays" -> "member pays").
+                                        normalized_semantics = self._normalize_q4_payment_semantics(sq_text, table_map, columns_map)
+                                        if normalized_semantics != sq_text:
+                                            print(f"    [Q4 SCHEMA FIX] 🔧 Normalized payment semantics in part {sq.get('label', '?')}")
+                                            sq_text = normalized_semantics
                                         
                                         # CRITICAL: If part still references invalid tables, replace with schema-appropriate content
                                         # Check again after fixes
@@ -3952,8 +4090,15 @@ class AgentOrchestrator:
                                 diagram_type = "Functional Dependency"
                         
                         if diagram_type:
-                            needs_diagram = True
-                            print(f"    [INFO] Detected diagram reference in generated text - will generate {diagram_type} diagram")
+                            # CRITICAL: Only Q1 should have diagrams. Other questions shouldn't get diagrams even if they reference them.
+                            is_q1 = q_no in ["Q1", "1"]
+                            if is_q1:
+                                needs_diagram = True
+                                print(f"    [INFO] Detected diagram reference in generated text - will generate {diagram_type} diagram for Q1")
+                            else:
+                                needs_diagram = False
+                                diagram_type = None
+                                print(f"    [INFO] Detected diagram reference but question is not Q1 - skipping diagram generation")
                     
                     # Skip if main question asks student to draw AND no subquestion references a diagram
                     main_q_draws = bool(re.search(r"draw\s+(?:an?\s+)?(?:eer|er|entity[\s-]?relationship|diagram)", draft.get("text", "").lower()))
@@ -3962,10 +4107,19 @@ class AgentOrchestrator:
                         needs_diagram = False
                     elif main_q_draws and (subquestion_references_diagram or main_references_diagram):
                         # Main asks to draw, but subquestion references "following diagram" - generate it
-                        print(f"    [INFO] Main question asks to draw, but references 'following diagram' - will generate diagram")
-                        needs_diagram = True
+                        # CRITICAL: Only Q1 should have diagrams
+                        is_q1 = q_no in ["Q1", "1"]
+                        if is_q1:
+                            print(f"    [INFO] Main question asks to draw, but references 'following diagram' - will generate diagram for Q1")
+                            needs_diagram = True
+                        else:
+                            print(f"    [INFO] Main question asks to draw, but question is not Q1 - skipping diagram generation")
+                            needs_diagram = False
+                            diagram_type = None
                     
                     if needs_diagram:
+                        # Ensure this is always defined to avoid UnboundLocalError on error paths.
+                        result = None
                         # Prepare image output directory
                         images_dir = OUTPUTS_DIR / "model_papers" / "images"
                         images_dir.mkdir(parents=True, exist_ok=True)
@@ -4150,24 +4304,82 @@ Note: The diagram uses (min, max) cardinality notation where:
                         draft["text"] = replacement_text
                         draft["original_semantic_description"] = original_text  # Keep original for reference
                         
+                        # Check if diagram file exists (even if result doesn't indicate success)
+                        import os
+                        output_path_str = str(output_path)
+                        diagram_exists = os.path.exists(output_path_str)
+                        
                         if result and result.get("success"):
                             # Add image reference to draft
-                            draft["diagram_image_path"] = str(output_path)
+                            draft["diagram_image_path"] = output_path_str
                             draft["diagram_generated"] = True
                             draft["diagram_type"] = diagram_type
                             draft["needs_diagram"] = True
                             draft["diagram_source"] = "semantic_description"
-                            print(f"    [OK] Graphviz diagram generated successfully: {output_path}")
+                            print(f"    [OK] Graphviz diagram generated successfully: {output_path_str}")
                             print(f"    [INFO] Replaced semantic description with diagram reference and added description")
+                        elif diagram_exists:
+                            # Diagram file exists even if result doesn't indicate success - use it anyway
+                            # CRITICAL: Verify the path is for THIS specific question (not another question's diagram)
+                            # Only check if diagram_type is not None
+                            if diagram_type is not None:
+                                expected_filename = f"{q_no}_{diagram_type.lower()}_diagram.png"
+                                if expected_filename in output_path_str:
+                                    draft["diagram_image_path"] = output_path_str
+                                    draft["diagram_generated"] = True
+                                    draft["diagram_type"] = diagram_type
+                                    draft["needs_diagram"] = True
+                                    draft["diagram_source"] = "semantic_description"
+                                    print(f"    [OK] Diagram file found and linked: {output_path_str}")
+                                    print(f"    [INFO] Replaced semantic description with diagram reference and added description")
+                                else:
+                                    # Wrong diagram file - don't link it
+                                    draft["diagram_image_path"] = None
+                                    draft["diagram_generated"] = False
+                                    draft["diagram_type"] = diagram_type
+                                    draft["needs_diagram"] = True
+                                    draft["diagram_placeholder"] = f"[DIAGRAM PLACEHOLDER: {diagram_type} diagram should be shown here based on the description]"
+                                    print(f"    [WARN] Found diagram file but it's for a different question ({output_path_str}), not linking")
+                                    print(f"    [INFO] Replaced semantic description with diagram reference and added description")
+                            else:
+                                # No diagram type - don't link any diagram
+                                draft["diagram_image_path"] = None
+                                draft["diagram_generated"] = False
+                                draft["diagram_type"] = None
+                                draft["needs_diagram"] = False
                     else:
                         # Diagram generation failed, but we still added the reference text and cardinality notation
                         error_msg = result.get("error", "Unknown error") if result else "Diagram generation failed"
                         print(f"    [WARN] Graphviz diagram generation failed: {error_msg}")
-                        draft["diagram_image_path"] = None
-                        draft["diagram_generated"] = False
-                        draft["diagram_type"] = diagram_type
-                        draft["needs_diagram"] = True
-                        draft["diagram_placeholder"] = f"[DIAGRAM PLACEHOLDER: {diagram_type} diagram should be shown here based on the description]"
+                        # Check if diagram file exists anyway (might have been generated despite error)
+                        # CRITICAL: Only link diagram if it's for THIS specific question (check filename contains q_no)
+                        import os
+                        output_path_str = str(output_path)
+                        # Verify the path is for this question (not another question's diagram)
+                        # Only check if diagram_type is not None
+                        if diagram_type is not None:
+                            expected_filename = f"{q_no}_{diagram_type.lower()}_diagram.png"
+                            if os.path.exists(output_path_str) and expected_filename in output_path_str:
+                                draft["diagram_image_path"] = output_path_str
+                                draft["diagram_generated"] = True
+                                draft["diagram_type"] = diagram_type
+                                draft["needs_diagram"] = True
+                                draft["diagram_source"] = "semantic_description"
+                                print(f"    [OK] Diagram file found despite error, linked: {output_path_str}")
+                            else:
+                                draft["diagram_image_path"] = None
+                                draft["diagram_generated"] = False
+                                draft["diagram_type"] = diagram_type
+                                draft["needs_diagram"] = True
+                                draft["diagram_placeholder"] = f"[DIAGRAM PLACEHOLDER: {diagram_type} diagram should be shown here based on the description]"
+                                if os.path.exists(output_path_str) and expected_filename not in output_path_str:
+                                    print(f"    [WARN] Found diagram file but it's for a different question, not linking: {output_path_str}")
+                        else:
+                            # No diagram type - don't link any diagram
+                            draft["diagram_image_path"] = None
+                            draft["diagram_generated"] = False
+                            draft["diagram_type"] = None
+                            draft["needs_diagram"] = False
                         print(f"    [WARN] Diagram generation failed, but added diagram reference text and cardinality notation")
                         print(f"    [INFO] Replaced semantic description with diagram reference and added description")
                         
@@ -4175,11 +4387,33 @@ Note: The diagram uses (min, max) cardinality notation where:
                     print(f"    [ERROR] Diagram generation error: {e}")
                     import traceback
                     traceback.print_exc()
-                    # Fallback to placeholder
-                    draft["diagram_image_path"] = None
-                    draft["diagram_generated"] = False
-                    draft["needs_diagram"] = True
-                    draft["diagram_placeholder"] = f"[DIAGRAM PLACEHOLDER: {diagram_type or 'diagram'} should be shown here]"
+                    # Check if diagram file exists despite exception (might have been generated before error)
+                    # CRITICAL: Only link diagram if it's for THIS specific question (check filename contains q_no)
+                    import os
+                    output_path_str = str(output_path) if 'output_path' in locals() else None
+                    if output_path_str and 'diagram_type' in locals() and diagram_type is not None:
+                        expected_filename = f"{q_no}_{diagram_type.lower()}_diagram.png"
+                        if os.path.exists(output_path_str) and expected_filename in output_path_str:
+                            draft["diagram_image_path"] = output_path_str
+                            draft["diagram_generated"] = True
+                            draft["diagram_type"] = diagram_type
+                            draft["needs_diagram"] = True
+                            draft["diagram_source"] = "semantic_description"
+                            print(f"    [OK] Diagram file found despite exception, linked: {output_path_str}")
+                        else:
+                            # Fallback to placeholder
+                            draft["diagram_image_path"] = None
+                            draft["diagram_generated"] = False
+                            draft["needs_diagram"] = True
+                            draft["diagram_placeholder"] = f"[DIAGRAM PLACEHOLDER: {diagram_type or 'diagram'} should be shown here]"
+                            if output_path_str and os.path.exists(output_path_str) and expected_filename not in output_path_str:
+                                print(f"    [WARN] Found diagram file but it's for a different question, not linking: {output_path_str}")
+                    else:
+                        # Fallback to placeholder
+                        draft["diagram_image_path"] = None
+                        draft["diagram_generated"] = False
+                        draft["needs_diagram"] = True
+                        draft["diagram_placeholder"] = f"[DIAGRAM PLACEHOLDER: {diagram_type or 'diagram'} should be shown here]"
             
             # Post-processing: Clean Q2 normalization question text
             if template_intent and ("normalization" in template_intent.lower() or "normal form" in template_intent.lower()):
@@ -4377,6 +4611,12 @@ Note: The diagram uses (min, max) cardinality notation where:
                             if fixed_text != sq_text:
                                 print(f"    [Q4 POST-PROCESS] 🔧 Fixed column references in part {sq.get('label', '?')}")
                                 sq_text = fixed_text
+
+                            # Normalize actor/amount semantics after schema/table/column corrections.
+                            normalized_semantics = self._normalize_q4_payment_semantics(sq_text, table_map, columns_map)
+                            if normalized_semantics != sq_text:
+                                print(f"    [Q4 POST-PROCESS] 🔧 Normalized payment semantics in part {sq.get('label', '?')}")
+                                sq_text = normalized_semantics
                             
                             # Update text if changed
                             if sq_text != original_text:
@@ -4734,7 +4974,93 @@ Note: The diagram uses (min, max) cardinality notation where:
                         "developing a robust database system" in part_e_text
                     )
                     
-                    if is_q3_e_pattern:
+                    if is_q3_e_pattern or part_e.get("subquestions"):
+                        # Handle case where part (e) is already nested (common in current generations):
+                        # enforce parent/nested coherence and domain alignment even without restructuring.
+                        if part_e.get("subquestions"):
+                            updated_part_e = part_e
+                            nested_items = updated_part_e.get("subquestions", [])
+                            scenario_text = updated_part_e.get("text", "")
+                            nested_text_all = " ".join((ni.get("text", "") or "") for ni in nested_items).lower()
+                            scenario_text_lower = scenario_text.lower()
+                            admin_task_keywords = [
+                                "t-sql", "create a login", "windows authentication", "fixed server role",
+                                "user-defined server role", "permission", "create tables", "create databases",
+                                "data entry", "administrative tasks", "login name", "server role"
+                            ]
+                            has_admin_intent = sum(1 for kw in admin_task_keywords if kw in nested_text_all) >= 3
+                            drift_keywords = [
+                                "financial report", "summarizing sales", "total sales amount", "orderdetails",
+                                "insert", "update", "delete", "select", "add a new order", "enrollment details",
+                                "retrieve", "product", "sales data"
+                            ]
+                            has_parent_task_statement = bool(
+                                re.search(r"\bwrite\s+(?:a\s+)?t-sql\s+statement\b", scenario_text_lower)
+                            )
+                            has_drift = any(kw in scenario_text_lower for kw in drift_keywords) or has_parent_task_statement
+
+                            if has_admin_intent and has_drift:
+                                stem_lower = (draft.get("text", "") or "").lower()
+                                if any(k in stem_lower for k in ["university", "student", "course", "enrollment"]):
+                                    org_line = "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments."
+                                    junior_scope = "Enrollments database"
+                                    data_desc = "student enrollment data"
+                                elif any(k in stem_lower for k in ["hospital", "patient", "doctor", "appointment"]):
+                                    org_line = "A hospital is establishing role-based access control for its database system that manages Patients, Doctors, and Appointments."
+                                    junior_scope = "Appointments database"
+                                    data_desc = "patient appointment data"
+                                else:
+                                    org_line = "An organization is establishing role-based access control for its database system."
+                                    junior_scope = "operational database"
+                                    data_desc = "transaction data"
+
+                                aligned_scenario = (
+                                    f"{org_line} "
+                                    "Sarah is the senior database administrator responsible for overall database administration. "
+                                    f"Emily is a junior database administrator responsible for managing the {junior_scope}. "
+                                    "Nathan is a database developer responsible for creating and maintaining database objects. "
+                                    f"Michael is a data entry operator responsible for entering and updating {data_desc}."
+                                )
+                                updated_part_e["text"] = aligned_scenario
+                                scenario_text = aligned_scenario
+                                print("    [Q3 POST-PROCESS] 🔧 Rewrote part (e) parent text to role-based admin scenario (already-nested path)")
+
+                            if has_admin_intent:
+                                stem_lower = (draft.get("text", "") or "").lower()
+                                replacements = {}
+                                if any(k in stem_lower for k in ["university", "student", "course", "enrollment"]):
+                                    replacements = {
+                                        r"\btransactions database\b": "Enrollments database",
+                                        r"\bclient accounts and transactions databases\b": "Students and Enrollments databases",
+                                        r"\bclient accounts\b": "Students and Enrollments",
+                                    }
+                                elif any(k in stem_lower for k in ["library", "book", "books", "member", "members", "loan", "loans"]):
+                                    replacements = {
+                                        r"\btransactions database\b": "Loans database",
+                                        r"\bclient accounts and transactions databases\b": "Members and Loans databases",
+                                        r"\bclient accounts\b": "Members",
+                                    }
+                                elif any(k in stem_lower for k in ["hospital", "patient", "doctor", "appointment"]):
+                                    replacements = {
+                                        r"\btransactions database\b": "Appointments database",
+                                        r"\bclient accounts and transactions databases\b": "Patients and Appointments databases",
+                                        r"\bclient accounts\b": "Patients and Appointments",
+                                    }
+                                else:
+                                    replacements = {
+                                        r"\btransactions database\b": "operational database",
+                                        r"\bclient accounts and transactions databases\b": "operational databases",
+                                        r"\bclient accounts\b": "operational data",
+                                    }
+                                if replacements:
+                                    for item in nested_items:
+                                        txt = item.get("text", "") or ""
+                                        for pat, rep in replacements.items():
+                                            txt = re.sub(pat, rep, txt, flags=re.IGNORECASE)
+                                        item["text"] = txt
+                                    updated_part_e["subquestions"] = nested_items
+                                    print("    [Q3 POST-PROCESS] 🔧 Aligned nested item database references with Q3 domain context (already-nested path)")
+
                         # Check if part (e) already has nested subquestions
                         if not part_e.get("subquestions"):
                             # Check if subsequent subquestions should be nested under part (e)
@@ -4867,23 +5193,39 @@ Note: The diagram uses (min, max) cardinality notation where:
                                     scenario_text = updated_part_e.get("text", "")
                                     
                                     # CRITICAL: Ensure part (e) parent scenario matches nested SQL security/admin tasks.
-                                    # If nested items are login/role/permission tasks but parent text drifts to sales-report
-                                    # wording, rewrite parent to a coherent role-based database administration scenario.
                                     nested_text_all = " ".join((ni.get("text", "") or "") for ni in nested_items).lower()
                                     scenario_text_lower = scenario_text.lower()
                                     admin_task_keywords = [
                                         "t-sql", "create a login", "windows authentication", "fixed server role",
                                         "user-defined server role", "permission", "create tables", "create databases",
-                                        "data entry", "administrative tasks"
-                                    ]
-                                    drift_keywords = [
-                                        "financial report", "summarizing sales", "total sales amount",
-                                        "orderdetails", "product", "sales data"
+                                        "data entry", "administrative tasks", "login name", "server role"
                                     ]
                                     has_admin_intent = sum(1 for kw in admin_task_keywords if kw in nested_text_all) >= 3
-                                    has_sales_drift = any(kw in scenario_text_lower for kw in drift_keywords)
-                                    
-                                    if has_admin_intent and has_sales_drift:
+                                    drift_keywords = [
+                                        "financial report", "summarizing sales", "total sales amount", "orderdetails",
+                                        "insert", "update", "delete", "select", "add a new order", "enrollment details",
+                                        "retrieve", "product", "sales data"
+                                    ]
+                                    has_parent_task_statement = bool(
+                                        re.search(r"\bwrite\s+(?:a\s+)?t-sql\s+statement\b", scenario_text_lower)
+                                    )
+                                    has_drift = any(kw in scenario_text_lower for kw in drift_keywords) or has_parent_task_statement
+
+                                    if has_admin_intent and has_drift:
+                                        stem_lower = (draft.get("text", "") or "").lower()
+                                        if any(k in stem_lower for k in ["university", "student", "course", "enrollment"]):
+                                            org_line = "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments."
+                                            junior_scope = "Enrollments database"
+                                            data_desc = "student enrollment data"
+                                        elif any(k in stem_lower for k in ["hospital", "patient", "doctor", "appointment"]):
+                                            org_line = "A hospital is establishing role-based access control for its database system that manages Patients, Doctors, and Appointments."
+                                            junior_scope = "Appointments database"
+                                            data_desc = "patient appointment data"
+                                        else:
+                                            org_line = "An organization is establishing role-based access control for its database system."
+                                            junior_scope = "operational database"
+                                            data_desc = "transaction data"
+
                                         # Extract people names from nested items for personalized, aligned scenario.
                                         names_by_role = {
                                             "senior_dba": None,
@@ -4904,7 +5246,7 @@ Note: The diagram uses (min, max) cardinality notation where:
                                                 name = name_match.group(1)
                                                 if name:
                                                     name = name[0].upper() + name[1:]
-                                            
+
                                             if n_label in ["i", "ii"] and name and not names_by_role["senior_dba"]:
                                                 names_by_role["senior_dba"] = name
                                             elif n_label == "iii" and name and not names_by_role["junior_dba"]:
@@ -4913,24 +5255,60 @@ Note: The diagram uses (min, max) cardinality notation where:
                                                 names_by_role["db_developer"] = name
                                             elif n_label == "v" and name and not names_by_role["data_entry"]:
                                                 names_by_role["data_entry"] = name
-                                        
-                                        # Safe defaults when names are missing from nested text.
+
                                         senior_name = names_by_role["senior_dba"] or "Sarah"
                                         junior_name = names_by_role["junior_dba"] or "Emily"
                                         developer_name = names_by_role["db_developer"] or "Nathan"
                                         entry_name = names_by_role["data_entry"] or "Michael"
-                                        
+
                                         aligned_scenario = (
-                                            "A financial institution is developing a robust database system to manage clients' sensitive financial data. "
-                                            "Different roles are assigned to team members for database administration and management. "
-                                            f"{senior_name} is the senior database administrator responsible for overseeing database creation and maintenance. "
-                                            f"{junior_name} is a junior database administrator responsible for managing the transactions database. "
-                                            f"{developer_name} is a database developer responsible for designing and implementing database schemas. "
-                                            f"{entry_name} is a data entry operator responsible for inputting client and transaction data into the system."
+                                            f"{org_line} "
+                                            f"{senior_name} is the senior database administrator responsible for overall database administration. "
+                                            f"{junior_name} is a junior database administrator responsible for managing the {junior_scope}. "
+                                            f"{developer_name} is a database developer responsible for creating and maintaining database objects. "
+                                            f"{entry_name} is a data entry operator responsible for entering and updating {data_desc}."
                                         )
                                         updated_part_e["text"] = aligned_scenario
                                         scenario_text = aligned_scenario
-                                        print("    [Q3 POST-PROCESS] 🔧 Aligned part (e) parent scenario with nested SQL security/admin tasks")
+                                        print("    [Q3 POST-PROCESS] 🔧 Rewrote part (e) parent text to role-based admin scenario")
+
+                                    # CRITICAL: Align nested item database names with detected Q3 domain context.
+                                    if has_admin_intent:
+                                        stem_lower = (draft.get("text", "") or "").lower()
+                                        replacements = {}
+                                        if any(k in stem_lower for k in ["university", "student", "course", "enrollment"]):
+                                            replacements = {
+                                                r"\btransactions database\b": "Enrollments database",
+                                                r"\bclient accounts and transactions databases\b": "Students and Enrollments databases",
+                                                r"\bclient accounts\b": "Students and Enrollments",
+                                            }
+                                        elif any(k in stem_lower for k in ["library", "book", "books", "member", "members", "loan", "loans"]):
+                                            replacements = {
+                                                r"\btransactions database\b": "Loans database",
+                                                r"\bclient accounts and transactions databases\b": "Members and Loans databases",
+                                                r"\bclient accounts\b": "Members",
+                                            }
+                                        elif any(k in stem_lower for k in ["hospital", "patient", "doctor", "appointment"]):
+                                            replacements = {
+                                                r"\btransactions database\b": "Appointments database",
+                                                r"\bclient accounts and transactions databases\b": "Patients and Appointments databases",
+                                                r"\bclient accounts\b": "Patients and Appointments",
+                                            }
+                                        else:
+                                            replacements = {
+                                                r"\btransactions database\b": "operational database",
+                                                r"\bclient accounts and transactions databases\b": "operational databases",
+                                                r"\bclient accounts\b": "operational data",
+                                            }
+
+                                        if replacements:
+                                            for item in nested_items:
+                                                txt = item.get("text", "") or ""
+                                                for pat, rep in replacements.items():
+                                                    txt = re.sub(pat, rep, txt, flags=re.IGNORECASE)
+                                                item["text"] = txt
+                                            updated_part_e["subquestions"] = nested_items
+                                            print("    [Q3 POST-PROCESS] 🔧 Aligned nested item database references with Q3 domain context")
                                     
                                     # Extract people mentioned in nested items
                                     people_in_nested = set()

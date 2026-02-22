@@ -1182,12 +1182,26 @@ class QuestionWriter(BaseAgent):
                     
                     # Use java fence for JDBC snippets, sql otherwise.
                     code_lang = "java" if ("preparedstatement" in sql_code.lower() or "resultset" in sql_code.lower() or "connection.preparestatement" in sql_code.lower()) else "sql"
+
+                    # If generated code is JDBC-style, keep wording JDBC-specific (not generic SQL-DML phrasing).
+                    if code_lang == "java":
+                        updated_text = re.sub(
+                            r"there are several different types of statements in sql for data manipulation\.\s*",
+                            "",
+                            updated_text,
+                            flags=re.IGNORECASE,
+                        )
+                        updated_text = (
+                            "Which type of JDBC statement is used in the code segment shown above? "
+                            "Briefly explain when this type of statement will be used."
+                        )
+
                     # Insert code block directly into the subquestion text
-                    # Format: Code block first, then the question text
-                    code_block = f"Code Segment:\n```{code_lang}\n{sql_code}\n```\n\n"
+                    # Format: Code block first, then the question text on the next line
+                    code_block = f"Code Segment:\n```{code_lang}\n{sql_code}\n```\n"
                     
-                    # Prepend code block to subquestion text
-                    sq["text"] = code_block + updated_text
+                    # Prepend code block to subquestion text with newline separation
+                    sq["text"] = code_block + "\n" + updated_text
                     self.log(f"    ✅ Added SQL code segment to subquestion {sq_label}")
         
         return parsed
@@ -1482,11 +1496,36 @@ class QuestionWriter(BaseAgent):
         primary_table = schema_tables[0] if schema_tables else "Students"
         secondary_table = schema_tables[1] if len(schema_tables) > 1 else "Departments"
         
-        # Check what type of SQL statement is being asked about
-        if "jdbc" in sq_lower or "jdbc api" in sq_lower:
-            # JDBC-related code - keep existing complexity
-            return """PreparedStatement pstmt = connection.prepareStatement(
-    "SELECT * FROM Employees WHERE Department = ?");
+        # Check what type of SQL statement is being asked about.
+        # For Q3(b)-style prompts ("which type of statements ... code segment"),
+        # always generate JDBC Java snippets to match past paper format.
+        is_jdbc_style_prompt = (
+            "jdbc" in sq_lower
+            or "jdbc api" in sq_lower
+            or "result set" in sq_lower
+            or (
+                ("which type of statements" in sq_lower or ("which type" in sq_lower and "statement" in sq_lower))
+                and ("code segment" in sq_lower or "code snippet" in sq_lower or "shown above" in sq_lower or "given below" in sq_lower)
+            )
+        )
+        if is_jdbc_style_prompt:
+            jdbc_context = f"{question_lower} {sq_lower}"
+            # If the prompt/scenario suggests data-modification, return executeUpdate style.
+            if any(k in jdbc_context for k in ["insert", "update", "delete", "executeupdate", "rowsaffected"]):
+                return """String sql = "INSERT INTO employees (id, name, age) VALUES (101, 'John Doe', 30)";
+try {
+    int rowsAffected = statement.executeUpdate(sql);
+    if (rowsAffected > 0) {
+        System.out.println("A new record has been inserted successfully!");
+    } else {
+        System.out.println("Failed to insert a new record!");
+    }
+} catch (SQLException e) {
+    e.printStackTrace();
+}"""
+            # Default Q3(b)-like pattern: result-set retrieval snippet.
+            return """String sql = "SELECT * FROM employees WHERE department = ?";
+PreparedStatement pstmt = connection.prepareStatement(sql);
 pstmt.setString(1, "IT");
 ResultSet rs = pstmt.executeQuery();"""
         
@@ -1499,7 +1538,7 @@ WHERE {primary_table}ID = 'P001';
 INSERT INTO {primary_table} ({primary_table}ID, Name, Age, {secondary_table}ID)
 VALUES ('P002', 'John Doe', 30, 'D001');"""
         
-        elif "ddl" in sq_lower or "data definition" in sq_lower or "create table" in sq_lower or ("which type" in sq_lower and "statement" in sq_lower):
+        elif "ddl" in sq_lower or "data definition" in sq_lower or "create table" in sq_lower:
             # DDL statement - make it complex like past paper patterns
             # Include multiple constraints: PRIMARY KEY, NOT NULL, UNIQUE, DEFAULT, FOREIGN KEY, CHECK
             return f"""CREATE TABLE {primary_table} (

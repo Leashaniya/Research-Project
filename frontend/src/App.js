@@ -279,9 +279,90 @@ function App() {
           {paper.questions?.map((q, i) => (
             <div key={i} className="Question">
               <strong>Question {q.question_no} ({q.marks} Marks)</strong>
-              <div style={{ whiteSpace: 'pre-wrap', marginTop: '1rem', color: '#cbd5e1' }}>
+              <div style={{ 
+                whiteSpace: 'pre-wrap', 
+                marginTop: '1rem', 
+                color: '#cbd5e1',
+                wordWrap: 'break-word',
+                overflowWrap: 'break-word',
+                maxHeight: 'none',
+                overflow: 'visible',
+                lineHeight: '1.6'
+              }}>
                 {q.text}
               </div>
+              {/* Display diagram if available */}
+              {q.diagram_image_path && q.diagram_generated && (
+                <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                  <img 
+                    src={`${API_BASE}/model-paper/diagram-image?question_no=${q.question_no}`}
+                    alt={`${q.diagram_type || 'Diagram'} for ${q.question_no}`}
+                    style={{
+                      maxWidth: '100%',
+                      height: 'auto',
+                      borderRadius: '0.5rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
+                    }}
+                    onError={(e) => {
+                      console.error('Failed to load diagram image');
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  {q.diagram_type && (
+                    <p style={{ 
+                      marginTop: '0.5rem', 
+                      color: '#94a3b8', 
+                      fontSize: '0.9rem',
+                      fontStyle: 'italic'
+                    }}>
+                      Figure: {q.diagram_type} Diagram
+                    </p>
+                  )}
+                </div>
+              )}
+              {/* Show subquestions if they exist */}
+              {q.subquestions && q.subquestions.length > 0 && (
+                <div style={{ marginTop: '1rem', paddingLeft: '1rem' }}>
+                  {q.subquestions.map((sq, sqIdx) => (
+                    <div key={sqIdx} style={{ marginBottom: '0.75rem', color: '#cbd5e1' }}>
+                      <strong style={{ color: '#818cf8' }}>
+                        {sq.label ? `${sq.label})` : ''} 
+                        {sq.marks ? ` (${sq.marks} marks)` : ''}
+                      </strong>
+                      <div style={{ 
+                        marginTop: '0.5rem',
+                        whiteSpace: 'pre-wrap',
+                        wordWrap: 'break-word',
+                        overflowWrap: 'break-word'
+                      }}>
+                        {sq.text}
+                      </div>
+                      {/* Handle nested subquestions (for Q4 part a with i, ii, iii) */}
+                      {sq.subquestions && sq.subquestions.length > 0 && (
+                        <div style={{ marginTop: '0.5rem', paddingLeft: '1rem' }}>
+                          {sq.subquestions.map((nsq, nsqIdx) => (
+                            <div key={nsqIdx} style={{ marginBottom: '0.5rem', color: '#94a3b8' }}>
+                              <strong style={{ color: '#a78bfa' }}>
+                                {nsq.label ? `${nsq.label})` : ''} 
+                                {nsq.marks ? ` (${nsq.marks} marks)` : ''}
+                              </strong>
+                              <div style={{ 
+                                marginTop: '0.25rem',
+                                whiteSpace: 'pre-wrap',
+                                wordWrap: 'break-word',
+                                overflowWrap: 'break-word'
+                              }}>
+                                {nsq.text}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

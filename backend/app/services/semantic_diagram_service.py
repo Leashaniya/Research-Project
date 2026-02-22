@@ -679,19 +679,24 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                     subtype = str(subtype_data).lower()
                 connected_entity_names.add(subtype)
         
-        # Check for standalone entities
+        # Check for standalone entities and REMOVE them from entities list
         standalone_entities = []
+        entities_to_keep = []
         for entity in entities:
             entity_name = entity["name"]
             entity_name_lower = entity_name.lower()
             if entity_name_lower not in connected_entity_names:
                 standalone_entities.append(entity_name)
+            else:
+                entities_to_keep.append(entity)
         
-        # If there are standalone entities, log a warning
+        # CRITICAL: Actually remove standalone entities from the entities list
+        # This ensures the diagram only shows connected entities and matches the description
         if standalone_entities:
+            parsed_data["entities"] = entities_to_keep
             print(f"   [WARN] Found {len(standalone_entities)} standalone entities (not connected via relationships or ISA): {', '.join(standalone_entities)}")
-            print(f"   [WARN] These entities should be connected via relationships. Consider adding relationships or removing unnecessary entities.")
-            # Store standalone entities for potential future removal or connection
+            print(f"   [INFO] REMOVED standalone entities from diagram: {', '.join(standalone_entities)}")
+            # Store standalone entities for description cleanup
             parsed_data["_standalone_entities"] = standalone_entities
         
         return parsed_data
