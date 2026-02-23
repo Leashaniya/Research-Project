@@ -7,3 +7,4 @@
 # ignore virtual env
 .venv/
 **/.venv/
+node_modules
