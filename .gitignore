@@ -1,2 +1,9 @@
 # Ignore environment variable files
-backend/.env
+.env
+.env.*
+**/.env
+**/.env.*
+
+# ignore virtual env
+.venv/
+**/.venv/

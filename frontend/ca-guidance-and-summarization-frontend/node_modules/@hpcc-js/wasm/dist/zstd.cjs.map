@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/zstd.ts"],
+  "sourcesContent": ["export * from \"@hpcc-js/wasm-zstd\";"],
+  "mappings": "iaAAA,IAAAA,EAAA,kBAAAC,EAAAD,GAAAE,EAAAF,EAAc,8BAAd",
+  "names": ["zstd_exports", "__toCommonJS", "__reExport"]
+}

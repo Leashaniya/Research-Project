@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/expat.ts"],
+  "sourcesContent": ["export * from \"@hpcc-js/wasm-expat\";"],
+  "mappings": "iaAAA,IAAAA,EAAA,kBAAAC,EAAAD,GAAAE,EAAAF,EAAc,+BAAd",
+  "names": ["expat_exports", "__toCommonJS", "__reExport"]
+}
