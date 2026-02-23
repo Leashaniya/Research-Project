@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import './App.css';
 
 // Configuration for frontend URLs
@@ -7,13 +8,16 @@ const FRONTEND_URLS = {
   MODEL_PAPER: process.env.REACT_APP_MODEL_PAPER_URL || 'http://localhost:3000'
 };
 
-function App() {
+// Dashboard Home Component
+function DashboardHome() {
+  const navigate = useNavigate();
+
   const handleCAGuidanceClick = () => {
-    window.location.href = FRONTEND_URLS.CA_GUIDANCE;
+    navigate('/ca-guidance');
   };
 
   const handleModelPaperClick = () => {
-    window.location.href = FRONTEND_URLS.MODEL_PAPER;
+    navigate('/model-paper');
   };
 
   return (
@@ -127,6 +131,99 @@ function App() {
         </footer>
       </div>
     </div>
+  );
+}
+
+// CA Guidance Page Component (iframe)
+function CAGuidancePage() {
+  return (
+    <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+      <div style={{ 
+        position: 'absolute', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        padding: '10px', 
+        background: 'white', 
+        zIndex: 1000,
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      }}>
+        <Link 
+          to="/" 
+          style={{ 
+            textDecoration: 'none', 
+            color: '#667eea', 
+            fontWeight: 'bold',
+            fontSize: '16px'
+          }}
+        >
+          ← Back to Dashboard
+        </Link>
+      </div>
+      <iframe
+        src={FRONTEND_URLS.CA_GUIDANCE}
+        style={{
+          width: '100%',
+          height: '100vh',
+          border: 'none',
+          marginTop: '50px'
+        }}
+        title="CA Guidance"
+      />
+    </div>
+  );
+}
+
+// Model Paper Page Component (iframe)
+function ModelPaperPage() {
+  return (
+    <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+      <div style={{ 
+        position: 'absolute', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        padding: '10px', 
+        background: 'white', 
+        zIndex: 1000,
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      }}>
+        <Link 
+          to="/" 
+          style={{ 
+            textDecoration: 'none', 
+            color: '#667eea', 
+            fontWeight: 'bold',
+            fontSize: '16px'
+          }}
+        >
+          ← Back to Dashboard
+        </Link>
+      </div>
+      <iframe
+        src={FRONTEND_URLS.MODEL_PAPER}
+        style={{
+          width: '100%',
+          height: '100vh',
+          border: 'none',
+          marginTop: '50px'
+        }}
+        title="Model Paper"
+      />
+    </div>
+  );
+}
+
+// Main App Component with Router
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<DashboardHome />} />
+        <Route path="/ca-guidance" element={<CAGuidancePage />} />
+        <Route path="/model-paper" element={<ModelPaperPage />} />
+      </Routes>
+    </Router>
   );
 }
 
