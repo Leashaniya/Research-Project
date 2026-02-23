@@ -15,8 +15,21 @@
 
 from pathlib import Path
 
+def _find_project_root(start: Path) -> Path:
+    """
+    Find the repo root by walking upward until we see the expected top-level folders.
+    This is resilient to moving the backend into a subfolder (e.g. backend/model-paper-backend).
+    """
+    start = start.resolve()
+    for p in [start] + list(start.parents):
+        if (p / "data").exists() and (p / "frontend").exists() and (p / "backend").exists():
+            return p
+    # Fallback: assume current file is under .../backend/model-paper-backend/app/core/paths.py
+    # core -> app -> model-paper-backend -> backend -> project_root
+    return start.parents[4]
+
 # PROJECT ROOT = .../Research Project
-PROJECT_ROOT = Path(__file__).resolve().parents[3]  # core -> app -> backend -> project_root
+PROJECT_ROOT = _find_project_root(Path(__file__))
 DATA_DIR = PROJECT_ROOT / "data"
 
 PAST_PAPERS_DIR = DATA_DIR / "past_paper_red_box"

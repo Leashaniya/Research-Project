@@ -40,8 +40,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Ensure audio directory exists
-AUDIO_DIR = Path("outputs/audio")
+# Ensure audio directory exists (relative to backend root, not current working dir)
+BACKEND_ROOT = Path(__file__).resolve().parents[1]  # .../backend/ca-guidance-and-summarization-backend
+AUDIO_DIR = BACKEND_ROOT / "outputs" / "audio"
 AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 
 #Serve audio files

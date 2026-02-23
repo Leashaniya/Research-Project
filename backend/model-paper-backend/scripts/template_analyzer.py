@@ -99,7 +99,15 @@ def analyze_templates():
     
     # Paths
     # Paths relative to project root
-    PROJECT_ROOT = Path(__file__).resolve().parents[2]
+    def _find_project_root(start: Path) -> Path:
+        start = start.resolve()
+        for p in [start] + list(start.parents):
+            if (p / "data").exists() and (p / "frontend").exists() and (p / "backend").exists():
+                return p
+        # scripts -> model-paper-backend -> backend -> project_root
+        return start.parents[3]
+
+    PROJECT_ROOT = _find_project_root(Path(__file__))
     template_path = PROJECT_ROOT / "data" / "artifacts" / "template_questions.json"
     output_path = PROJECT_ROOT / "data" / "artifacts" / "canonical_templates.json"
     trend_summary_path = PROJECT_ROOT / "data" / "artifacts" / "trend_summary.json"

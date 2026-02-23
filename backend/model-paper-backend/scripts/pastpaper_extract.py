@@ -55,7 +55,15 @@ from app.services.vision_service import analyze_exam_diagram
 # =========================
 # CONFIG
 # =========================
-PROJECT_ROOT = Path(__file__).resolve().parents[2]  # .../Research Project
+def _find_project_root(start: Path) -> Path:
+    start = start.resolve()
+    for p in [start] + list(start.parents):
+        if (p / "data").exists() and (p / "frontend").exists() and (p / "backend").exists():
+            return p
+    # scripts -> model-paper-backend -> backend -> project_root
+    return start.parents[3]
+
+PROJECT_ROOT = _find_project_root(Path(__file__))  # .../Research Project
 DATA_ROOT = PROJECT_ROOT / "data"
 
 ROOT_PDFS = DATA_ROOT / "past_paper_red_box"

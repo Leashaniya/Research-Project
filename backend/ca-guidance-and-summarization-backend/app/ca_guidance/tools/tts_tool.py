@@ -1,12 +1,14 @@
 import subprocess
 import re
 from pathlib import Path
+
+BACKEND_ROOT = Path(__file__).resolve().parents[4]  # .../backend/ca-guidance-and-summarization-backend
 from datetime import datetime
 
 PIPER_EXE = r"D:\tools\piper\piper.exe"
 PIPER_MODEL = r"D:\tools\piper\models\en_US-amy-low.onnx"
 
-OUTPUT_DIR = Path("outputs/audio")
+OUTPUT_DIR = BACKEND_ROOT / "outputs" / "audio"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 

@@ -36,7 +36,15 @@ from sentence_transformers import SentenceTransformer
 # -------------------------------
 # PATHS (Project-relative)
 # -------------------------------
-PROJECT_ROOT = Path(__file__).resolve().parents[2]  # .../Research Project
+def _find_project_root(start: Path) -> Path:
+    start = start.resolve()
+    for p in [start] + list(start.parents):
+        if (p / "data").exists() and (p / "frontend").exists() and (p / "backend").exists():
+            return p
+    # scripts -> model-paper-backend -> backend -> project_root
+    return start.parents[3]
+
+PROJECT_ROOT = _find_project_root(Path(__file__))  # .../Research Project
 DATA_ROOT = PROJECT_ROOT / "data"
 
 BASE_DIR = DATA_ROOT / "text_extraction_hybrid"     # Notebook 1 output root
