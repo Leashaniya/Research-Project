@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-22 13:07:28",
+  "generated_at": "2026-02-22 21:22:10",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university system collects comprehensive data on students, courses, instructors, and departments. The Student entity includes attributes such as StudentID, Name, DateOfBirth, and EmailAddresses, while the Course entity has CourseID, Title, Credits, and a multivalued attribute Prerequisites. The Instructor entity has attributes such as InstructorID, Name, Department. features InstructorID, Name, and DepartmentID. The Department entity has attributes such as DepartmentID, DepartmentName, Location. contains DepartmentID, DepartmentName, and a composite attribute Address comprising Street, City, and ZipCode. A relationship 'Enrolls' connects Students to Courses with the attribute EnrollmentDate. Each Course is taught by one Instructor, and each Instructor belongs to one Department. The university employs an ISA hierarchy where the entity The the entity has attributes such as theID, Name, Description. Instructor has subtypes: FullTimeInstructor and PartTimeInstructor, with specific attributes for each subtype. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrolls' relationship (Student participation is optional, Course participation is optional). A Instructor can be related to many Courses through the 'Teaches' relationship. Many Instructors can be related to one Department through the 'BelongsTo' relationship (Department participation is optional)",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nIn a university database, there are four main entities: Student, Course, Instructor, and Enrollment. The Student entity has attributes: StudentID, FirstName, LastName, and Email. The Course entity includes CourseID, CourseName, and Credits. The Instructor entity has attributes such as InstructorID, Name, Department. possesses attributes: InstructorID, Name, and Office (a composite attribute with Building and RoomNumber). , which captures the relationship between Students and Courses, has EnrollmentID and an EnrollmentDate attribute. The relationships include a Many-to-Many between Student and Course through Enrollment, where a Student can enroll in multiple Courses and a Course can have multiple Students. Instructors teach Courses (One-to-Many relationship) and can be associated with multiple Courses. IMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). Student is the supertype with two subtypes: GraduateStudent and UndergraduateStudent. GraduateStudent has specific attributes: ThesisTitle, AdvisorName, ResearchArea. UndergraduateStudent has specific attributes: YearOfStudy, Major, GPA. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrolls' relationship (Student participation is optional, Course participation is optional). A Instructor can be related to many Courses through the 'Teaches' relationship (Instructor participation is optional)",
       "subquestions": [
         {
           "label": "a",
@@ -41,8 +41,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "699ab1e421423c7fb47ff212",
-      "original_semantic_description": "A university system collects comprehensive data on students, courses, instructors, and departments. The Student entity includes attributes such as StudentID, Name, DateOfBirth, and EmailAddresses, while the Course entity has CourseID, Title, Credits, and a multivalued attribute Prerequisites. The Instructor entity has attributes such as InstructorID, Name, Department. features InstructorID, Name, and DepartmentID. The Department entity has attributes such as DepartmentID, DepartmentName, Location. contains DepartmentID, DepartmentName, and a composite attribute Address comprising Street, City, and ZipCode. A relationship 'Enrolls' connects Students to Courses with the attribute EnrollmentDate. Each Course is taught by one Instructor, and each Instructor belongs to one Department. The university employs an ISA hierarchy where the entity The the entity has attributes such as theID, Name, Description. Instructor has subtypes: FullTimeInstructor and PartTimeInstructor, with specific attributes for each subtype.",
+      "template_id": "699b25ce67b88dcefbceb909",
+      "original_semantic_description": "In a university database, there are four main entities: Student, Course, Instructor, and Enrollment. The Student entity has attributes: StudentID (Primary Key), FirstName, LastName, and Email. The Course entity includes CourseID (Primary Key), CourseName, and Credits. The Instructor entity has attributes such as InstructorID, Name, Department. possesses attributes: InstructorID (Primary Key), Name, and Office (a composite attribute with Building and RoomNumber). The Enrollment entity has attributes such as EnrollmentID, Name, Description., which captures the relationship between Students and Courses, has EnrollmentID (Primary Key) and an EnrollmentDate attribute. The relationships include a Many-to-Many between Student and Course through Enrollment, where a Student can enroll in multiple Courses and a Course can have multiple Students. Instructors teach Courses (One-to-Many relationship) and can be associated with multiple Courses.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research Project\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, AC->D, B->E, D->A, C->B}}.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies over R: F={{AB->C, C->D, D->E, B->A}}. Analyze the keys and normalization status of this relation.",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "699ab1e421423c7fb47ff213",
+      "template_id": "699b25ce67b88dcefbceb90a",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,7 +84,7 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A university is redesigning its database system to manage its course offerings, student registrations, and faculty assignments. The database will include tables such as Courses (course_id, course_name, credits), Students (student_id, name, major), and Faculty (faculty_id, name, department). Additionally, relations will be established between the tables to ensure data integrity and optimized queries. The database administrator is tasked with implementing necessary integrity constraints and developing a user-friendly access interface.",
+      "text": "A university is designing a database system to efficiently manage its courses, students, and enrollment records. The system will consist of three primary tables: Courses, Students, and Enrollments. The Courses table will hold the course details such as course ID, name, and credit hours. The Students table will contain information about each student including student ID, name, and major. The Enrollments table will establish relationships between students and the courses they enroll in, referencing the corresponding student ID and course ID.",
       "subquestions": [
         {
           "label": "a",
@@ -98,17 +98,17 @@
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
+          "text": "Briefly explain the options available for defining primary and foreign keys within the schema of the Courses, Students, and Enrollments tables.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
+          "text": "Briefly explain how data integrity can be maintained when designing the database schema for this university system.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A university database system is crucial to managing academic information. Identify and discuss three integrity constraints that should be implemented within this database context. Emily is a junior database administrator managing specific databases within the system.. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance.. Nathan is a database developer responsible for designing and implementing database schemas.. Michael is a data entry operator responsible for inputting data into the system..",
+          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
           "marks": null,
           "subquestions": [
             {
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "699ab1e421423c7fb47ff214",
+      "template_id": "699b25ce67b88dcefbceb90b",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,27 +152,27 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for a Hospital: Patient (patientId: int, name: varchar(100), address: varchar(150), dob: date) Appointment (appointmentId: int, patientId: int, doctorId: int, appointmentDate: date, status: varchar(20)) Doctor (doctorId: int, name: varchar(100), specialty: varchar(100), phone: varchar(15)) The 'Patient' table stores information about patients including unique patient ID, name, address, and date of birth. The 'Appointment' table contains records of patient appointments with doctors, associating each appointment with a patient and a doctor, along with the appointment date and status. The 'Doctor' table retains information about doctors, including their unique ID, name, specialty, and contact number. The 'Doctor' table manages details about doctors, including unique doctor ID, name, specialization, and contact information. Fee (feeId: int, patientId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
+      "text": "Consider the following schema of a database designed for a Hospital: Patient (patientId: int, name: varchar(100), phoneNumber: varchar(15), dateOfBirth: date) Doctor (doctorId: int, name: varchar(100), specialty: varchar(50), phoneNumber: varchar(15)) Appointment (appointmentId: int, patientId: int, doctorId: int, appointmentDate: date, status: varchar(20)) Fee (feeId: int, appointmentId: int, amount: real, paidStatus: varchar(20)). The 'Patient' table stores information about patients, including unique patient IDs, their names and phone numbers, as well as their dates of birth. The 'Doctor' table holds details about doctors, including their specialties. The 'Appointment' table keeps track of the appointments between patients and doctors, while the 'Fee' table records the fees associated with each appointment, including payment statuses. The 'Appointment' table manages appointment records, tracking scheduled appointments between patients and doctors with dates and times. The 'Fee' table contains relevant information for the database system.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Write SQL Queries to perform the following: i. Find the name and address of patients who have an appointment scheduled with the doctor named 'Dr. Smith'.",
+          "text": "Write SQL Queries to perform the following: i. Find the name and phone number of the patient who has an appointment on '2023-12-01'.",
           "marks": null,
           "subquestions": [
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the name and address of patients who have an appointment scheduled with the doctor named 'Dr. Smith'."
+              "text": "Find the name and phone number of the patient who has an appointment on '2023-12-01'."
             },
             {
               "label": "ii",
               "marks": 6,
-              "text": "Find the patient with the highest aggregate value using GROUP BY on related appointment records."
+              "text": "Find the patient who has the highest total amount compared to all other patients. Find the patientId and name."
             },
             {
               "label": "iii",
               "marks": 7,
-              "text": "Find the appointmentDate, status, and name from Appointment, Patient, and Appointment where Appointment.appointmentDate is not null."
+              "text": "Find the name and name from Doctor, Patient, and Appointment where Appointment.appointmentDate is not null."
             }
           ]
         },
@@ -190,7 +190,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "699ab1e421423c7fb47ff215",
+      "template_id": "699b25ce67b88dcefbceb90c",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
