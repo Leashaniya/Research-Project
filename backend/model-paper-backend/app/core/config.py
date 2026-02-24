@@ -3,18 +3,20 @@ import os
 from pathlib import Path
 
 # Load environment variables from .env file
-# Try to find .env in backend directory first, then project root
-backend_dir = Path(__file__).parent.parent  # backend/app/core -> backend
+# Try to find .env in model-paper-backend directory first, then project root
+# __file__ = .../backend/model-paper-backend/app/core/config.py
+backend_dir = Path(__file__).resolve().parents[2]  # -> .../backend/model-paper-backend
 env_path = backend_dir / ".env"
 if not env_path.exists():
-    # Try project root
-    project_root = backend_dir.parent
+    # Try project root: parent of backend directory
+    project_root = backend_dir.parents[1]          # -> .../Research Project
     env_path = project_root / ".env"
+
 if env_path.exists():
     load_dotenv(dotenv_path=str(env_path), override=True)
     print(f"[CONFIG] Loaded .env from: {env_path}")
 else:
-    # Fallback to default behavior (current directory)
+    # Fallback to default behavior (current directory / process cwd)
     load_dotenv(override=True)
     print(f"[CONFIG] Using default .env loading (current directory)")
 

@@ -22,8 +22,8 @@ class Settings:
     RAG_SUMMARY_MODEL: str = os.getenv("RAG_SUMMARY_MODEL", "gpt-4o-mini")
     
     # MongoDB Configuration
-    MONGO_URI: str = os.getenv("MONGO_URI", "")
-    MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "ca_guidance_db")
+    MONGO_URI: str = os.getenv("MONGO_URI", "mongodb+srv://it22171306_db_user:JanuDinu123@cluster0.ds6apc4.mongodb.net/?appName=Cluster0")
+    MONGO_DB_NAME: str = os.getenv("MONGO_DB_NAME", "research_studenthelp")
     
     # Image Explanation Configuration
     ENABLE_IMAGE_EXPLANATIONS: bool = os.getenv("ENABLE_IMAGE_EXPLANATIONS", "true").lower() == "true"
