@@ -3,20 +3,31 @@ import os
 from pathlib import Path
 
 # Load environment variables from .env file
-# Try to find .env in backend directory first, then project root
-backend_dir = Path(__file__).parent.parent  # backend/app/core -> backend
-env_path = backend_dir / ".env"
-if not env_path.exists():
-    # Try project root
-    project_root = backend_dir.parent
-    env_path = project_root / ".env"
-if env_path.exists():
-    load_dotenv(dotenv_path=str(env_path), override=True)
-    print(f"[CONFIG] Loaded .env from: {env_path}")
-else:
-    # Fallback to default behavior (current directory)
+# Prefer the project root .env, then backend/.env, then backend/app/.env
+current_file = Path(__file__).resolve()
+# .../backend/app/core/config.py -> parents: core, app, backend, project_root, ...
+project_root = current_file.parents[3]
+backend_dir = project_root / "backend"
+backend_app_dir = backend_dir / "app"
+
+env_candidates = [
+    project_root / ".env",      # main project-level .env (recommended)
+    backend_dir / ".env",       # legacy backend .env
+    backend_app_dir / ".env",   # legacy backend/app .env
+]
+
+loaded_env = None
+for candidate in env_candidates:
+    if candidate.exists():
+        load_dotenv(dotenv_path=str(candidate), override=True)
+        loaded_env = candidate
+        print(f"[CONFIG] Loaded .env from: {candidate}")
+        break
+
+if not loaded_env:
+    # Fallback to default behavior (walk up from current working directory)
     load_dotenv(override=True)
-    print(f"[CONFIG] Using default .env loading (current directory)")
+    print("[CONFIG] Using default .env loading (current directory)")
 
 # Retrieve the OpenAI API key from environment variables
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()  # Strip whitespace

@@ -1,2 +1,3 @@
-# Ignore environment variable files
+# Ignore environment variable files (they are still loaded at runtime, just not committed to Git)
+.env
 backend/.env
