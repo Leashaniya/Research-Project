@@ -1077,6 +1077,7 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         """
         Generate Graphviz DOT code from parsed ER/EER components.
         Uses proper ER notation: Entities as boxes, Attributes as ovals connected to entities.
+        Layout is biased to keep attributes visually close to entities and to reduce line crossings.
         
         Args:
             parsed_data: Parsed components from parse_semantic_description
@@ -1093,7 +1094,10 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         lines = []
         lines.append("digraph ER_Diagram {")
         lines.append("    rankdir=LR;")
-        lines.append("    node [fontname=\"Arial\", fontsize=10];")
+        # Encourage orthogonal edges and reduce clutter / crossings
+        lines.append("    graph [splines=ortho, overlap=false, ranksep=0.7, nodesep=0.4];")
+        lines.append("    node  [fontname=\"Arial\", fontsize=10];")
+        lines.append("    edge  [penwidth=1.2, arrowsize=0.5];")
         lines.append("")
         
         # Track weak entity names
@@ -1125,6 +1129,9 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             pk = entity.get("primary_key", "")
             composite_attrs = entity.get("composite_attributes", [])
             multivalued_attrs = entity.get("multivalued_attributes", [])
+            
+            # Track all attribute node IDs for this entity so we can keep them close in layout
+            entity_attr_ids: List[str] = []
             
             # First, draw composite attributes with their sub-attributes
             for comp_attr_data in composite_attrs:
@@ -1176,6 +1183,7 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                 # Composite attribute: ellipse shape with special styling
                 lines.append(f'    {comp_attr_id} [label="{comp_attr_label}", shape=ellipse, style="filled,bold", fillcolor=lightgreen, penwidth=2];')
                 lines.append(f'    {entity_id} -> {comp_attr_id} [style=solid, arrowhead=none];')
+                entity_attr_ids.append(comp_attr_id)
                 
                 # Draw sub-attributes (Street, City, ZipCode) connected to the composite attribute
                 for sub_attr in sub_attrs:
@@ -1184,6 +1192,7 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                     sub_attr_id = "".join(c if c.isalnum() or c == "_" else "_" for c in sub_attr_id)
                     lines.append(f'    {sub_attr_id} [label="{sub_attr}", shape=ellipse, style="filled", fillcolor=lightblue];')
                     lines.append(f'    {comp_attr_id} -> {sub_attr_id} [style=solid, arrowhead=none];')
+                    entity_attr_ids.append(sub_attr_id)
             
             # Draw regular and multivalued attributes
             for attr in attrs:
@@ -1248,17 +1257,26 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                     lines.append(f'    {attr_id} [label=<{attr_label_underlined}>, shape=ellipse, style="filled", fillcolor=lightyellow];')
                     # Connect attribute to entity with solid line
                     lines.append(f'    {entity_id} -> {attr_id} [style=solid, arrowhead=none];')
+                    entity_attr_ids.append(attr_id)
                 elif is_multivalued:
                     # Multivalued attribute: double oval (use double border/peripheries)
                     # In EER diagrams, multivalued attributes are shown with double ovals (concentric circles)
                     # Use peripheries=2 to create double border effect
                     lines.append(f'    {attr_id} [label="{attr_label}", shape=ellipse, style="filled", fillcolor=lightcoral, penwidth=2, peripheries=2];')
                     lines.append(f'    {entity_id} -> {attr_id} [style=solid, arrowhead=none];')
+                    entity_attr_ids.append(attr_id)
                 else:
                     # Regular attribute: ellipse shape
                     lines.append(f'    {attr_id} [label="{attr_label}", shape=ellipse, style="filled", fillcolor=white];')
                     # Connect attribute to entity with solid line
                     lines.append(f'    {entity_id} -> {attr_id} [style=solid, arrowhead=none];')
+                    entity_attr_ids.append(attr_id)
+            
+            # Hint to Graphviz: keep the entity and its attributes on the same rank
+            # This helps keep attributes visually close to the entity and reduces confusing crossings.
+            if entity_attr_ids:
+                attr_nodes = " ".join(entity_attr_ids)
+                lines.append(f"    {{ rank=same; {entity_id} {attr_nodes} }}")
         
         lines.append("")
         
