@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-26 00:20:14",
+  "generated_at": "2026-02-26 00:56:01",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university is managing its classes, students, instructors, and courses. The 'Student' entity contains attributes such as StudentID, Name, and EmailAddresses (a multivalued attribute). The 'Instructor' entity includes InstructorID, Name, and PhoneNumbers (another multivalued attribute). The 'Course' entity has CourseID, Title, and Description as its attributes. The 'Class' entity represents a relationship between 'Course' and 'Instructor', with attributes such as Schedule and EnrollmentLimit. The relationship between 'Student' and 'Class' is many-to-many, indicated by an Enrollment table. The 'Instructor' has a specialization subtype called 'AdjunctInstructor' with an attribute for hourlyRate, while the 'Course' has a prerequisite subtype called 'PrerequisiteCourse'. A Instructor can be related to many Classs through the 'Teaches' relationship. A Student can be related to many Classs, and a Class can be related to many Students through the 'Enrollment' relationship (Student participation is optional, Class participation is optional). Many Classs can be related to one Course through the 'BelongsTo' relationship (Course participation is optional). Draw the EER diagram for this scenario and include proper cardinalities",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university database needs to manage its students, courses, instructors, and departments effectively. The Student entity includes StudentID, Name, and PhoneNumbers as attributes. Each Student can enroll in multiple Courses, which has attributes CourseID, Title, and Credits. Instructors, identified by InstructorID, have attributes Name and OfficeNumber, and each Instructor may teach several Courses. The Department entity has attributes such as DepartmentID, DepartmentName, Location., which has DepartmentID and DepartmentName attributes, is responsible for managing the courses and faculty. Each Course belongs to one Department, while each Department offers multiple Courses. Additionally, there is a specialization where certain students can be GraduateStudents with specific attributes such as ThesisTopic and AdvisorName. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrolls' relationship (Student participation is optional, Course participation is optional). A Instructor can be related to many Courses through the 'Teaches' relationship (Instructor participation is optional). A Department can be related to many Courses through the 'Offers' relationship. Draw the EER diagram for this scenario, representing the relationships and properties clearly",
       "subquestions": [
         {
           "label": "a",
@@ -41,8 +41,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "699f43f8f7d03a3d42d10e43",
-      "original_semantic_description": "A university is managing its classes, students, instructors, and courses. The 'Student' entity contains attributes such as StudentID, Name, and EmailAddresses (a multivalued attribute). The 'Instructor' entity includes InstructorID, Name, and PhoneNumbers (another multivalued attribute). The 'Course' entity has CourseID, Title, and Description as its attributes. The 'Class' entity represents a relationship between 'Course' and 'Instructor', with attributes such as Schedule and EnrollmentLimit. The relationship between 'Student' and 'Class' is many-to-many, indicated by an Enrollment table. The 'Instructor' has a specialization subtype called 'AdjunctInstructor' with an attribute for hourlyRate, while the 'Course' has a prerequisite subtype called 'PrerequisiteCourse'. Draw the EER diagram for this scenario and include proper cardinalities.",
+      "template_id": "699f4c61466b869940055d70",
+      "original_semantic_description": "A university database needs to manage its students, courses, instructors, and departments effectively. The Student entity includes StudentID, Name, and PhoneNumbers as attributes. Each Student can enroll in multiple Courses, which has attributes CourseID, Title, and Credits. Instructors, identified by InstructorID, have attributes Name and OfficeNumber, and each Instructor may teach several Courses. The Department entity has attributes such as DepartmentID, DepartmentName, Location., which has DepartmentID and DepartmentName attributes, is responsible for managing the courses and faculty. Each Course belongs to one Department, while each Department offers multiple Courses. Additionally, there is a specialization where certain students can be GraduateStudents with specific attributes such as ThesisTopic and AdvisorName. Draw the EER diagram for this scenario, representing the relationships and properties clearly.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research\\Research-Project-1\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, C->D, D->E, A->B}}. Analyze the schema and its dependencies to assess its normalization.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies over R: F={{AB->C, C->D, D->B, A->E}}. Analyze the structure of this relation to determine its normalization properties.",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "699f43f8f7d03a3d42d10e44",
+      "template_id": "699f4c61466b869940055d71",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,31 +84,31 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A university database system is designed to manage student enrollment, course registrations, and faculty records. The database schema has been defined and includes relations such as Students(sid: string, name: string, major: string, gpa: real), Courses(course_id: string, title: string, credits: integer), and Enrollments(sid: string, course_id: string, semester: string). The database system needs to ensure data integrity and proper management of course offerings each semester.",
+      "text": "A telecommunications company is designing a database to manage its customer subscriptions, service plans, and billing records. The database will store relevant information including customer details, service plan features, and billing history. The initial design involves creating several tables, including Customers, Services, and Billing. Each table will have specific attributes, and certain relationships will be established between them. Based on this scenario, address the following questions.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Write SQL queries to in type 2 driver, jdbc api calls are converted to native java api calls. accept or refute the above statement justifying your answer.",
+          "text": "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
           "marks": 2
         },
         {
           "label": "b",
-          "text": "Code Segment: ```java String sql = \"SELECT * FROM employees WHERE department = ?\"; PreparedStatement pstmt = connection.prepareStatement(sql); pstmt.setString(1, \"IT\"); ResultSet rs = pstmt.executeQuery(); ``` Which type of JDBC statement is used in the code segment shown above? Briefly explain when this type of statement will be used.",
+          "text": "Code Segment: ```sql CREATE TABLE Students ( StudentsID INT PRIMARY KEY IDENTITY(1,1), Name VARCHAR(50) NOT NULL, Email VARCHAR(100) UNIQUE, Age INT CHECK (Age >= 18), Status VARCHAR(20) DEFAULT 'Active' ); INSERT INTO Students (Name, Email, Age) VALUES ('John Smith', 'john@example.com', 25); ``` In the context of the scenario, identify the type of constraints that should be applied to enforce data integrity. Briefly explain how each constraint will be applied.",
           "marks": 2
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
+          "text": "Code Segment: ```java String sql = \"SELECT * FROM employees WHERE department = ?\"; PreparedStatement pstmt = connection.prepareStatement(sql); pstmt.setString(1, \"IT\"); ResultSet rs = pstmt.executeQuery(); ``` Which type of JDBC statement is used in the code segment shown above? Briefly explain when this type of statement will be used.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
+          "text": "Briefly explain the options available for handling NULL values in SQL tables, particularly within the context of this telecommunications database.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A university is planning to implement a new student management system. Describe the roles and responsibilities of different Students involved in database management, including a senior database administrator, junior database administrators, and data entry operators. Emily is a junior database administrator managing specific databases within the system.. Michael is a data entry operator responsible for inputting data into the system.. Nathan is a database developer responsible for designing and implementing database schemas.. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance..",
+          "text": "An organization is establishing role-based access control for its database system. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the operational database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating transaction data.",
           "marks": null,
           "subquestions": [
             {
@@ -124,7 +124,7 @@
             {
               "label": "iii",
               "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the operational database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -134,7 +134,7 @@
             {
               "label": "v",
               "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the operational databases."
             }
           ]
         }
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "699f43f8f7d03a3d42d10e45",
+      "template_id": "699f4c61466b869940055d72",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,45 +152,45 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for a university: Student (studentId: int, name: varchar(100), email: varchar(50), phone: varchar(15)) Course (courseId: int, title: varchar(100), credits: int, department: varchar(50)) Enrollment (enrollmentId: int, studentId: int, courseId: int, grade: char(1)) The 'Student' table stores information about students enrolled in the university, including their unique ID, name, email address, and phone number. The 'Course' table includes details on courses offered, such as a unique course ID, title, number of credits, and department offering the course. The 'Enrollment' table manages the relationship between students and courses, storing each enrollment's unique ID, associated student ID, course ID, and the grade assigned to the student for that course. The 'Course' table holds details about courses, such as unique course ID, course name, credits, and department. Fee (feeId: int, studentId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
+      "text": "Consider the following schema of a database designed for a Hospital: Patient (patientId: int, name: varchar(100), address: varchar(150), dob: date) Doctor (doctorId: int, name: varchar(100), specialty: varchar(50), phone: varchar(15)) Appointment (appointmentId: int, patientId: int, doctorId: int, appointmentDate: date, status: varchar(20)) Payment (paymentId: int, appointmentId: int, paymentAmount: real, paymentStatus: varchar(20)) The 'Patient' table stores information about patients including unique patient ID and personal details. The 'Doctor' table contains details about doctors and their specialties. The 'Appointment' table keeps track of all appointments scheduled between patients and doctors, while the 'Payment' table records payment information related to these appointments. The 'Appointment' table manages appointment records, tracking scheduled appointments between patients and doctors with dates and times. The 'Payment' table contains relevant information for the database system.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Write SQL Queries to perform the following: i. Find the names and emails of students enrolled in a course titled 'Database Systems'.",
+          "text": "Write SQL Queries to perform the following: i. Find the name and phone number of the doctor who has an appointment scheduled for '2023-12-01'.",
           "marks": null,
           "subquestions": [
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the names and emails of students enrolled in a course titled 'Database Systems'."
+              "text": "Find the name and phone number of the doctor who has an appointment scheduled for '2023-12-01'."
             },
             {
               "label": "ii",
               "marks": 6,
-              "text": "Find the student with the highest aggregate value using GROUP BY on related enrollment records."
+              "text": "Find the patient who has the highest total paymentamount compared to all other patients. Find the patientId and name."
             },
             {
               "label": "iii",
               "marks": 7,
-              "text": "Find the title and name from Course, Student, and Enrollment where Enrollment.enrollmentId is not null."
+              "text": "Find the name and name from Doctor, Patient, and Appointment where Appointment.appointmentDate is not null."
             }
           ]
         },
         {
           "label": "b",
           "marks": 11,
-          "text": "b) Create a function to calculate the total fee amount for a given student. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
+          "text": "b) Create a function to calculate the total payment amount for a given patient. This function should account for payment with a late penalty of 10% applied to those marked as 'overdue' payment status."
         },
         {
           "label": "c",
           "marks": 12,
-          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each student. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by student. The student pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
+          "text": "c) Create a trigger that automatically updates the 'Payment' column in the 'Payment' table whenever a new payment record is added, or an existing payment record is updated. The 'Payment' column should contain the total payment amount for each patient. Ensure the trigger adjusts the 'Payment' column accurately to reflect any partial payments made by patient. The patient pays only 50% of the total payment amount as an initial payment when the payment status is marked as 'Partial'."
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "699f43f8f7d03a3d42d10e46",
+      "template_id": "699f4c61466b869940055d73",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,

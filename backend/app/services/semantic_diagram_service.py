@@ -87,12 +87,12 @@ class SemanticDiagramService:
         isa_requirement_note = ""
         if requires_isa:
             isa_requirement_note = """
-⚠️ MANDATORY ISA REQUIREMENT: This description MUST include ISA hierarchies (subtype/supertype relationships).
+⚠️ MANDATORY ISA REQUIREMENT: This description SHOULD include ISA hierarchies (subtype/supertype relationships) WHEN the scenario naturally supports specialization.
 ⚠️ CRITICAL: ISA hierarchies are ONLY for subtype/supertype relationships - subtypes are specializations of the supertype.
 ⚠️ ISA means "is a" - the subtype IS A type of the supertype (e.g., GraduateStudent IS A Student).
 ⚠️ DO NOT create ISA between unrelated entities (e.g., Student → Course is WRONG - use a relationship instead).
 
-If the description mentions entities like Student, Course, Employee, Member, etc., you MUST create appropriate subtypes.
+If the description naturally includes entities like Student, Course, Employee, Member, etc., and there is a meaningful specialization, you MUST create appropriate subtypes.
 Examples:
 - Student → GraduateStudent, UndergraduateStudent (CORRECT - subtypes of Student)
 - Course → CoreCourse, ElectiveCourse (CORRECT - subtypes of Course)
@@ -100,8 +100,10 @@ Examples:
 - Member → RegularMember, PremiumMember (CORRECT - subtypes of Member)
 - Student → Course (WRONG - this is a relationship, NOT an ISA hierarchy)
 
+Each ISA hierarchy MUST have AT LEAST TWO distinct subtypes. If only a single specialized child is mentioned, DO NOT model it as an ISA hierarchy – instead, merge its attributes into the supertype entity.
 Each subtype MUST have at least 2-3 specific attributes that are NOT in the parent entity.
-"""
+If the scenario does NOT naturally support an ISA hierarchy with two or more meaningful subtypes, DO NOT invent one – in that case, use only regular relationships (no ISA).
+"""        
         
         # Escape curly braces in JSON example to avoid format string errors
         json_example = """{
@@ -179,12 +181,13 @@ Extract:
    - These should be listed in the attributes array AND in multivalued_attributes array
 7. Descriptive attributes attached to relationships (attributes that belong to the relationship itself, e.g., EnrollmentDate on Enrolls relationship)
 
-CRITICAL REQUIREMENTS:
-- MINIMUM 4 distinct entities must be included (at least 4 entities)
-- ⚠️ ALL entities MUST be connected through relationships - NO standalone entities
-- ⚠️ If an entity like "Instructor" or "Department" exists, it MUST be connected to at least one other entity via a relationship
-- ⚠️ ISA hierarchies MUST be subtype/supertype only (e.g., Student → GraduateStudent, NOT Student → Course)
-- ⚠️ DO NOT repeat the same attribute multiple times within an entity - each attribute should appear only once per entity
+        CRITICAL REQUIREMENTS:
+        - MINIMUM 4 distinct entities must be included (at least 4 entities)
+        - ⚠️ ALL entities MUST be connected through relationships - NO standalone entities
+        - ⚠️ If an entity like "Instructor" or "Department" exists, it MUST be connected to at least one other entity via a relationship
+        - ⚠️ ISA hierarchies MUST be subtype/supertype only (e.g., Student → GraduateStudent, NOT Student → Course)
+        - ⚠️ For every ISA hierarchy returned, the "subtypes" array MUST contain at least TWO subtype objects. Never create an ISA hierarchy with only one subtype.
+        - ⚠️ DO NOT repeat the same attribute multiple times within an entity - each attribute should appear only once per entity
 - At least ONE composite attribute must be included (e.g., Address, Name with FirstName/LastName, Date with Day/Month/Year)
 - At least ONE multivalued attribute must be included (e.g., PhoneNumbers, EmailAddresses, Skills, Hobbies)
 - At least ONE descriptive attribute attached to a relationship must be included (e.g., EnrollmentDate, Grade, Salary, StartDate)
@@ -268,6 +271,8 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             result = json.loads(content)
             # Remove duplicate attributes from entities
             result = self._remove_duplicate_attributes(result)
+            # Enforce that ISA hierarchies are valid (context + ≥ 2 subtypes + subtype-specific attributes)
+            result = self._enforce_minimum_isa_subtypes(result)
             return result
         except json.JSONDecodeError as e:
             print(f"[WARN] JSON parsing error: {e}")
@@ -481,6 +486,65 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                     else:
                         print(f"   [WARN] Subtype '{subtype_name}' has only {len(current_attrs)} attribute(s) after duplicate removal (minimum required: {MIN_ATTRIBUTES}). Consider adding more attributes.")
         
+        return parsed_data
+
+    def _enforce_minimum_isa_subtypes(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Ensure that every ISA hierarchy is semantically valid:
+        - Supertype exists as an entity
+        - At least TWO subtypes
+        - Each subtype has at least one subtype-specific attribute
+
+        If these conditions are not met, the ISA hierarchy is dropped from the parsed data
+        so that degenerate or artificial ISA structures are not rendered.
+        """
+        isa_hierarchies = parsed_data.get("isa_hierarchies", [])
+        entities = parsed_data.get("entities", [])
+
+        if not isa_hierarchies or not entities:
+            return parsed_data
+
+        entity_names = {e.get("name", "").lower() for e in entities}
+        valid_isa_hierarchies = []
+        removed_count = 0
+
+        for isa in isa_hierarchies:
+            supertype = (isa.get("supertype") or "").strip()
+            subtypes = isa.get("subtypes") or []
+
+            # Supertype must exist as an entity
+            if not supertype or supertype.lower() not in entity_names:
+                removed_count += 1
+                print(f"   [WARN] Dropping ISA hierarchy with missing/unknown supertype '{supertype}'.")
+                continue
+
+            # Need at least two subtypes
+            if len(subtypes) < 2:
+                removed_count += 1
+                print(f"   [WARN] Dropping ISA hierarchy for supertype '{supertype}' because it has only {len(subtypes)} subtype(s).")
+                continue
+
+            # Each subtype must have at least one specific attribute
+            all_valid_subtypes = True
+            for subtype in subtypes:
+                subtype_name = (subtype.get("name") or "").strip()
+                specific_attrs = subtype.get("specific_attributes") or []
+                if not subtype_name or len(specific_attrs) == 0:
+                    all_valid_subtypes = False
+                    print(
+                        f"   [WARN] Dropping ISA hierarchy for supertype '{supertype}' because subtype "
+                        f"'{subtype_name}' has no specific attributes."
+                    )
+                    break
+
+            if all_valid_subtypes:
+                valid_isa_hierarchies.append(isa)
+            else:
+                removed_count += 1
+
+        if removed_count > 0:
+            parsed_data["isa_hierarchies"] = valid_isa_hierarchies
+
         return parsed_data
     
     def _remove_redundant_entities(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -1528,31 +1592,32 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                     "parsed_data": parsed_data
                 }
             
-            # If this is an EER diagram and description mentions ISA/subtypes but none were parsed,
-            # try to infer ISA hierarchies from entity names
+            # If this is an EER diagram and description or requirements strongly suggest ISA
+            # but none were parsed, try to infer ISA hierarchies from entity names.
             if diagram_type == "EER":
                 isa_hierarchies = parsed_data.get("isa_hierarchies", [])
                 description_lower = description.lower()
                 
-                # Check if description mentions ISA-related terms but no hierarchies were parsed
+                # Check if description mentions ISA-related terms
                 mentions_isa = any(term in description_lower for term in [
                     "isa", "subtype", "supertype", "graduate", "undergraduate",
-                    "generalization", "specialization", "inheritance", "subclass"
+                    "generalization", "specialization", "inheritance", "subclass",
+                    "full-time", "part-time", "core course", "elective course"
                 ])
                 
-                # If ISA hierarchies are required (from subquestion) but not parsed, force them
+                # Only attempt inference when there's a clear ISA signal or it is explicitly required
                 if (mentions_isa or requires_isa) and not isa_hierarchies:
-                    print(f"   [WARN] ISA hierarchies required but none were parsed. Forcing creation of ISA hierarchies...")
-                    # Try to infer ISA hierarchies from entity names
+                    print(f"   [INFO] No ISA hierarchies parsed, attempting to infer ISA from entities/context...")
                     entities = parsed_data.get("entities", [])
                     entity_names = [e["name"].lower() for e in entities]
                     
-                    # Find main entity candidates for ISA hierarchies
                     main_entity = None
+                    inferred = False
+
+                    # Prefer meaningful domain-based ISA patterns
                     if "student" in " ".join(entity_names):
                         main_entity = next((e for e in entities if "student" in e["name"].lower() and "graduate" not in e["name"].lower() and "undergraduate" not in e["name"].lower()), None)
                         if main_entity:
-                            # Create subtypes if they don't exist
                             grad_student = next((e for e in entities if "graduate" in e["name"].lower()), None)
                             undergrad_student = next((e for e in entities if "undergraduate" in e["name"].lower()), None)
                             
@@ -1563,7 +1628,6 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                                     "specific_attributes": grad_student.get("attributes", [])[:3] if grad_student.get("attributes") else ["ThesisTitle", "AdvisorName"]
                                 })
                             else:
-                                # Create GraduateStudent subtype
                                 subtypes.append({
                                     "name": "GraduateStudent",
                                     "specific_attributes": ["ThesisTitle", "AdvisorName", "ResearchArea"]
@@ -1575,7 +1639,6 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                                     "specific_attributes": undergrad_student.get("attributes", [])[:3] if undergrad_student.get("attributes") else ["YearOfStudy", "Major"]
                                 })
                             else:
-                                # Create UndergraduateStudent subtype
                                 subtypes.append({
                                     "name": "UndergraduateStudent",
                                     "specific_attributes": ["YearOfStudy", "Major", "GPA"]
@@ -1585,11 +1648,9 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                                 "supertype": main_entity["name"],
                                 "subtypes": subtypes
                             }]
-                            # IMPORTANT: Add subtypes as entities so they can be rendered
                             entities = parsed_data.get("entities", [])
                             for subtype in subtypes:
                                 subtype_name = subtype["name"]
-                                # Check if subtype already exists as entity
                                 if not any(e["name"] == subtype_name for e in entities):
                                     entities.append({
                                         "name": subtype_name,
@@ -1597,8 +1658,8 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                                         "primary_key": main_entity.get("primary_key", "")
                                     })
                             parsed_data["entities"] = entities
-                            print(f"   [INFO] Created ISA hierarchy: {main_entity['name']} -> {[s['name'] for s in subtypes]}")
-                            print(f"   [INFO] Added {len(subtypes)} subtypes as entities")
+                            inferred = True
+                            print(f"   [INFO] Inferred ISA hierarchy: {main_entity['name']} -> {[s['name'] for s in subtypes]}")
                     
                     elif "course" in " ".join(entity_names):
                         main_entity = next((e for e in entities if "course" in e["name"].lower() and "core" not in e["name"].lower() and "elective" not in e["name"].lower()), None)
@@ -1617,11 +1678,9 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                                 "supertype": main_entity["name"],
                                 "subtypes": subtypes
                             }]
-                            # IMPORTANT: Add subtypes as entities so they can be rendered
                             entities = parsed_data.get("entities", [])
                             for subtype in subtypes:
                                 subtype_name = subtype["name"]
-                                # Check if subtype already exists as entity
                                 if not any(e["name"] == subtype_name for e in entities):
                                     entities.append({
                                         "name": subtype_name,
@@ -1629,8 +1688,8 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                                         "primary_key": main_entity.get("primary_key", "")
                                     })
                             parsed_data["entities"] = entities
-                            print(f"   [INFO] Created ISA hierarchy: {main_entity['name']} -> {[s['name'] for s in subtypes]}")
-                            print(f"   [INFO] Added {len(subtypes)} subtypes as entities")
+                            inferred = True
+                            print(f"   [INFO] Inferred ISA hierarchy: {main_entity['name']} -> {[s['name'] for s in subtypes]}")
                     
                     elif "employee" in " ".join(entity_names) or "staff" in " ".join(entity_names):
                         main_entity = next((e for e in entities if ("employee" in e["name"].lower() or "staff" in e["name"].lower()) and "full" not in e["name"].lower() and "part" not in e["name"].lower()), None)
@@ -1649,11 +1708,9 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                                 "supertype": main_entity["name"],
                                 "subtypes": subtypes
                             }]
-                            # IMPORTANT: Add subtypes as entities so they can be rendered
                             entities = parsed_data.get("entities", [])
                             for subtype in subtypes:
                                 subtype_name = subtype["name"]
-                                # Check if subtype already exists as entity
                                 if not any(e["name"] == subtype_name for e in entities):
                                     entities.append({
                                         "name": subtype_name,
@@ -1661,40 +1718,12 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                                         "primary_key": main_entity.get("primary_key", "")
                                     })
                             parsed_data["entities"] = entities
-                            print(f"   [INFO] Created ISA hierarchy: {main_entity['name']} -> {[s['name'] for s in subtypes]}")
-                            print(f"   [INFO] Added {len(subtypes)} subtypes as entities")
+                            inferred = True
+                            print(f"   [INFO] Inferred ISA hierarchy: {main_entity['name']} -> {[s['name'] for s in subtypes]}")
                     
-                    else:
-                        # Generic fallback: use first entity as supertype
-                        if entities:
-                            main_entity = entities[0]
-                            subtypes = [
-                                {
-                                    "name": f"{main_entity['name']}TypeA",
-                                    "specific_attributes": ["AttributeA1", "AttributeA2"]
-                                },
-                                {
-                                    "name": f"{main_entity['name']}TypeB",
-                                    "specific_attributes": ["AttributeB1", "AttributeB2"]
-                                }
-                            ]
-                            parsed_data["isa_hierarchies"] = [{
-                                "supertype": main_entity["name"],
-                                "subtypes": subtypes
-                            }]
-                            # IMPORTANT: Add subtypes as entities so they can be rendered
-                            for subtype in subtypes:
-                                subtype_name = subtype["name"]
-                                # Check if subtype already exists as entity
-                                if not any(e["name"] == subtype_name for e in entities):
-                                    entities.append({
-                                        "name": subtype_name,
-                                        "attributes": subtype.get("specific_attributes", []),
-                                        "primary_key": main_entity.get("primary_key", "")
-                                    })
-                            parsed_data["entities"] = entities
-                            print(f"   [INFO] Created generic ISA hierarchy: {main_entity['name']} -> {[s['name'] for s in subtypes]}")
-                            print(f"   [INFO] Added {len(subtypes)} subtypes as entities")
+                    # If we inferred something, validate it; otherwise, leave diagram without ISA
+                    if inferred:
+                        parsed_data = self._enforce_minimum_isa_subtypes(parsed_data)
             
             print(f"   [OK] Parsed {len(parsed_data.get('entities', []))} entities, {len(parsed_data.get('relationships', []))} relationships, {len(parsed_data.get('isa_hierarchies', []))} ISA hierarchies")
             

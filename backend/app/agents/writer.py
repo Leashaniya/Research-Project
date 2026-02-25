@@ -1745,6 +1745,9 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         {"   - ⚠️ Example WRONG: 'Student entity exists' - no attributes listed, will be REJECTED" if is_er_question else ""}
         {"   - ⚠️ ALL entities MUST be connected through relationships - NO standalone entities" if is_er_question else ""}
         {"   - ⚠️ ISA hierarchies MUST be subtype/supertype only (e.g., Student → GraduateStudent, NOT Student → Course)" if is_er_question else ""}
+        {"   - When the scenario naturally supports specialization, you SHOULD include at least ONE ISA hierarchy with a supertype and TWO OR MORE subtypes (e.g., Student with GraduateStudent and UndergraduateStudent, or Employee with FullTimeEmployee and PartTimeEmployee)." if is_er_question else ""}
+        {"   - For every ISA hierarchy you include, explicitly describe subtype-specific attributes that are NOT in the supertype (e.g., GraduateStudent has ThesisTitle, AdvisorName; UndergraduateStudent has YearOfStudy, Major, GPA)." if is_er_question else ""}
+        {"   - If the scenario does NOT naturally support an ISA hierarchy with two or more meaningful subtypes, do NOT invent one; instead, model the design using only regular entities and relationships (no ISA)." if is_er_question else ""}
         {"   - At least ONE composite attribute (e.g., Address with Street, City, ZipCode)" if is_er_question else ""}
         {"   - At least ONE multivalued attribute (e.g., PhoneNumbers, EmailAddresses)" if is_er_question else ""}
         {"   - Descriptive attributes attached to relationships (e.g., EnrollmentDate on Enrolls relationship)" if is_er_question else ""}

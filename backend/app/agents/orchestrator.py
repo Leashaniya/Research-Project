@@ -4170,18 +4170,13 @@ class AgentOrchestrator:
                                     main_entity = "Member"
                                     enhancement = "\n\nIMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). Member is the supertype with two subtypes: RegularMember and PremiumMember. RegularMember has specific attributes: MembershipStartDate, MembershipType. PremiumMember has specific attributes: PremiumExpiryDate, DiscountRate, PremiumLevel."
                                 else:
-                                    # Generic fallback - use first entity mentioned
-                                    import re
-                                    entity_match = re.search(r'\b([A-Z][a-z]+)\s+(?:entity|has|includes)', semantic_description)
-                                    if entity_match:
-                                        main_entity = entity_match.group(1)
-                                        enhancement = f"\n\nIMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). {main_entity} is the supertype with two subtypes: {main_entity}TypeA and {main_entity}TypeB. {main_entity}TypeA has specific attributes: AttributeA1, AttributeA2. {main_entity}TypeB has specific attributes: AttributeB1, AttributeB2."
-                                    else:
-                                        enhancement = "\n\nIMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). The main entity has subtypes TypeA and TypeB. TypeA has specific attributes: AttributeA1, AttributeA2. TypeB has specific attributes: AttributeB1, AttributeB2."
+                                    # No clear main entity for a meaningful ISA hierarchy – do NOT invent a generic TypeA/TypeB ISA.
+                                    print("    [INFO] No clear main entity found for ISA; skipping automatic ISA enhancement.")
                                 
-                                semantic_description = semantic_description + enhancement
-                                print(f"    [INFO] Enhanced semantic description to include ISA hierarchies (context-aware for {main_entity or 'generic entity'})")
-                                print(f"    [INFO] Enhanced description preview: {semantic_description[-200:]}")
+                                if enhancement:
+                                    semantic_description = semantic_description + enhancement
+                                    print(f"    [INFO] Enhanced semantic description to include ISA hierarchies (context-aware for {main_entity})")
+                                    print(f"    [INFO] Enhanced description preview: {semantic_description[-200:]}")
                         
                         # If question references "following diagram" but doesn't describe it,
                         # use the main question text as semantic description
