@@ -80,7 +80,16 @@ class SemanticDiagramService:
                 "entities": [{"name": str, "attributes": [str], "primary_key": str}],
                 "relationships": [{"name": str, "entity1": str, "entity2": str, "cardinality": str}],
                 "isa_hierarchies": [{"supertype": str, "subtypes": [str]}],
-                "weak_entities": [{"name": str, "owner": str}]
+                "weak_entities": [{"name": str, "owner": str}],
+                "aggregations": [
+                    {
+                        "aggregate_id": str,
+                        "primary_relationship": str,
+                        "internal_entities": [str],
+                        "internal_attributes": [str],
+                        "external_links": [str]
+                    }
+                ]
             }
         """
         # Build prompt with ISA requirement emphasis
@@ -151,7 +160,16 @@ Each subtype MUST have at least 2-3 specific attributes that are NOT in the pare
             ]
         }
     ],
-    "weak_entities": []
+    "weak_entities": [],
+    "aggregations": [
+        {
+            "aggregate_id": "WorkOnAssignment",
+            "primary_relationship": "Work_On",
+            "internal_entities": ["Employee", "Project"],
+            "internal_attributes": ["StartDate", "Role", "Duration"],
+            "external_links": ["Managed_By"]
+        }
+    ]
 }"""
         
         prompt = f"""
@@ -170,16 +188,29 @@ Extract:
    ⚠️ ISA is NOT for regular relationships (e.g., Student → Course is a RELATIONSHIP, NOT an ISA hierarchy)
    ⚠️ ISA means "is a" - subtypes are specializations of the supertype (e.g., GraduateStudent IS A Student)
    ⚠️ DO NOT create ISA between unrelated entities (e.g., Student → Course is WRONG - use a relationship instead)
-4. Weak entities (if any)
-5. Composite attributes (attributes composed of multiple sub-attributes, e.g., Address with Street, City, ZipCode)
-   - For composite attributes, you MUST extract the sub-attributes explicitly
-   - Example: If description says "Address, consisting of Street, City, and ZipCode", extract:
-     composite_attributes: [{{"name": "Address", "sub_attributes": ["Street", "City", "ZipCode"]}}]
-6. Multivalued attributes (attributes that can have multiple values, e.g., PhoneNumbers, EmailAddresses)
-   - These should be listed in the attributes array AND in multivalued_attributes array
-7. Descriptive attributes attached to relationships (attributes that belong to the relationship itself, e.g., EnrollmentDate on Enrolls relationship)
-
-CRITICAL REQUIREMENTS:
+        4. Weak entities (if any)
+        5. Composite attributes (attributes composed of multiple sub-attributes, e.g., Address with Street, City, ZipCode)
+           - For composite attributes, you MUST extract the sub-attributes explicitly
+           - Example: If description says "Address, consisting of Street, City, and ZipCode", extract:
+             composite_attributes: [{{"name": "Address", "sub_attributes": ["Street", "City", "ZipCode"]}}]
+        6. Multivalued attributes (attributes that can have multiple values, e.g., PhoneNumbers, EmailAddresses)
+           - These should be listed in the attributes array AND in multivalued_attributes array
+        7. Descriptive attributes attached to relationships (attributes that belong to the relationship itself, e.g., EnrollmentDate on Enrolls relationship)
+        8. Aggregations (relationship-of-a-relationship / EER Aggregation groups):
+           - An Aggregation MUST be created when:
+             * A relationship (the "Primary Relationship") between two or more entities is itself described as participating in another relationship (a "Secondary Relationship"), OR
+             * A relationship (link) has specific attributes (e.g., StartDate, Role, Duration) that conceptually define a higher-level "assignment"/"transaction" entity.
+           - For each aggregation, extract:
+             * aggregate_id: A short, unique name for the aggregation (e.g., "WorkOnAssignment")
+             * primary_relationship: EXACT name of the internal relationship diamond (e.g., "Work_On")
+             * internal_entities: Names of ALL entities that directly participate in the primary_relationship (e.g., ["Employee", "Project"])
+             * internal_attributes: Attributes that belong to the link itself (NOT to individual entities), such as "StartDate", "Role", "Duration"
+             * external_links: Names of ANY secondary relationships that connect an outside entity to the primary relationship/assignment (e.g., "Managed_By" between Supervisor and the Work_On assignment)
+           - IMPORTANT:
+             * Attributes in internal_attributes MUST also appear as descriptive_attributes of the primary_relationship so they can be rendered on the relationship diamond.
+             * Secondary relationships listed in external_links MUST still appear in the relationships array, but they conceptually connect the external entity to the primary relationship (aggregation) rather than to the individual internal entities.
+        
+        CRITICAL REQUIREMENTS:
 - MINIMUM 4 distinct entities must be included (at least 4 entities)
 - ⚠️ ALL entities MUST be connected through relationships - NO standalone entities
 - ⚠️ If an entity like "Instructor" or "Department" exists, it MUST be connected to at least one other entity via a relationship
@@ -193,8 +224,13 @@ CRITICAL REQUIREMENTS:
   Example: UndergraduateStudent should have attributes like YearOfStudy, Major, GPA (specific to undergraduates)
   ⚠️ IMPORTANT: When listing child entity (subtype) attributes, ONLY include the subtype-specific attributes. DO NOT include parent entity attributes - subtypes inherit them automatically.
 - For relationships: Include participation constraints (min, max) - is participation mandatory (1) or optional (0)?
-- {"⚠️ ISA hierarchies are REQUIRED for this diagram. If not explicitly mentioned, infer appropriate subtypes based on the main entities." if requires_isa else ""}
-
+        - {"⚠️ ISA hierarchies are REQUIRED for this diagram. If not explicitly mentioned, infer appropriate subtypes based on the main entities." if requires_isa else ""}
+        - Aggregations (if present in the description) MUST follow formal EER aggregation rules:
+          * Identify a PRIMARY relationship diamond whose link-level attributes define an "assignment"/"transaction" (e.g., Work_On between Employee and Project with StartDate/Role/Duration).
+          * Identify any SECONDARY relationship(s) where an external entity (e.g., Supervisor) is described as managing/approving/linked to that assignment.
+          * For each such pattern, create ONE aggregation entry with aggregate_id, primary_relationship, internal_entities, internal_attributes, and external_links as described above.
+          * Do NOT invent aggregations if the text does not imply "relationship of a relationship"; only create aggregations when the narrative clearly talks about managing/controlling/participating-in an existing relationship.
+        
 ⚠️ CRITICAL CONSTRAINT: AVOID REDUNDANT/STANDALONE ENTITIES ⚠️
 - If a process/transaction (e.g., "Enrollment", "Enrollments") is described as a link between two other entities (e.g., "Students" and "Courses"), represent it EITHER as:
   * A Relationship Diamond with descriptive attributes (e.g., "Enrolls" relationship with attributes like EnrollmentDate, Grade), OR
@@ -482,6 +518,68 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                         print(f"   [WARN] Subtype '{subtype_name}' has only {len(current_attrs)} attribute(s) after duplicate removal (minimum required: {MIN_ATTRIBUTES}). Consider adding more attributes.")
         
         return parsed_data
+
+    def _ensure_default_aggregation(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Deterministic fallback to ensure at least ONE aggregation exists.
+        
+        If the LLM did not emit an 'aggregations' array, but we have at least
+        one relationship, this method synthesizes a default aggregation:
+        - primary_relationship: a chosen relationship (prefer one with descriptive_attributes)
+        - internal_entities: the two endpoint entities of that relationship
+        - internal_attributes: that relationship's descriptive_attributes (if any)
+        - external_links: empty by default (no explicit secondary relationship)
+        
+        This guarantees that every generated diagram can render at least one
+        aggregation cluster, satisfying exam/teaching requirements even when
+        the input description does not explicitly mention aggregation.
+        """
+        entities = parsed_data.get("entities") or []
+        relationships = parsed_data.get("relationships") or []
+        if not entities or not relationships:
+            return parsed_data
+
+        aggregations = parsed_data.get("aggregations")
+        if isinstance(aggregations, list) and len(aggregations) > 0:
+            # Already has at least one aggregation – respect LLM output
+            return parsed_data
+
+        # Choose a primary relationship: prefer one with descriptive_attributes, else first
+        primary_rel: Optional[Dict[str, Any]] = None
+        for rel in relationships:
+            if rel.get("descriptive_attributes"):
+                primary_rel = rel
+                break
+        if primary_rel is None:
+            primary_rel = relationships[0]
+
+        rel_name = str(primary_rel.get("name") or "Relationship")
+        entity1 = primary_rel.get("entity1")
+        entity2 = primary_rel.get("entity2")
+
+        internal_entities: List[str] = []
+        for name in (entity1, entity2):
+            if name and str(name).strip():
+                internal_entities.append(str(name).strip())
+
+        internal_attributes = []
+        for attr in primary_rel.get("descriptive_attributes") or []:
+            if attr and str(attr).strip():
+                internal_attributes.append(str(attr).strip())
+
+        aggregate_id = f"{rel_name}Aggregation"
+
+        parsed_data["aggregations"] = [
+            {
+                "aggregate_id": aggregate_id,
+                "primary_relationship": rel_name,
+                "internal_entities": internal_entities,
+                "internal_attributes": internal_attributes,
+                "external_links": [],
+            }
+        ]
+
+        return parsed_data
     
     def _remove_redundant_entities(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -500,9 +598,17 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         """
         entities = parsed_data.get("entities", [])
         relationships = parsed_data.get("relationships", [])
+        aggregations = parsed_data.get("aggregations", []) or []
         
         if not entities:
             return parsed_data
+
+        # Entities that participate in aggregations must NEVER be removed as redundant
+        protected_agg_entities = set()
+        for agg in aggregations:
+            for name in agg.get("internal_entities") or []:
+                if name:
+                    protected_agg_entities.add(str(name).lower())
         
         # Track which entities to remove
         entities_to_remove = []
@@ -519,6 +625,11 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         for entity in entities:
             entity_name = entity["name"]
             entity_name_lower = entity_name.lower()
+
+            # Skip redundancy checks for entities that are part of an aggregation
+            if entity_name_lower in protected_agg_entities:
+                entities_to_keep.append(entity)
+                continue
             
             # Check if this entity name is similar to any relationship name
             # and if it connects the same entities as that relationship
@@ -678,6 +789,14 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                 else:
                     subtype = str(subtype_data).lower()
                 connected_entity_names.add(subtype)
+
+        # Entities inside aggregations are considered connected even if they
+        # are not directly referenced by a conventional relationship or ISA
+        aggregations = parsed_data.get("aggregations", []) or []
+        for agg in aggregations:
+            for name in agg.get("internal_entities") or []:
+                if name:
+                    connected_entity_names.add(str(name).lower())
         
         # Check for standalone entities and REMOVE them from entities list
         standalone_entities = []
@@ -1090,6 +1209,7 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         relationships = parsed_data.get("relationships", [])
         isa_hierarchies = parsed_data.get("isa_hierarchies", [])
         weak_entities = parsed_data.get("weak_entities", [])
+        aggregations = parsed_data.get("aggregations", []) or []
         
         lines = []
         lines.append("digraph ER_Diagram {")
@@ -1102,13 +1222,63 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         
         # Track weak entity names
         weak_entity_names = {w["name"] for w in weak_entities}
+
+        # Helper: sanitize names consistently for Graphviz node IDs
+        def _sanitize_name(name: str) -> str:
+            """Sanitize a label into a valid Graphviz node identifier."""
+            node_id = name.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "")
+            node_id = "".join(c if c.isalnum() or c == "_" else "_" for c in node_id)
+            return node_id
+
+        def _sanitize_attr_for_relationship(rel_node_id: str, attr_name: str) -> str:
+            """Build attribute node ID for a descriptive attribute on a relationship."""
+            attr_clean = attr_name.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "_")
+            attr_id = f"{rel_node_id}_{attr_clean}"
+            attr_id = "".join(c if c.isalnum() or c == "_" else "_" for c in attr_id)
+            return attr_id
+
+        # Precompute aggregation lookup maps (by relationship name, case-insensitive)
+        primary_rel_map: Dict[str, Dict[str, Any]] = {}
+        secondary_rel_map: Dict[str, Dict[str, Any]] = {}
+        for agg in aggregations:
+            primary_name = str(agg.get("primary_relationship", "")).strip()
+            if primary_name:
+                primary_rel_map[primary_name.lower()] = agg
+            for sec in agg.get("external_links", []) or []:
+                sec_name = str(sec).strip()
+                if sec_name and sec_name.lower() not in secondary_rel_map:
+                    secondary_rel_map[sec_name.lower()] = agg
+
+        # Ensure that internal_attributes from aggregations are present as descriptive_attributes
+        if aggregations and relationships:
+            rel_by_name: Dict[str, List[Dict[str, Any]]] = {}
+            for rel in relationships:
+                rel_name = str(rel.get("name", "")).strip()
+                if rel_name:
+                    rel_by_name.setdefault(rel_name.lower(), []).append(rel)
+            for agg in aggregations:
+                primary_name = str(agg.get("primary_relationship", "")).strip()
+                if not primary_name:
+                    continue
+                internal_attrs = agg.get("internal_attributes", []) or []
+                if not internal_attrs:
+                    continue
+                for rel in rel_by_name.get(primary_name.lower(), []):
+                    existing = rel.get("descriptive_attributes") or []
+                    if not isinstance(existing, list):
+                        existing = [existing]
+                    existing_lower = {str(a).lower() for a in existing}
+                    for attr in internal_attrs:
+                        if attr and str(attr).lower() not in existing_lower:
+                            existing.append(attr)
+                            existing_lower.add(str(attr).lower())
+                    rel["descriptive_attributes"] = existing
         
         # Draw entities as boxes
         for entity in entities:
             entity_name = entity["name"]
             # Sanitize node ID to ensure it's valid Graphviz identifier
-            node_id = entity_name.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "")
-            node_id = "".join(c if c.isalnum() or c == "_" else "_" for c in node_id)
+            node_id = _sanitize_name(entity_name)
             
             # Escape special characters in label for Graphviz
             entity_label = entity_name.replace('"', '\\"').replace('\\', '\\\\')
@@ -1124,7 +1294,7 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         # Draw attributes as ovals connected to entities
         for entity in entities:
             entity_name = entity["name"]
-            entity_id = entity_name.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "")
+            entity_id = _sanitize_name(entity_name)
             attrs = entity.get("attributes", [])
             pk = entity.get("primary_key", "")
             composite_attrs = entity.get("composite_attributes", [])
@@ -1280,19 +1450,20 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         
         lines.append("")
         
-        # Draw relationships as diamonds
+        # Draw relationships as diamonds (with optional aggregation handling)
         for rel in relationships:
-            entity1 = rel["entity1"].replace(" ", "_").replace("-", "_")
-            entity1 = "".join(c if c.isalnum() or c == "_" else "_" for c in entity1)
-            entity2 = rel["entity2"].replace(" ", "_").replace("-", "_")
-            entity2 = "".join(c if c.isalnum() or c == "_" else "_" for c in entity2)
+            entity1_name = str(rel.get("entity1", ""))
+            entity2_name = str(rel.get("entity2", ""))
+            entity1 = _sanitize_name(entity1_name)
+            entity2 = _sanitize_name(entity2_name)
             rel_name = rel.get("name", "Relates")
+            rel_name_str = str(rel_name)
+            rel_name_lower = rel_name_str.lower()
             cardinality = rel.get("cardinality", "many-to-many")
             
             # Create relationship node (diamond) - sanitize ID
-            rel_node_id = rel_name.replace(" ", "_").replace("-", "_")
-            rel_node_id = "".join(c if c.isalnum() or c == "_" else "_" for c in rel_node_id)
-            rel_node_id = f"R_{rel_node_id}"
+            rel_node_id_core = _sanitize_name(rel_name_str)
+            rel_node_id = f"R_{rel_node_id_core}"
             
             # Escape special characters in label and ensure relationship is clearly labeled
             rel_label = rel_name.replace('"', '\\"').replace('\\', '\\\\')
@@ -1313,6 +1484,27 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             max2_str = str(max2) if max2 != "N" else "N"
             label1 = f"({min1},{max1_str})"
             label2 = f"({min2},{max2_str})"
+
+            # If this relationship is listed as an external link of an aggregation,
+            # reroute any endpoint that refers to an internal entity (or the primary
+            # relationship name itself) so that the edge connects to the primary
+            # relationship diamond inside the aggregation cluster.
+            agg_for_secondary = secondary_rel_map.get(rel_name_lower)
+            if agg_for_secondary:
+                primary_name = str(agg_for_secondary.get("primary_relationship", "")).strip()
+                if primary_name:
+                    primary_rel_node_core = _sanitize_name(primary_name)
+                    primary_rel_node_id = f"R_{primary_rel_node_core}"
+                    internal_entities_lower = {
+                        str(e).strip().lower() for e in (agg_for_secondary.get("internal_entities") or [])
+                    }
+                    primary_name_lower = primary_name.lower()
+
+                    # Replace any internal endpoint (or explicit primary relationship name) with the primary relationship node
+                    if entity1_name.lower() in internal_entities_lower or entity1_name.lower() == primary_name_lower:
+                        entity1 = primary_rel_node_id
+                    if entity2_name.lower() in internal_entities_lower or entity2_name.lower() == primary_name_lower:
+                        entity2 = primary_rel_node_id
             
             # Connect entities to relationship with cardinality and participation labels
             if cardinality == "many-to-many":
@@ -1332,13 +1524,52 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             descriptive_attrs = rel.get("descriptive_attributes", [])
             for desc_attr in descriptive_attrs:
                 if desc_attr:
-                    desc_attr_clean = desc_attr.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "_")
-                    desc_attr_id = f"{rel_node_id}_{desc_attr_clean}"
-                    desc_attr_id = "".join(c if c.isalnum() or c == "_" else "_" for c in desc_attr_id)
-                    desc_attr_label = desc_attr.replace('"', '\\"').replace('\\', '\\\\')
+                    desc_attr_id = _sanitize_attr_for_relationship(rel_node_id, str(desc_attr))
+                    desc_attr_label = str(desc_attr).replace('"', '\\"').replace('\\', '\\\\')
                     # Descriptive attributes are shown as ovals connected to the relationship diamond
                     lines.append(f'    {desc_attr_id} [label="{desc_attr_label}", shape=ellipse, style="filled", fillcolor=lightblue];')
                     lines.append(f'    {rel_node_id} -> {desc_attr_id} [style=solid, arrowhead=none];')
+        
+        # Draw Aggregation clusters (dotted/dashed boxes around primary relationship + internal entities + link attributes)
+        if aggregations:
+            lines.append("")
+            for idx, agg in enumerate(aggregations):
+                aggregate_id = str(agg.get("aggregate_id") or f"Aggregation_{idx+1}")
+                cluster_core = _sanitize_name(aggregate_id)
+                cluster_name = f"cluster_{cluster_core}"
+                label_text = aggregate_id.replace('"', '\\"').replace('\\', '\\\\')
+
+                primary_name = str(agg.get("primary_relationship", "")).strip()
+                primary_rel_node_id = None
+                if primary_name:
+                    primary_rel_node_id = f"R_{_sanitize_name(primary_name)}"
+
+                internal_entities = agg.get("internal_entities") or []
+                internal_attributes = agg.get("internal_attributes") or []
+
+                lines.append(f"    subgraph {cluster_name} {{")
+                lines.append('        style="dashed";')
+                lines.append('        color=black;')
+                lines.append('        label="";')
+
+                # Include primary relationship diamond inside cluster
+                if primary_rel_node_id:
+                    lines.append(f"        {primary_rel_node_id};")
+
+                # Include internal entity rectangles inside cluster
+                for ent_name in internal_entities:
+                    ent_id = _sanitize_name(str(ent_name))
+                    lines.append(f"        {ent_id};")
+
+                # Include link-level attributes (descriptive attributes on primary relationship) inside cluster
+                if primary_rel_node_id:
+                    for attr_name in internal_attributes:
+                        if not attr_name:
+                            continue
+                        attr_id = _sanitize_attr_for_relationship(primary_rel_node_id, str(attr_name))
+                        lines.append(f"        {attr_id};")
+
+                lines.append("    }")
         
         lines.append("")
         
@@ -1718,7 +1949,10 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             
             # Step 1.5: Remove duplicate attributes from entities
             parsed_data = self._remove_duplicate_attributes(parsed_data)
-            
+
+            # Step 1.5.1: Ensure at least one aggregation exists (deterministic fallback)
+            parsed_data = self._ensure_default_aggregation(parsed_data)
+
             # Step 1.5.5: Update description to reflect added default attributes
             entities_with_added_attrs = parsed_data.get("_entities_with_added_attrs", {})
             if entities_with_added_attrs:
