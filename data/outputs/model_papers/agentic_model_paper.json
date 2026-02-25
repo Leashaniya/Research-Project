@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-25 21:22:29",
+  "generated_at": "2026-02-26 00:14:10",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university manages its students and courses through an Entity-Relationship model. The 'Student' entity has attributes: StudentID, Name, Address, and PhoneNumbers. The 'Course' entity includes CourseID, Title, Credits, and Department. There is also an 'Enrollment' relationship between 'Student' and 'Course', which has a descriptive attribute EnrollmentDate. In addition, there is an 'Instructor' entity with attributes: InstructorID, Name, and Office. An 'ISA' relationship defines that 'TeachingAssistant' is a subtype of 'Instructor', and it has a specific attribute: HoursWorked. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrollment' relationship (Student participation is optional, Course participation is optional)",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university has several entities involved in the academic community. The entities include Student, Course, and Instructor. Each Student has attributes such as StudentID, Name, EmailAddresses, and PhoneNumbers. Courses have CourseID, CourseTitle, and Credits. Instructors have InstructorID and Name. Each Student can enroll in multiple Courses, and each Course can be taught by multiple Instructors. The enrollment relationship includes an EnrollmentDate attribute. Additionally, there is a specialization where GraduateStudent is a subtype of Student, with the attributes ThesisTitle and AdvisorName. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrolls' relationship (Student participation is optional, Course participation is optional). A Instructor can be related to many Courses, and a Course can be related to many Instructors through the 'Teaches' relationship (Instructor participation is optional, Course participation is optional)",
       "subquestions": [
         {
           "label": "a",
@@ -41,8 +41,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "699f1a2b251f9bb64ac40b37",
-      "original_semantic_description": "A university manages its students and courses through an Entity-Relationship model. The 'Student' entity has attributes: StudentID, Name, Address, and PhoneNumbers. The 'Course' entity includes CourseID, Title, Credits, and Department. There is also an 'Enrollment' relationship between 'Student' and 'Course', which has a descriptive attribute EnrollmentDate. In addition, there is an 'Instructor' entity with attributes: InstructorID, Name, and Office. An 'ISA' relationship defines that 'TeachingAssistant' is a subtype of 'Instructor', and it has a specific attribute: HoursWorked.",
+      "template_id": "699f4290f9acc990dddf5af1",
+      "original_semantic_description": "A university has several entities involved in the academic community. The entities include Student, Course, and Instructor. Each Student has attributes such as StudentID, Name, EmailAddresses (multivalued), and PhoneNumbers (multivalued). Courses have CourseID, CourseTitle, and Credits. Instructors have InstructorID and Name. Each Student can enroll in multiple Courses, and each Course can be taught by multiple Instructors. The enrollment relationship includes an EnrollmentDate attribute. Additionally, there is a specialization where GraduateStudent is a subtype of Student, with the attributes ThesisTitle and AdvisorName. Draw an EER diagram representing this scenario, ensuring to include proper relationships and cardinalities.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research\\Research-Project-1\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, A->D, C->E, B->CD}}.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{A->B, B->C, A->CD, D->E}}. Analyze this relation to identify keys and evaluate its normalization status.",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "699f1a2b251f9bb64ac40b38",
+      "template_id": "699f4290f9acc990dddf5af2",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,11 +84,11 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A healthcare organization is developing a database system to manage its patients' medical records. Different roles are assigned to various staff members for database administration and management. Emily is the senior database administrator responsible for overseeing the database system's creation and maintenance. Alex and Jordan are junior database administrators working under Emily's supervision. Alex manages the patient records database, while Jordan handles the appointments database. Sam is a database developer reporting to Alex and Jordan. His responsibilities include designing and implementing database schemas for patient records and appointments. Lisa and Mark are data entry operators responsible for inputting patient information and appointment details into the system.",
+      "text": "A university is designing a database to manage its student enrollment system. The database should include tables for Students, Courses, and Enrollments. Each student has a unique student ID, name, and date of birth. Each course has a unique course ID, title, and description. Enrollments link students to the courses they are taking, recording the enrollment date. You are tasked with advancing the design and management strategies for this database system.",
       "subquestions": [
         {
           "label": "a",
-          "text": "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
+          "text": "Write SQL queries to in type 2 driver, jdbc api calls are converted to native java api calls. accept or refute the above statement justifying your answer.",
           "marks": 2
         },
         {
@@ -98,17 +98,17 @@
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
+          "text": "Briefly explain how data integrity can be ensured in the student enrollment database design.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
+          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A hospital is establishing role-based access control for its database system that manages Patients, Doctors, and Appointments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Appointments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating patient appointment data.",
+          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
           "marks": null,
           "subquestions": [
             {
@@ -124,7 +124,7 @@
             {
               "label": "iii",
               "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Loans database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -134,7 +134,7 @@
             {
               "label": "v",
               "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Members and Loans databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
             }
           ]
         }
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "699f1a2b251f9bb64ac40b39",
+      "template_id": "699f4290f9acc990dddf5af3",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,45 +152,45 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for a university: Student (studentId: int, name: varchar(100), email: varchar(50), phone: varchar(15)) Course (courseId: int, title: varchar(100), description: varchar(250), credits: int) Enrollment (enrollmentId: int, studentId: int, courseId: int, enrollmentDate: date, grade: varchar(2)) The 'Student' table stores information about students enrolled in the university, including unique student IDs, names, email addresses, and phone numbers. The 'Course' table contains details about courses offered, including unique course IDs, titles, descriptions, and credit hours. The 'Enrollment' table records the relationship between students and courses, detailing which students are enrolled in which courses, along with their enrollment dates and grades. The 'Enrollment' table manages student course enrollments, recording which students are enrolled in which courses and when. Fee (feeId: int, studentId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
+      "text": "Consider the following schema of a database designed for a library: Book (bookId: int, title: varchar(100), author: varchar(50), isbn: varchar(20), publicationYear: int) Borrower (borrowerId: int, name: varchar(100), phone: varchar(15), email: varchar(50)) Loan (loanId: int, bookId: int, borrowerId: int, loanDate: date, returnDate: date) Fine (fineId: int, loanId: int, dueDate: date, amount: real, status: varchar(20)). The 'Book' table stores information about books available in the library. The 'Borrower' table stores information about library members. The 'Loan' table records details of books borrowed by members. The 'Fine' table tracks fines associated with overdue loans. The 'Loan' table manages book loans, with each loan having a unique ID and being associated with a specific book and member. It records the loan date, due date, and return date. The 'Fine' table contains information about fines incurred by members for late returns or other penalties. It includes a fine ID, member ID, fine amount, and payment status.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Write SQL Queries to perform the following: i. Find the names and emails of students enrolled in the course titled 'Database Systems'.",
+          "text": "Write SQL Queries to perform the following:",
           "marks": null,
           "subquestions": [
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the names and emails of students enrolled in the course titled 'Database Systems'."
+              "text": "Find the title of books who are linked to book records where title is 'The Great'."
             },
             {
               "label": "ii",
               "marks": 6,
-              "text": "Find the student with the highest aggregate value using GROUP BY on related enrollment records."
+              "text": "Find the book who has the highest total amount compared to all other books. Find the bookId and title."
             },
             {
               "label": "iii",
               "marks": 7,
-              "text": "Find the title and name from Course, Student, and Enrollment where Enrollment.enrollmentId is not null."
+              "text": "Find the title and title from Book, Book, and Loan where Loan.loanId is not null."
             }
           ]
         },
         {
           "label": "b",
           "marks": 11,
-          "text": "b) Create a function to calculate the total fee amount for a given student. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
+          "text": "b) Create a function to calculate the total fine amount for a given book. This function should account for entity with a late penalty of 10% applied to those marked as 'overdue' payment status."
         },
         {
           "label": "c",
           "marks": 12,
-          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each student. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by student. The student pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
+          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fine' table whenever a new fine record is added, or an existing fine record is updated. The 'amount' column should contain the total fine amount for each entity. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by entity. The entity pays only 50% of the total fine amount as an initial payment when the payment status is marked as 'Partial'."
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "699f1a2b251f9bb64ac40b3a",
+      "template_id": "699f4290f9acc990dddf5af4",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
