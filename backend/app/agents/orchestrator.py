@@ -4239,26 +4239,30 @@ Note: The diagram uses (min, max) cardinality notation where:
                                 # The description is typically the scenario BEFORE the instruction to draw
                                 desc_clean = description_to_use
                                 
-                                # Remove instruction phrases that come AFTER the description
-                                # Pattern: "Description... Draw an EER diagram representing this scenario"
-                                # We want to keep the description part (before "Draw")
-                                instruction_patterns = [
-                                    "Draw an EER diagram",
-                                    "Draw an ER diagram", 
-                                    "draw an EER diagram",
-                                    "draw an er diagram",
-                                    "provide a detailed description",
-                                    "representing this scenario"
+                                # Remove "draw/design/construct diagram" instruction text from the scenario block,
+                                # because the diagram is already displayed.
+                                #
+                                # We keep everything BEFORE the first instruction-like phrase.
+                                import re
+                                instruction_regexes = [
+                                    r"\bdraw\s+(?:an|the)?\s*(?:enhanced\s+)?(?:entity[-\s]?relationship|er|eer)\s+diagram\b",
+                                    r"\bconstruct\s+(?:an|the)?\s*(?:enhanced\s+)?(?:entity[-\s]?relationship|er|eer)\s+diagram\b",
+                                    r"\bdesign\s+(?:an|the)?\s*(?:enhanced\s+)?(?:entity[-\s]?relationship|er|eer)\s+diagram\b",
+                                    r"\bprepare\s+(?:an|the)?\s*(?:enhanced\s+)?(?:entity[-\s]?relationship|er|eer)\s+diagram\b",
+                                    r"\bsketch\s+(?:an|the)?\s*(?:enhanced\s+)?(?:entity[-\s]?relationship|er|eer)\s+diagram\b",
+                                    r"\bdevelop\s+(?:an|the)?\s*(?:enhanced\s+)?(?:entity[-\s]?relationship|er|eer)\s+diagram\b",
+                                    r"\bcreate\s+(?:an|the)?\s*(?:enhanced\s+)?(?:entity[-\s]?relationship|er|eer)\s+diagram\b",
+                                    r"\bmap\s+this\s+scenario\b",
+                                    r"\brepresent(?:ing)?\s+the\s+relationships\s+and\s+properties\b",
+                                    r"\bclearly\b\s*$",
                                 ]
                                 
-                                # Find the earliest instruction pattern and keep everything before it
                                 earliest_pos = len(desc_clean)
-                                for pattern in instruction_patterns:
-                                    pos = desc_clean.find(pattern)
-                                    if pos >= 0 and pos < earliest_pos:
-                                        earliest_pos = pos
+                                for rx in instruction_regexes:
+                                    m = re.search(rx, desc_clean, flags=re.IGNORECASE)
+                                    if m and m.start() < earliest_pos:
+                                        earliest_pos = m.start()
                                 
-                                # If we found an instruction pattern, keep only the description part
                                 if earliest_pos < len(desc_clean):
                                     desc_clean = desc_clean[:earliest_pos].strip()
                                 
@@ -4268,7 +4272,6 @@ Note: The diagram uses (min, max) cardinality notation where:
                                 # Ensure we have a complete description (at least 50 characters for clarity)
                                 if desc_clean and len(desc_clean) > 50:  # Minimum length for a clear description
                                     # Remove attribute type labels in brackets: (Primary Key), (Multivalued), (Composite: ...)
-                                    import re
                                     # Remove (Primary Key) or (PK)
                                     desc_clean = re.sub(r'\s*\(Primary\s+Key\)', '', desc_clean, flags=re.IGNORECASE)
                                     desc_clean = re.sub(r'\s*\(PK\)', '', desc_clean, flags=re.IGNORECASE)
