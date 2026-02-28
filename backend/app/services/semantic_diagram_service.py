@@ -80,7 +80,15 @@ class SemanticDiagramService:
                 "entities": [{"name": str, "attributes": [str], "primary_key": str}],
                 "relationships": [{"name": str, "entity1": str, "entity2": str, "cardinality": str}],
                 "isa_hierarchies": [{"supertype": str, "subtypes": [str]}],
-                "weak_entities": [{"name": str, "owner": str}]
+                "weak_entities": [{"name": str, "owner": str}],
+                "aggregations": [
+                    {
+                        "name": str,
+                        "whole": str,
+                        "parts": [str],
+                        "attributes": [str]
+                    }
+                ]
             }
         """
         # Build prompt with ISA requirement emphasis
@@ -153,7 +161,15 @@ If the scenario does NOT naturally support an ISA hierarchy with two or more mea
             ]
         }
     ],
-    "weak_entities": []
+    "weak_entities": [],
+    "aggregations": [
+        {
+            "name": "AggregationName",
+            "whole": "WholeEntityName",
+            "parts": ["PartEntity1", "PartEntity2"],
+            "attributes": ["WholeID", "Part1ID", "Part2ID"]
+        }
+    ]
 }"""
         
         prompt = f"""
@@ -173,13 +189,23 @@ Extract:
    ⚠️ ISA means "is a" - subtypes are specializations of the supertype (e.g., GraduateStudent IS A Student)
    ⚠️ DO NOT create ISA between unrelated entities (e.g., Student → Course is WRONG - use a relationship instead)
 4. Weak entities (if any)
-5. Composite attributes (attributes composed of multiple sub-attributes, e.g., Address with Street, City, ZipCode)
+5. Composite attributes (attributes composed of multiple sub-attributes, e.g., Address, Name, ZipCode)
    - For composite attributes, you MUST extract the sub-attributes explicitly
    - Example: If description says "Address, consisting of Street, City, and ZipCode", extract:
      composite_attributes: [{{"name": "Address", "sub_attributes": ["Street", "City", "ZipCode"]}}]
 6. Multivalued attributes (attributes that can have multiple values, e.g., PhoneNumbers, EmailAddresses)
    - These should be listed in the attributes array AND in multivalued_attributes array
 7. Descriptive attributes attached to relationships (attributes that belong to the relationship itself, e.g., EnrollmentDate on Enrolls relationship)
+8. Aggregation relationships (higher-level abstractions that group multiple related entities into a whole–part structure)
+   - Examples:
+     * A Department managing Professors, Students, and Courses
+     * A Company encompassing Departments and Employees
+     * A Library containing Books, Authors, and Members
+   - Represent these as an "aggregations" array where each item has:
+     * name: name of the aggregation abstraction
+     * whole: the higher-level entity name (e.g., Department, Company, Library, Curriculum)
+     * parts: list of entity names that are grouped (e.g., ["Professor", "Student", "Course"])
+     * attributes: list of identifiers or attributes relevant to the aggregation (e.g., DepartmentID, ProfessorID, CourseID)
 
         CRITICAL REQUIREMENTS:
         - MINIMUM 4 distinct entities must be included (at least 4 entities)
@@ -188,15 +214,16 @@ Extract:
         - ⚠️ ISA hierarchies MUST be subtype/supertype only (e.g., Student → GraduateStudent, NOT Student → Course)
         - ⚠️ For every ISA hierarchy returned, the "subtypes" array MUST contain at least TWO subtype objects. Never create an ISA hierarchy with only one subtype.
         - ⚠️ DO NOT repeat the same attribute multiple times within an entity - each attribute should appear only once per entity
-- At least ONE composite attribute must be included (e.g., Address, Name with FirstName/LastName, Date with Day/Month/Year)
-- At least ONE multivalued attribute must be included (e.g., PhoneNumbers, EmailAddresses, Skills, Hobbies)
-- At least ONE descriptive attribute attached to a relationship must be included (e.g., EnrollmentDate, Grade, Salary, StartDate)
-- For ISA hierarchies: Subtypes MUST have additional attributes specific to them (not just inherited)
-  Example: GraduateStudent should have attributes like ThesisTitle, AdvisorName (specific to graduates)
-  Example: UndergraduateStudent should have attributes like YearOfStudy, Major, GPA (specific to undergraduates)
-  ⚠️ IMPORTANT: When listing child entity (subtype) attributes, ONLY include the subtype-specific attributes. DO NOT include parent entity attributes - subtypes inherit them automatically.
-- For relationships: Include participation constraints (min, max) - is participation mandatory (1) or optional (0)?
-- {"⚠️ ISA hierarchies are REQUIRED for this diagram. If not explicitly mentioned, infer appropriate subtypes based on the main entities." if requires_isa else ""}
+        - At least ONE composite attribute must be included (e.g., Address, Name with FirstName/LastName, Date with Day/Month/Year)
+        - At least ONE multivalued attribute must be included (e.g., PhoneNumbers, EmailAddresses, Skills, Hobbies)
+        - At least ONE descriptive attribute attached to a relationship must be included (e.g., EnrollmentDate, Grade, Salary, StartDate)
+        - For ISA hierarchies: Subtypes MUST have additional attributes specific to them (not just inherited)
+          Example: GraduateStudent should have attributes like ThesisTitle, AdvisorName (specific to graduates)
+          Example: UndergraduateStudent should have attributes like YearOfStudy, Major, GPA (specific to undergraduates)
+          ⚠️ IMPORTANT: When listing child entity (subtype) attributes, ONLY include the subtype-specific attributes. DO NOT include parent entity attributes - subtypes inherit them automatically.
+        - For relationships: Include participation constraints (min, max) - is participation mandatory (1) or optional (0)?
+        - At least ONE aggregation relationship MUST be included. If the scenario does not explicitly mention aggregation, infer a reasonable whole–part abstraction (e.g., Department managing Professors/Students/Courses, Company managing Departments/Employees, Library containing Books/Authors/Members, Curriculum consisting of Courses).
+        - {"⚠️ ISA hierarchies are REQUIRED for this diagram. If not explicitly mentioned, infer appropriate subtypes based on the main entities." if requires_isa else ""}
 
 ⚠️ CRITICAL CONSTRAINT: AVOID REDUNDANT/STANDALONE ENTITIES ⚠️
 - If a process/transaction (e.g., "Enrollment", "Enrollments") is described as a link between two other entities (e.g., "Students" and "Courses"), represent it EITHER as:
@@ -269,10 +296,15 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                 content = content.decode('utf-8')
             
             result = json.loads(content)
+            # Ensure optional aggregations key exists
+            if "aggregations" not in result or result.get("aggregations") is None:
+                result["aggregations"] = []
             # Remove duplicate attributes from entities
             result = self._remove_duplicate_attributes(result)
             # Enforce that ISA hierarchies are valid (context + ≥ 2 subtypes + subtype-specific attributes)
             result = self._enforce_minimum_isa_subtypes(result)
+            # Ensure at least one aggregation relationship exists (infer if necessary)
+            result = self._ensure_aggregations(result)
             return result
         except json.JSONDecodeError as e:
             print(f"[WARN] JSON parsing error: {e}")
@@ -545,6 +577,223 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         if removed_count > 0:
             parsed_data["isa_hierarchies"] = valid_isa_hierarchies
 
+        return parsed_data
+
+    def _ensure_aggregations(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Ensure that there is at least ONE aggregation relationship defined.
+        If none are present, infer a reasonable whole–part abstraction based on
+        common domain patterns (Department, Company, Library, Curriculum, etc.).
+
+        Aggregation schema:
+            {
+                "name": "DepartmentManagement",
+                "whole": "Department",
+                "parts": ["Professor", "Student", "Course"],
+                "attributes": ["DepartmentID", "ProfessorID", "StudentID", "CourseID"]
+            }
+        """
+        aggregations = parsed_data.get("aggregations") or []
+        entities = parsed_data.get("entities", []) or []
+
+        # If an aggregation already exists and is non-empty, keep it
+        if aggregations:
+            parsed_data["aggregations"] = aggregations
+            return parsed_data
+
+        # Build quick lookup for entity names
+        entity_names = [e.get("name", "") for e in entities]
+        entity_names_lower = [name.lower() for name in entity_names]
+
+        def has_entity(substring: str) -> bool:
+            return any(substring in name for name in entity_names_lower)
+
+        def find_entities(keywords):
+            result = []
+            for name in entity_names:
+                lower = name.lower()
+                if any(k in lower for k in keywords):
+                    result.append(name)
+            return result
+
+        inferred_agg = None
+
+        # 1. Department-style aggregation
+        if has_entity("department"):
+            whole = next((n for n in entity_names if "department" in n.lower()), "Department")
+            parts = set()
+            parts.update(find_entities(["professor", "faculty", "lecturer", "instructor"]))
+            parts.update(find_entities(["student"]))
+            parts.update(find_entities(["course", "module", "subject"]))
+            parts.update(find_entities(["project", "research"]))
+            parts.update(find_entities(["budget", "funding"]))
+            parts.discard(whole)
+            parts_list = list(parts)
+            if len(parts_list) >= 1:
+                inferred_agg = {
+                    "name": f"{whole}Management",
+                    "whole": whole,
+                    "parts": parts_list,
+                    "attributes": [
+                        f"{whole}ID",
+                        "ProfessorID",
+                        "StudentID",
+                        "CourseID"
+                    ]
+                }
+
+        # 2. Company-style aggregation
+        if inferred_agg is None and has_entity("company"):
+            whole = next((n for n in entity_names if "company" in n.lower()), "Company")
+            parts = set()
+            parts.update(find_entities(["department"]))
+            parts.update(find_entities(["employee", "staff"]))
+            parts.update(find_entities(["team"]))
+            parts.update(find_entities(["project"]))
+            parts.discard(whole)
+            parts_list = list(parts)
+            if len(parts_list) >= 1:
+                inferred_agg = {
+                    "name": f"{whole}Structure",
+                    "whole": whole,
+                    "parts": parts_list,
+                    "attributes": [
+                        f"{whole}ID",
+                        "DepartmentID",
+                        "EmployeeID"
+                    ]
+                }
+
+        # 3. Library-style aggregation
+        if inferred_agg is None and has_entity("library"):
+            whole = next((n for n in entity_names if "library" in n.lower()), "Library")
+            parts = set()
+            parts.update(find_entities(["book"]))
+            parts.update(find_entities(["author"]))
+            parts.update(find_entities(["member", "user", "patron"]))
+            parts.discard(whole)
+            parts_list = list(parts)
+            if len(parts_list) >= 1:
+                inferred_agg = {
+                    "name": f"{whole}Collection",
+                    "whole": whole,
+                    "parts": parts_list,
+                    "attributes": [
+                        f"{whole}ID",
+                        "BookID",
+                        "MemberID"
+                    ]
+                }
+
+        # 4. Curriculum-style aggregation (courses grouped into curriculum/program)
+        if inferred_agg is None and has_entity("course"):
+            whole_candidates = find_entities(["curriculum", "program", "programme", "degree"])
+            whole = whole_candidates[0] if whole_candidates else "Curriculum"
+            parts = set(find_entities(["course", "module", "subject"]))
+            parts.discard(whole)
+            parts_list = list(parts)
+            if len(parts_list) >= 1:
+                inferred_agg = {
+                    "name": f"{whole}Composition",
+                    "whole": whole,
+                    "parts": parts_list,
+                    "attributes": [
+                        f"{whole}ID",
+                        "CourseID"
+                    ]
+                }
+
+        # 5. Generic fallback: group first 3–4 entities under a synthetic aggregation
+        if inferred_agg is None and entity_names:
+            whole = entity_names[0]
+            parts_list = entity_names[1:4] if len(entity_names) > 1 else []
+            if parts_list:
+                inferred_agg = {
+                    "name": f"{whole}Aggregation",
+                    "whole": whole,
+                    "parts": parts_list,
+                    "attributes": [f"{whole}ID"]
+                }
+
+        if inferred_agg:
+            parsed_data["aggregations"] = [inferred_agg]
+        else:
+            parsed_data["aggregations"] = []
+
+        return parsed_data
+
+    def _ensure_aggregations(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Ensure there is at least one aggregation relationship.
+        If none are provided by the model, infer a reasonable whole–part abstraction
+        from common domain patterns (Department, Company, Library, Curriculum, etc.).
+        """
+        aggregations = parsed_data.get("aggregations", [])
+        entities = parsed_data.get("entities", [])
+
+        # If model already produced at least one aggregation, keep as-is
+        if isinstance(aggregations, list) and len(aggregations) > 0:
+            return parsed_data
+
+        if not entities:
+            parsed_data["aggregations"] = []
+            return parsed_data
+
+        # Build quick lookup of entity names
+        entity_names = [e.get("name", "") for e in entities if e.get("name")]
+        entity_names_lower = [n.lower() for n in entity_names]
+
+        def find_entity(keyword_substrings):
+            for name, lower in zip(entity_names, entity_names_lower):
+                if any(kw in lower for kw in keyword_substrings):
+                    return name
+            return None
+
+        # Heuristic: choose a "whole" entity from common domains
+        whole = (
+            find_entity(["department"]) or
+            find_entity(["company"]) or
+            find_entity(["library"]) or
+            find_entity(["university"]) or
+            find_entity(["curriculum"]) or
+            entity_names[0]
+        )
+
+        # Parts: all other entities that are not the whole
+        parts = [n for n in entity_names if n != whole]
+
+        # If we somehow only have one entity, we can't build a meaningful aggregation
+        if not parts:
+            parsed_data["aggregations"] = []
+            return parsed_data
+
+        # Collect candidate ID-like attributes for aggregation attributes
+        attributes = set()
+        for entity in entities:
+            name = entity.get("name", "")
+            attrs = entity.get("attributes", []) or []
+            for attr in attrs:
+                if not isinstance(attr, str):
+                    continue
+                lower_attr = attr.lower()
+                if "id" in lower_attr or name.lower() in lower_attr:
+                    attributes.add(attr)
+
+        if not attributes:
+            # Fallback: just use primary keys if ID-like attributes not found
+            for entity in entities:
+                pk = entity.get("primary_key")
+                if isinstance(pk, str) and pk:
+                    attributes.add(pk)
+
+        aggregation = {
+            "name": f"{whole}Aggregation",
+            "whole": whole,
+            "parts": parts,
+            "attributes": sorted(attributes) if attributes else []
+        }
+
+        parsed_data["aggregations"] = [aggregation]
         return parsed_data
     
     def _remove_redundant_entities(self, parsed_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -1153,6 +1402,7 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         relationships = parsed_data.get("relationships", [])
         isa_hierarchies = parsed_data.get("isa_hierarchies", [])
         weak_entities = parsed_data.get("weak_entities", [])
+        aggregations = parsed_data.get("aggregations", [])
         
         lines = []
         lines.append("digraph ER_Diagram {")
@@ -1465,6 +1715,39 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                         else:
                             lines.append(f'    {attr_id} [label="{attr_label}", shape=ellipse, style="filled", fillcolor=lightcyan];')
                         lines.append(f'    {subtype_id} -> {attr_id} [style=solid, arrowhead=none];')
+        
+        # Draw aggregation abstractions as dashed boxes connected to their parts
+        if diagram_type == "EER" and aggregations:
+            lines.append("")
+            for agg in aggregations:
+                agg_name_raw = agg.get("name") or "Aggregation"
+                agg_node_id = agg_name_raw.replace(" ", "_").replace("-", "_")
+                agg_node_id = "".join(c if c.isalnum() or c == "_" else "_" for c in agg_node_id)
+                agg_label = agg_name_raw.replace('"', '\\"').replace('\\', '\\\\')
+                
+                # Draw the aggregation as a dashed box (higher-level abstraction)
+                lines.append(f'    {agg_node_id} [label="{agg_label}", shape=box, style="dashed,rounded", fillcolor=white];')
+                
+                parts = agg.get("parts") or []
+                for part_name in parts:
+                    if not isinstance(part_name, str):
+                        continue
+                    part_id = part_name.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "")
+                    part_id = "".join(c if c.isalnum() or c == "_" else "_" for c in part_id)
+                    # Connect aggregation box to each part entity
+                    lines.append(f'    {agg_node_id} -> {part_id} [style=solid, arrowhead=none];')
+                
+                # Optionally draw aggregation-level attributes as ovals attached to the dashed box
+                agg_attrs = agg.get("attributes") or []
+                for attr in agg_attrs:
+                    if not isinstance(attr, str) or not attr:
+                        continue
+                    agg_attr_clean = attr.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "_")
+                    agg_attr_id = f"{agg_node_id}_{agg_attr_clean}"
+                    agg_attr_id = "".join(c if c.isalnum() or c == "_" else "_" for c in agg_attr_id)
+                    agg_attr_label = attr.replace('"', '\\"').replace('\\', '\\\\')
+                    lines.append(f'    {agg_attr_id} [label="{agg_attr_label}", shape=ellipse, style="dashed", fillcolor=white];')
+                    lines.append(f'    {agg_node_id} -> {agg_attr_id} [style=dashed, arrowhead=none];')
         
         lines.append("}")
         

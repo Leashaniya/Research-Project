@@ -1751,6 +1751,7 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         {"   - At least ONE composite attribute (e.g., Address with Street, City, ZipCode)" if is_er_question else ""}
         {"   - At least ONE multivalued attribute (e.g., PhoneNumbers, EmailAddresses)" if is_er_question else ""}
         {"   - Descriptive attributes attached to relationships (e.g., EnrollmentDate on Enrolls relationship)" if is_er_question else ""}
+        {"   - At least ONE aggregation/whole–part abstraction where a higher-level entity groups multiple related entities (e.g., a Department aggregating Professors, Students, and Courses; a Company aggregating Departments and Employees; a Library aggregating Books, Authors, and Members)." if is_er_question else ""}
         {"   - Relationships between entities with cardinality information" if is_er_question else ""}
         {"   - Real-world context (e.g., university, hospital, library, company)" if is_er_question else ""}
         {"   - ISA hierarchies (subtype/supertype relationships) with subtype-specific attributes" if is_er_question else ""}

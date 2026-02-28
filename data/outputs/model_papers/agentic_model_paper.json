@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-27 12:57:11",
+  "generated_at": "2026-02-28 00:36:36",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university is managing its academic records for various programs. The entities involved are: 1) Student (StudentID, Name, DateOfBirth, Email), 2) Course (CourseID, CourseName, Credits), 3) Instructor (InstructorID, Name, PhoneNumber), and 4) Department (DepartmentID, DepartmentName, Location). Students can enroll in multiple courses and each course is taught by an instructor belonging to a specific department. The university has a specialization model where The Student entity has attributes such as StudentID, Name, Email. is further divided into Undergraduate and Graduate students. Graduate students have additional attributes: ThesisTitle and AdvisorName, while Undergraduate students carry attributes like YearOfStudy and Major. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrolls' relationship (Student participation is optional, Course participation is optional). A Instructor can be related to many Courses through the 'Teaches' relationship (Instructor participation is optional). Many Courses can be related to one Department through the 'BelongsTo' relationship (Department participation is optional)",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university management system is designed to manage various aspects of student life and faculty administration. The main entities include Student, Course, Instructor, and Department. The Student entity has attributes: StudentID, Name, Major, and EmailAddresses. The Course entity includes CourseID, CourseName, Credits, and Schedule. The Instructor entity possesses InstructorID, Name, and OfficeLocation. The Department entity has attributes such as DepartmentID, DepartmentName, Location. has DepartmentID, DepartmentName, and Location. Relationships include Enrollment, where students enroll in courses with attributes such as EnrollmentDate, and Teaching, where instructors teach courses, indicating various roles that an instructor may hold. Additionally, a specialization is modeled where a Student can be a GraduateStudent or an UndergraduateStudent, each having unique attributes specific to their academic level. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrollment' relationship (Student participation is optional, Course participation is optional). A Instructor can be related to many Courses through the 'Teaching' relationship (Instructor participation is optional). Many Students can be related to one Department through the 'Belongs' relationship (Department participation is optional). Many Instructors can be related to one Department through the 'Works' relationship (Department participation is optional)",
       "subquestions": [
         {
           "label": "a",
@@ -41,8 +41,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69a147027cfdd2c5defc8119",
-      "original_semantic_description": "A university is managing its academic records for various programs. The entities involved are: 1) Student (StudentID, Name, DateOfBirth, Email), 2) Course (CourseID, CourseName, Credits), 3) Instructor (InstructorID, Name, PhoneNumber), and 4) Department (DepartmentID, DepartmentName, Location). Students can enroll in multiple courses and each course is taught by an instructor belonging to a specific department. The university has a specialization model where The Student entity has attributes such as StudentID, Name, Email. is further divided into Undergraduate and Graduate students. Graduate students have additional attributes: ThesisTitle and AdvisorName, while Undergraduate students carry attributes like YearOfStudy and Major. Draw an ER diagram based on this scenario and indicate the relationships and attributes clearly.",
+      "template_id": "69a1eab0f83b6d95ebf7beeb",
+      "original_semantic_description": "A university management system is designed to manage various aspects of student life and faculty administration. The main entities include Student, Course, Instructor, and Department. The Student entity has attributes: StudentID, Name, Major, and EmailAddresses. The Course entity includes CourseID, CourseName, Credits, and Schedule. The Instructor entity possesses InstructorID, Name, and OfficeLocation. The Department entity has attributes such as DepartmentID, DepartmentName, Location. has DepartmentID, DepartmentName, and Location. Relationships include Enrollment, where students enroll in courses with attributes such as EnrollmentDate, and Teaching, where instructors teach courses, indicating various roles that an instructor may hold. Additionally, a specialization is modeled where a Student can be a GraduateStudent or an UndergraduateStudent, each having unique attributes specific to their academic level.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research\\Research-Project-1\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, C->D, D->E, B->A}}. Analyze the schema for normalization.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, C->E, D->A, E->B}}.",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69a147027cfdd2c5defc811a",
+      "template_id": "69a1eab0f83b6d95ebf7beec",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,7 +84,7 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A university is designing a relational database to manage student enrollment, course offerings, and grades. The database schema includes tables such as Students, Courses, and Enrollments. Each table is defined with specific attributes: Students have attributes like StudentID, Name, and DateOfBirth; Courses have CourseID, Title, and Credits; and Enrollments contain EnrollmentID, StudentID, CourseID, and Grade. The university plans to ensure data integrity and efficient data retrieval through appropriate SQL DDL and DML operations.",
+      "text": "A research institution is developing a sophisticated database system to manage its research data, including experiments, researchers, and their findings. Different roles are assigned within the project for database creation and oversight. Lisa is the senior database administrator responsible for leading the database system's design and implementation. David and Anna are junior database administrators reporting to Lisa. David is tasked with managing the experiments database, while Anna oversees the researchers database. Mark is a database developer working under David and Anna, responsible for creating and maintaining the database schemas for experiments and researcher profiles. Lucy and Ethan are data entry operators who input research findings and researcher details into the system.",
       "subquestions": [
         {
           "label": "a",
@@ -93,22 +93,22 @@
         },
         {
           "label": "b",
-          "text": "Code Segment: ```java String sql = \"SELECT * FROM employees WHERE department = ?\"; PreparedStatement pstmt = connection.prepareStatement(sql); pstmt.setString(1, \"IT\"); ResultSet rs = pstmt.executeQuery(); ``` Which type of JDBC statement is used in the code segment shown above? Briefly explain when this type of statement will be used.",
+          "text": "Code Segment: ```sql CREATE TABLE Students ( StudentsID INT PRIMARY KEY IDENTITY(1,1), Name VARCHAR(50) NOT NULL, Email VARCHAR(100) UNIQUE, Age INT CHECK (Age >= 18), Status VARCHAR(20) DEFAULT 'Active' ); INSERT INTO Students (Name, Email, Age) VALUES ('John Smith', 'john@example.com', 25); ``` Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used.",
           "marks": 2
         },
         {
           "label": "c",
-          "text": "Briefly explain the role of foreign keys in the Enrollments table and their impact on the database structure.",
+          "text": "Briefly explain the options available for transferring data between two tables in a relational database and how they can affect performance.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain the significance of the SQL command used to delete a course from the Courses table while ensuring that no orphaned records exist.",
+          "text": "Briefly explain how integrity constraints, such as foreign keys and unique constraints, are enforced in MySQL.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
+          "text": "A research institution is developing a sophisticated database system to manage its research data effectively. Lisa, the senior database administrator, oversees the entire database system's creation. David and Anna, junior database administrators, manage the experiments and researchers databases respectively. Mark is a developer under their guidance, tasked with designing and maintaining database schemas. Lucy and Ethan are responsible for data entry into the system. Write an SQL statement to create a table for storing researcher profiles, including their ID, name, and area of expertise. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance.. Michael is a data entry operator responsible for inputting data into the system.. Nathan is a database developer responsible for designing and implementing database schemas.. Emily is a junior database administrator managing specific databases within the system..",
           "marks": null,
           "subquestions": [
             {
@@ -124,7 +124,7 @@
             {
               "label": "iii",
               "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the operational database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -134,7 +134,7 @@
             {
               "label": "v",
               "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the operational databases."
             }
           ]
         }
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69a147027cfdd2c5defc811b",
+      "template_id": "69a1eab0f83b6d95ebf7beed",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,45 +152,45 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for an E-commerce platform: Product (productId: int, productName: varchar(100), price: decimal(10, 2), stockQuantity: int) Customer (customerId: int, customerName: varchar(100), email: varchar(50), phoneNumber: varchar(15)) Order (orderId: int, orderDate: date, customerId: int, totalAmount: decimal(10, 2)) OrderItem (orderItemId: int, orderId: int, productId: int, quantity: int, itemTotal: decimal(10, 2)) The 'Product' table stores information about products available for sale, including unique product ID, product name, price, and stock quantity. The 'Customer' table holds customer details, which consists of a unique customer ID, name, email, and phone number. The 'Order' table keeps track of customer orders with order information, including unique order ID, order date, linked customer ID, and the total order amount. The 'OrderItem' table contains details of each product in an order, including order item ID, linked order ID, product ID, quantity ordered, and item total price. The 'Order' table manages order records, tracking customer orders with order ID, customer ID, order date, and total amount.",
+      "text": "Consider the following schema of a database designed for a University: Student (studentId: int, name: varchar(100), email: varchar(50), phone: varchar(15)) Course (courseId: int, title: varchar(100), credits: int, department: varchar(50)) Enrollment (enrollmentId: int, studentId: int, courseId: int, enrollmentDate: date) Fee (feeId: int, studentId: int, amount: real, status: varchar(15)) The 'Student' table stores information about students enrolled in the university including their ID, name, email, and contact number. The 'Course' table contains details about courses offered, including unique course ID, title, credit hours, and the associated department. The 'Enrollment' table records the courses each student is enrolled in along with the enrollment date. The 'Fee' table tracks tuition fees for each student, including amounts due and payment status. The 'Enrollment' table manages student course enrollments, recording which students are enrolled in which courses and when. The 'Fee' table contains relevant information for the database system.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Write SQL Queries to perform the following: i. Find the product name and total amount for orders placed on '2023-09-15'.",
+          "text": "Write SQL Queries to perform the following: i. Find the names and emails of students enrolled in 'Database Systems'.",
           "marks": null,
           "subquestions": [
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the product name and total amount for orders placed on '2023-09-15'."
+              "text": "Find the names and emails of students enrolled in 'Database Systems'."
             },
             {
               "label": "ii",
               "marks": 6,
-              "text": "Find the customer who has the highest total totalamount compared to all other customers. Find the customerId and customerName."
+              "text": "Find the student who has the highest total amount compared to all other students. Find the studentId and name."
             },
             {
               "label": "iii",
               "marks": 7,
-              "text": "Find the productName and customerName from Product, Customer, and Order where Order.orderDate is not null."
+              "text": "Find the title and name from Course, Student, and Enrollment where Enrollment.enrollmentId is not null."
             }
           ]
         },
         {
           "label": "b",
           "marks": 11,
-          "text": "b) Create a function to calculate the total amount for a given customer. This function should account for customer with a late penalty of 10% applied to those marked as 'overdue' payment status."
+          "text": "b) Create a function to calculate the total fee amount for a given student. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
         },
         {
           "label": "c",
           "marks": 12,
-          "text": "c) Create a trigger that automatically updates the 'totalAmount' column in the 'Order' table whenever a new order record is added, or an existing order record is updated. The 'totalAmount' column should contain the total amount for each customer. Ensure the trigger adjusts the 'totalAmount' column accurately to reflect any partial payments made by customer. The customer pays only 50% of the total amount as an initial payment when the payment status is marked as 'Partial'."
+          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each student. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by student. The student pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69a147027cfdd2c5defc811c",
+      "template_id": "69a1eab0f83b6d95ebf7beee",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
