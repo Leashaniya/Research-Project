@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2><i class="fas fa-star me-2"></i>Priority Questions Quiz</h2>
+                            <p class="mb-0">Questions from the 4 highest priority lectures ({{ total_questions }} questions total)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="POST" id="quizForm">
+        <div class="row">
+            <div class="col-12">
+                {% if questions %}
+                    <!-- Quiz Instructions -->
+                    <div class="alert alert-info mb-4">
+                        <h5><i class="fas fa-info-circle me-2"></i>Quiz Instructions</h5>
+                        <ul class="mb-0">
+                            <li>Answer all {{ total_questions }} questions below</li>
+                            <li>Each question requires an answer before submission</li>
+                            <li>Choose the best option from A, B, C, or D</li>
+                            <li>Click "Submit Quiz" when you have answered all questions</li>
+                        </ul>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Quiz Progress</span>
+                                <span id="progressText">0/{{ total_questions }} answered</span>
+                            </div>
+                            <div class="progress" style="height: 25px;">
+                                <div id="progressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%">
+                                    0%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% for priority in range(1, 5) %}
+                        {% set priority_questions = questions|selectattr('priority', 'equalto', priority)|list %}
+                        {% if priority_questions %}
+                        <div class="card mb-4 priority-section priority-{{ priority }}">
+                            <div class="card-header bg-{{ 'danger' if priority == 1 else 'warning' if priority == 2 else 'info' if priority == 3 else 'secondary' }} text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-{{ 'fire' if priority == 1 else 'exclamation-triangle' if priority == 2 else 'chart-line' if priority == 3 else 'clock' }} me-2"></i>
+                                    Priority {{ priority }} - {{ priority_questions[0].lecture_title }}
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                {% for q in priority_questions %}
+                                <div class="question-item mb-4 p-3 {% if not loop.last %}border-bottom{% endif %}">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="badge bg-{{ 'danger' if priority == 1 else 'warning' if priority == 2 else 'info' if priority == 3 else 'secondary' }}">
+                                            Question {{ q.question_number }}
+                                        </span>
+                                        <small class="text-muted">{{ q.lecture }}</small>
+                                    </div>
+                                    
+                                    <div class="question-text mb-3">
+                                        <strong>Q{{ q.question_number }}:</strong> {{ q.question_text }}
+                                    </div>
+                                    
+                                    {% if q.options %}
+                                    <div class="options mb-3">
+                                        <div class="form-group">
+                                            <label class="d-block"><strong>Select your answer:</strong></label>
+                                            {% for option in q.options %}
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="radio" 
+                                                       name="question_{{ q.question_id }}" 
+                                                       id="q_{{ q.question_id }}_{{ loop.index0 }}" 
+                                                       value="{{ option[0] }}"
+                                                       onchange="updateProgress()">
+                                                <label class="form-check-label" for="q_{{ q.question_id }}_{{ loop.index0 }}">
+                                                    {{ option }}
+                                                </label>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Submit Section -->
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <button type="submit" class="btn btn-success btn-lg" id="submitBtn" disabled>
+                                <i class="fas fa-paper-plane me-2"></i>Submit Quiz
+                            </button>
+                            <p class="text-muted mt-2">
+                                <small>Please answer all questions before submitting</small>
+                            </p>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="card">
+                        <div class="card-body text-center py-5">
+                            <i class="fas fa-question-circle fa-4x text-muted mb-3"></i>
+                            <h5>No questions available</h5>
+                            <p class="text-muted">Please run analysis first</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateProgress() {
+    const totalQuestions = {{ total_questions }};
+    const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
+    const progress = (answeredQuestions / totalQuestions) * 100;
+    
+    // Update progress bar
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    progressBar.style.width = progress + '%';
+    progressBar.textContent = Math.round(progress) + '%';
+    progressText.textContent = answeredQuestions + '/' + totalQuestions + ' answered';
+    
+    // Enable/disable submit button
+    submitBtn.disabled = answeredQuestions !== totalQuestions;
+    
+    // Change progress bar color based on completion
+    progressBar.className = 'progress-bar';
+    if (progress === 100) {
+        progressBar.classList.add('bg-success');
+    } else if (progress >= 75) {
+        progressBar.classList.add('bg-info');
+    } else if (progress >= 50) {
+        progressBar.classList.add('bg-warning');
+    } else {
+        progressBar.classList.add('bg-secondary');
+    }
+}
+
+// Form validation
+document.getElementById('quizForm').addEventListener('submit', function(e) {
+    const totalQuestions = {{ total_questions }};
+    const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
+    
+    if (answeredQuestions !== totalQuestions) {
+        e.preventDefault();
+        alert('Please answer all questions before submitting the quiz.');
+        return false;
+    }
+    
+    // Confirm submission
+    if (!confirm('Are you sure you want to submit your quiz? You cannot change your answers after submission.')) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+// Initialize progress on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateProgress();
+});
+</script>
+{% endblock %}

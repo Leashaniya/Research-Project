@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2><i class="fas fa-calendar-alt me-2"></i>Study Plan Generator</h2>
+                            <p class="mb-0">Generate personalized study plans based on question distribution</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i>Plan Parameters</h5>
+                </div>
+                <div class="card-body">
+
+<form method="POST" action="{{ url_for('study_plan') }}" class="row g-3">
+    <div class="col-md-6">
+        <label class="form-label">Total Study Hours</label>
+        <input type="number" class="form-control" name="total_hours" 
+               value="20" min="1" max="100" step="1" required>
+        <div class="form-text">Total hours available for study</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label">Number of Study Days</label>
+        <input type="number" class="form-control" name="study_days" 
+               value="7" min="1" max="30" required>
+        <div class="form-text">Days until exam</div>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">
+            <i class="fas fa-calculator me-2"></i>Generate Study Plan
+        </button>
+    </div>
+</form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if study_plan %}
+    <!-- Results -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Your Personalized Study Plan</h5>
+                    <a href="{{ url_for('download_study_plan_pdf', total_hours=total_hours, study_days=study_days) }}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-file-pdf me-2"></i>Download PDF
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Total study hours: <strong>{{ total_hours }}</strong> | 
+                        Study days: <strong>{{ study_days }}</strong> | 
+                        Average: <strong>{{ "%.1f"|format(total_hours / study_days) }} hours/day</strong>
+                    </div>
+
+                    <!-- Hours Chart -->
+                    <div class="mb-4">
+                        <div id="hoursChart"></div>
+                        <script>
+                            var hoursChart = {{ hours_chart | safe }};
+                            Plotly.newPlot('hoursChart', hoursChart.data, hoursChart.layout);
+                        </script>
+                    </div>
+
+                    <!-- Study Plan Table -->
+                    <h6 class="fw-bold mb-3">Recommended Focus Areas</h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-hover">
+                            <thead class="table-success">
+                                <tr>
+                                    <th>Priority</th>
+                                    <th>Lecture</th>
+                                    <th>Question %</th>
+                                    <th>Recommended Hours</th>
+                                    <th>Focus Intensity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in study_plan %}
+                                <tr>
+                                    <td><span class="badge bg-{{ 'danger' if row.Priority <= 3 else 'warning' if row.Priority <= 6 else 'info' }}">Priority {{ row.Priority }}</span></td>
+                                    <td>{{ row.Lecture }}</td>
+                                    <td>{{ row.Question_Percentage }}%</td>
+                                    <td>{{ "%.1f"|format(row.Recommended_Hours) }}h</td>
+                                    <td>
+                                        <span class="badge bg-{{ 'danger' if row.Focus_Intensity == 'High' else 'warning' if row.Focus_Intensity == 'Medium' else 'info' }}">
+                                            {{ row.Focus_Intensity }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Daily Schedule -->
+                    <h6 class="fw-bold mb-3">Daily Study Schedule</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Date</th>
+                                    <th>Lectures to Study</th>
+                                    <th>Hours</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in daily_schedule %}
+                                <tr>
+                                    <td>Day {{ row.Day }}</td>
+                                    <td>{{ row.Date }}</td>
+                                    <td>{{ row.Lectures }}</td>
+                                    <td>{{ "%.1f"|format(row.Total_Hours) }}h</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

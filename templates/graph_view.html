@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2><i class="fas fa-project-diagram me-2"></i>Graph View</h2>
+                            <p class="mb-0">Interactive lecture-question relationship visualization</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {% if graph_path %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-network-wired me-2"></i>Lecture Recommendation Graph</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        {% if 'static/' in graph_path %}
+                        <iframe src="{{ url_for('static', filename=graph_path.replace('static/', '')) }}" 
+                                    width="100%" 
+                                    height="800" 
+                                    frameborder="0"
+                                    style="min-height: 800px;">
+                        </iframe>
+                        {% else %}
+                        <iframe src="{{ graph_path }}" 
+                                    width="100%" 
+                                    height="800" 
+                                    frameborder="0"
+                                    style="min-height: 800px;">
+                        </iframe>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer text-muted">
+                        <small>
+                            <i class="fas fa-info-circle me-1"></i>
+                            Interactive graph showing relationships between lectures and questions. 
+                            Use mouse to zoom, pan, and interact with nodes.
+                        </small>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-project-diagram fa-5x text-muted mb-4"></i>
+                        <h4 class="text-muted">Graph Visualization Not Available</h4>
+                        <p class="text-muted">
+                            The interactive graph has not been generated yet. Please run the analysis first to create the visualization.
+                        </p>
+                        <div class="mt-4">
+                            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                                <i class="fas fa-play me-2"></i>Run Analysis
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if graph_path %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-question-circle me-2"></i>How to Use the Graph</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-mouse-pointer me-2"></i>Navigation</h6>
+                            <ul>
+                                <li><strong>Scroll:</strong> Zoom in/out</li>
+                                <li><strong>Click & Drag:</strong> Pan around the graph</li>
+                                <li><strong>Click Node:</strong> View details about lectures or questions</li>
+                                <li><strong>Double Click:</strong> Focus on a specific node</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-palette me-2"></i>Node Colors</h6>
+                            <ul>
+                                <li><strong>Blue Nodes:</strong> Lectures</li>
+                                <li><strong>Green Nodes:</strong> Questions</li>
+                                <li><strong>Edge Thickness:</strong> Relationship strength</li>
+                                <li><strong>Node Size:</strong> Importance/weight</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2><i class="fas fa-chart-pie me-2"></i>Analysis Dashboard</h2>
+                            <p class="mb-0">Comprehensive overview of your lecture and question data</p>
+                        </div>
+                        <button type="button" class="btn btn-light" id="runAnalysis">
+                            <i class="fas fa-play me-2"></i>Run Analysis
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card bg-gradient-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Total Lectures</h6>
+                            <h2 class="text-white mb-0">{{ stats.total_lectures }}</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-book fa-3x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-gradient-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Total Questions</h6>
+                            <h2 class="text-white mb-0">{{ stats.total_questions }}</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-question-circle fa-3x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-gradient-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Topics Identified</h6>
+                            <h2 class="text-white mb-0">{{ stats.total_topics }}</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-tags fa-3x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-gradient-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Status</h6>
+                            {% if stats.processed %}
+                                <h5 class="text-white mb-0"><i class="fas fa-check-circle me-1"></i>Processed</h5>
+                            {% else %}
+                                <h5 class="text-white mb-0"><i class="fas fa-clock me-1"></i>Pending</h5>
+                            {% endif %}
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-microchip fa-3x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Frequency Analysis Charts -->
+    <div class="row mb-4">
+        <div class="col-xl-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Question Distribution by Lecture</h5>
+                </div>
+                <div class="card-body">
+                    {% if freq_chart %}
+                        <div id="freqChart"></div>
+                        <script>
+                            var freqChart = {{ freq_chart | safe }};
+                            Plotly.newPlot('freqChart', freqChart.data, freqChart.layout);
+                        </script>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
+                            <p class="text-muted">No data available. Click "Run Analysis" to process files.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Distribution Pie Chart</h5>
+                </div>
+                <div class="card-body">
+                    {% if pie_chart %}
+                        <div id="pieChart"></div>
+                        <script>
+                            var pieChart = {{ pie_chart | safe }};
+                            Plotly.newPlot('pieChart', pieChart.data, pieChart.layout);
+                        </script>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-chart-pie fa-4x text-muted mb-3"></i>
+                            <p class="text-muted">No data available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-table me-2"></i>Detailed Question Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Lecture</th>
+                                    <th>Title</th>
+                                    <th>Questions</th>
+                                    <th>Percentage</th>
+                                    <th>Cumulative</th>
+                                    <th>Visual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in percentage_df %}
+                                <tr>
+                                    <td>{{ row.Lecture_File }}</td>
+                                    <td>{{ row.Lecture_Title[:50] }}{% if row.Lecture_Title|length > 50 %}...{% endif %}</td>
+                                    <td class="text-center">{{ row.Questions_In_Lecture }}</td>
+                                    <td class="text-center">{{ "%.1f"|format(row.Percentage_of_Total) }}%</td>
+                                    <td class="text-center">{{ "%.1f"|format(row.Cumulative_Percentage) }}%</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar bg-success" 
+                                                 style="width: {{ row.Percentage_of_Total }}%;"
+                                                 role="progressbar">
+                                                {{ "%.1f"|format(row.Percentage_of_Total) }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-database fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No data available. Please run analysis.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center p-5">
+                <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5>Processing Analysis</h5>
+                <p class="text-muted">This may take a few moments...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $('#runAnalysis').on('click', function() {
+        $('#loadingModal').modal('show');
+        
+        $.post('/run-analysis', function(data) {
+            $('#loadingModal').modal('hide');
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        }).fail(function() {
+            $('#loadingModal').modal('hide');
+            alert('Error connecting to server');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2><i class="fas fa-chart-line me-2"></i>Student Progress Report</h2>
+                            <p class="mb-0">Your quiz performance and learning analytics</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Performance Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card bg-gradient-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Total Attempted</h6>
+                            <h2 class="text-white mb-0">{{ results.total_attempted }}</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-clipboard-check fa-3x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-gradient-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Correct Answers</h6>
+                            <h2 class="text-white mb-0">{{ results.correct_count }}</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-check-circle fa-3x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-gradient-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Wrong Answers</h6>
+                            <h2 class="text-white mb-0">{{ results.wrong_count }}</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-times-circle fa-3x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-gradient-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Overall Accuracy</h6>
+                            <h2 class="text-white mb-0">{{ "%.1f"|format(results.accuracy) }}%</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-percentage fa-3x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Topic-wise Performance -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>Topic-wise Performance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Lecture</th>
+                                    <th>Total Questions</th>
+                                    <th>Correct</th>
+                                    <th>Wrong</th>
+                                    <th>Accuracy</th>
+                                    <th>Performance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for topic, data in results.topic_wise.items() %}
+                                <tr>
+                                    <td><strong>{{ topic }}</strong></td>
+                                    <td class="text-center">{{ data.total }}</td>
+                                    <td class="text-center text-success">{{ data.correct }}</td>
+                                    <td class="text-center text-danger">{{ data.total - data.correct }}</td>
+                                    <td class="text-center">{{ "%.1f"|format(data.accuracy) }}%</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar 
+                                                {% if data.accuracy >= 80 %}bg-success
+                                                {% elif data.accuracy >= 60 %}bg-warning
+                                                {% else %}bg-danger{% endif %}" 
+                                                 style="width: {{ data.accuracy }}%;"
+                                                 role="progressbar">
+                                                {{ "%.1f"|format(data.accuracy) }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No topic-wise data available</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Performance Overview</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Results -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>Detailed Question Review</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Question ID</th>
+                                    <th>Lecture</th>
+                                    <th>Your Answer</th>
+                                    <th>Correct Answer</th>
+                                    <th>Result</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results.detailed_results %}
+                                <tr class="{% if result.is_correct %}table-success{% else %}table-danger{% endif %}">
+                                    <td><code>{{ result.question_id }}</code></td>
+                                    <td>{{ result.lecture }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if result.is_correct %}success{% else %}danger{% endif %}">
+                                            {{ result.student_answer }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ result.correct_answer }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if result.is_correct %}
+                                            <i class="fas fa-check-circle text-success"></i> Correct
+                                        {% else %}
+                                            <i class="fas fa-times-circle text-danger"></i> Wrong
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No detailed results available</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <a href="{{ url_for('priority_questions') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-redo me-2"></i>Retake Quiz
+                    </a>
+                    <a href="{{ url_for('study_plan') }}" class="btn btn-info me-2">
+                        <i class="fas fa-calendar-alt me-2"></i>Study Plan
+                    </a>
+                    <a href="{{ url_for('graph_view') }}" class="btn btn-secondary">
+                        <i class="fas fa-project-diagram me-2"></i>Graph View
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Performance Chart
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const topicLabels = [];
+    const accuracyData = [];
+    
+    {% for topic, data in results.topic_wise.items() %}
+        topicLabels.push('{{ topic }}');
+        accuracyData.push({{ data.accuracy }});
+    {% endfor %}
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: topicLabels,
+            datasets: [{
+                label: 'Accuracy (%)',
+                data: accuracyData,
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Accuracy (%)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Topics'
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Topic-wise Performance Analysis'
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
