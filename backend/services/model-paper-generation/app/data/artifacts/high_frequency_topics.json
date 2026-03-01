@@ -1,0 +1,96 @@
+{
+  "top_clusters": [
+    {
+      "cluster_id": 2,
+      "count": 6,
+      "label_keywords": [
+        "relation",
+        "set",
+        "functional",
+        "dependencies",
+        "over",
+        "deptno",
+        "deptname",
+        "projectname"
+      ]
+    },
+    {
+      "cluster_id": 5,
+      "count": 4,
+      "label_keywords": [
+        "varchar",
+        "int",
+        "book",
+        "table",
+        "date",
+        "name",
+        "number",
+        "member"
+      ]
+    },
+    {
+      "cluster_id": 1,
+      "count": 4,
+      "label_keywords": [
+        "int",
+        "relation",
+        "varchar",
+        "char",
+        "name",
+        "module",
+        "stores",
+        "has"
+      ]
+    },
+    {
+      "cluster_id": 0,
+      "count": 3,
+      "label_keywords": [
+        "eer",
+        "model"
+      ]
+    },
+    {
+      "cluster_id": 6,
+      "count": 3,
+      "label_keywords": [
+        "database",
+        "statements",
+        "sql",
+        "write",
+        "data",
+        "server",
+        "name",
+        "briefly"
+      ]
+    },
+    {
+      "cluster_id": 3,
+      "count": 3,
+      "label_keywords": [
+        "model",
+        "keys",
+        "convert",
+        "eer",
+        "relational",
+        "indicate",
+        "primary",
+        "foreign"
+      ]
+    },
+    {
+      "cluster_id": 4,
+      "count": 1,
+      "label_keywords": [
+        "int",
+        "sid",
+        "table",
+        "made",
+        "suppliers",
+        "supplies",
+        "date",
+        "stores"
+      ]
+    }
+  ]
+}

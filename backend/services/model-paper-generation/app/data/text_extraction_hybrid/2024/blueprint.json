@@ -1,0 +1,26 @@
+[
+  {
+    "question_id": 1,
+    "marks": 20,
+    "text": "Consider the following EER Model.\n[DIAGRAM: page_002_diagram_1.png]",
+    "pdf_stem": "2024"
+  },
+  {
+    "question_id": 2,
+    "marks": 15,
+    "text": "Consider a relation R (ProjectNo, ProjectName, EmpNo, EmpName, DeptNo, DeptName, HrsWork) with the following set of functional dependencies F over R: F={ ProjecNo->ProjectName DeptNo->DeptName EmpNo->EmpName, DeptNo, DeptName, HrsWork}",
+    "pdf_stem": "2024"
+  },
+  {
+    "question_id": 3,
+    "marks": 25,
+    "text": "[DIAGRAM: page_003_diagram_1.png]",
+    "pdf_stem": "2024"
+  },
+  {
+    "question_id": 4,
+    "marks": 40,
+    "text": "Consider the following schema of a database designed for a Library: Book (bookId: int, title: varchar(100), author: varchar(100), isbn: varchar(20), publicationYear: int, genre: varchar(50), availableCopies: int) Member (memberId: int, firstName: varchar(50), lastName: varchar(50), email: varchar(50), phone: int, address: varchar(100)) Loan (loanId: int, bookId: int, memberId: int, loanDate: date, dueDate: date, returnDate: date) Fine (fineId: int, memberId: int, amount: real, paymentStatus: varchar(50)) Librarian (librarianId: int, name: varchar(50), email: varchar(50), phone: int, address: varchar(100)) The 'Book' table stores information about books available in the library, including unique book ID, title, author, ISBN, publication year, genre, and the number of available copies. The 'Member' table holds details about library members, such as their unique member ID, first name, last name, email, phone number, and address. The 'Loan' table manages book loans, with each loan having a unique ID and being associated with a specific book and member. It records the loan date, due date, and return date. The 'Fine' table stores information about fines incurred by members for late returns or other penalties. It includes a fine ID, member ID, fine amount, and payment status. The 'Librarian' table contains details about library staff, with each librarian having a unique ID, name, email, phone number, and address.",
+    "pdf_stem": "2024"
+  }
+]

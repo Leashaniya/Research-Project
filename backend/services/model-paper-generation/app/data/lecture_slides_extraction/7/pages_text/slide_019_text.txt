@@ -1,0 +1,8 @@
+TYPES OF BACKUPS
+Full Backups : Full database backup takes a copy of the entire database including the 
+part of the transaction log file.
+Differential Backups : Differential database backup includes only extents which were 
+changed since the last full database backup.
+Transaction Log Backups :Transaction log backup captures all the transaction log 
+records that have been written after the last full database backup or last transaction 
+log backup.

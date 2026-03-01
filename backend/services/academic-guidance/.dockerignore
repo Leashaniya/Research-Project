@@ -1,0 +1,12 @@
+# Do not bake secrets into the image; use env_file in docker-compose
+.env
+.env.*
+!.env.example
+__pycache__
+*.pyc
+.pytest_cache
+.venv
+venv
+node_modules
+*.md
+.git

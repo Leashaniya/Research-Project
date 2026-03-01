@@ -1,0 +1,62 @@
+00340
+Question 2 
+’ 
+(20 marks)
+a) 
+Briefly describe two main techniques used 
+in RAID. What is the purpose of each 
+technique? (Note : You do not have to explain the RAID levels) 
+(3 marks)
+b) 
+Explain the role of the Disk Space Manager in the database management system 
+architecture? 
+(2 marks)
+c) 
+Consider a disk with a sector size of 512 bytes, block size of 1024 bytes, 1000 tracks 
+per surface, 50 sectors per track and 5 double-sided platters. Seek time is 20 msec. 
+Average rotational delay is 10 msec. Data transfer time per a block 
+is 
+1 msec.
+You need to store a student file with fields as follows in the disk above:
+id (20 bytes), name (40 bytes) 
+, bdate (10 bytes), GPA (20 bytes), phone(10 bytes) 
+The student file has 5000 records, which are in fixed-length format. No record spans 
+multiple blocks.
+i. 
+What is the size of a student record? 
+(1 mark)
+p 
+ii. 
+How many student records can be stored in a block? 
+(2 marks)
+iii. 
+How many cylinders are needed to store the student file? 
+(2 marks)
+iv. 
+What is the time required to read a data block from the student 
+file? 
+(2 marks)
+v. 
+What is the time requn'ed to read 3 consecutive data blocks in the same track from
+the sudent file? 
+(2 marks)
+d) 
+Explain the terms pin count and dirty bit relevant to the buffer manager? 
+(2 marks)
+e) 
+Consider the following buffer pool with 5 frames. Each frame has a frame number 
+(Frame No), page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty).
+[DIAGRAM: page_003_diagram_1.png]
+Assume that the following times states the last time the particular frame was accessed (on
+the same day):
+Frame number 0 at 12:15 pm 
+Frame number 
+1 at 12:07 pm 
+Frame number 2 at 2:05 pm 
+Frame number 3 at 12:02 pm 
+Frame number 4 at 1:26 pm
+Describe the steps followed by the buffer manager when a request for the page with PagelD
+50 occurs if MRU (Most-recently-used) replacement policy is used.
+(4 marks)
+Page 3 of 7
+29/03/2016

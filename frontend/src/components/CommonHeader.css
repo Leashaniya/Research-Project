@@ -1,0 +1,128 @@
+.common-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background: linear-gradient(135deg, #2a5a94 0%, #234a7a 100%);
+  color: white;
+  padding: 12px 24px;
+  box-shadow: 0 2px 8px rgba(42, 90, 148, 0.2);
+  margin: 0px;
+}
+
+.common-header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.common-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.common-header-back {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.common-header-back:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.common-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.common-header-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.common-header-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.common-header-avatar.common-header-avatar-img {
+  padding: 0;
+  background: none;
+  overflow: hidden;
+  object-fit: cover;
+}
+
+.common-header-user-name {
+  font-size: 0.95rem;
+  color: white;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.common-header-logout {
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-weight: 300;
+  color: #eeeeee;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.common-header-logout:hover {
+  color: #d2d2d2;
+}
+
+.common-header-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  background: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+
+.common-header-login:hover {
+  background: #f8f9fa;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 640px) {
+  .common-header-inner {
+    flex-wrap: wrap;
+  }
+
+  .common-header-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

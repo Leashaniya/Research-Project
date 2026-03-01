@@ -1,0 +1,8 @@
+WHAT IS A DATABASE & A DBMS?
+A database is a collection of related data.
+A database management systems (DBMS) is a general-purpose software 
+system that facilitates the processes of defining, constructing, 
+manipulating, and sharing databases among various users and 
+applications.
+What do you understand by defining, constructing, manipulating and sharing 
+databases?

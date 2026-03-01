@@ -1,0 +1,3 @@
+EXERCISE 2
+Create a function to return the total percentage of time a person works 
+given the employee id.

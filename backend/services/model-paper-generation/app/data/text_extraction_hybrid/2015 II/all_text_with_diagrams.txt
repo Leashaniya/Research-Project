@@ -1,0 +1,239 @@
+
+
+--- PAGE 2 ---
+00269
+Question 1 
+(20 marks)
+Consider the following schema of a database used in a vehicle rental system.
+Customers 
+(custld: integer, name: varchar (50), address: varachar (60), phone: char (10)) 
+Vehicles (vehicleld: interger, mileage: double, fuel Type: varchar (10), transmission: varchar (15)) 
+Reservations (cld: 
+integer, 
+vId: 
+integer, startDate: datetime, endDate: datetime, returnDate: 
+datetime) 
+Payments (pld: integer, cId: integer, vId: integer, type: varchar (10), amount: real, date: datetime)
+Customers table contains attributes to store the id (custld), name, address and the phone 
+number of customers. Vehicles table contains the id (vehicleld), milage, type of fuel and
+the type of transmission (transmission) for each vehicle. Fuel type attribute stores ‘Petrol’, 
+‘Diesel’ or ‘Hybrid’. The transmission attribute stores either ‘automatic’ or ‘manual’. 
+Reservation table stores information about reservations of vehicles. The table contains 
+information about the vehicles which have been rented (vId), the customers who have 
+reserved vehicles (cId), start dates of the reservations (startDate), the 
+end dates of the 
+reservations (endDate) and the dates the vehicles have been returned by the customer 
+(returnDate). For vehicles that are not returned yet, a null value is stored in the return date
+field. Payment table stores the payment details of the reservations. The table contains 
+payment id (pId), customer id (cId), vehicle id (vId), type of the payment (type), amount 
+paid and the and the paid date. When customers reserve vehicles they have to make the full 
+payment or a partial payment. If the vehicle is returned late a fine has to be paid for the 
+vehicle. The type attribute of the payment table stores ‘Full’, ‘Partial’ or ‘Fine’ to show the
+type of the payment as above. The primary keys of all relations are under!ined.
+a) 
+Use SQL queries to answer following questions.
+i. 
+Find the names of the customers who are late to return the vehicles they have
+rented. 
+(2 marks)
+ii. 
+Find the vehicle ids of vehicles with mileage over 80000km which have not been
+rented since 1% May 2015. 
+(4 marks)
+iii. 
+Find the ids and the names of customers who have paid the most amount of fines.
+(5 marks)
+b) 
+Create a view which contains customer id, name and phone number of customers who
+have outstanding fines. 
+(3 marks)
+c) 
+Create a trigger to insert an entry to the payment table to indicate 
+that a fine is to be
+paid when a vehicle is returned late. A fine of Rs. 3000 is to be paid for each day late.
+(Assume that the pid is set using the identity property and that the Reservation table is
+updated only to enter the return date of a vehicle. DATEDIFF(dd, daiel,date2) function
+returns the number of days between datel and date 2). 
+(6 marks)
+Page 2 of 6
+25/09/2015
+
+--- PAGE 3 ---
+00269
+Question 2 
+(20 marks)
+a) 
+Explain two methods that could be used to improve the reliability of data stored in
+disks. 
+(3 marks)
+b) 
+Consider a disk with a sector size of 512 bytes, 400 tracks per surface, 20 sectors per 
+track, 5 single-sided platters and an average seek time of 10 msec. Suppose that a block
+size of 1,024 bytes is chosen. The disk spins at 2400 revolutions per minute. Assume
+that the average rotational delay is % revolution. The Disk Space Manager is requested
+to read blocks A, B and C stored as follows. 
+Block A is in platter 
+1 
+— track 20 
+Block B is in platter 
+1 — track 25 
+Block C is in platter 
+1 —track 30
+i. 
+Find the total time taken to read blocks A, B, and C stored as above. 
+(6 marks)
+ii. 
+Find the total cost for reading blocks A, B and C, if they are placed next to each 
+other on the same track. 
+(5 marks)
+c) 
+Consider the following buffer pool with 5 frames.
+[DIAGRAM: page_003_diagram_1.png]
+Each frame has a frame number (Frame No), page id (PageID) of page in buffer pool, pin 
+count (PinCount) and a dirty bit (Dirty).
+Assume that the following times states the last time the particular frame was accessed (on
+the same day):
+Frame number 0 at 11:15 am 
+Frame number 
+1 at 11:35 am 
+Frame number 2 at 10:57 am 
+Frame number 3 at 11:12 am 
+Frame number 4 at 11:26 am
+Describe the steps involved when a page request for the page with PageID 50 occurs if LRU 
+(least-recently-used) policy is used as the replacement policy. 
+(3 marks)
+d) 
+What happens if there is a page request when all pages in the buffer pool are dirty?
+(3 marks)
+Page 3 of 6
+25/09/2015
+
+--- PAGE 4 ---
+00269
+Question 3 
+(20 marks)
+a) 
+Briefly explain the three main file organizations. 
+(3 marks)
+b) 
+“Updating a record in sorted file organization is always efficient than the heap file” 
+accept or refute the above statement providing reasons. 
+(3 marks)
+c) 
+Briefly explain the two alternatives used 
+in DBMS for managing the fixed length 
+records. Provide one limitation of each alternative. 
+(4 marks)
+d) 
+Consider the following B+ tree of order 2.
+[DIAGRAM: page_004_diagram_1.png]
+i. 
+ Illustrate B+ tree after inserting 13 to the tree above. 
+(3 marks)
+ii. 
+ Illustrate the B+ tree after deleting 21 from the original tree 
+(3 marks)
+e) 
+Show the extendible hashed file after inserting 6. 
+(4 marks)
+[DIAGRAM: page_004_diagram_2.png]
+25/09/2015
+
+--- PAGE 5 ---
+00269
+Question 4 
+(15 marks)
+a) 
+Briefly explain the major steps in Query Processing? 
+(3 marks)
+b) 
+Briefly explain why it is often advantageous to do selections before joins in a query 
+plan. How do early projections help during the query execution? 
+(3 marks)
+c) 
+What is a clustered index? 
+(2 marks)
+d) 
+Consider the following relational schema:
+Dept (dno, dname, location, budget) 
+Works (eno, dno, pct_time)
+Assume that Dept relation consists of 80 pages with 50 tuples per page, Works relation 
+‘contains 200 pages with 100 tuples per page. Assume equal-size ficlds in each relation
+and uniform distribution for Works relation. Assume that 52 buffer pages are available. 
+There exists a Hash index on Works<dno> using Altl.
+Consider the following query: 
+Select w.eno 
+From 
+Dept d, Works w 
+Where d.dno=w.dno
+i. 
+ Draw query tree for the above query. 
+(1 mark)
+ii. 
+ Estimate the cost for the best plan if Block-nested loops join algorithm is used to 
+perform joining of tables. 
+(2 marks)
+iii. 
+Estimate the cost for the best plan if Index-nested loops join algorithm is used to 
+perform joining of tables. 
+(2 marks)
+iv. 
+Consider the query given below.
+Select dname, budget 
+From Dept 
+‘Where budget>5000000
+Assume that only 5 % of the tuples satisfy the selection condition. What will be
+the cost for evaluating the above query? 
+(2 marks)
+Page 5 of 6
+25/09/2015
+
+--- PAGE 6 ---
+00269
+Question 5 
+(25 marks)
+a) 
+Explain the four properties of a transaction, 
+(4 marks)
+b) 
+Why do DBMSs interleave actions of multiple transactions? 
+(2 marks)
+c) 
+What is a dirty read? 
+(2 marks)
+d) 
+Explain what 
+is 
+an unrecoverable schedule? What 
+are 
+the 
+root causes 
+for the 
+unrecoverable schedule? 
+(4 marks)
+e) 
+Briefly explain the wound-wait and wait-die approaches used for deadlock prevention 
+using suitable transaction schedules. 
+(4 marks)
+f) 
+Consider the transaction schedule below.
+[DIAGRAM: page_006_diagram_1.png]
+Assume that Transaction Ti is higher priority than transaction Ti+i(i.e. transaction Ty
+has higher priority than T2; and T2 has higher priority than Ts).
+i. 
+ Draw a Wait-For-Graph for the schedule given above. 
+(2 marks)
+ii. 
+Draw the above schedule considering deadlock prevention algorithm: Wound- 
+wait approach. 
+(3 marks)
+g) 
+Consider the following scenario:
+[DIAGRAM: page_006_diagram_2.png]
+Database D contains a relation R. Relation R contains 1000 pages. Assume that 
+multiple granularity locking scheme is used. 
+Describe the locks acquired when updating a tuple t in page P of relation R.
+(4 marks)
+-- End of the Question Paper --
+Page 6 of 6
+25/09/2015

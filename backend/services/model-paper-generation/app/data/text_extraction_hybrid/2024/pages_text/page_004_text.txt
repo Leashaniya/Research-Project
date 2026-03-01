@@ -1,0 +1,34 @@
+d) Briefly explain how authentication and authorization are achieved in SQL Server.
+(3 marks)
+e) A financial institution is developing a robust database system to manage its clients' sensitive
+financial data. Different roles are assigned to various team members for database administration 
+and management.
+Sarah is the senior database administrator tasked with overseeing the entire database system's 
+creation and maintenance.
+Tom and Emily are junior database administrators under Sarah's supervision. Tom manages the 
+client accounts database, while Emily handles the transactions database.
+Nathan is a database developer reporting to Tom and Emily. His responsibilities include 
+designing and implementing database schemas for client accounts and transactions.
+\__/ 
+Grace and Michael are data entry operators responsible for inputting client information and
+transaction records into the system.
+Write a T-SQL statement to create a login to Sarah with windows authentication.
+(2 marks)
+Provide Sarah with the necessary permissions to handle all administrative tasks within the
+server using a fixed server role. 
+(3 marks) 
+Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the
+iii.
+responsibility of managing the transactions database using a user-defined server role.
+(5 marks) 
+Assuming Nathan's login name is 'nathan.n’, write T-SQL statements to grant him 
+permission to create tables and VM}EWmmm 
+databases.
+iv.
+(3 marks) 
+Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to 
+perform data ent 
+sks on the client accounts and transactions databases. 
+(3 marks) 
+B 
+S

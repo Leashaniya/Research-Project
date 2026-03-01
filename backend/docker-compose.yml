@@ -1,0 +1,64 @@
+# Research Project - Gateway + Microservices
+# Run from backend/: docker compose up --build
+# Gateway: http://localhost:80
+#   - /health          -> gateway health
+#   - /guidance/       -> academic-guidance (CA guidance, auth, summaries, ER)
+#   - /papers/         -> model-paper-generation (past papers, model paper)
+
+services:
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: research-gateway
+    ports:
+      - "80:80"
+    depends_on:
+      - academic-guidance
+      - model-paper-generation
+    restart: unless-stopped
+
+  academic-guidance:
+    build:
+      context: ./services/academic-guidance
+      dockerfile: Dockerfile
+    container_name: academic-guidance
+    env_file:
+      - ./services/academic-guidance/.env
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      # Piper TTS (set by Dockerfile; explicit here so they are not overridden by env_file)
+      - PIPER_EXE=/app/piper/piper
+      - PIPER_MODEL=/app/piper/voices/en_US-amy-low.onnx
+    restart: unless-stopped
+
+  model-paper-generation:
+    build:
+      context: ./services/model-paper-generation
+      dockerfile: Dockerfile
+    container_name: model-paper-generation
+    env_file:
+      - ./services/model-paper-generation/.env
+    environment:
+      - PORT=8001
+    volumes:
+      # Use host's app/data (includes text_extraction_hybrid with paper folders)
+      - ./services/model-paper-generation/app/data:/app/data
+    restart: unless-stopped
+
+  # Optional: local MongoDB (disable if using Atlas; set MONGO_URI to your Atlas URI)
+  mongodb:
+    image: mongo:7
+    container_name: research-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+    profiles:
+      - with-mongodb
+
+volumes:
+  model-paper-data:
+  mongodb_data:

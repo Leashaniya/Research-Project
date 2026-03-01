@@ -1,0 +1,5 @@
+ACTIVITY
+Consider a relation R (A, B, C, D, E), with the following set of functional 
+dependencies over R:
+{A →B, A →C, CD →E, B →D, E →A}
+Compute the keys for relation R.

@@ -1,0 +1,17 @@
+STEP 5 : EXTRACT DATA FROM THE RESULT SET
+The SQL statements that read data from a database query, return the data in a result set.
+The java.sql.ResultSet interface represents the result set of a database query.
+A ResultSet object maintains a cursor that points to the current row in the result set.
+The next() method moves the cursor to the next row, and because it returns false when there are no 
+more rows in the ResultSet object, it can be used in a while loop to iterate through the result set.
+There is a get method for each of the possible data types There is a get method for each of the 
+possible data types. Get method could be called by providing the column index or column name
+
+Ex:
+
+rs = stmt.executeQuery("SELECT cname, salary FROM Customer");
+while (rs.next())
+{
+String name = rs.getString(1);
+float salary = rs.getFloat(2);
+}

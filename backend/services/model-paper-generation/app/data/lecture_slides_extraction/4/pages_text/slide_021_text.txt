@@ -1,0 +1,56 @@
+RIGHT OUTER JOIN
+Student
+Program
+SID
+Name
+gpa
+pid
+progId
+years
+Offer By
+Returns all rows from the table on the right 
+hand side of join, with the matching rows in 
+the table on the left hand side of the join.
+1000
+Amal
+3.2
+BM
+BM
+3
+Curtin
+1001
+Nimali
+2.8
+IT
+IT
+4
+SLIIT
+The result is NULL in the left side when there 
+is no match.
+1002
+Aruni
+3.8
+NUL
+L
+1003
+Surani
+2.5
+IT
+SE
+3
+SHU
+Ex : For all the programs display the offering 
+institute and names of the students following
+Select s.Name, p.offerBy
+Name
+offerBy
+From student s RIGHT OUTER JOIN program p 
+on s.pid=p.progId
+Amal
+Curtin
+Nimali
+SLIIT
+Surani
+SLIIT
+NULL
+SHU

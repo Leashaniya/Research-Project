@@ -1,0 +1,11 @@
+Question 1 
+(20 marks)
+Consider the following EER Model.
+a) 
+Convert the following EER model in to the relational model. Indicate the primary keys and the
+(16 marks)
+foreign keys of the resulted relations clearly.
+b) 
+What is the best option for mapping the ISA hierarchy in the diagram? Justify your answer.
+(4 marks)
+[DIAGRAM: page_002_diagram_1.png]

@@ -1,0 +1,9 @@
+T-SQL: VARIABLES (CONTD.)
+The declared variables could be used in scripts
+Ex :
+SELECT budget
+FROM Dept
+WHERE dname = @DName
+DECLARE @empId INT 
+SELECT @empId = MAX(eid) 
+FROM emp

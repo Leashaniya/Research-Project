@@ -1,0 +1,117 @@
+[
+  {
+    "question_id": 1,
+    "marks": 20,
+    "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.\n[DIAGRAM: page_002_diagram_1.png]",
+    "subquestions": [],
+    "pdf_stem": "2018"
+  },
+  {
+    "question_id": 2,
+    "marks": 15,
+    "text": "Consider a relation R (A, B, C, D, E), with the following set of functional dependencies over R: F={A BC,BC EE DA }",
+    "subquestions": [
+      {
+        "question_id": 2.1,
+        "marks": 9,
+        "text": "a) Find all the keys that follow from the given FDs using Amstrong Axioms, showing how you found them.",
+        "subquestions": []
+      },
+      {
+        "question_id": 2.2,
+        "marks": 3,
+        "text": "b) Is R in 3NF? Give reasons for your conclusion.",
+        "subquestions": []
+      },
+      {
+        "question_id": 2.3,
+        "marks": 3,
+        "text": "c) Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+        "subquestions": []
+      }
+    ],
+    "pdf_stem": "2018"
+  },
+  {
+    "question_id": 3,
+    "marks": 25,
+    "text": "Consider the database of a department store that includes the following tables:\n[DIAGRAM: page_003_diagram_1.png]",
+    "subquestions": [
+      {
+        "question_id": 3.1,
+        "marks": 2,
+        "text": "a) Display the name and salary of all managers.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.2,
+        "marks": 4,
+        "text": "b) Display the names, prices and quantities available of items that are not sold.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.3,
+        "marks": 5,
+        "text": "c) Display the names of employees who had sold both computers and cameras.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.4,
+        "marks": 6,
+        "text": "d) Display the names of items which has more than 1000 pieces sold.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.5,
+        "marks": 8,
+        "text": "e) Display the name of the items which are sold the most.",
+        "subquestions": []
+      }
+    ],
+    "pdf_stem": "2018"
+  },
+  {
+    "question_id": 4,
+    "marks": 40,
+    "text": "Consider the following relations in a database created for an online store Customers (cid: char (4), name: varchar (50), phone: char(10), country: varchar(20)) Employees (eid: char (4), ename: varchar (50), phone: char (4), hiredate: date) Orders (oid: int, eid: char (4), cid: char (4), orderDate: date, requiredDate: date, shippedDate: date) OrderDetails (oid: int, productld: char (4), quantity: int, discount: real Products (productld: int,productName: varchar(15),UnitPrice: real unitsInStock: int, ROL:int)",
+    "subquestions": [
+      {
+        "question_id": 4.1,
+        "marks": 4,
+        "text": "a) Use SQL queries to answer following questions.\ni. Display the name and address of customers who had ordered products which cost over Rs. 500.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.2,
+        "marks": 5,
+        "text": "ii. Find the names and unit prices of all products which has not been ordered by customers from Germany.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.3,
+        "marks": 6,
+        "text": "iii. Find the customer ids and names of the customers who have obtained more than 5% discount for every product in every order they have placed.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.4,
+        "marks": 7,
+        "text": "b) Create a view named incompleteOrders that contains customer name, country and number of times an order is not completed for the orders that cannot be completed. Note that an order cannot be fulfilled when the units in stock is lesser than the quantity ordered for any product in the order.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.5,
+        "marks": 8,
+        "text": "c) Create a function named calcCost to calculate and return the total cost of an order given the order id and the discount. Note that the cost of the order is the total of costs for each product ordered where cost for each product ordered is obtained by the multiplication between unit price of the product and quantity.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.6,
+        "marks": 10,
+        "text": "d) Assume that a column named cost is added to the Orders table where the total cost of the order is stored. Create a trigger named updateCost to update the cost column when the order details are added to the OrderDetails table using the function created in part c) (Hint: there could be more than one rows in order details table relevant to each order).",
+        "subquestions": []
+      }
+    ],
+    "pdf_stem": "2018"
+  }
+]

@@ -1,0 +1,9 @@
+SECURING DATA WITH BACKUPS
+Backing up your SQL Server databases, protects you from potentially 
+catastrophic data loss.
+With valid backups of a database, you can recover your data from many 
+failures, such as:
+User errors, for example, dropping a table by mistake.
+Hardware failures, for example, a damaged disk drive or permanent loss of a 
+server.
+Natural disasters.

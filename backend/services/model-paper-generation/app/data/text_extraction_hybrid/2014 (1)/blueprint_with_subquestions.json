@@ -1,0 +1,198 @@
+[
+  {
+    "question_id": 1,
+    "marks": 20,
+    "text": "Consider the following relations in a bank database: Branch (bName:char(15), city:varchar(12), phone:varchar(10)) Customer (custno:integer, cName:char(15), gender:char(1), birthday:date) Account (accno:integer, branchname:char(15), acctype:char(1), balance:real) AC (accno:integer, custno:integer) The attributes of the Branch relation are name of the branch (bName), city, and phone. The Customer relation has attributes to record the customer number (custno), name (cName), gender ( M  or  F ), and birthdate of customers. The Account relations consists of account number (accno), branch name (branchname), account type (acctype) which may be individual (acctype= T ) or joint (acctype= J ), and account balance (balance). The attribute branchname in Account is a foreign key that references Branch; an individual account belongs to a single customer, while a joint account is held by two or more customers. The attribute accro and custno in AC reference the relations Account and Customer respectively. The primary keys of all relations are underlined.",
+    "subquestions": [
+      {
+        "marks": 3,
+        "text": "Express the following queries in SQL.",
+        "subquestions": [
+          {
+            "marks": 3,
+            "text": "For each customer with a total balance exceeding 50000LKR for all his/her accounts together, display the customer number and total balance."
+          },
+          {
+            "marks": 5,
+            "text": "For each branch, display the branch name, account number and balance of each account that has a balance greater than twice the average balance of all accounts at that branch. In the resulting report, order the accounts of each branch in the descending sequence of account balance."
+          }
+        ]
+      },
+      {
+        "marks": 1,
+        "text": "It is required to record the number of account holders for each account by adding an attribute named holders. The value of this attribute will be 1 for individual accounts and greater than 1 for joint accounts.",
+        "subquestions": [
+          {
+            "marks": 1,
+            "text": "In the Account table, add a new attribute named holders of integer type with a default value of 1."
+          },
+          {
+            "marks": 5,
+            "text": "Write a T-SQL procedure to update the holders attribute (that has just been added) only for joint accounts."
+          },
+          {
+            "marks": 6,
+            "text": "Write a trigger to decrease the holders attribute value when a row is deleted from the table AC only if it is for a joint account. If the updated value of holders is one for the joint account, then change the acctype to I."
+          }
+        ]
+      }
+    ],
+    "pdf_stem": "2014 (1)"
+  },
+  {
+    "question_id": 2,
+    "marks": 20,
+    "text": "[DIAGRAM: page_003_diagram_1.png]",
+    "subquestions": [
+      {
+        "marks": 3,
+        "text": "Explain the time spent in accessing a block in a disk."
+      },
+      {
+        "marks": 1,
+        "text": "Consider a disk with the following characteristics: block size 512 bytes, number of blocks per track 50, number of tracks per surface 100, average seck time 10 msec. The disk consists of 4 double-sided platters. Suppose that a file containing 1000 records of 100 bytes each is to be stored on such a disk and that no record is allowed to span two blocks:",
+        "subquestions": [
+          {
+            "marks": 1,
+            "text": "How many records of 100 bytes could be stored in a track?"
+          },
+          {
+            "marks": 2,
+            "text": "How many tracks are needed to store the entire file?"
+          },
+          {
+            "marks": 2,
+            "text": "If disk platter rotates at 5400 rpm (revolutions per minute), calculate transfer time of one track of data."
+          },
+          {
+            "marks": 2,
+            "text": "Assuming that the blocks in the file are stored sequentially and has only this file data in the disk, what is the time taken to read the file content?"
+          }
+        ]
+      },
+      {
+        "marks": 2,
+        "text": "Briefly explain one technique used in RAID to improve performance and one technique used to improve reliability."
+      },
+      {
+        "marks": 3,
+        "text": "Illustrate the two alternatives available for storing fixed length records in a page. List one advantage of each alternative over the other.",
+        "subquestions": [
+          {
+            "marks": 0,
+            "text": "Consider the following buffer pool with 5 frames. Frame No: 0 | Frame No: 1 | Frame No: 2 | Frame No: 3 | Frame No: 4  Each frame has a frame number (Frame No), page id (PagelD) of page in buffer pool, pin count (PinCount) and a dirty bit (Dirty). Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 11:15 am Frame number 1 at 11:35 am Frame number 2 at 10:57 am Frame number 3 at 11:12 am Frame number 4 at 11:26 am Describe the steps involved when a page request for the page with PageID 50 occurs if LRU (least-recently-used) policy is used as the replacement policy."
+          }
+        ]
+      }
+    ],
+    "pdf_stem": "2014 (1)"
+  },
+  {
+    "question_id": 3,
+    "marks": 20,
+    "text": "[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_004_diagram_2.png]",
+    "subquestions": [
+      {
+        "marks": 3,
+        "text": "Briefly explain the three main file organizations."
+      },
+      {
+        "marks": 3,
+        "text": "Consider a student relation containing records with student id, name, age and gpa. Assume that the records are stored in a hash file where the hash function is based on the student s age. Retrieving records with gpa of 3.0 is inefficient with the above file. State whether the statement above is true or false with reasons."
+      },
+      {
+        "marks": 3,
+        "text": "Briefly explain two disadvantages that exist in static hashing."
+      },
+      {
+        "marks": 2,
+        "text": "Explain the terms dense and sparse index."
+      },
+      {
+        "marks": 3,
+        "text": "Consider the B+ tree index below.  Illustrate the tree after inserting 12."
+      },
+      {
+        "marks": 2,
+        "text": "Illustrate the tree after deleting 22 from the original tree."
+      },
+      {
+        "marks": 4,
+        "text": "Consider the Hash index below.  Illustrate the hash index after inserting 55."
+      }
+    ],
+    "pdf_stem": "2014 (1)"
+  },
+  {
+    "question_id": 4,
+    "marks": 15,
+    "text": "",
+    "subquestions": [
+      {
+        "marks": 3,
+        "text": "Consider the following statement: Indexes speed up selections but may slow down updates. Briefly explain how indexes can slow down update operations."
+      },
+      {
+        "marks": 2,
+        "text": "What is index only plan?"
+      },
+      {
+        "marks": 4,
+        "text": "Consider the following relation: Customer (custid:char(10), cname:varchar(100), city:varchar(200), email:varchar(50)) The relation has 5000 pages with 80 tuples per page. Assume that 20 buffer frames are available in buffer pool. Consider the following query: Query I: SELECT * FROM Customer WHERE custid = SLCOL012B The data entries in the indexes have <k,rid> format. Hash indexes require 1.2 Disk I/Os on average to retrieve a data entry. Estimate the cost (in Disk I/Os) of executing Query 1 with the following indexes."
+      },
+      {
+        "marks": 3,
+        "text": "Consider the following query: Query 2: SELECT count(city) FROM Customer WHERE city = Anuradhapura. Assume that 10% of tuples meet the selection criteria (city =*Anuradhapura). The data entries in the index have <k, rid> format and 20% the size of the actual record. DBMS support only the B+ tree indexes and require 3 disk I/Os to retrieve a leaf page."
+      },
+      {
+        "marks": 3,
+        "text": "What index would you suggest to speed up the query? Justify your suggestion."
+      },
+      {
+        "marks": 3,
+        "text": "Estimate the cost (in Disk I/Os) of executing Query 2 with the suggested index."
+      }
+    ],
+    "pdf_stem": "2014 (1)"
+  },
+  {
+    "question_id": 5,
+    "marks": 25,
+    "text": "[DIAGRAM: page_006_diagram_1.png]",
+    "subquestions": [
+      {
+        "marks": 4,
+        "text": "Briefly explain the properties of a transaction."
+      },
+      {
+        "marks": 2,
+        "text": "Briefly explain what an unrepeatable read is."
+      },
+      {
+        "marks": 2,
+        "text": "Briefly explain the rules in Strict 2 Phase Locking Protocol."
+      },
+      {
+        "marks": 3,
+        "text": "Briefly explain what the phantom problem is."
+      },
+      {
+        "marks": 4,
+        "text": "Consider the following sequence of actions, listed in the order they are submitted to the DBMS. The DBMS processes actions in the order shown. The Strict 2PL is used for concurrency control. If a transaction is blocked, assume that all of its actions are queued until it is resumed; the DBMS continues with the next action of an unblocked transaction. TER(X), T2:W(X), T2:W(Y), T3:W(Y), T1:W(Y),T3W(X), T1: Commit, T2: Commit, T3: Commit. Assume that older transaction has higher priority always."
+      },
+      {
+        "marks": 4,
+        "text": "Follow deadlock detection approach to deal with deadlocks. Draw a transaction schedule and explain how three transactions are running. Show a waits-for graph if a deadlock cycle develops."
+      },
+      {
+        "marks": 3,
+        "text": "State the Simple Tree Locking Algorithm."
+      },
+      {
+        "marks": 3,
+        "text": "Consider the tree shown below.  Describe the steps involved in executing each of the following operations according to the Simple Tree Locking algorithm, in terms of the order in which nodes are locked, unlocked, read and written. Be specific about what type of locks are obtained and released."
+      }
+    ],
+    "pdf_stem": "2014 (1)"
+  }
+]

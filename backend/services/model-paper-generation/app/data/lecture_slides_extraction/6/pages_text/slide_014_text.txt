@@ -1,0 +1,6 @@
+STEP 2: REGISTERING DATABASE DRIVERS
+In order to use a driver, it should be registered in the program.
+The most common approach to register a driver is to use Java's Class.forName() 
+method, to dynamically load the driver's class file into memory, which automatically 
+registers it.
+Ex : Class.forName("sun.jdbc.odbc.JdbcOdbcDriver").newInstance();

@@ -1,0 +1,9 @@
+SQL: REVIEW (CONTD.)
+SQL is a comprehensive database language:
+Data Definition Language (DDL)
+Data Manipulation Language (DML)
+Facilities for security & authorization
+Facilities for transaction processing
+Facilities for embedding SQL in general purpose languages 
+(Embedded SQL)
+…

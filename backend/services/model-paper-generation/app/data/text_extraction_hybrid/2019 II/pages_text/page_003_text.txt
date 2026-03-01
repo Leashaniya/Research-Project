@@ -1,0 +1,52 @@
+J
+/) 
+/
+Question 2 
+(15 marks)
+Consider a relation R (A, B, C, D, E, F) with the following set of functional dependencies over R:
+F={A 
+> BEF,B> E,C > D,AC > B}
+a) 
+Find all the keys that follow from the given FDs using attribute closure, showing how you
+obtained them. 
+(6 marks)
+b) 
+IsRin 3NF? Give reasons for your conclusion. 
+(3 marks)
+c) 
+Is R in BCNF? Give reasons for your conclusion. If R 
+is not in BCNF, convert it to a set of 
+BCNF relations. 
+(6 marks)
+Question3 
+(25 marks)
+Consider the database of a printing company, which prints books according to the requests of authors
+with the following schema:
+[DIAGRAM: page_003_diagram_1.png]
+Book table stores the book ID, title, publisher of each book and the year the book 
+is published. Author table
+stores the author ID, first name and last name of all authors. WrittenBy table stores the author ID of the author,
+book ID of the book and the position of the author (such as first author, second author) for each book written.
+Publisher table stores the name of the publisher and country and the city the book 
+is published.
+Write relational algebra statements to answer the following queries
+a) 
+Display the titles of the books printed in 2019. 
+" 
+(2 marks)
+b) 
+Display the titles of the books published in New York city. 
+(4 marks)
+c) 
+Display the name of the publisher who published both ‘Fundamentals 
+of Database systems’ and
+Database Applications’ in America. 
+' 
+(5 marks)
+d) 
+Display the first name and last name of authors who are only first authors. 
+(5 marks)
+e) 
+Display-the titles of books with most number of authors. 
+(9 marks)
+Page 3 of 4

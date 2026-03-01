@@ -1,0 +1,46 @@
+Question 2 
+(20 marks)
+a)
+Briefly describe two main techniques that could be used to improve the reliability of the 
+disk. 
+(3 marks)
+b)
+What is meant by ‘data striping’? What is the purpose of striping data? 
+(2 marks)
+)
+Consider a disk with a sector size of 512 bytes, block size of 512 bytes, 1000 tracks per 
+surface, 100 sectors per track and 5 single-sided platters. Seek time is 10 msec. The disk is 
+spinning at a speed of 2400 rpm. You need to store a student file which contains 10000 
+records of 100 bytes which are in fixed-length format. No record spans multiple blocks.
+i. How many student records can be stored in a block in the above disk? 
+(1 mark)
+ii. How many student records can be stored in a single track? 
+(1 mark)
+iii. How many cylinders are needed to store the entire student file? 
+(2 marks)
+iv. What is the time required to transfer a track of data from the above disk? (2 marks)
+v. Assuming that the data in the above disk are stored using the Next Block concept and 
+what would be the time taken to read the entire student file from the disk. 
+(3 marks)
+d)
+Explain with an aid of 
+a diagram, the alternatives available for storing variable length 
+fields in a record? 
+(2 marks)
+Consider the following buffer pool with 5 frames. Each frame has @ frame number (Frame 
+No), page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty).
+€)
+[DIAGRAM: page_003_diagram_1.png]
+Assume that the following times states the last time the particular frame was accessed (on the 
+same day):
+Frame number 0 at 12:15 pm 
+Frame number 1 at 12:07 pm 
+Frame number 2 at 2:05 pm 
+Frame number 3 at 12:02 pm 
+Frame number 4 at 1:26 pm
+Describe the steps followed by the buffer manager when a request for the page with PagelD 50 
+occurs if MRU (Most-recently-used) replacement policy is used. 
+(4 marks)
+Page 3 of 
+7 
+30/09/2016

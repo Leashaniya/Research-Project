@@ -1,0 +1,5 @@
+ACTIVITY
+Consider a person entity. With respect to attributes you know a person holds write three 
+functional dependencies that can exist in a person table.
+Exchange what you have written with your peers.
+What have they written?

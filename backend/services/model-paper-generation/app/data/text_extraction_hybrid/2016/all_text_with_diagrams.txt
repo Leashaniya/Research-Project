@@ -1,0 +1,270 @@
+
+
+--- PAGE 2 ---
+00340
+Question 1 
+(20 marks)
+Consider the following schema of a database developed for an airport.
+Customer (customerld: integer, name: varchar (30), age: int, phone: char (10))
+Reservations (flno: char (6), custld: integer)
+Flights (flno: char (6), from: varchar (30), to: varchar (30), departs: datetime,
+arrives: datetime, regNo: char (8), pilotld: integer)
+Aircraft (regNo: char (8), model: varchar (15), capacity: integer,
+Pilots (id: integer, name: varchar (30), salary: float, flyingHours: integer)
+The Aircraft table stores the registration number (regNo), model (mode!) and the number
+of passengers who can travel in the aircraft (capacity) for each aircraft type. The Flights
+table stores the flight number (flno), the departing airport (from), destination airport (to),
+departing time (departs), arrival time (arrives), the registration number of the aircraft
+(regNo) and the id of the pilot (pilot) related to all flights. Reservations table stores the
+flight number (flno) and the customer number (custld) for each customer who has reserved
+a flight. Pilots table stores the id (id), name (name), salary (salary) and the number of hours
+the pilot have flown (flyingHours) for each pilot. Primary keys of the tables are underlined.
+a) 
+Use SQL queries to answer following questions.
+i. 
+ Find the registration number and the model of alrcraﬂs that departs to ‘Brisbane’ 
+between 1% January 2010 and 31t May 2010. 
+(2 marks)
+ii. 
+ For each aircraft that has a capacity over 200 display the registration number and
+the number of flights it has taken. If the aircraft has not taken any flights display 
+0 for the number of flights. 
+(3 marks)
+iii. 
+ For each pilot who has flown an aircraft more than 100 times and has the number
+of flying hours exceeding 5000, print the pilots name and the salary 
+(4 marks)
+b) 
+Create a function which outputs the number of seats available in a given flight.
+Hint: If the number of reservations in a flight is equal to its capacity there are no seats
+available in the flight 
+(5 marks)
+c) 
+Create a trigger that uses the function you have created in part b) 
+i0 ensure that the 
+number of passengers in a flight does not exceed the capacity of the air craft.
+(6 marks)
+Page 
+2 of 7 
+29/03/2016
+
+--- PAGE 3 ---
+00340
+Question 2 
+’ 
+(20 marks)
+a) 
+Briefly describe two main techniques used 
+in RAID. What is the purpose of each 
+technique? (Note : You do not have to explain the RAID levels) 
+(3 marks)
+b) 
+Explain the role of the Disk Space Manager in the database management system 
+architecture? 
+(2 marks)
+c) 
+Consider a disk with a sector size of 512 bytes, block size of 1024 bytes, 1000 tracks 
+per surface, 50 sectors per track and 5 double-sided platters. Seek time is 20 msec. 
+Average rotational delay is 10 msec. Data transfer time per a block 
+is 
+1 msec.
+You need to store a student file with fields as follows in the disk above:
+id (20 bytes), name (40 bytes) 
+, bdate (10 bytes), GPA (20 bytes), phone(10 bytes) 
+The student file has 5000 records, which are in fixed-length format. No record spans 
+multiple blocks.
+i. 
+What is the size of a student record? 
+(1 mark)
+p 
+ii. 
+How many student records can be stored in a block? 
+(2 marks)
+iii. 
+How many cylinders are needed to store the student file? 
+(2 marks)
+iv. 
+What is the time required to read a data block from the student 
+file? 
+(2 marks)
+v. 
+What is the time requn'ed to read 3 consecutive data blocks in the same track from
+the sudent file? 
+(2 marks)
+d) 
+Explain the terms pin count and dirty bit relevant to the buffer manager? 
+(2 marks)
+e) 
+Consider the following buffer pool with 5 frames. Each frame has a frame number 
+(Frame No), page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty).
+[DIAGRAM: page_003_diagram_1.png]
+Assume that the following times states the last time the particular frame was accessed (on
+the same day):
+Frame number 0 at 12:15 pm 
+Frame number 
+1 at 12:07 pm 
+Frame number 2 at 2:05 pm 
+Frame number 3 at 12:02 pm 
+Frame number 4 at 1:26 pm
+Describe the steps followed by the buffer manager when a request for the page with PagelD
+50 occurs if MRU (Most-recently-used) replacement policy is used.
+(4 marks)
+Page 3 of 7
+29/03/2016
+
+--- PAGE 4 ---
+00340
+Question 3 
+(22 marks)
+a) 
+Briefly explain the three main file organizations. 
+(3 marks)
+b) 
+“Searching for records with an equality condition in Hash is always easy”. Accept or 
+refute the above statement giving reasons. 
+(3 marks)
+c) 
+Briefly explain one advantage and one disadvantage of indexes. 
+(3 marks)
+d) 
+What is an unclustered index? How many unclustered indexes a table can have?
+(2 marks)
+e) 
+Consider the following B+ tree of order 2.
+[DIAGRAM: page_004_diagram_1.png]
+i. 
+ Illustrate B+ tree after inserting 20 to the tree above. 
+(3 marks)
+ii. 
+ Illustrate the B+ tree after deleting 30 from the original tree. 
+(3 marks)
+f) 
+ Consider the following extendible hashing index. The hashing function considers the
+last 2 digits of the binary representation.
+[DIAGRAM: page_004_diagram_2.png]
+Show the extendible hashed file after inserting 12 and 22. 
+(5 marks)
+Page 
+4 of 7 
+29/03/2016
+
+--- PAGE 5 ---
+00340
+Question 4 
+(13 marks)
+a) 
+Briefly explain the process of query processing. 
+(3 marks)
+b) 
+What is heuristic optimization in query processing? 
+(2 marks)
+c) 
+Consider the following relation:
+Student(sid:char(10), sname:varchar(100), address:varchar(200), gpa:float) 
+Grades (sid: char(10), cid 
+: char(5), grade: char(2))
+The Student relation has 100 pages with 100 tuples per page. The Grades relation has 
+1000 pages with 200 tuples per page. Assume that 20 buffer fames are available in the 
+buffer pool.
+i. Consider the following query 
+:
+SELECT sname FROM Student WHERE gpa >3.7
+Estimate the cost for the above query assuming there are 
+no indexes on the 
+Student table. (Reduction factor for gpa > 3.7 is 0.1) 
+(1 mark)
+ii. Consider the following query:
+SELECT g.grade 
+FROM Student s, Grades g 
+WHERE s.sid=g.sid and s.gpa >3.7
+a. Estimate the cost for finding the students with gpa > 3.7 from the 
+Student table assuming there is a B+ tree index of height 3 on the gpa 
+column 
+in the Student table with Alt. 
+2 which has 20 leaf pages. 
+(Reduction factor for gpa > 3.7 is 0.1) 
+(2 marks)
+b. Do we have to store the resulted Student pages in the disk before they
+are joined with the Grades table? 
+(1 mark)
+c. 
+Estimate the cost for finding the grades of the students with gpa > 3.7 
+assuming that the Grades table contains a Hash index of Alt. 
+1 on the
+sid column. Assume that the Index nested loop join 
+is used to join the 
+Student table and the Grades table. 
+(2 marks)
+d. 
+What is the total cost for executing the query? 
+_ 
+(2 mark)
+Page 5 of 7
+29/03/2016
+
+--- PAGE 6 ---
+00340
+Question 5 
+(25 marks)
+a) 
+Explain the four properties of a transaction. 
+(4 marks)
+b) 
+Briefly explain what is meant by a Schedule and a Serializable Schedule? 
+(2 mark)
+c) 
+Briefly explain what an unrepeatable read 
+in transaction scheduling 
+is using an 
+example. 
+(2 marks)
+d) 
+Briefly explain what a deadlock is. 
+(2 marks)
+e) 
+‘Briefly explain the wound-wait and wait-die approaches used for deadlock prevention.
+i 
+(4 marks)
+f) 
+.Consider the transaction schedule below.
+[DIAGRAM: page_006_diagram_1.png]
+Assume that Transaction T; is higher priority than transaction Ti+ (i.e. transaction T; 
+has higher priority than T>; and T2 has higher priority than Ts).
+i. 
+ Draw a Wait-For-Graph for the schedule given above. 
+(2 marks)
+ii. 
+Draw the above schedule considering deadlock prevention algorithm: Wound- 
+wait approach. 
+(3 marks)
+g) 
+Consider the tree shown below. Describe the steps involved in exccuting each of the 
+following operations according to the Simple Tree Locking Algorithm, in term of the
+order 
+in which 
+nodes 
+are locked, 
+unlocked, 
+read and 
+write. 
+Answer each 
+part 
+independently of others.
+Page 6 of 7
+29/03/2016
+
+--- PAGE 7 ---
+00340
+[DIAGRAM: page_007_diagram_1.png]
+i, 
+Search 9 
+(2 marks)
+ii. 
+Insert 37 
+(2 marks)
+iii. 
+Delete 4 
+(2 marks)
+-- End of the Question Paper --
+Page 7 of 7
+29/03/2016

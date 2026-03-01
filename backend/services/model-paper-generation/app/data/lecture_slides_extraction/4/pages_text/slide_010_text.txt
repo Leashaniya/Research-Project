@@ -1,0 +1,23 @@
+DATA MANIPULATION LANGUAGE (DML)
+DML is the subset of SQL that allows users to write statements to 
+insert, delete, modify and display rows.
+
+Inserting a row
+INSERT INTO studentVALUES (1000, ‘Amal’, ‘123456789V’, 3.2, ‘BM’)
+INSERT INTO student(studentId, sName, nic) VALUES (1001, ‘Nimali’, 
+‘234567890V’)
+StudentID
+SName
+nic
+gpa
+progId
+1000
+Amal
+123456789V
+3.2
+BM
+1001
+Nimali
+234567890V
+Null
+IT

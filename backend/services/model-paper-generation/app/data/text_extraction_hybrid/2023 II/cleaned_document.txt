@@ -1,0 +1,151 @@
+--- PAGE 2 ---
+Question 1 
+(20 marks)
+Consider the following EER Model.
+a) 
+Convert the following EER model in to the relational model. Indicate the primary keys and the
+(16 marks)
+foreign keys of the resulted relations clearly.
+b) 
+What is the best option for mapping the ISA hierarchy in the diagram? Justify your answer.
+(4 marks)
+[DIAGRAM: page_002_diagram_1.png]
+
+--- PAGE 3 ---
+Question 2 
+(15 marks)
+Consider a relation R (A, B, C, D, E, F, G) with the following set of functional dependencies over
+R:
+F = {A->BC, B->D, C->EF, AC->G}
+a) 
+Find all the keys in relation R using attribute closure method. 
+(4 marks)
+b) 
+Is R in 3NF? Give reasons for your conclusion. 
+(3 marks)
+ ) 
+IsRin BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF
+relations. 
+(8 marks)
+Question 3 
+(25 marks)
+a) 
+ Native API Driver is faster than Java Thin Driver . Accept or refute the above statement
+justifying your answer. 
+(2 marks)
+b) 
+There are several different statements in the JDBC API to retrieve the result set based on different
+requirements. Which type of statements is used in the code segment given below? Briefly explain 
+when this type of statements will be used. 
+(2 marks)
+[DIAGRAM: page_003_diagram_1.png]
+c) 
+Briefly explain what is meant by a  Full Backup ? 
+(2 marks)
+d) 
+Briefly explain the three main aspects to focus on when a database is secured? 
+(3 marks)
+e) 
+A software company has been assigned the responsibility of automating the tasks of a digital 
+marketing company.
+This includes designing and developing a database for the company to maintain the records of 
+various functions. It also maintains records of digital channels to market products and services
+in order to reach consumers.
+Menaka, a senior DBA is assigned to the project to handle all the administrative tasks related to
+the databases by the database architect. Menaka creates the required database and assign Nipun
+
+--- PAGE 4 ---
+the responsibility of managing the CompanyDB. Since there will be lot of users for the project, 
+Amali is assigned with the responsibility of handling logins to the system.
+Nipun assigns Kasuni with the responsibility of creating tables. In addition, Kasuni should be
+able to create views, stored procedures and triggers required. Dinethi, who is data entry operator
+is given 
+the responsibility 
+of inserting the data 
+to 
+the table. Amal 
+is assigned with the 
+responsibility of generating reports from the table in the data. For the above purpose, Amal could 
+directly query the data or call functions and procedures.
+i. 
+ Write a T-SQL statement to create a login to Menaka 
+(2 marks)
+ii. 
+ Provide permission using fixed server role to handle all the administrative tasks in the
+server to Menaka. 
+(3 marks)
+iii. 
+Assuming that Nipun has the user name nipun.b, write a T-SQL statements required to
+assign him with the responsibility of handling the companyDB using user defined server
+role. 
+(5 marks)
+iv. 
+Assuming that Kasuni has a login name by the name kasuni.a write T-SQL statements
+required to allow her to create tables, functions, procedures and triggers. 
+(3 marks)
+v. 
+Assuming that Amal has a login name amal 
+k. write T-SQL statements required to perform
+the tasks she is responsible for. 
+(3 marks)
+Question 4 
+(40 Marks)
+Consider the following schema of a database designed for a university:
+Students (studentld: int, name: varchar(40), email: varchar(30), dob: date, specialization 
+: int, 
+GPA: real)
+Courses (courseld: int, name: varchar(40), credits: int)
+Offer (specialization: int, courseld: int, acYear: int, semester: int)
+Grades (studentld: int, courseld: int, acYear: int, calYear: int, semester: int, status: varchar
+(10), CAMarks:int, finalMark: int, grade: char(1))
+GradePoints (grade: char(1), gradePoint: real)
+Enrollment (studentld: int, courseld: int, calYear: int, semester: int, basis: varchar (30))
+Students table stores information about each student, including their ID (studentId), name, email,
+date of birth (dob), specialization and GPA. The Courses table stores information about each course 
+offered by the university, including the course ID (courseld) name, and credits. The offer table stores 
+information on courses offered in a semester including the specialization, course 1D (courseld), 
+academic year (acYear) such as year] & year2 and semester the course is offered. The grades table
+stores the grades of the students including their IDs (studentld), course ID (courseld), academic year 
+(acYear) such as year 
+1 and year2 
+, calendar year(calYear) such as 2021 & 2022 and semester the
+course was offered, status of the course ( Pass ,  Fail ,  IC -incomplete), continuous assessment
+
+--- PAGE 5 ---
+marks (CAMarks), final exam marks (finalMarks) and grade the student has obtained ( A , B  & *C ). 
+GradePoints table stores the grades and their associated grade points (e.g. A  4.0., C- 2.0 
+& etc). 
+Enrollment table stores the information on student enrollment for courses including student ID 
+(studentld), course 1D (courseld), calendar year(calYear) and the semester the student enrolled for
+the course and the basis on which the student enrolled ( Regular ,  Repeat  and  Prorata ). Primary 
+keys of the tables are underlined.
+a) 
+Write SQL Queries to perform the following:
+i. 
+Display the course id, name, and credits of courses offered in semester 
+1 
+in year 2023 for 
+students following  Data Science  Specialization. 
+(4 marks)
+ii. 
+Find the course IDs and names of modules offered in year 2 semester 
+1 to more than one
+specializations. 
+(6 marks)
+iii. 
+Find the ID, name, specialization and gpa of students in the Dean's list for year 2022 
+semester 2. Note that a student is in a Dean's List if for a particular semester in a year he has 
+completed all modules and has an overall GPA over 3.7. 
+(7 marks)
+b) 
+Create a function to calculate the GPA of a given student for a given semester and year.
+(11 marks)
+GPA= Y grade point of a grade obtained for a module x credit point for the module
+. credit points of modules taken
+ ) 
+Create a trigger to set the grade of basis pro-rata or repeat students to  C  if he/she passes the 
+module 
+(12 marks)
+Assume that CA marks and Final Marks are given by 100 and a student passes the module if the 
+overall mark is above 45. 
+Overall Mark = (CA + Final Marks)/2

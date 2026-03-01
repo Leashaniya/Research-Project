@@ -1,0 +1,9 @@
+REVISIT TO SCENARIO
+Senior DBA can now create the databases and create a logins for the junior DBAs who are in-charge 
+of the databases
+Create the login first
+CREATE LOGIN namali
+WITH PASSWORD = ‘namali@123‘, DEFAULT_DATABASE = Inventory
+The senior DBA can also create all the other logins for the other roles here
+Now let’s create the user for the login so that the user can be given permission at the database level
+Create user namali for login namali

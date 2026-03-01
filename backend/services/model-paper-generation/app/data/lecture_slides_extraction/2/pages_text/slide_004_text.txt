@@ -1,0 +1,9 @@
+LOGICAL DATABASE DESIGN
+Once we finished the step of conceptual database design we next select a DBMS to 
+implement our database design.
+We then convert the conceptual database design into a database schema in the data 
+model of the chosen DBMS.
+Before 1970 most database systems were based on two older data models namely, 
+hierarchical model and network model.
+Leading DBMS products nowadays are based on the relational model which 
+introduced by Codd in 1970.

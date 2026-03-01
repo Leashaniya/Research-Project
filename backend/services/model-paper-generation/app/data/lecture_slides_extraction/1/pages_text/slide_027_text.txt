@@ -1,0 +1,13 @@
+ACTIVITY
+Draw an E-ER diagram for the following requirements.
+Students contain an id (unique), name and an address.
+There are academic semesters containing an semester id (unique), semester and year.
+There are courses offered during academic semesters. A course has a number (unique), name and 
+credits.
+Students make payments. A payment has receipt number (unique), amount and date.
+Payments can be classified into Tuition (semester payment), Examination and other (Library fine, 
+Printouts).
+A Tuition payment is made for an academic semester
+For other payments description should be stored
+Students register for courses offered during a particular semester. The registered date must be 
+stored in the database.

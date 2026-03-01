@@ -1,0 +1,216 @@
+[
+  {
+    "question_id": 1,
+    "marks": 20,
+    "text": "Consider the database of a bank that includes the following tables: BRANCH (branchNo: int, address: varchar (50), phone : char (10), manager: varchar(30)) ACCOUNT (aceNo: char (15), type : varchar (10), balance : real, branchNo: int) CUSTOMER (custNo: char (10), name: varchar(25); phone: char (10), address : varchar (50)) OWNS (accNo: char (15), custNo: char (10)) TRANSACTION (accNo: char (15), datetime: datetime, type: varchar (15), amount: real) The table BRANCH contains the branch number (branchNo), address of the branch, phone number (phone), and name of the manager (manager) of all branches of the bank. The ACCOUNT table contains account number (accNo), type of the account ( Savings or Current ), current balance of the account and the branch number of the branch the account is created in (branchNo) for all accounts in the bank. CUSTOMER table contains customer number (custNo), name of the customer, phone number of the customer and the address of each customer of the bank. For each customer owning an account the OWNS table stores the account number (accNo) and the customer number of the customer owning the account (custNo). TRANSACTION table stores the account number (accNo), date and time of the transaction (datetime), type of the transaction ( Credit or Debit ) and the amount of the credit or debit associated with the transaction. The primary keys of the relations are underlined.",
+    "subquestions": [
+      {
+        "text": "a) Use the bank database schema and write answers to the following questions.",
+        "subquestions": [
+          {
+            "text": "i. Find the names of customers who lives in Malabe who owns a current account.",
+            "marks": 2
+          },
+          {
+            "text": "ii. Find the account numbers of accounts which has not been credited with money in year 2016. (Note : DATEPART(yyyy, column) function could be used to extract the year from a given column)",
+            "marks": 3
+          },
+          {
+            "text": "iii. Find the branch number and the name of the manager of the branch with an income over 10 Million in 2016. (Hint: The branch with the highest total of deposits (credit) has the highest income).",
+            "marks": 4
+          }
+        ]
+      },
+      {
+        "text": "b) Write a procedure to transfer funds between two accounts given the account from which money is transferred, account to which money is transferred and amount of money to transfer. The procedure should update the balances of the accounts between which the money is transferred and also add entries to the transaction table (Note: A fund transfer include debiting money from one account and crediting to another account)",
+        "marks": 5
+      },
+      {
+        "text": "Assuming that the maximum amount of money to be debiting from an account is Rs.50000 per day, write a trigger to ensure that transactions performed in the bank does not allow customers to debit more than the said amount within single day (Note : CONVERT(date, calumn) function converts the column in datetime type to short date format)",
+        "marks": 6
+      }
+    ],
+    "pdf_stem": "2017"
+  },
+  {
+    "question_id": 2,
+    "marks": 20,
+    "text": "Briefly explain a software solution and a hardware solution to improve the performance of a database.\n[DIAGRAM: page_003_diagram_1.png]\n[DIAGRAM: page_003_diagram_2.png]",
+    "subquestions": [
+      {
+        "text": "a)",
+        "marks": 3
+      },
+      {
+        "text": "b) Consider a disk with a block size of 512 bytes, 200 tracks per surface, 40 sectors per track and 4 double-sided platters. Seek time is 30 msec. Suppose that the sector size of 256 bytes is chosen.",
+        "subquestions": [
+          {
+            "text": "i. What is the capacity of a track in blocks?",
+            "marks": 1
+          },
+          {
+            "text": "ii. What is the capacity of a cylinder in blocks?",
+            "marks": 1
+          },
+          {
+            "text": "iii. What is the capacity of the disk in blocks?",
+            "marks": 2
+          },
+          {
+            "text": "iv. If disk platter rotates at 2400 rpm (revolutions per minute), what is the average rotational delay?",
+            "marks": 2
+          },
+          {
+            "text": "v. What is the access time to read two consecutive disk blocks?",
+            "marks": 4
+          }
+        ]
+      },
+      {
+        "text": "c) Explain the role of the Buffer Manager in a database management system.",
+        "marks": 1
+      },
+      {
+        "text": "d) Consider the following data (8 bits) which needs to be stored on a RAID disk of level 4 (Block Interleaved Parity). Data string: 10001110 The RAID configuration consists of 5 disks (which includes the parity disk) as shown below. Assume that the block size is 2 bits and parity bit is set (=1) for an even number of 1 s.",
+        "subquestions": [
+          {
+            "text": "Show how the data string above is distributed among the 5 disks.",
+            "marks": 2
+          }
+        ]
+      },
+      {
+        "text": "e) Consider the following buffer pool with 5 frames. Each frame has a frame number (Frame No), page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty)",
+        "subquestions": [
+          {
+            "text": "Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 2:15 am Frame number 1 at 1:17 am Frame number 2 at 1:25 am Frame number 3 at 2:17 am Frame number 4 at 1:05 am Describe the steps followed by the buffer manager when a request for the page with PageID 32 occurs'if LRU (Least-recently-used) replacement policy is used.",
+            "marks": 4
+          }
+        ]
+      }
+    ],
+    "pdf_stem": "2017"
+  },
+  {
+    "question_id": 3,
+    "marks": 20,
+    "text": "a) Briefly explain the sequential file organization with respect to the application of insert, update, delete and search (equality/range) operations performed on it.\n[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_005_diagram_1.png]",
+    "subquestions": [
+      {
+        "text": "b) Deleting a row in the Heap file organization is always easy. Accept or refute the above statement providing reasons.",
+        "marks": 3
+      },
+      {
+        "text": "c) Explain general characteristics of B+ tree index with reference to its structure, nodes and entries in nodes.",
+        "marks": 3
+      },
+      {
+        "text": "d) Consider the following B+ tree of order 2.",
+        "subquestions": [
+          {
+            "text": "i. Illustrate B+ tree after inserting 8 to the above tree.",
+            "marks": 3
+          },
+          {
+            "text": "ii. Illustrate the B+ tree after deleting 4 from the original tree.",
+            "marks": 3
+          }
+        ]
+      },
+      {
+        "text": "e) Consider the following extendible hashing index. The hashing function considers the last 2 digits of the binary representation.",
+        "subquestions": [
+          {
+            "text": "Show the extendible hashed file after inserting 16 and 35.",
+            "marks": 4
+          }
+        ]
+      }
+    ],
+    "pdf_stem": "2017"
+  },
+  {
+    "question_id": 4,
+    "marks": 15,
+    "text": "a) Briefly explain the parsing and translation phase in query processing.",
+    "subquestions": [
+      {
+        "text": "b) Briefly explain the two techniques the Query optimizer uses to select the most efficient query plan during query optimization.",
+        "marks": 2
+      },
+      {
+        "text": "c) What is meant by reduction factor in cost estimation?",
+        "marks": 2
+      },
+      {
+        "text": "d) Consider the following relation: Physician (pid : char(5), pname : varchar(50), address : varchar(100), specialty : varchar(50)) The relation has 20000 pages with 100 tuples per page. Assume that 20 buffer frames available in buffer pool.",
+        "subquestions": [
+          {
+            "text": "e) Consider the following query: Query I: SELECT * FROM Physician WHERE pid = P0001 Estimate the cost (in Disk 1/Os) of executing Query 1 with the following indexes. The data entries in the indexes have <k, rid> format. Hash indexes require 1.2 Disk 1/Os on average to retrieve a data entry.",
+            "subquestions": [
+              {
+                "text": "i. Unclustered hash index on Physician<pid>",
+                "marks": 2
+              },
+              {
+                "text": "ii. Clustered hash index on Physician < pid >",
+                "marks": 2
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "pdf_stem": "2017"
+  },
+  {
+    "question_id": 5,
+    "marks": 25,
+    "text": "a) Explain the atomicity property of database transactions.\n[DIAGRAM: page_007_diagram_1.png]\n[DIAGRAM: page_007_diagram_2.png]",
+    "subquestions": [
+      {
+        "text": "b) Briefly explain the difference between the Cascading Abort and the Unrecoverable Schedule?",
+        "marks": 3
+      },
+      {
+        "text": "c) Locking based concurrency control protocols are used in many database systems. Give two overheads of using them.",
+        "marks": 4
+      },
+      {
+        "text": "d) Briefly explain the rules in Strict 2 Phase Locking Protocol.",
+        "marks": 3
+      },
+      {
+        "text": "e) Consider the transaction schedule below.",
+        "subquestions": [
+          {
+            "text": "i. Draw a Wait-For-Graph for the schedule given above.",
+            "marks": 2
+          },
+          {
+            "text": "ii. Draw the above schedule considering deadlock prevention algorithm: Wound-wait approach.",
+            "marks": 3
+          }
+        ]
+      },
+      {
+        "text": "f) Consider the tree shown below. Describe the steps involved in executing each of the following operations according to the Simple Tree Locking Algorithm, in term of the order in which nodes are locked, unlocked, read and write.",
+        "subquestions": [
+          {
+            "text": "i. Search 15",
+            "marks": 2
+          },
+          {
+            "text": "ii. Insert 18",
+            "marks": 2
+          },
+          {
+            "text": "iii. Delete 27",
+            "marks": 2
+          }
+        ]
+      }
+    ],
+    "pdf_stem": "2017"
+  }
+]

@@ -1,0 +1,5 @@
+LECTURE CONTENT
+Transferring data between different sources
+Backup and restore of data
+Jobs and job schedules
+Database maintenance plans

@@ -1,0 +1,5 @@
+TRIGGERS
+Triggers are useful in enforcing business rules and data integrity.
+They are more powerful than general constraints.
+For example,
+The employees salary is always less than his/her manager’s salary

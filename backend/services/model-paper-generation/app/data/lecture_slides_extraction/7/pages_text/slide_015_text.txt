@@ -1,0 +1,11 @@
+BULK INSERT COMMAND
+BULK INSERT loads data from a data file into a table.
+This functionality is similar to that provided by the in option of the bcp command; however, 
+the data file is read by the SQL Server process.
+Example :
+BULK INSERT emp2 from "D:\emps.csv"
+WITH (
+FIELDTERMINATOR = ',',
+ROWTERMINATOR = '\n'
+)
+SELECT * FROM emp2

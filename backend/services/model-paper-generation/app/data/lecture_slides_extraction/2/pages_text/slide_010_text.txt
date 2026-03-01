@@ -1,0 +1,9 @@
+INTEGRITY CONSTRAINTS (CONTD.)
+Other constraints
+Table Constraints (constraints within tables)
+Example : Balance of the account should be greater than 0
+In SQL, CHECK constraint can be used
+Assertions (constraints between multiple tables)
+For example: consider the following schema
+[FIGURE: slide_010_fig_1.png]
+Such constraints can be using specific language features such as triggers and assertions

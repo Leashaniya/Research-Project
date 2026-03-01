@@ -1,0 +1,32 @@
+[
+  {
+    "question_id": 1,
+    "marks": 20,
+    "text": "Consider the following relations in a bank database: Branch (bName:char(15), city:varchar(12), phone:varchar(10)) Customer (custno:integer, cName:char(15), gender:char(1), birthday:date) Account (accno:integer, branchname:char(15), acctype:char(1), balance:real) AC (accno:integer, custno:integer) The attributes of the Branch relation are name of the branch (bName), city, and phone. The Customer relation has attributes to record the customer number (custno), name (cName), gender ( M  or  F ), and birthdate of customers. The Account relations consists of account number (accno), branch name (branchname), account type (acctype) which may be individual (acctype= T ) or joint (acctype= J ), and account balance (balance). The attribute branchname in Account is a foreign key that references Branch; an individual account belongs to a single customer, while a joint account is held by two or more customers. The attribute accro and custno in AC reference the relations Account and Customer respectively. The primary keys of all relations are underlined.",
+    "pdf_stem": "2014 (1)"
+  },
+  {
+    "question_id": 2,
+    "marks": 20,
+    "text": "[DIAGRAM: page_003_diagram_1.png]",
+    "pdf_stem": "2014 (1)"
+  },
+  {
+    "question_id": 3,
+    "marks": 20,
+    "text": "[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_004_diagram_2.png]",
+    "pdf_stem": "2014 (1)"
+  },
+  {
+    "question_id": 4,
+    "marks": 15,
+    "text": "",
+    "pdf_stem": "2014 (1)"
+  },
+  {
+    "question_id": 5,
+    "marks": 25,
+    "text": "[DIAGRAM: page_006_diagram_1.png]",
+    "pdf_stem": "2014 (1)"
+  }
+]

@@ -1,0 +1,9 @@
+REVISIT TO SCENARIO (CONTD.)
+First create the login for the senior DBA using windows authentication 
+of SQL server authentication as follows:
+Windows authentication
+CREATE LOGIN PC2\kamal
+FROM WINDOWS WITH DEFAULT_DATABASE = Master
+SQL server authentication
+CREATE LOGIN Kamal
+WITH PASSWORD = ‘kamal@123‘, DEFAULT_DATABASE = Master

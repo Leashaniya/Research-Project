@@ -1,0 +1,6 @@
+"""Embedding models module."""
+
+from .combined_embeddings import CombinedEmbeddings
+
+__all__ = ["CombinedEmbeddings"]
+

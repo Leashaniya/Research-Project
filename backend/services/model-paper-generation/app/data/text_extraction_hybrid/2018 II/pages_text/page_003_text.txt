@@ -1,0 +1,41 @@
+Question 2 
+(15 marks)
+Consider a relation R (A, B, C, D, E, F) with the following set of functional dependencies:
+F={AB—C,A—D,B—EF,F->B }
+a) Find all the keys that follow from the given FDs using Amstrong Axioms, showing how you 
+found them. 
+(6 marks)
+b) Is R in 3NF? Give reasons for your conclusion. 
+(3 marks)
+c) ls R in BCNF" If R is not in BCNF convert it to a set of BCNF relations. 
+(6 marks)
+Question 3 ) 
+(25 marks)
+Consider the database of a library which rents books and CDs with the following schema:
+Books (accessNo: int, title: varchar(40), author: varchar(20), publisher: varchar(30))
+CDs (accessNo: int, title: w’zrchar(40), publisher: varchar(30))
+Member (memNo: int, name: varchar(40), phone: char(10))
+Rental (accessNo: int, memNo: int, dateRented: date, dueDate: date, dateReturned: date)
+Books table stores access number(accessNo), title, author and the publisher of the each Book. 
+CDs table stores the access number (accessNo) , title and the publisher of each CD. Member table 
+stores member number (memNo), name and phone number (phone) of each member of the library. 
+Rental table stores the rental details including access number of book/CD (accessNo), member 
+number of the member who had borrowed the book/CD (memNo), the date he/she has rented the 
+book/CD (dateRented), the date on which the book/CD should be returned (dueDate) and the date 
+on which the book 
+is actually retumed (dateReturned).
+Write relational algebra statemems,to answer the following queries
+a) Find the title and author of all books published by ‘McGraw-Hill’. 
+(2 marks)
+b) Find title of books and the name of the member who had borrowed the book for books returned 
+late than they are to be returned. 
+(4 marks)
+c) Find the names of members who had rented both books and CDs. 
+. 
+(5 marks)
+d) Find the names and the phone numbers of members who have more than 5 CDs which are 
+returned late. 
+(6 marks)
+e) Find the title and publisher of the CD which is rented the most. 
+(8 marks)
+Page 3of 4

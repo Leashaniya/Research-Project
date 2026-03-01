@@ -1,0 +1,29 @@
+00846
+Question 3 
+(18 marks)
+a) Compare heap file against the sorted file organization. 
+(3 marks)
+b) Consider an employee relation containing records with employee id, employee 
+name, age and salary. Assume that the records are stored in a hash file where the 
+hash function is based on the employee’s salary.
+. “Retrieving records with age of 20 is inefficient with the above file” 
+State whether the above statement is true or false. Give reasons.
+- 
+(3 marks) 
+c) 
+Consider the B+ tree index given below.
+[DIAGRAM: page_004_diagram_1.png]
+i. Illustrate the tree after inserting 31.
+(2 marks)
+ii. Illustrate the tree after deleting 20, 24, 29 from the original tree.
+(2 marks)
+iii. Construct an order 2 B+ tree index when the following index entries are inserted
+in the given order. 
+3,5,15,12,7,2,20, 22,25
+(4 marks)
+d) Consider the Hash index below;
+[DIAGRAM: page_004_diagram_2.png]
+(4 marks)
+Page 3 of 
+6
+08/04/2015

@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-01-07 23:41:46",
+  "model": "gpt-4o-mini",
+  "total_marks": 100,
+  "questions": [
+    {
+      "question_no": "Q1",
+      "marks": 20,
+      "pattern_label": "ER_EER_MODELING",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Create an Enhanced Entity-Relationship (EER) diagram that models the following scenario: A university has multiple departments, each of which offers various courses. Each course can have multiple instructors, and an instructor can teach multiple courses. Students enroll in courses and can be declared majors in specific departments. Each department has a name and a unique department number, while courses have unique course codes and titles. Additionally, delineate any ISA relationships that may exist if instructors are classified as full-time or part-time. Clearly identify all entities, attributes, relationships, and show any necessary cardinalities and participation constraints in your diagram. \n\n```mermaid\nclassDiagram\n    class Department {\n        +string departmentNumber\n        +string name\n    }\n    class Course {\n        +string courseCode\n        +string title\n    }\n    class Instructor {\n        +string instructorId\n        +string name\n        +string type\n    }\n    class Student {\n        +string studentId\n        +string name\n        +int enrollmentYear\n    }\n    Department \"1\" --o \"*\" Course : offers\n    Instructor \"*\" --o \"*\" Course : teaches\n    Student \"*\" --o \"*\" Course : enrolls\n    Instructor <|-- FullTimeInstructor : specialize\n    Instructor <|-- PartTimeInstructor : specialize\n```\n",
+          "marks": 17
+        },
+        {
+          "label": "b",
+          "text": "Briefly explain the concept of generalization and specialization in the EER model with an example distinct from the one provided in the main question. \n",
+          "marks": 3
+        }
+      ]
+    },
+    {
+      "question_no": "Q2",
+      "marks": 15,
+      "pattern_label": "NORMALIZATION_FD_KEYS",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Given the relation S (StudentID, Name, CourseID, CourseName, InstructorID, InstructorName) with the functional dependencies F = { StudentID -> Name, CourseID -> CourseName, InstructorID -> InstructorName }, explain whether the relation is in First Normal Form (1NF) and justify your answer.",
+          "marks": 4
+        },
+        {
+          "label": "b",
+          "text": "Identify the primary key for the relation S from the functional dependencies provided and explain how you arrived at your conclusion.",
+          "marks": 3
+        },
+        {
+          "label": "c",
+          "text": "Normalize the relation S to Second Normal Form (2NF). Provide the decomposed relations and justify each step taken during the normalization process. Present the final tables and their functional dependencies.",
+          "marks": 8
+        }
+      ]
+    },
+    {
+      "question_no": "Q3",
+      "marks": 25,
+      "pattern_label": "SQL_DDL_DML",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Explain the difference between SQL DDL (Data Definition Language) and DML (Data Manipulation Language). Provide one example of each.",
+          "marks": 5
+        },
+        {
+          "label": "b",
+          "text": "Write a SQL statement to create a table named `Employees` with the following attributes: `EmployeeID` (integer, primary key), `FirstName` (varchar with a maximum length of 50), `LastName` (varchar with a maximum length of 50), and `HireDate` (date).",
+          "marks": 5
+        },
+        {
+          "label": "c",
+          "text": "Assume the `Employees` table already contains data. Write a SQL command to update the `LastName` of an employee with `EmployeeID` 101 to 'Smith'.",
+          "marks": 5
+        },
+        {
+          "label": "d",
+          "text": "Consider a scenario where you need to delete an employee from the `Employees` table based on `EmployeeID`. Write the SQL command that would accomplish this task. Additionally, explain the consequences of using this command without a WHERE clause.",
+          "marks": 10
+        },
+        {
+          "label": "e",
+          "text": "You have been provided with the following relational schema for a library management system: \n```\nmermaid\n  erDiagram\n    BOOK { \n      integer BookID PK \n      string Title \n      string Author \n      string Genre \n      date PublishedDate\n    }\n    MEMBER { \n      integer MemberID PK \n      string Name \n      string Email \n      date DateJoined\n    }\n    LOAN { \n      integer LoanID PK \n      integer BookID FK \n      integer MemberID FK \n      date LoanDate \n      date ReturnDate \n    }\n```\n\nWrite the SQL statements needed to:\n1. Create the `BOOK`, `MEMBER`, and `LOAN` tables according to the schema.\n2. Insert at least three sample records into the `BOOK` table.\n3. Query the `LOAN` table to retrieve all loans that are currently active (i.e., `ReturnDate` is NULL).\nInclude data integrity constraints wherever applicable.",
+          "marks": 16
+        }
+      ]
+    },
+    {
+      "question_no": "Q4",
+      "marks": 40,
+      "pattern_label": "TRANSACTIONS_CONCURRENCY",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Explain the ACID properties of transactions in database systems. Discuss how these properties help maintain database integrity during concurrent transaction executions.",
+          "marks": 8
+        },
+        {
+          "label": "b",
+          "text": "Apply the concept of Serializable Schedules to identify if the following schedule is Serializable. Consider the transactions T1 and T2:\nT1: R(a), W(a)\nT2: R(a), W(a)\nIdentify conflicts in the schedule and explain whether or not it is Serializable by illustrating your reasoning.\n\nAdditionally, represent the conflicting operations graphically using the following structure:\n```mermaid\n erDiagram\n T1 ||--o{ Conflict : \"accesses\"\n T2 ||--o{ Conflict : \"accesses\"\n```",
+          "marks": 9
+        },
+        {
+          "label": "c",
+          "text": "Create a deadlock detection algorithm for a system where transactions are waiting for resources. Assume there are multiple transactions accessing shared resources. Illustrate a Wait-For-Graph for a given schedule involving transactions T1, T2, and T3, and explain how deadlocks can be detected and resolved in your algorithm. Use the following structure for drawing:\n```mermaid\n erDiagram\n Transaction1 ||--o{ WaitFor : \"waiting\"\n Transaction2 ||--o{ WaitFor : \"waiting\"\n Transaction3 ||--o{ WaitFor : \"waiting\"\n```",
+          "marks": 12
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+--- PAGE 2 ---
+Question 1 
+(20 marks)
+Consider the following EER Model.
+a) 
+Convert the following EER model into the relational model. Indicate the primary keys and the
+foreign keys of the resulted relations clearly. 
+(17 marks)
+b) 
+What is the best option for mapping the ISA hierarchy in the diagram? Justify your answer.
+(3 marks) 
+Name
+[DIAGRAM: page_002_diagram_1.png]
+
+--- PAGE 3 ---
+Question 2 
+(15 marks)
+Consider a relation R (P, Q, R, S, T) with the following set of functional dependencies over R:
+F = {PR->Q, R->S, P->T}
+a) 
+Find all the keys in relation R using attribute closure method. 
+(4 marks)
+b) 
+Is R in 3NF? Give reasons for your conclusion. 
+(3 marks)
+ ) 
+Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF
+relations. 
+(8 marks)
+Question 3 
+(25 marks)
+a) 
+ In Native API Driver, vendor-specific driver must be installed on each client machine . Accept
+or refute the above statement justifying your answer. 
+(2 marks)
+b) 
+There are several different statements in the JDBC API to retrieve the result set based on different
+requirements. Which type of statements is used in the code segment given below? Briefly explain
+when this type of statements will be used. 
+(2 marks)
+[DIAGRAM: page_003_diagram_1.png]
+c) 
+Briefly explain what is meant by 
+a  BCP Command ? 
+(2 marks)
+d) 
+Briefly explain how SQL server security framework manages access to securable entities.
+(3 marks)
+e) 
+A software company has been tasked with developing a comprehensive healthcare information
+technology (IT) system for a large medical facility. The project manager 
+is responsible for
+overseeing the project's development, and the following roles and responsibilities are assigned:
+Linda 
+is the senior database administrator who 
+is tasked with creating and managing the 
+databases required for the healthcare IT system. This includes patient records, appointment 
+scheduling, and medical inventory databases.
+T
+
+--- PAGE 4 ---
+Raj and Eva are junior database administrators who work under Linda s supervision. They are 
+responsible for managing and maintaining specific databases within the healthcare IT system. 
+Raj takes care of the patient records database, while Eva is responsible for the appointment 
+scheduling database.
+Carla is 
+a database developer who reports to Raj and Eva. Her role involves designing and
+building the database schemas, including creating tables, views, and stored procedures for the 
+patient records and appointment scheduling databases. Sophie and John are data entry operators 
+responsible for entering patient information, medical records, and appointment data into the 
+system. They work closely with the junior database administrators to ensure accurate and timely
+data entry.
+i. 
+ Write a T-SQL statement to create a login to Linda. 
+(2 marks)
+ii. 
+ Provide permission using fixed server role to handle all the administrative tasks in the 
+~
+server to Linda. 
+(3 marks)
+iii. 
+Assuming that Eva has the user name eva.e, write a T-SQL statements required to assign
+her with the responsibility of handling the appointmentDB using user defined server role.
+(5 marks)
+iv. 
+Assuming that Carla has 
+a login name by the name carla.a, write T-SQL statements
+required to allow her to create tables, views and stored procedures. 
+(3 marks)
+v. 
+ Assuming that John has a login name john.k write T-SQL statements required to perform
+the tasks he is responsible for. 
+(3 marks)
+Question 4 
+) 
+(40 Marks)
+Consider the following schema of a database designed for a hotel:
+Guest 
+(guestld: 
+int, 
+fname: 
+varchar(50), 
+lastName: 
+varchar(50), 
+phone: 
+int, 
+email:
+varchar(50), address: varchar(100)) 
+Room (roomNum: int, roomType: varchar(20), bedType: varchar(50), price: real, isOcupied:
+boolean) 
+Booking (bookingld: int, guestld: int, roomNum: int, checkInDate: date, checkOutDate: date,
+totalAmount: real)
+Bill 
+(billNum: 
+int, 
+bookingld: 
+int, 
+totalAmount: 
+real, 
+payementMethod: 
+varchar(50),
+paymentStatus: varchar(50)) 
+Receptionist (repld: int, name: varchar(20), phone: int, address: varchar(30))
+The "Guest" table is designed to store information about the hotel's guests, including their unique
+guest ID, first name, last name, phone number, email address, and physical address. The "Room"
+table tracks details about the hotel's rooms. It includes information such as the room number, room
+type, bed type, price per night, and a flag (boolean) indicating whether the room is currently occupied.
+The "Booking" table manages guest reservations. Each booking 
+is assigned 
+a unique ID and 
+is
+associated with a specific guest (via guestld) and a room (via roomNum). It also records the check-
+in and check-out dates, 
+as well 
+as the total booking amount. The "Bill" 
+table handles billing
+
+--- PAGE 5 ---
+00333
+information for guest stays. 
+It connects to a particular booking (via bookingld) and stores the bill 
+number, the total amount to be paid, the payment method, and the payment status. The "Receptionist"
+table contains details about hotel receptionist, with each staff member having a unique 1D, name, 
+phone number, and address. This allows the system to keep track of receptionists or other staff 
+members involved in hotel operations.
+a) 
+Write SQL Queries to perform the following:
+i. 
+Find the guest s name and phone number who booked a  Deluxe  room for 2 days.
+(4 marks)
+ii. 
+Find the total amount spend by guest with last name  Smith  on Bookings. 
+(6 marks)
+iii. 
+Find the room numbers, room types, and guest names of currently occupied rooms.
+(7 marks)
+b) 
+Create a function to calculates the total bill amount for a given guest's booking.
+(11 marks)
+c) 
+Assume 
+that 
+the 
+guests 
+table 
+consists 
+of 
+column 
+named 
+ TotalBillAmount . 
+The 
+"TotalBillAmount" column contains the total bill amount for each guest. Create a trigger that
+automatically updates the "TotalBillAmount" column whenever a new bill is added, or an existing
+bill is updated. 
+(12 marks)
+_END OF QUESTION PAPER--------remremecemrmecmececrmees

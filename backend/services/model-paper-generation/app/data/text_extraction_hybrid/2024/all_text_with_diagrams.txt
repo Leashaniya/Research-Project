@@ -1,0 +1,131 @@
+
+
+--- PAGE 2 ---
+Question 1 
+(20 marks)
+Consider the following EER Model.
+a) Convert the following EER model into the relational model. Indicate the primary keys and the 
+foreign keys of the resulting relations clearly. 
+(17 marks) 
+b) What is the best option for mapping the ISA hierarchies in the diagram? Justify your answer.
+3 marks)
+[DIAGRAM: page_002_diagram_1.png]
+
+--- PAGE 3 ---
+Question 2 
+(15 marks)
+Consider a relation R (ProjectNo, ProjectName, EmpNo, EmpName, DeptNo, DeptName, HrsWork) with
+the following set of functional dependencies F over R:
+F={ ProjecNo->ProjectName
+DeptNo->DeptName
+EmpNo->EmpName, DeptNo, DeptName, HrsWork}
+a) Find all the keys in relation R using the attribute closure method. 
+(4 marks)
+~ 
+—
+b) Is R in 3NF? Give reasons for your conclusion. 
+(3 marks)
+¢) Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF
+relations. 
+’ 
+(8 marks)
+Question 3 
+(25 marks)
+a) “In Type 2 Driver, JDBC API calls are converted to native Java API calls”. Accept or refute the 
+above statement justifying your answer. 
+(2 marks)
+b) There are several different statements in the JDBC API to retrieve result sets based on different
+requirements. Which type of statements is used in the code segment given below? Briefly explain 
+when this type of statement will be used. 
+(2 marks)
+[DIAGRAM: page_003_diagram_1.png]
+¢) Briefly explain the options available for transferring data between two sources such as between
+tables and servers. 
+(2 marks)
+Proe 2 nf 
+5
+
+--- PAGE 4 ---
+d) Briefly explain how authentication and authorization are achieved in SQL Server.
+(3 marks)
+e) A financial institution is developing a robust database system to manage its clients' sensitive
+financial data. Different roles are assigned to various team members for database administration 
+and management.
+Sarah is the senior database administrator tasked with overseeing the entire database system's 
+creation and maintenance.
+Tom and Emily are junior database administrators under Sarah's supervision. Tom manages the 
+client accounts database, while Emily handles the transactions database.
+Nathan is a database developer reporting to Tom and Emily. His responsibilities include 
+designing and implementing database schemas for client accounts and transactions.
+\__/ 
+Grace and Michael are data entry operators responsible for inputting client information and
+transaction records into the system.
+Write a T-SQL statement to create a login to Sarah with windows authentication.
+(2 marks)
+Provide Sarah with the necessary permissions to handle all administrative tasks within the
+server using a fixed server role. 
+(3 marks) 
+Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the
+iii.
+responsibility of managing the transactions database using a user-defined server role.
+(5 marks) 
+Assuming Nathan's login name is 'nathan.n’, write T-SQL statements to grant him 
+permission to create tables and VM}EWmmm 
+databases.
+iv.
+(3 marks) 
+Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to 
+perform data ent 
+sks on the client accounts and transactions databases. 
+(3 marks) 
+B 
+S
+
+--- PAGE 5 ---
+30573
+Question 4 
+o (40 
+Marksy
+Consider the following schema of a database designed for a Library:
+Book (bookld: 
+int, 
+ftitle: 
+varchar(100), author: 
+varchar(100), 
+isbn: 
+varchar(20), 
+publicationYear: int, genre: varchar(50), availableCopies: int)
+Member (memberld: int, firstName: varchar(50), lastName: varchar(50), email: varchar(50), 
+phone: int, address: varchar(100))
+Loan (loanld: int, bookId: int, memberId: int, loanDate: date, dueDate: date, returnDate: date)
+Fine (fineld: int, memberld: int, amount: real, paymentStatus: varchar(50))
+Librarian (librarianld: int, name: varchar(50), email: varchar(50), phone: int, address: 
+varchar(100))
+The 'Book' table stores information about books available in the library, including unique book ID,
+title, author, ISBN, publication year, genre, and the number of available copies. The 'Member' table 
+holds details about library members, such as their unique member ID, first name, last name, email, 
+phone number, and address. The 'Loan' table manages book loans, with cach loan having a unique 
+ID and being associated with a specific book and member. It records the loan date, due date, and 
+return date. The 'Fine' table stores information about fines incurred by members for late returns or 
+other penalties. It includes a fine ID, member ID, fine amount, and payment status. The 'Librarian’ 
+table contains details about library staff, with each librarian having a unique ID, name, email, phone 
+number, and address.
+a) Write SQL Queries to perform the following:
+i. Find the member’s name and phone number who borrowed a book with the title "The Great
+- 
+ii. Find the‘ membgr, who has the highest total amount of fines than all the other total fine
+amounts. Find the member’s id and address. 
+(6 marks)
+iii. Find the book titles, authors, and member names of books currently on loan. 
+(7 marks)
+b) Create a function to calculate the total fine amount for a given member. This function should 
+account for fines with a late penalty of 10% applied to those marked as 'overdue' payment status. 
+(11 marks)
+¢) Create a trigger that automatically updates the 'TotalFineAmount' column in the 'Members' table 
+whenever a new fine is added, or an existing fine is updated. The 'TotalFineAmount' column 
+should contain the total fine amount for each member. Ensure the trigger adjusts the 
+"TotalFineAmount' column accurately to reflect any partial payments made by members. The 
+member pays only 50% of the total fine amount as an initial payment when the payment status is 
+marked as ‘Partial’. 
+(12 marks)
+Proe & nf &
