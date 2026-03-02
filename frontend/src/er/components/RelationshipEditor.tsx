@@ -1,11 +1,21 @@
-import type { Attribute, Cardinality, Entity, Relationship, AttributeType, ParticipationType, RelationshipType } from "../types";
+import type {
+  Attribute,
+  Cardinality,
+  Entity,
+  Relationship,
+  AttributeType,
+  ParticipationType,
+  RelationshipType,
+  AggregationRelationship,
+  AggregationDirection,
+} from "../types";
 import { createId } from "../id";
 import { useMemo } from "react";
 import { FaTrash, FaPlus } from "react-icons/fa";
 
 const CARDINALITIES: Cardinality[] = ["0..1", "1..1", "0..*", "1..*"];
 const PARTICIPATION_TYPES: ParticipationType[] = ["none", "partial", "total"];
-const RELATIONSHIP_TYPES: RelationshipType[] = ["binary", "ternary", "isa"];
+const RELATIONSHIP_TYPES: RelationshipType[] = ["binary", "ternary", "isa", "aggregation"];
 const DEFAULT_CARD: Cardinality = "0..*";
 
 interface Props {
@@ -160,7 +170,10 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
       parentEntityId: undefined,
       childEntityIds: undefined,
       isDisjoint: undefined,
-      isTotal: undefined
+      isTotal: undefined,
+      aggregationWholeEntityId: undefined,
+      aggregationPartEntityIds: undefined,
+      aggregationRelationships: undefined,
     };
 
     if (newType === "ternary") {
@@ -178,10 +191,91 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
         isDisjoint: normalizedRelationship.isDisjoint || false,
         isTotal: normalizedRelationship.isTotal || false
       });
+    } else if (newType === "aggregation") {
+      // Initialize aggregation-specific fields
+      onChange({
+        ...base,
+        aggregationWholeEntityId: normalizedRelationship.aggregationWholeEntityId || "",
+        aggregationPartEntityIds: normalizedRelationship.aggregationPartEntityIds || [],
+        aggregationRelationships: normalizedRelationship.aggregationRelationships || [],
+      });
     } else {
       // Binary - keep base as is (fields already cleared)
       onChange(base);
     }
+  };
+
+  const aggregationPartEntityIds: string[] = normalizedRelationship.aggregationPartEntityIds || [];
+  const aggregationRelationships: AggregationRelationship[] = normalizedRelationship.aggregationRelationships || [];
+
+  const updateAggregation = (patch: Partial<Relationship>) => {
+    onChange({
+      ...normalizedRelationship,
+      ...patch,
+    });
+  };
+
+  const addAggregationPartEntity = () => {
+    updateAggregation({
+      aggregationPartEntityIds: [...aggregationPartEntityIds, ""],
+    });
+  };
+
+  const removeAggregationPartEntity = (index: number) => {
+    const next = [...aggregationPartEntityIds];
+    next.splice(index, 1);
+    updateAggregation({
+      aggregationPartEntityIds: next.length > 0 ? next : [],
+      aggregationRelationships: aggregationRelationships.filter((ar) => next.includes(ar.partEntityId)),
+    });
+  };
+
+  const updateAggregationPartEntity = (index: number, entityId: string) => {
+    const next = [...aggregationPartEntityIds];
+    next[index] = entityId;
+    updateAggregation({
+      aggregationPartEntityIds: next,
+      aggregationRelationships: aggregationRelationships.map((ar) =>
+        next.includes(ar.partEntityId) ? ar : { ...ar, partEntityId: "" }
+      ),
+    });
+  };
+
+  const addAggregationRelationship = () => {
+    if (!normalizedRelationship.aggregationWholeEntityId) {
+      alert("Select a whole entity before adding aggregation relationships.");
+      return;
+    }
+    if (aggregationPartEntityIds.length === 0) {
+      alert("Add at least one part entity before adding aggregation relationships.");
+      return;
+    }
+    const defaultPartId = aggregationPartEntityIds[0] || "";
+    const nextRel: AggregationRelationship = {
+      id: createId("agrel"),
+      name: "",
+      partEntityId: defaultPartId,
+      cardinality: DEFAULT_CARD,
+      direction: "whole_to_part",
+      inAggregationBox: true,
+    };
+    updateAggregation({
+      aggregationRelationships: [...aggregationRelationships, nextRel],
+    });
+  };
+
+  const updateAggregationRelationship = (id: string, patch: Partial<AggregationRelationship>) => {
+    updateAggregation({
+      aggregationRelationships: aggregationRelationships.map((ar) =>
+        ar.id === id ? { ...ar, ...patch } : ar
+      ),
+    });
+  };
+
+  const removeAggregationRelationship = (id: string) => {
+    updateAggregation({
+      aggregationRelationships: aggregationRelationships.filter((ar) => ar.id !== id),
+    });
   };
 
   return (
@@ -211,14 +305,220 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
           className="er-select"
           value={normalizedRelationship.relationshipType}
           onChange={(e) => handleRelationshipTypeChange(e.target.value as RelationshipType)}
-        >
+          >
           {RELATIONSHIP_TYPES.map((type) => (
             <option key={type} value={type}>
-              {type === "binary" ? "Binary (2 entities)" : type === "ternary" ? "Ternary (3 entities)" : "ISA (Inheritance)"}
+              {type === "binary"
+                ? "Binary (2 entities)"
+                : type === "ternary"
+                ? "Ternary (3 entities)"
+                : type === "isa"
+                ? "ISA (Inheritance)"
+                : "Aggregation (whole + parts)"}
             </option>
           ))}
         </select>
       </div>
+
+      {/* Aggregation Relationship UI */}
+      {normalizedRelationship.relationshipType === "aggregation" && (
+        <>
+          <div className="er-row-equal-3">
+            <div>
+              <label className="er-muted" htmlFor="agg-whole-entity">
+                Whole Entity
+              </label>
+              <select
+                id="agg-whole-entity"
+                className="er-select"
+                value={normalizedRelationship.aggregationWholeEntityId || ""}
+                onChange={(e) =>
+                  updateAggregation({
+                    aggregationWholeEntityId: e.target.value || "",
+                  })
+                }
+              >
+                <option value="">Select whole entity (e.g., PROJECT)</option>
+                {entities.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.name || "(unnamed entity)"}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div style={{ gridColumn: "span 2" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
+                <label className="er-muted" style={{ marginBottom: 0 }}>
+                  Part Entities
+                </label>
+                <button
+                  className="er-btn er-btn-icon primary"
+                  type="button"
+                  onClick={addAggregationPartEntity}
+                  style={{ fontSize: "0.85rem", padding: "4px 10px", whiteSpace: "nowrap" }}
+                >
+                  <FaPlus />
+                  <span>Add Part Entity</span>
+                </button>
+              </div>
+              {aggregationPartEntityIds.length === 0 ? (
+                <div className="er-muted" style={{ fontSize: "0.85rem", paddingTop: 4 }}>
+                  No part entities yet. Add entities that are part of the aggregation (e.g., EMPLOYEE, MACHINERY).
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {aggregationPartEntityIds.map((partId, index) => (
+                    <div key={index} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <select
+                        className="er-select"
+                        value={partId}
+                        onChange={(e) => updateAggregationPartEntity(index, e.target.value)}
+                        style={{ flex: 1 }}
+                      >
+                        <option value="">Select part entity</option>
+                        {entities.map((e) => (
+                          <option key={e.id} value={e.id}>
+                            {e.name || "(unnamed entity)"}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        className="er-btn er-btn-icon-only danger"
+                        type="button"
+                        onClick={() => removeAggregationPartEntity(index)}
+                        title="Remove part entity"
+                        style={{ fontSize: "0.8rem" }}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div style={{ marginTop: 8, marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              <span className="er-muted" style={{ fontWeight: 700 }}>
+                Aggregation Relationships
+              </span>
+              <button
+                className="er-btn er-btn-icon primary"
+                type="button"
+                onClick={addAggregationRelationship}
+                style={{ fontSize: "0.9rem", padding: "6px 12px" }}
+              >
+                <FaPlus />
+                <span>Add Relationship</span>
+              </button>
+            </div>
+            <div className="er-muted" style={{ fontSize: "0.8rem", marginTop: 4 }}>
+              Define multiple relationships between the whole entity and its parts (e.g., WORKS_FOR, REQUIRE).
+              Use the checkbox to include a relationship inside the dashed aggregation box.
+            </div>
+          </div>
+
+          {aggregationRelationships.length === 0 ? (
+            <div className="er-muted" style={{ fontSize: "0.85rem", padding: 8 }}>
+              No aggregation relationships yet. Add at least one relationship such as WORKS_FOR or REQUIRE.
+            </div>
+          ) : (
+            <table className="er-attrs-table" style={{ marginTop: 4 }}>
+              <thead>
+                <tr>
+                  <th style={{ width: "26%" }}>Rel&nbsp;Name</th>
+                  <th style={{ width: "22%" }}>Part</th>
+                  <th style={{ width: "16%" }}>Card.</th>
+                  <th style={{ width: "20%" }}>Direction</th>
+                  <th style={{ width: "10%" }}>In&nbsp;Box</th>
+                  <th style={{ width: "6%" }} />
+                </tr>
+              </thead>
+              <tbody>
+                {aggregationRelationships.map((ar) => (
+                  <tr key={ar.id}>
+                    <td>
+                      <input
+                        className="er-input"
+                        value={ar.name}
+                        onChange={(e) => updateAggregationRelationship(ar.id, { name: e.target.value })}
+                        placeholder="e.g., WORKS_FOR"
+                      />
+                    </td>
+                    <td>
+                      <select
+                        className="er-select"
+                        value={ar.partEntityId}
+                        onChange={(e) => updateAggregationRelationship(ar.id, { partEntityId: e.target.value })}
+                      >
+                        <option value="">Select part entity</option>
+                        {aggregationPartEntityIds
+                          .map((pid) => entities.find((e) => e.id === pid))
+                          .filter((e): e is Entity => Boolean(e))
+                          .map((e) => (
+                            <option key={e.id} value={e.id}>
+                              {e.name || "(unnamed entity)"}
+                            </option>
+                          ))}
+                      </select>
+                    </td>
+                    <td>
+                      <select
+                        className="er-select"
+                        value={ar.cardinality}
+                        onChange={(e) =>
+                          updateAggregationRelationship(ar.id, { cardinality: e.target.value as Cardinality })
+                        }
+                      >
+                        {CARDINALITIES.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <select
+                        className="er-select"
+                        value={ar.direction}
+                        onChange={(e) =>
+                          updateAggregationRelationship(ar.id, {
+                            direction: e.target.value as AggregationDirection,
+                          })
+                        }
+                      >
+                        <option value="whole_to_part">Whole → Part</option>
+                        <option value="part_to_whole">Part → Whole</option>
+                      </select>
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={ar.inAggregationBox}
+                        onChange={(e) =>
+                          updateAggregationRelationship(ar.id, { inAggregationBox: e.target.checked })
+                        }
+                        aria-label="Group inside aggregation box"
+                      />
+                    </td>
+                    <td>
+                      <button
+                        className="er-btn er-btn-icon-only danger"
+                        type="button"
+                        onClick={() => removeAggregationRelationship(ar.id)}
+                        title="Delete aggregation relationship"
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
+      )}
 
       {/* Binary Relationship UI */}
       {normalizedRelationship.relationshipType === "binary" && (

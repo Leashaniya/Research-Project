@@ -996,7 +996,7 @@ function GuidancePage() {
       <CommonHeader onUserChange={setUser} onLogout={clearStateOnLogout} />
       <div className="app-content">
           <div className="app-header">
-            <h1>CA Guidance and Summarization</h1>
+            <h1>Educational Support and Guidance</h1>
             <p className="app-header-subtitle">Assignment guidance, lecture summaries, flashcards, and ER diagrams for your Continuous Assessment</p>
           </div>
 

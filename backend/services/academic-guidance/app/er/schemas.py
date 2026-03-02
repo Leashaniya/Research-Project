@@ -10,7 +10,8 @@ if TYPE_CHECKING:
 Cardinality = Literal["0..1", "1..1", "0..*", "1..*"]
 AttributeType = Literal["regular", "composite", "multivalued"]
 ParticipationType = Literal["partial", "total", "none"]
-RelationshipType = Literal["binary", "ternary", "isa"]
+RelationshipType = Literal["binary", "ternary", "isa", "aggregation"]
+AggregationDirection = Literal["whole_to_part", "part_to_whole"]
 
 
 class Attribute(BaseModel):
@@ -42,6 +43,17 @@ class Entity(BaseModel):
     strongEntityId: Optional[str] = None  # ID of the strong entity (required if isWeak is True)
 
 
+class AggregationRelationship(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    name: str
+    partEntityId: str
+    cardinality: Cardinality
+    direction: AggregationDirection
+    inAggregationBox: bool = True
+
+
 class Relationship(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -67,6 +79,13 @@ class Relationship(BaseModel):
     childEntityIds: Optional[list[str]] = None
     isDisjoint: Optional[bool] = None
     isTotal: Optional[bool] = None
+
+    # Aggregation relationship fields (only when relationshipType === "aggregation")
+    # These fields describe an aggregation group where a whole entity connects to multiple part entities
+    # through one or more inner relationships.
+    aggregationWholeEntityId: Optional[str] = None
+    aggregationPartEntityIds: Optional[list[str]] = None
+    aggregationRelationships: Optional[list[AggregationRelationship]] = None
     
     attributes: list[Attribute] = Field(default_factory=list)
     isWeak: bool = False  # True if this is a weak relationship (connecting weak entity to strong entity) - always mandatory

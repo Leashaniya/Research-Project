@@ -67,9 +67,12 @@ def build_render_plan(model: ERModel) -> RenderPlan:
 
     # Relationships: place diamonds with vector-based positioning and lane offsets
     edge_counter = 1
-    for r in model.relationships:
-        from_xy = entity_pos.get(r.fromEntityId)
-        to_xy = entity_pos.get(r.toEntityId)
+
+    def _place_relationship_node(rel_id: str, label: str, from_entity_id: str, to_entity_id: str, from_card: str, to_card: str) -> None:
+        nonlocal edge_counter
+
+        from_xy = entity_pos.get(from_entity_id)
+        to_xy = entity_pos.get(to_entity_id)
 
         # Calculate entity centers
         if from_xy is None:
@@ -83,15 +86,14 @@ def build_render_plan(model: ERModel) -> RenderPlan:
             to_cx, to_cy = (to_xy[0] + entity_w / 2.0), (to_xy[1] + entity_h / 2.0)
 
         # Get lane index for this relationship (use from-entity's lane counter)
-        # This ensures multiple relationships from same entity get different lanes
-        lane_index = entity_lane_counters[r.fromEntityId]
-        entity_lane_counters[r.fromEntityId] += 1
+        lane_index = entity_lane_counters[from_entity_id]
+        entity_lane_counters[from_entity_id] += 1
 
         # Vector-based positioning: compute unit vector from from-entity to to-entity
         dx = to_cx - from_cx
         dy = to_cy - from_cy
         distance = math.sqrt(dx * dx + dy * dy)
-        
+
         if distance > 0:
             unit_x = dx / distance
             unit_y = dy / distance
@@ -99,19 +101,18 @@ def build_render_plan(model: ERModel) -> RenderPlan:
             # Fallback if entities are at same position
             unit_x = 1.0
             unit_y = 0.0
-            distance = entity_w + rel_w + min_rel_gap * 2
-        
+
         # Place diamond center along the direction with margin
         margin = (entity_w / 2.0) + (rel_w / 2.0) + min_rel_gap
         rel_center_x = from_cx + unit_x * margin
         rel_center_y = from_cy + unit_y * margin
-        
+
         # Add lane offset (perpendicular to the connection direction)
         perp_x = -unit_y
         perp_y = unit_x
         rel_center_x += perp_x * (lane_index * lane_offset)
         rel_center_y += perp_y * (lane_index * lane_offset)
-        
+
         # If diamond would be too close to to-entity, adjust
         to_dist = math.sqrt((to_cx - rel_center_x) ** 2 + (to_cy - rel_center_y) ** 2)
         if to_dist < margin:
@@ -125,15 +126,15 @@ def build_render_plan(model: ERModel) -> RenderPlan:
             else:
                 rel_center_x = mid_cx + perp_x * (lane_index * lane_offset)
                 rel_center_y = mid_cy + perp_y * (lane_index * lane_offset)
-        
+
         rx = rel_center_x - rel_w / 2.0
         ry = rel_center_y - rel_h / 2.0
 
         plan.nodes.append(
             RenderNode(
-                id=f"R:{r.id}",
+                id=rel_id,
                 type="relationship",
-                label=r.name,
+                label=label,
                 x=rx,
                 y=ry,
                 w=rel_w,
@@ -146,10 +147,10 @@ def build_render_plan(model: ERModel) -> RenderPlan:
             RenderEdge(
                 id=f"edge-{edge_counter}",
                 **{
-                    "from": f"E:{r.fromEntityId}",
-                    "to": f"R:{r.id}",
+                    "from": f"E:{from_entity_id}",
+                    "to": rel_id,
                 },
-                labelNearFrom=r.fromCardinality,
+                labelNearFrom=from_card,
                 labelNearTo="",
             )
         )
@@ -159,14 +160,61 @@ def build_render_plan(model: ERModel) -> RenderPlan:
             RenderEdge(
                 id=f"edge-{edge_counter}",
                 **{
-                    "from": f"E:{r.toEntityId}",
-                    "to": f"R:{r.id}",
+                    "from": f"E:{to_entity_id}",
+                    "to": rel_id,
                 },
-                labelNearFrom=r.toCardinality,
+                labelNearFrom=to_card,
                 labelNearTo="",
             )
         )
         edge_counter += 1
+
+    for r in model.relationships:
+        # Aggregation relationships: create one diamond per inner aggregation relationship (whole ↔ part)
+        if r.relationshipType == "aggregation":
+            whole_id = r.aggregationWholeEntityId
+            inner_rels = r.aggregationRelationships or []
+            if not whole_id or not inner_rels:
+                continue
+
+            for inner in inner_rels:
+                if not inner.partEntityId:
+                    continue
+
+                # Determine cardinalities based on direction
+                # Whole side gets the specified cardinality when direction is part_to_whole, and vice versa.
+                default_one = "1..1"
+                if inner.direction == "part_to_whole":
+                    from_card = inner.cardinality
+                    to_card = default_one
+                    from_entity_id = inner.partEntityId
+                    to_entity_id = whole_id
+                else:
+                    from_card = default_one
+                    to_card = inner.cardinality
+                    from_entity_id = whole_id
+                    to_entity_id = inner.partEntityId
+
+                rel_node_id = f"R:{r.id}:{inner.id}"
+                _place_relationship_node(
+                    rel_id=rel_node_id,
+                    label=inner.name or "",
+                    from_entity_id=from_entity_id,
+                    to_entity_id=to_entity_id,
+                    from_card=from_card,
+                    to_card=to_card,
+                )
+            continue
+
+        # Regular (binary / ternary / ISA treated as binary here) relationship node
+        _place_relationship_node(
+            rel_id=f"R:{r.id}",
+            label=r.name,
+            from_entity_id=r.fromEntityId,
+            to_entity_id=r.toEntityId,
+            from_card=r.fromCardinality,
+            to_card=r.toCardinality,
+        )
 
     # Second pass: place attributes (treat x/y as OVAL CENTER)
     # Entity attributes: placement based on column

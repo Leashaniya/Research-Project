@@ -82,12 +82,12 @@ export default function DashboardHome() {
                 <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <h2 className="card-title">CA Guidance</h2>
+            <h2 className="card-title">Educational Support</h2>
             <p className="card-description">
               Get personalized guidance, summaries, flashcards, and study recommendations
               for your Continuous Assessment topics.
             </p>
-            <button type="button" className="card-button">Enter CA Guidance</button>
+            <button type="button" className="card-button">Enter Educational Support</button>
           </div>
 
           <div className="dashboard-card" onClick={() => navigate('/model-paper')}>
