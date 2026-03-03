@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-03 15:52:38",
+  "generated_at": "2026-03-03 23:28:28",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university database tracks students, courses, and faculty members. The Student entity includes attributes such as StudentID, Name, and DateOfBirth. The Course entity has attributes such as CourseID, Title, Credits. has CourseID, CourseName, and Credits. The Faculty entity has attributes such as FacultyID, Name, Description. consists of FacultyID, FacultyName, and HireDate. Additionally, there is an Enrollment relationship that connects the Student and Course entities, which includes an attribute EnrollmentDate. The university also categorizes Faculty into two subtypes: FullTimeFaculty, with additional attributes OfficeNumber and Salary, and PartTimeFaculty, with attributes HourlyRate and ContractEndDate. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrollment' relationship (Student participation is optional, Course participation is optional)",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nConsider a library management system. The system contains the following entities: Book (BookID, Title, Author, ISBN), Member (MemberID, Name, Address, PhoneNumbers), Loan (LoanID, LoanDate, ReturnDate), and Staff (StaffID, Name, Position). There are relationships among these entities such as Members borrowing Books with a Loan, where The Book entity has attributes such as BookID, Title, Author. has a relationship with the Author, where multiple authors can contribute to a book. The Member entity has attributes such as MemberID, Name, Address. can be specialized into RegularMember (with attributes MembershipType) and StudentMember (with attributes Course, Year). A Member can be related to many Books, and a Book can be related to many Members through the 'Borrowing' relationship (Member participation is optional, Book participation is optional)",
       "subquestions": [
         {
           "label": "a",
@@ -41,8 +41,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69a6b616d21693832c0ddb24",
-      "original_semantic_description": "A university database tracks students, courses, and faculty members. The Student entity includes attributes such as StudentID, Name, and DateOfBirth. The Course entity has attributes such as CourseID, Title, Credits. has CourseID, CourseName, and Credits. The Faculty entity has attributes such as FacultyID, Name, Description. consists of FacultyID, FacultyName, and HireDate. Additionally, there is an Enrollment relationship that connects the Student and Course entities, which includes an attribute EnrollmentDate. The university also categorizes Faculty into two subtypes: FullTimeFaculty, with additional attributes OfficeNumber and Salary, and PartTimeFaculty, with attributes HourlyRate and ContractEndDate.",
+      "template_id": "69a720c12e72ab9ac5fcdd5f",
+      "original_semantic_description": "Consider a library management system. The system contains the following entities: Book (BookID, Title, Author, ISBN), Member (MemberID, Name, Address, PhoneNumbers), Loan (LoanID, LoanDate, ReturnDate), and Staff (StaffID, Name, Position). There are relationships among these entities such as Members borrowing Books with a Loan, where each Loan has a LoanID that uniquely identifies it. The Book entity has attributes such as BookID, Title, Author. has a relationship with the Author, where multiple authors can contribute to a book. The Member entity has attributes such as MemberID, Name, Address. can be specialized into RegularMember (with attributes MembershipType) and StudentMember (with attributes Course, Year). Draw an EER diagram for this scenario and ensure to include all the relationships and their cardinalities.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\RP\\RP\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, C->D, D->E, A->B, BD->C}}",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, CD->E, E->A, AC->B}}",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69a6b616d21693832c0ddb25",
+      "template_id": "69a720c12e72ab9ac5fcdd60",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,7 +84,7 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A retail company is designing a database to manage its inventory. The inventory includes products with attributes such as product_id, product_name, price, and stock_quantity. The company requires integrity constraints to ensure that the data remains consistent and accurate. Moreover, the database should support operations for adding new products, updating stock levels, and deleting discontinued items while adhering to the required rules.",
+      "text": "A hospital has established a relational database to manage patient records, treatments, and billing information. The database consists of multiple tables, including Patients, Treatments, and Billing. Each table is designed to efficiently store and retrieve necessary information while adhering to relational database principles. The database administrator has been tasked with updating the structure of the Patients table to include additional fields, and they need to manipulate data entries across various tables based on new requirements.",
       "subquestions": [
         {
           "label": "a",
@@ -98,17 +98,17 @@
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for managing data integrity in the inventory database.",
+          "text": "Briefly explain the options available for modifying the existing structure of a table in SQL.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how foreign keys contribute to the integrity of the inventory database.",
+          "text": "Briefly explain how you would handle referential integrity in the billing and treatments tables related to the patients table.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "An organization is establishing role-based access control for its database system. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the operational database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating transaction data.",
+          "text": "A hospital is establishing role-based access control for its database system that manages Patients, Doctors, and Appointments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Appointments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating patient appointment data.",
           "marks": null,
           "subquestions": [
             {
@@ -124,7 +124,7 @@
             {
               "label": "iii",
               "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the operational database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Appointments database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -134,7 +134,7 @@
             {
               "label": "v",
               "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the operational databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Patients and Appointments databases."
             }
           ]
         }
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69a6b616d21693832c0ddb26",
+      "template_id": "69a720c12e72ab9ac5fcdd61",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,22 +152,22 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for a Hospital: Patient (patientId: int, name: varchar(100), dob: date, address: varchar(150)) Appointment (appointmentId: int, patientId: int, appointmentDate: date, status: varchar(50)) Bill (billId: int, appointmentId: int, amount: real, paymentStatus: varchar(50)). The 'Patient' table stores information about patients, including unique patient ID, name, date of birth, and address. The 'Appointment' table stores details about patient appointments, including the appointment ID, patient ID, appointment date, and status of the appointment. The 'Bill' table keeps track of billing details associated with appointments, including the bill ID, appointment ID, total amount billed, and payment status. The 'Bill' table manages relevant information for the database system.",
+      "text": "Consider the following schema of a database designed for a healthcare facility: Patient (patientId: int, name: varchar(100), dob: date, address: varchar(150)) Appointment (appointmentId: int, patientId: int, appointmentDate: date, status: varchar(50), totalFee: real) Doctor (doctorId: int, name: varchar(100), specialty: varchar(100), contact: varchar(15)) Hospital (hospitalId: int, name: varchar(100), location: varchar(150), capacity: int). The 'Patient' table stores information about patients, 'Appointment' keeps track of appointments made by patients, 'Doctor' details registered doctors, and 'Hospital' contains information on hospitals. The 'Appointment' table holds appointment records, tracking scheduled appointments between patients and doctors with dates and times. The 'Doctor' table manages details about doctors, including unique doctor ID, name, specialization, and contact information. The 'Hospital' table contains relevant information for the database system. Fee (feeId: int, patientId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Write SQL Queries to perform the following: i. Find the name and address of the patient who has an appointment scheduled on '2023-10-15'.",
+          "text": "Write SQL Queries to perform the following: i. Find the names and phone numbers of doctors who are specialists in 'Pediatrics'.",
           "marks": null,
           "subquestions": [
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the name and address of the patient who has an appointment scheduled on '2023-10-15'."
+              "text": "Find the names and phone numbers of doctors who are specialists in 'Pediatrics'."
             },
             {
               "label": "ii",
               "marks": 6,
-              "text": "Find the patient who has the highest total amount compared to all other patients. Find the patientId and name."
+              "text": "Find the patient with the highest aggregate value using GROUP BY on related appointment records."
             },
             {
               "label": "iii",
@@ -179,18 +179,18 @@
         {
           "label": "b",
           "marks": 11,
-          "text": "b) Create a function to calculate the total bill amount for a given patient. This function should account for bill with a late penalty of 10% applied to those marked as 'overdue' payment status."
+          "text": "b) Create a function to calculate the total fee amount for a given patient. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
         },
         {
           "label": "c",
           "marks": 12,
-          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Bill' table whenever a new bill record is added, or an existing bill record is updated. The 'amount' column should contain the total bill amount for each patient. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by patient. The patient pays only 50% of the total bill amount as an initial payment when the payment status is marked as 'Partial'."
+          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each patient. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by patient. The patient pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69a6b616d21693832c0ddb27",
+      "template_id": "69a720c12e72ab9ac5fcdd62",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,

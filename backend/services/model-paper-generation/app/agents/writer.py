@@ -1765,7 +1765,7 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         
         {"6. **NORMALIZATION QUESTION REQUIREMENTS** (CRITICAL - MUST FOLLOW): " if is_norm_question else ""}{"The question stem MUST include BOTH of the following:" if is_norm_question else ""}
         {"   - A relation schema with EXACTLY 5-6 attributes using ALPHABET LETTERS (A, B, C, D, E, F) in EXACT format: 'Consider a relation R(A, B, C, D, E) with...' OR 'Consider a relation R(A, B, C, D, E, F) with...'" if is_norm_question else ""}
-        {"   - Functional dependencies in EXACT format using arrow notation: 'F = {{A->B, B->C, C->D}}' OR 'F = {{A->BC, B->D, C->EF, AC->G}}' OR 'F={{AB->C, B->D, C->E, DE->F}}'" if is_norm_question else ""}
+        {"   - Functional dependencies in EXACT format using arrow notation: 'F = {{AB->C, B->D, C->EF, DE->F}}' OR 'F={{AC->B, B->D, CD->E, E->A}}' OR similar patterns" if is_norm_question else ""}
         {"   - ⚠️ MANDATORY: Use ONLY alphabet letters (A, B, C, D, E, F, G) for attributes - DO NOT use real attribute names like StudentID, CourseCode, etc." if is_norm_question else ""}
         {"   - Format FDs to make key identification challenging and complex:" if is_norm_question else ""}
         {"     * Use composite determinants (e.g., AB->C, AC->G, DE->F)" if is_norm_question else ""}
@@ -1784,15 +1784,17 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         {"   - MUST use alphabet letters (A, B, C, D, E, F) - NOT real attribute names" if is_norm_question else ""}
         {"   - MUST have exactly 5-6 attributes in the relation" if is_norm_question else ""}
         {"   - MUST use arrow notation (->) for functional dependencies" if is_norm_question else ""}
-        {"   - ⚠️ MUST make FDs complex so students CANNOT easily figure out the key - use composite determinants (AB->C, AC->D), multiple attributes on right side (A->BC), and transitive dependencies that obscure the key" if is_norm_question else ""}
-        {"   - ⚠️ AVOID simple patterns like A->B, B->C, C->D, A->E where A is obviously the key - instead use patterns like AB->C, B->D, CD->E where the key requires closure calculation" if is_norm_question else ""}
+        {"   - ⚠️ MUST make FDs complex so students CANNOT easily figure out the key - you MUST include at least ONE composite determinant on the left (e.g., AB->C, AC->D), and preferably multiple" if is_norm_question else ""}
+        {"   - ⚠️ You MUST include at least ONE transitive dependency and/or dependency chain, but it MUST be embedded inside a more complex FD set (with composites and multi-attribute RHS) so that the overall problem is non-trivial" if is_norm_question else ""}
+        {"   - ⚠️ STRICTLY FORBIDDEN: FD sets where ALL left-hand sides are single attributes and form a simple chain such as A->B, B->C, C->D (optionally with A->E). DO NOT generate such simple chain-only patterns." if is_norm_question else ""}
+        {"   - Instead, use patterns like AB->C, B->D, CD->E, E->A, F->B where identifying the candidate key requires real attribute-closure calculation." if is_norm_question else ""}
         {"   - ⚠️ DO NOT add extra descriptive text like 'In a company database' or 'attributes represent different aspects' - ONLY include the relation schema and functional dependencies" if is_norm_question else ""}
         {"   - WITHOUT A RELATION SCHEMA WITH 5-6 ALPHABET LETTER ATTRIBUTES AND FUNCTIONAL DEPENDENCIES IN THE STEM, THE QUESTION WILL BE REJECTED IMMEDIATELY." if is_norm_question else ""}
         {"   " if is_norm_question else ""}
         {"   ⚠️ VALID NORMALIZATION PROBLEM CONSTRAINTS (CRITICAL - MUST FOLLOW):" if is_norm_question else ""}
         {"   1. Candidate Key Requirement: The set of Functional Dependencies MUST allow for the identification of at least one Candidate Key." if is_norm_question else ""}
         {"      - Ensure that there exists at least one set of attributes whose closure covers all attributes in the relation" if is_norm_question else ""}
-        {"      - Example: If R(A, B, C, D, E) with F={{A->B, B->C, C->D, D->E}}, then A is a candidate key (A+ = {A, B, C, D, E})" if is_norm_question else ""}
+        {"      - Example (DO NOT COPY THIS EXACT FD SET, ONLY THE IDEA): If R(A, B, C, D, E) with F={{AB->C, C->D, D->E}}, then AB is a candidate key because (AB)+ = {{A, B, C, D, E}}" if is_norm_question else ""}
         {"   2. Transitive Dependency Requirement: Include at least one transitive dependency (e.g., X->Y and Y->Z) if testing 3NF." if is_norm_question else ""}
         {"      - This is essential for demonstrating 3NF violations" if is_norm_question else ""}
         {"      - Example: A->B, B->C creates a transitive dependency A->C (transitive through B)" if is_norm_question else ""}
@@ -1851,6 +1853,29 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         
         ⚠️ CRITICAL: INSTRUCTION PATTERN PRESERVATION (MANDATORY - ZERO TOLERANCE) ⚠️
         The structure above includes "Instruction Pattern" text for each part. These patterns are from historical exam papers and MUST be preserved EXACTLY.
+        
+        GLOBAL CODE SEGMENT FORMATTING RULES (APPLY TO ALL QUESTIONS WITH CODE):
+        - For any subquestion that includes a code segment or "code segment shown above / given below":
+          * The code MUST be output as a properly indented, multi-line code block using ```language fences (e.g., ```java or ```sql)
+          * Inside the code string, you MUST use \n for line breaks and spaces for indentation so that each statement appears on its own line in the final rendered block
+          * The code block MUST be clearly separated from the question text
+          * The question text MUST appear immediately AFTER the code block, on a separate line (e.g., first show the code block, then on the next line start the question sentence)
+          * The question text MUST NOT appear on the same line as the code segment or inside the code block
+          * Example of CORRECT format:
+            
+            Code Segment:
+            ```java
+            String sql = "SELECT * FROM employees WHERE department = ?";
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setString(1, "IT");
+            ResultSet rs = pstmt.executeQuery();
+            ```
+            
+            Which type of JDBC statement is used in the code segment shown above? Briefly explain when this type of statement will be used.
+            
+          * Example of INCORRECT format (DO NOT DO THIS):
+            "Code Segment: ```java String sql = ... ResultSet rs = ... ``` Which type of JDBC statement is used..."
+            (This is wrong because the code and the question are on the same line.)
         
         **HOW TO USE INSTRUCTION PATTERNS (STRICT RULES):**
         1. For each sub-question, look at the "Instruction Pattern" provided in the structure above

@@ -25,6 +25,11 @@ class PDFService:
         text = text.replace("×", "x")
         text = text.replace("÷", "/")
         text = text.replace("±", "+/-")
+        # Normalize smart quotes/apostrophes that are not representable in latin-1
+        text = text.replace("’", "'")
+        text = text.replace("‘", "'")
+        text = text.replace("“", '"')
+        text = text.replace("”", '"')
         # Remove other special characters that might cause issues
         # Keep basic ASCII and common Unicode
         return text
