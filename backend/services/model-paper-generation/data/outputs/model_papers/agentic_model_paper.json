@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-01 11:57:36",
+  "generated_at": "2026-03-03 15:00:26",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university is managing its students, courses, and faculty using an enhanced entity-relationship model. The Student entity has attributes: StudentID, Name, Address, and PhoneNumbers. Faculty entity consists of attributes: FacultyID, Name, Department, and OfficeNumber. The Course entity includes attributes: CourseID, Title, Credits, and Schedule. The university uses an Enrolls relationship to link Students and Courses, which has the attribute EnrollmentDate. Additionally, there is a specialization in the Faculty entity, with a subtype representing ResearchFaculty which adds attributes such as ResearchArea and FundingAmount, while another subtype represents TeachingFaculty, adding attributes like TeachingLoad and CoursesTaught",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university has several departments, each responsible for multiple courses. The 'Department' entity contains: DepartmentID, Name, and Location. Each 'Course' has attributes: CourseID, Title, and Credits. The university also has students enrolled in courses, represented by the 'Student' entity, which includes StudentID, Name, and EnrollmentDate. Moreover, the university employs teaching staff categorized under an 'Employee' entity with attributes: EmployeeID, Name, and Role. There are ISA hierarchies to distinguish between FullTimeFaculty and PartTimeFaculty under the Employee category. The FullTimeFaculty entity has attributes such as FullTimeFacultyID, Name, Description. includes Salary, whereas The PartTimeFaculty entity has attributes such as PartTimeFacultyID, Name, Description. includes HourlyRate. Each course can have multiple students enrolled, and students can enroll in multiple courses, establishing a many-to-many relationship with a descriptive attribute called EnrollmentDate, indicating when the student enrolled in the course. A Department can be related to many Courses through the 'Offers' relationship. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrolls' relationship (Student participation is optional, Course participation is optional)",
       "subquestions": [
         {
           "label": "a",
@@ -41,9 +41,9 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69a42954197259b96e55b214",
-      "original_semantic_description": "A university is managing its students, courses, and faculty using an enhanced entity-relationship model. The Student entity has attributes: StudentID, Name, Address, and PhoneNumbers. Faculty entity consists of attributes: FacultyID, Name, Department, and OfficeNumber. The Course entity includes attributes: CourseID, Title, Credits, and Schedule. The university uses an Enrolls relationship to link Students and Courses, which has the attribute EnrollmentDate. Additionally, there is a specialization in the Faculty entity, with a subtype representing ResearchFaculty which adds attributes such as ResearchArea and FundingAmount, while another subtype represents TeachingFaculty, adding attributes like TeachingLoad and CoursesTaught. Draw an EER diagram that represents this model, ensuring to indicate all necessary relationships and constraints.",
-      "diagram_image_path": "/app/data/outputs/model_papers/images/Q1_eer_diagram.png",
+      "template_id": "69a6a9d18c443723205ff118",
+      "original_semantic_description": "A university has several departments, each responsible for multiple courses. The 'Department' entity contains: DepartmentID, Name, and Location. Each 'Course' has attributes: CourseID, Title, and Credits. The university also has students enrolled in courses, represented by the 'Student' entity, which includes StudentID, Name, and EnrollmentDate. Moreover, the university employs teaching staff categorized under an 'Employee' entity with attributes: EmployeeID, Name, and Role. There are ISA hierarchies to distinguish between FullTimeFaculty and PartTimeFaculty under the Employee category. The FullTimeFaculty entity has attributes such as FullTimeFacultyID, Name, Description. includes Salary, whereas The PartTimeFaculty entity has attributes such as PartTimeFacultyID, Name, Description. includes HourlyRate. Each course can have multiple students enrolled, and students can enroll in multiple courses, establishing a many-to-many relationship with a descriptive attribute called EnrollmentDate, indicating when the student enrolled in the course.",
+      "diagram_image_path": "C:\\Users\\DELL\\Downloads\\RP\\RP\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, C->AE, D->B}}.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, C->D, D->E, E->A, B->AC}}.",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69a42954197259b96e55b215",
+      "template_id": "69a6a9d18c443723205ff119",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,7 +84,7 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A university is designing a relational database to manage student enrollment and course offerings. The database schema includes relations for Students, Courses, and Enrollments. Each Student has a unique ID, a name, and email. Each Course is identified by a unique Course ID, a title, and a description. Enrollments track which Students are enrolled in which Courses. The database design must ensure data integrity and manage relationships effectively.",
+      "text": "A retail company is developing a new database system to manage its inventory and sales data. The database will contain several tables, including Products, Categories, and Sales. Each Product has a unique identifier, name, price, and belongs to a Category. The Categories table contains information about product categories such as CategoryID and CategoryName. The Sales table records every sale transaction, which includes SaleID, ProductID, quantity sold, and sale date. The database is expected to handle various operations including querying products based on price and category, as well as reporting total sales per category.",
       "subquestions": [
         {
           "label": "a",
@@ -98,17 +98,17 @@
         },
         {
           "label": "c",
-          "text": "Briefly explain how primary keys and foreign keys help maintain data integrity in this scenario.",
+          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain the steps needed to enforce referential integrity between the Students and Enrollments relations.",
+          "text": "Briefly explain how referential integrity is maintained in a relational database management system.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
+          "text": "An organization is establishing role-based access control for its database system. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the operational database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating transaction data.",
           "marks": null,
           "subquestions": [
             {
@@ -124,7 +124,7 @@
             {
               "label": "iii",
               "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the operational database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -134,7 +134,7 @@
             {
               "label": "v",
               "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the operational databases."
             }
           ]
         }
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69a42954197259b96e55b216",
+      "template_id": "69a6a9d18c443723205ff11a",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,45 +152,45 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for a Hospital: Patient (patientId: int, name: varchar(100), address: varchar(150), dob: date) Doctor (doctorId: int, name: varchar(100), specialty: varchar(50), phone: varchar(15)) Appointment (appointmentId: int, appointmentDate: date, patientId: int, doctorId: int, notes: varchar(200)) Prescription (prescriptionId: int, date: date, patientId: int, doctorId: int) The Patient table stores information about patients including their names, addresses, and dates of birth. The Doctor table holds details regarding doctors, their specialties, and contact numbers. The Appointment table manages appointment details, associating patients with doctors. The Prescription table maintains records of prescriptions linked to patients and the doctors who issued them. The 'Patient' table stores information about patients, including unique patient ID, name, date of birth, and contact details. The 'Doctor' table holds details about doctors, including unique doctor ID, name, specialization, and contact information. The 'Appointment' table manages appointment records, tracking scheduled appointments between patients and doctors with dates and times. The 'Prescription' table contains relevant information for the database system. Fee (feeId: int, patientId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
+      "text": "Consider the following schema of a database designed for an E-commerce platform: Product (productId: int, productName: varchar(100), price: real, stockAmount: int) Order (orderId: int, productId: int, quantity: int, orderDate: date) Customer (customerId: int, customerName: varchar(100), email: varchar(50), phone: varchar(15)) Payment (paymentId: int, orderId: int, paymentAmount: real, paymentStatus: varchar(20)). The 'Product' table stores information about products available for sale, including unique product ID, name, price, and stock available. The 'Order' table keeps track of customer orders, linking products with the quantity ordered and date of order. The 'Customer' table holds details of customers including their names and contact information. The 'Payment' table records payment details associated with each order, including payment amount and status. The 'Order' table holds order records, tracking customer orders with order ID, customer ID, order date, and total amount. The 'Payment' table contains relevant information for the database system.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Write SQL Queries to perform the following: i. Find the name and address of the patient who has an appointment on '2023-11-01'. ii. Find the names of all doctors who have a specialty in 'Cardiology'. iii. Find the appointment date and notes for all appointments of the patient named 'John Doe'.",
+          "text": "Write SQL Queries to perform the following: i. Find the product name and price of products that have less than 10 items in stock.",
           "marks": null,
           "subquestions": [
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the name and address of the patient who has an appointment on '2023-11-01'."
+              "text": "Find the product name and price of products that have less than 10 items in stock."
             },
             {
               "label": "ii",
               "marks": 6,
-              "text": "Find the names of all doctors who have a specialty in 'Cardiology'."
+              "text": "Find the customer who has the highest total paymentamount compared to all other customers. Find the customerId and customerName."
             },
             {
               "label": "iii",
               "marks": 7,
-              "text": "Find the appointment date and notes for all appointments of the patient named 'John Doe'."
+              "text": "Find the productName and customerName from Product, Customer, and Order where Order.orderDate is not null."
             }
           ]
         },
         {
           "label": "b",
           "marks": 11,
-          "text": "b) Create a function to calculate the total fee amount for a given patient. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
+          "text": "b) Create a function to calculate the total payment amount for a given customer. This function should account for payment with a late penalty of 10% applied to those marked as 'overdue' payment status."
         },
         {
           "label": "c",
           "marks": 12,
-          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each patient. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by patient. The patient pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
+          "text": "c) Create a trigger that automatically updates the 'Payment' column in the 'Payment' table whenever a new payment record is added, or an existing payment record is updated. The 'Payment' column should contain the total payment amount for each customer. Ensure the trigger adjusts the 'Payment' column accurately to reflect any partial payments made by customer. The customer pays only 50% of the total payment amount as an initial payment when the payment status is marked as 'Partial'."
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69a42954197259b96e55b217",
+      "template_id": "69a6a9d18c443723205ff11b",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
