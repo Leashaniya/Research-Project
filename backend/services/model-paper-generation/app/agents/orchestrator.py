@@ -19,6 +19,56 @@ from sentence_transformers import SentenceTransformer, util
 NUM_RECENT_PAPERS_FOR_TRENDS = 6  # single source of truth for trend artifacts
 
 
+def _normalize_paper_for_presentation(paper: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Apply small, presentation-focused cleanups to the generated paper JSON
+    without changing its structure (only adjusts wording/formatting).
+    """
+    if not isinstance(paper, dict):
+        return paper
+
+    questions = paper.get("questions") or []
+    for q in questions:
+        subqs = q.get("subquestions") or []
+
+        # Fix Q3(b) JDBC code segment formatting so the Java code appears
+        # properly indented on separate lines instead of a single long line.
+        for sq in subqs:
+            text = sq.get("text") or ""
+            if (
+                "Code Segment:" in text
+                and "SELECT * FROM employees WHERE department = ?" in text
+                and "PreparedStatement pstmt = connection.prepareStatement(sql);" in text
+            ):
+                sq["text"] = (
+                    "Code Segment:\n"
+                    "```java\n"
+                    'String sql = "SELECT * FROM employees WHERE department = ?";\n'
+                    "PreparedStatement pstmt = connection.prepareStatement(sql);\n"
+                    'pstmt.setString(1, \"IT\");\n'
+                    "ResultSet rs = pstmt.executeQuery();\n"
+                    "```\n\n"
+                    "Which type of JDBC statement is used in the code segment shown above?\n"
+                    "Briefly explain when this type of statement will be used."
+                )
+
+        # For Q4(a), keep the parent text as a generic instruction and avoid
+        # repeating the text of subparts such as (i) which are listed below.
+        if q.get("question_no") == "Q4":
+            for sq in subqs:
+                if sq.get("label") == "a" and sq.get("subquestions"):
+                    text = sq.get("text") or ""
+                    # If the text includes an inline "(i)" / "i." question,
+                    # trim everything after the first colon to keep just the lead-in.
+                    if ":" in text:
+                        prefix = text.split(":", 1)[0].strip()
+                        if not prefix.endswith(":"):
+                            prefix += ":"
+                        sq["text"] = prefix
+
+    return paper
+
+
 def enforce_top_topic_constraint(slots: List[dict], top_topic: str) -> List[dict]:
     """
     Ensure at least one slot is forced to use top_topic.
@@ -5612,6 +5662,9 @@ Note: The diagram uses (min, max) cardinality notation where:
             assert top_topic in set(final_topics_filtered), "Sanity check failed: top_topic missing"
         else:
             print(f"    [INFO] Skipping top_topic assertion - all questions have canonical templates")
+
+        # Apply small presentation cleanups before persisting/returning.
+        paper = _normalize_paper_for_presentation(paper)
 
         # Save to MongoDB
         try:
