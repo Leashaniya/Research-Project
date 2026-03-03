@@ -273,7 +273,10 @@ def validate_er_model(model: ERModel) -> ValidationOutput:
             # Skip the rest of the generic relationship validation for aggregation containers.
             continue
 
-        if rel.fromEntityId not in entity_id_set:
+        # For ISA relationships we don't require from/to entity IDs; they use
+        # parentEntityId/childEntityIds instead. Skip generic from/to checks
+        # in that case to avoid false "entity not found" errors.
+        if rel.relationshipType != "isa" and rel.fromEntityId not in entity_id_set:
             _add_issue(
                 out.errors,
                 code="RELATIONSHIP_FROM_ENTITY_NOT_FOUND",
@@ -281,7 +284,7 @@ def validate_er_model(model: ERModel) -> ValidationOutput:
                 path=f"relationships[{ri}].fromEntityId",
             )
 
-        if rel.toEntityId not in entity_id_set:
+        if rel.relationshipType != "isa" and rel.toEntityId not in entity_id_set:
             _add_issue(
                 out.errors,
                 code="RELATIONSHIP_TO_ENTITY_NOT_FOUND",

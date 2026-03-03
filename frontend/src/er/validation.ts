@@ -153,7 +153,73 @@ export function validateModel(model: ERModel): { messages: ValidationMessage[]; 
       continue;
     }
 
-    // Generic binary / ternary / ISA validation
+    // ISA relationships: use parentEntityId + childEntityIds instead of from/to IDs
+    if (r.relationshipType === "isa") {
+      if (!r.parentEntityId) {
+        messages.push({
+          id: createId("val"),
+          severity: "error",
+          title: `ISA relationship "${r.name || "(unnamed)"}" must have a parent entity`,
+          detail: "Select the parent (supertype) entity for this ISA hierarchy."
+        });
+      } else if (!entityIdSet.has(r.parentEntityId)) {
+        messages.push({
+          id: createId("val"),
+          severity: "error",
+          title: `ISA relationship "${r.name || "(unnamed)"}" parent entity not found`,
+          detail: "The selected parent entity does not exist in the current model."
+        });
+      }
+
+      const childIds = r.childEntityIds || [];
+      if (childIds.length === 0) {
+        messages.push({
+          id: createId("val"),
+          severity: "error",
+          title: `ISA relationship "${r.name || "(unnamed)"}" must have at least one child entity`,
+          detail: "Add one or more child (subtype) entities to this ISA relationship."
+        });
+      } else {
+        childIds.forEach((cid) => {
+          if (!cid) {
+            messages.push({
+              id: createId("val"),
+              severity: "error",
+              title: `ISA relationship "${r.name || "(unnamed)"}" has an empty child entity`,
+              detail: "Each child entry must select a valid entity."
+            });
+          } else if (!entityIdSet.has(cid)) {
+            messages.push({
+              id: createId("val"),
+              severity: "error",
+              title: `ISA relationship "${r.name || "(unnamed)"}" child entity not found`,
+              detail: "One of the child entities does not exist in the current model."
+            });
+          } else if (cid === r.parentEntityId) {
+            messages.push({
+              id: createId("val"),
+              severity: "error",
+              title: `ISA relationship "${r.name || "(unnamed)"}" child equals parent`,
+              detail: "A child (subtype) entity cannot be the same as the parent (supertype)."
+            });
+          }
+        });
+
+        if (new Set(childIds).size < childIds.length) {
+          messages.push({
+            id: createId("val"),
+            severity: "warning",
+            title: `ISA relationship "${r.name || "(unnamed)"}" has duplicate children`,
+            detail: "The same child entity appears more than once in this ISA relationship."
+          });
+        }
+      }
+
+      // Skip generic binary from/to checks for ISA; they use parent/children instead.
+      continue;
+    }
+
+    // Generic binary / ternary validation
     if (!r.fromEntityId || !r.toEntityId) {
       messages.push({
         id: createId("val"),
