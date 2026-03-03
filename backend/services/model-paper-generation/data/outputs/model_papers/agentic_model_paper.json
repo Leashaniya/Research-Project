@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-03 23:28:28",
+  "generated_at": "2026-03-04 00:12:12",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nConsider a library management system. The system contains the following entities: Book (BookID, Title, Author, ISBN), Member (MemberID, Name, Address, PhoneNumbers), Loan (LoanID, LoanDate, ReturnDate), and Staff (StaffID, Name, Position). There are relationships among these entities such as Members borrowing Books with a Loan, where The Book entity has attributes such as BookID, Title, Author. has a relationship with the Author, where multiple authors can contribute to a book. The Member entity has attributes such as MemberID, Name, Address. can be specialized into RegularMember (with attributes MembershipType) and StudentMember (with attributes Course, Year). A Member can be related to many Books, and a Book can be related to many Members through the 'Borrowing' relationship (Member participation is optional, Book participation is optional)",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university is managing multiple departments, each offering different courses. Each department has a unique identifier, a name, and a location. Courses are defined by a course ID, course name, and have a credit value associated. Each course is assigned to one department, but each department can offer multiple courses. Students enroll in various courses, represented by a unique enrollment ID, along with a student's ID and the course ID they are enrolled in. The university needs to effectively manage the relationships and data structure of these entities. IMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). Student is the supertype with two subtypes: GraduateStudent and UndergraduateStudent. GraduateStudent has specific attributes: ThesisTitle, AdvisorName, ResearchArea. UndergraduateStudent has specific attributes: YearOfStudy, Major, GPA. A Department can be related to many Courses through the 'Offers' relationship. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrolls' relationship (Student participation is optional, Course participation is optional)",
       "subquestions": [
         {
           "label": "a",
@@ -41,8 +41,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69a720c12e72ab9ac5fcdd5f",
-      "original_semantic_description": "Consider a library management system. The system contains the following entities: Book (BookID, Title, Author, ISBN), Member (MemberID, Name, Address, PhoneNumbers), Loan (LoanID, LoanDate, ReturnDate), and Staff (StaffID, Name, Position). There are relationships among these entities such as Members borrowing Books with a Loan, where each Loan has a LoanID that uniquely identifies it. The Book entity has attributes such as BookID, Title, Author. has a relationship with the Author, where multiple authors can contribute to a book. The Member entity has attributes such as MemberID, Name, Address. can be specialized into RegularMember (with attributes MembershipType) and StudentMember (with attributes Course, Year). Draw an EER diagram for this scenario and ensure to include all the relationships and their cardinalities.",
+      "template_id": "69a72b135a5b2b049cbd3a14",
+      "original_semantic_description": "A university is managing multiple departments, each offering different courses. Each department has a unique identifier, a name, and a location. Courses are defined by a course ID, course name, and have a credit value associated. Each course is assigned to one department, but each department can offer multiple courses. Students enroll in various courses, represented by a unique enrollment ID, along with a student's ID and the course ID they are enrolled in. The university needs to effectively manage the relationships and data structure of these entities.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\RP\\RP\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, CD->E, E->A, AC->B}}",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, C->D, DE->B, A->EF}}.",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69a720c12e72ab9ac5fcdd60",
+      "template_id": "69a72b135a5b2b049cbd3a15",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,7 +84,7 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A hospital has established a relational database to manage patient records, treatments, and billing information. The database consists of multiple tables, including Patients, Treatments, and Billing. Each table is designed to efficiently store and retrieve necessary information while adhering to relational database principles. The database administrator has been tasked with updating the structure of the Patients table to include additional fields, and they need to manipulate data entries across various tables based on new requirements.",
+      "text": "A retail company is creating a database system to manage its inventory and sales records efficiently. The database schema includes tables such as Products(product_id: integer, product_name: string, price: real, stock_quantity: integer), Orders(order_id: integer, order_date: date, total_amount: real), and Order_Details(order_detail_id: integer, order_id: integer, product_id: integer, quantity: integer). The company intends to implement various database operations to maintain data integrity and support business transactions.",
       "subquestions": [
         {
           "label": "a",
@@ -93,22 +93,22 @@
         },
         {
           "label": "b",
-          "text": "Code Segment: ```java String sql = \"SELECT * FROM employees WHERE department = ?\"; PreparedStatement pstmt = connection.prepareStatement(sql); pstmt.setString(1, \"IT\"); ResultSet rs = pstmt.executeQuery(); ``` Which type of JDBC statement is used in the code segment shown above? Briefly explain when this type of statement will be used.",
+          "text": "Code Segment:\n```java\nString sql = \"SELECT * FROM employees WHERE department = ?\";\nPreparedStatement pstmt = connection.prepareStatement(sql);\npstmt.setString(1, \"IT\");\nResultSet rs = pstmt.executeQuery();\n```\n\nWhich type of JDBC statement is used in the code segment shown above?\nBriefly explain when this type of statement will be used.",
           "marks": 2
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for modifying the existing structure of a table in SQL.",
+          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how you would handle referential integrity in the billing and treatments tables related to the patients table.",
+          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A hospital is establishing role-based access control for its database system that manages Patients, Doctors, and Appointments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Appointments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating patient appointment data.",
+          "text": "An organization is establishing role-based access control for its database system. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the operational database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating transaction data.",
           "marks": null,
           "subquestions": [
             {
@@ -124,7 +124,7 @@
             {
               "label": "iii",
               "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Appointments database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the operational database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -134,7 +134,7 @@
             {
               "label": "v",
               "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Patients and Appointments databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the operational databases."
             }
           ]
         }
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69a720c12e72ab9ac5fcdd61",
+      "template_id": "69a72b135a5b2b049cbd3a16",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,22 +152,22 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for a healthcare facility: Patient (patientId: int, name: varchar(100), dob: date, address: varchar(150)) Appointment (appointmentId: int, patientId: int, appointmentDate: date, status: varchar(50), totalFee: real) Doctor (doctorId: int, name: varchar(100), specialty: varchar(100), contact: varchar(15)) Hospital (hospitalId: int, name: varchar(100), location: varchar(150), capacity: int). The 'Patient' table stores information about patients, 'Appointment' keeps track of appointments made by patients, 'Doctor' details registered doctors, and 'Hospital' contains information on hospitals. The 'Appointment' table holds appointment records, tracking scheduled appointments between patients and doctors with dates and times. The 'Doctor' table manages details about doctors, including unique doctor ID, name, specialization, and contact information. The 'Hospital' table contains relevant information for the database system. Fee (feeId: int, patientId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
+      "text": "Consider the following schema of a database designed for a hospital: Patient (patientId: int, name: varchar(100), dob: date, address: varchar(150), phone: varchar(15)) Appointment (appointmentId: int, patientId: int, appointmentDate: date, doctorId: int, status: varchar(50)) Doctor (doctorId: int, name: varchar(100), specialty: varchar(50), phone: varchar(15)) Fee (feeId: int, appointmentId: int, amount: real, paymentStatus: varchar(50)) The 'Patient' table stores patient information, the 'Appointment' table details their appointments, the 'Doctor' table contains doctors' information including their specialties, and the 'Fee' table tracks appointment charges and payment statuses. The 'Appointment' table holds appointment records, tracking scheduled appointments between patients and doctors with dates and times. The 'Fee' table contains relevant information for the database system.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Write SQL Queries to perform the following: i. Find the names and phone numbers of doctors who are specialists in 'Pediatrics'.",
+          "text": "Write SQL Queries to perform the following:",
           "marks": null,
           "subquestions": [
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the names and phone numbers of doctors who are specialists in 'Pediatrics'."
+              "text": "Find the names and phone numbers of patients who have appointments scheduled for '2023-10-15'."
             },
             {
               "label": "ii",
               "marks": 6,
-              "text": "Find the patient with the highest aggregate value using GROUP BY on related appointment records."
+              "text": "Find the patient who has the highest total amount compared to all other patients. Find the patientId and name."
             },
             {
               "label": "iii",
@@ -190,7 +190,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69a720c12e72ab9ac5fcdd62",
+      "template_id": "69a72b135a5b2b049cbd3a17",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
