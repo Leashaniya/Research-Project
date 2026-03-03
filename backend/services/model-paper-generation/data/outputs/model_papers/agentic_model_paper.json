@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-01 11:57:36",
+  "generated_at": "2026-03-03 15:52:38",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university is managing its students, courses, and faculty using an enhanced entity-relationship model. The Student entity has attributes: StudentID, Name, Address, and PhoneNumbers. Faculty entity consists of attributes: FacultyID, Name, Department, and OfficeNumber. The Course entity includes attributes: CourseID, Title, Credits, and Schedule. The university uses an Enrolls relationship to link Students and Courses, which has the attribute EnrollmentDate. Additionally, there is a specialization in the Faculty entity, with a subtype representing ResearchFaculty which adds attributes such as ResearchArea and FundingAmount, while another subtype represents TeachingFaculty, adding attributes like TeachingLoad and CoursesTaught",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university database tracks students, courses, and faculty members. The Student entity includes attributes such as StudentID, Name, and DateOfBirth. The Course entity has attributes such as CourseID, Title, Credits. has CourseID, CourseName, and Credits. The Faculty entity has attributes such as FacultyID, Name, Description. consists of FacultyID, FacultyName, and HireDate. Additionally, there is an Enrollment relationship that connects the Student and Course entities, which includes an attribute EnrollmentDate. The university also categorizes Faculty into two subtypes: FullTimeFaculty, with additional attributes OfficeNumber and Salary, and PartTimeFaculty, with attributes HourlyRate and ContractEndDate. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrollment' relationship (Student participation is optional, Course participation is optional)",
       "subquestions": [
         {
           "label": "a",
@@ -41,9 +41,9 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69a42954197259b96e55b214",
-      "original_semantic_description": "A university is managing its students, courses, and faculty using an enhanced entity-relationship model. The Student entity has attributes: StudentID, Name, Address, and PhoneNumbers. Faculty entity consists of attributes: FacultyID, Name, Department, and OfficeNumber. The Course entity includes attributes: CourseID, Title, Credits, and Schedule. The university uses an Enrolls relationship to link Students and Courses, which has the attribute EnrollmentDate. Additionally, there is a specialization in the Faculty entity, with a subtype representing ResearchFaculty which adds attributes such as ResearchArea and FundingAmount, while another subtype represents TeachingFaculty, adding attributes like TeachingLoad and CoursesTaught. Draw an EER diagram that represents this model, ensuring to indicate all necessary relationships and constraints.",
-      "diagram_image_path": "/app/data/outputs/model_papers/images/Q1_eer_diagram.png",
+      "template_id": "69a6b616d21693832c0ddb24",
+      "original_semantic_description": "A university database tracks students, courses, and faculty members. The Student entity includes attributes such as StudentID, Name, and DateOfBirth. The Course entity has attributes such as CourseID, Title, Credits. has CourseID, CourseName, and Credits. The Faculty entity has attributes such as FacultyID, Name, Description. consists of FacultyID, FacultyName, and HireDate. Additionally, there is an Enrollment relationship that connects the Student and Course entities, which includes an attribute EnrollmentDate. The university also categorizes Faculty into two subtypes: FullTimeFaculty, with additional attributes OfficeNumber and Salary, and PartTimeFaculty, with attributes HourlyRate and ContractEndDate.",
+      "diagram_image_path": "C:\\Users\\DELL\\Downloads\\RP\\RP\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, C->AE, D->B}}.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, C->D, D->E, A->B, BD->C}}",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69a42954197259b96e55b215",
+      "template_id": "69a6b616d21693832c0ddb25",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,7 +84,7 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A university is designing a relational database to manage student enrollment and course offerings. The database schema includes relations for Students, Courses, and Enrollments. Each Student has a unique ID, a name, and email. Each Course is identified by a unique Course ID, a title, and a description. Enrollments track which Students are enrolled in which Courses. The database design must ensure data integrity and manage relationships effectively.",
+      "text": "A retail company is designing a database to manage its inventory. The inventory includes products with attributes such as product_id, product_name, price, and stock_quantity. The company requires integrity constraints to ensure that the data remains consistent and accurate. Moreover, the database should support operations for adding new products, updating stock levels, and deleting discontinued items while adhering to the required rules.",
       "subquestions": [
         {
           "label": "a",
@@ -98,17 +98,17 @@
         },
         {
           "label": "c",
-          "text": "Briefly explain how primary keys and foreign keys help maintain data integrity in this scenario.",
+          "text": "Briefly explain the options available for managing data integrity in the inventory database.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain the steps needed to enforce referential integrity between the Students and Enrollments relations.",
+          "text": "Briefly explain how foreign keys contribute to the integrity of the inventory database.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
+          "text": "An organization is establishing role-based access control for its database system. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the operational database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating transaction data.",
           "marks": null,
           "subquestions": [
             {
@@ -124,7 +124,7 @@
             {
               "label": "iii",
               "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the operational database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -134,7 +134,7 @@
             {
               "label": "v",
               "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the operational databases."
             }
           ]
         }
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69a42954197259b96e55b216",
+      "template_id": "69a6b616d21693832c0ddb26",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,45 +152,45 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for a Hospital: Patient (patientId: int, name: varchar(100), address: varchar(150), dob: date) Doctor (doctorId: int, name: varchar(100), specialty: varchar(50), phone: varchar(15)) Appointment (appointmentId: int, appointmentDate: date, patientId: int, doctorId: int, notes: varchar(200)) Prescription (prescriptionId: int, date: date, patientId: int, doctorId: int) The Patient table stores information about patients including their names, addresses, and dates of birth. The Doctor table holds details regarding doctors, their specialties, and contact numbers. The Appointment table manages appointment details, associating patients with doctors. The Prescription table maintains records of prescriptions linked to patients and the doctors who issued them. The 'Patient' table stores information about patients, including unique patient ID, name, date of birth, and contact details. The 'Doctor' table holds details about doctors, including unique doctor ID, name, specialization, and contact information. The 'Appointment' table manages appointment records, tracking scheduled appointments between patients and doctors with dates and times. The 'Prescription' table contains relevant information for the database system. Fee (feeId: int, patientId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
+      "text": "Consider the following schema of a database designed for a Hospital: Patient (patientId: int, name: varchar(100), dob: date, address: varchar(150)) Appointment (appointmentId: int, patientId: int, appointmentDate: date, status: varchar(50)) Bill (billId: int, appointmentId: int, amount: real, paymentStatus: varchar(50)). The 'Patient' table stores information about patients, including unique patient ID, name, date of birth, and address. The 'Appointment' table stores details about patient appointments, including the appointment ID, patient ID, appointment date, and status of the appointment. The 'Bill' table keeps track of billing details associated with appointments, including the bill ID, appointment ID, total amount billed, and payment status. The 'Bill' table manages relevant information for the database system.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Write SQL Queries to perform the following: i. Find the name and address of the patient who has an appointment on '2023-11-01'. ii. Find the names of all doctors who have a specialty in 'Cardiology'. iii. Find the appointment date and notes for all appointments of the patient named 'John Doe'.",
+          "text": "Write SQL Queries to perform the following: i. Find the name and address of the patient who has an appointment scheduled on '2023-10-15'.",
           "marks": null,
           "subquestions": [
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the name and address of the patient who has an appointment on '2023-11-01'."
+              "text": "Find the name and address of the patient who has an appointment scheduled on '2023-10-15'."
             },
             {
               "label": "ii",
               "marks": 6,
-              "text": "Find the names of all doctors who have a specialty in 'Cardiology'."
+              "text": "Find the patient who has the highest total amount compared to all other patients. Find the patientId and name."
             },
             {
               "label": "iii",
               "marks": 7,
-              "text": "Find the appointment date and notes for all appointments of the patient named 'John Doe'."
+              "text": "Find the appointmentDate, status, and name from Appointment, Patient, and Appointment where Appointment.appointmentDate is not null."
             }
           ]
         },
         {
           "label": "b",
           "marks": 11,
-          "text": "b) Create a function to calculate the total fee amount for a given patient. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
+          "text": "b) Create a function to calculate the total bill amount for a given patient. This function should account for bill with a late penalty of 10% applied to those marked as 'overdue' payment status."
         },
         {
           "label": "c",
           "marks": 12,
-          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each patient. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by patient. The patient pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
+          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Bill' table whenever a new bill record is added, or an existing bill record is updated. The 'amount' column should contain the total bill amount for each patient. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by patient. The patient pays only 50% of the total bill amount as an initial payment when the payment status is marked as 'Partial'."
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69a42954197259b96e55b217",
+      "template_id": "69a6b616d21693832c0ddb27",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
