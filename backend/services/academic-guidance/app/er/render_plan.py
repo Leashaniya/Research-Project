@@ -17,24 +17,26 @@ def build_render_plan(model: ERModel) -> RenderPlan:
     - Edge anchors used instead of center-to-center connections
     - All coordinates shifted to prevent negative values
     """
-    x_step = 600.0  # Increased spacing to accommodate attributes
-    y_step = 450.0  # Increased vertical spacing
-    entity_w = 180.0
-    entity_h = 120.0
-    rel_w = 120.0
-    rel_h = 80.0
+    # More compact layout: reduce spacing and box sizes while staying readable
+    x_step = 380.0  # Horizontal distance between entity columns
+    y_step = 320.0  # Vertical distance between entity rows
+    entity_w = 160.0
+    entity_h = 100.0
+    rel_w = 110.0
+    rel_h = 70.0
     
     # Attribute placement constants (treat x/y as OVAL CENTER)
-    attr_ry = 20.0  # Vertical radius of attribute oval
-    attr_rx = 50.0  # Horizontal radius of attribute oval
-    attr_oval_height = 40.0  # Height of attribute oval (2 * attr_ry)
-    attr_gap = 12.0  # Gap between attribute ovals
+    attr_ry = 18.0  # Vertical radius of attribute oval
+    attr_rx = 44.0  # Horizontal radius of attribute oval
+    attr_oval_height = 36.0  # Height of attribute oval (2 * attr_ry)
+    attr_gap = 8.0  # Gap between attribute ovals
     attr_step = attr_oval_height + attr_gap  # Step between attribute centers
-    attr_offset_side = 50.0  # Offset for left/right placement
-    attr_offset_above = 30.0  # Offset above entity top
-    attr_offset_below = 30.0  # Offset below relationship bottom
-    min_rel_gap = 40.0  # Minimum gap between relationship diamond and entity
-    lane_offset = 60.0  # Vertical offset per lane for relationship diamonds
+    # Bring attributes even closer to owners while avoiding overlap
+    attr_offset_side = 24.0  # Offset for left/right placement
+    attr_offset_above = 16.0  # Offset above entity top
+    attr_offset_below = 16.0  # Offset below relationship bottom
+    min_rel_gap = 26.0  # Minimum gap between relationship diamond and entity
+    lane_offset = 40.0  # Vertical offset per lane for relationship diamonds
     padding = 50.0  # Padding to prevent clipping
 
     plan = RenderPlan()

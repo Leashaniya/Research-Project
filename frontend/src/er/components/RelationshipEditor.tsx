@@ -323,8 +323,17 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
       {/* Aggregation Relationship UI */}
       {normalizedRelationship.relationshipType === "aggregation" && (
         <>
-          <div className="er-row-equal-3">
-            <div>
+          {/* Whole entity + Add Part Entity button on the same row */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              gap: 12,
+              marginBottom: 8,
+            }}
+          >
+            <div style={{ flex: 1 }}>
               <label className="er-muted" htmlFor="agg-whole-entity">
                 Whole Entity
               </label>
@@ -346,56 +355,58 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
                 ))}
               </select>
             </div>
-            <div style={{ gridColumn: "span 2" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
-                <label className="er-muted" style={{ marginBottom: 0 }}>
-                  Part Entities
-                </label>
-                <button
-                  className="er-btn er-btn-icon primary"
-                  type="button"
-                  onClick={addAggregationPartEntity}
-                  style={{ fontSize: "0.85rem", padding: "4px 10px", whiteSpace: "nowrap" }}
-                >
-                  <FaPlus />
-                  <span>Add Part Entity</span>
-                </button>
-              </div>
-              {aggregationPartEntityIds.length === 0 ? (
-                <div className="er-muted" style={{ fontSize: "0.85rem", paddingTop: 4 }}>
-                  No part entities yet. Add entities that are part of the aggregation (e.g., EMPLOYEE, MACHINERY).
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {aggregationPartEntityIds.map((partId, index) => (
-                    <div key={index} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <select
-                        className="er-select"
-                        value={partId}
-                        onChange={(e) => updateAggregationPartEntity(index, e.target.value)}
-                        style={{ flex: 1 }}
-                      >
-                        <option value="">Select part entity</option>
-                        {entities.map((e) => (
-                          <option key={e.id} value={e.id}>
-                            {e.name || "(unnamed entity)"}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        className="er-btn er-btn-icon-only danger"
-                        type="button"
-                        onClick={() => removeAggregationPartEntity(index)}
-                        title="Remove part entity"
-                        style={{ fontSize: "0.8rem" }}
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+            <div>
+              <button
+                className="er-btn er-btn-icon primary"
+                type="button"
+                onClick={addAggregationPartEntity}
+                style={{ fontSize: "0.85rem", padding: "4px 10px", whiteSpace: "nowrap" }}
+              >
+                <FaPlus />
+                <span>Add Part Entity</span>
+              </button>
             </div>
+          </div>
+
+          {/* Part entities listed below the button */}
+          <div style={{ marginBottom: 8 }}>
+            <label className="er-muted" style={{ marginBottom: 4, display: "block" }}>
+              Part Entities
+            </label>
+            {aggregationPartEntityIds.length === 0 ? (
+              <div className="er-muted" style={{ fontSize: "0.85rem", paddingTop: 4 }}>
+                No part entities yet. Add entities that are part of the aggregation (e.g., EMPLOYEE, MACHINERY).
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {aggregationPartEntityIds.map((partId, index) => (
+                  <div key={index} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <select
+                      className="er-select"
+                      value={partId}
+                      onChange={(e) => updateAggregationPartEntity(index, e.target.value)}
+                      style={{ flex: 1 }}
+                    >
+                      <option value="">Select part entity</option>
+                      {entities.map((e) => (
+                        <option key={e.id} value={e.id}>
+                          {e.name || "(unnamed entity)"}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      className="er-btn er-btn-icon-only danger"
+                      type="button"
+                      onClick={() => removeAggregationPartEntity(index)}
+                      title="Remove part entity"
+                      style={{ fontSize: "0.8rem" }}
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div style={{ marginTop: 8, marginBottom: 8 }}>
@@ -427,12 +438,12 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
             <table className="er-attrs-table" style={{ marginTop: 4 }}>
               <thead>
                 <tr>
-                  <th style={{ width: "26%" }}>Rel&nbsp;Name</th>
-                  <th style={{ width: "22%" }}>Part</th>
-                  <th style={{ width: "16%" }}>Card.</th>
-                  <th style={{ width: "20%" }}>Direction</th>
-                  <th style={{ width: "10%" }}>In&nbsp;Box</th>
-                  <th style={{ width: "6%" }} />
+                  <th>Rel&nbsp;Name</th>
+                  <th>Part</th>
+                  <th>Card.</th>
+                  <th>Direction</th>
+                  <th>In&nbsp;Box</th>
+                  <th />
                 </tr>
               </thead>
               <tbody>
@@ -942,18 +953,22 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
       <table className="er-attrs-table" style={{ marginTop: 10 }}>
         <thead>
           <tr>
-            <th style={{ width: "30%" }}>Name</th>
-            <th style={{ width: "15%" }}>Type</th>
+            <th>Name</th>
+            <th>Type</th>
             <th>PK</th>
             <th>Unique</th>
             <th>Nullable</th>
-            <th style={{ width: 90 }} />
+            <th />
           </tr>
         </thead>
         <tbody>
           {normalizedRelationship.attributes.length === 0 ? (
             <tr>
-              <td colSpan={6} className="er-muted">
+              <td
+                colSpan={6}
+                className="er-muted"
+                style={{ textAlign: "center", padding: "12px 0" }}
+              >
                 No relationship attributes.
               </td>
             </tr>
