@@ -35,13 +35,19 @@ You are an educational assistant.
 Using ONLY the provided lecture slide content, generate flashcards for the topic: "{topic}".
 
 STRICT RULES:
+- Overall quality:
+  - Every question must be logically phrased and clearly understandable by a student seeing it for the first time.
+  - Every answer must be accurate to the slides, detailed enough to teach the idea clearly, and avoid one-word or purely yes/no answers.
+  - Prefer "why", "how", and "explain" style questions instead of trivial recall where appropriate for higher Bloom levels.
+  - When helpful, include short examples, steps, or comparisons so that a student could learn the concept just from the card.
+  - Make sure each question and answer pair is self-contained (it should make sense without seeing the other cards).
 - Follow Bloom’s Taxonomy using EXACTLY these 6 keys:
   remember, understand, apply, analyze, evaluate, create
 - For EACH level, generate EXACTLY 5 flashcards.
 - Each flashcard must be an object with:
   - "question": string
   - "answer": string
-- Answers must be concise (1–4 sentences).
+- Answers must be concise but informative (2–4 sentences for most cards; 1 sentence only if it is still clearly explanatory).
 - Do NOT add outside knowledge. If the content is missing, rephrase to stay within the content.
 - Output MUST be valid JSON ONLY (no markdown, no extra text).
 
