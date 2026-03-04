@@ -1,0 +1,372 @@
+/*
+ * essay-support.css
+ * Scoped styles for the Essay Support System subsystem.
+ * All CSS custom properties and global-like styles are scoped
+ * under .essay-support-root to avoid conflicts with the main app.
+ */
+
+/* ── Scoped theme variables ── */
+.essay-support-root {
+  /* Purple gradient theme */
+  --primary-50:  #f5f3ff;
+  --primary-100: #ede9fe;
+  --primary-200: #ddd6fe;
+  --primary-300: #c4b5fd;
+  --primary-400: #a78bfa;
+  --primary-500: #8b5cf6;
+  --primary-600: #7c3aed;
+  --primary-700: #6d28d9;
+  --primary-800: #5b21b6;
+  --primary-900: #4c1d95;
+
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger:  #ef4444;
+  --info:    #3b82f6;
+
+  --bg:          #0f0b1a;
+  --bg-card:     #1a1425;
+  --bg-card-alt: #221a33;
+  --bg-sidebar:  #130f20;
+  --text:        #e8e0f0;
+  --text-muted:  #9a8cb0;
+  --border:      #2d2540;
+  --border-light: #362d4a;
+
+  --primary:     #8b5cf6;
+  --secondary:   #a78bfa;
+  --text-secondary: #b0a3c8;
+  --surface:     #1a1425;
+  --success-light: rgba(16, 185, 129, 0.12);
+
+  --sidebar-w: 260px;
+  --radius:    12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --transition: all 0.2s ease;
+
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+
+  /* Full viewport container */
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.essay-support-root *,
+.essay-support-root *::before,
+.essay-support-root *::after {
+  box-sizing: border-box;
+}
+
+.essay-support-root a {
+  color: var(--primary-400);
+  text-decoration: none;
+}
+.essay-support-root a:hover { text-decoration: underline; }
+
+.essay-support-root button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.essay-support-root input,
+.essay-support-root textarea,
+.essay-support-root select {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.essay-support-root img,
+.essay-support-root svg { display: block; max-width: 100%; }
+
+/* ── App-level layout chrome ── */
+
+.essay-support-root .app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.essay-support-root .app-content {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  padding: 2rem 2.5rem;
+  max-width: 1200px;
+}
+
+/* ── Utility Classes ── */
+
+.essay-support-root .card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.essay-support-root .card-alt {
+  background: var(--bg-card-alt);
+}
+
+.essay-support-root .gradient-text {
+  background: linear-gradient(135deg, var(--primary-400), var(--primary-300));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.essay-support-root .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.essay-support-root .btn-primary {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+  color: #fff;
+}
+.essay-support-root .btn-primary:hover {
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-400));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
+}
+
+.essay-support-root .btn-secondary {
+  background: var(--bg-card-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.essay-support-root .btn-secondary:hover {
+  border-color: var(--primary-500);
+  color: var(--primary-400);
+}
+
+.essay-support-root .btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.essay-support-root .btn-danger:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.essay-support-root .btn-sm {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+}
+
+.essay-support-root .badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.essay-support-root .badge-easy {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+}
+.essay-support-root .badge-medium {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+}
+.essay-support-root .badge-hard {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+}
+
+.essay-support-root .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+.essay-support-root .page-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+.essay-support-root .page-header p {
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+}
+
+/* ── Grid helpers ── */
+.essay-support-root .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+.essay-support-root .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+.essay-support-root .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .essay-support-root .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .essay-support-root .grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .essay-support-root .app-content {
+    margin-left: 0;
+    padding: 1.25rem 1rem 5rem;
+  }
+  .essay-support-root .grid-4,
+  .essay-support-root .grid-3,
+  .essay-support-root .grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ── Button variants ── */
+
+.essay-support-root .btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.essay-support-root .btn-outline:hover {
+  border-color: var(--primary-500);
+  color: var(--primary-400);
+}
+
+.essay-support-root .btn-lg {
+  padding: 0.8rem 1.8rem;
+  font-size: 1rem;
+}
+
+/* ── Alerts ── */
+
+.essay-support-root .alert {
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.essay-support-root .alert p { flex: 1; }
+.essay-support-root .alert button {
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
+  padding: 0.3rem 0.75rem;
+  color: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.essay-support-root .alert-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* ── Empty State ── */
+
+.essay-support-root .empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+.essay-support-root .empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+.essay-support-root .empty-state h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.essay-support-root .empty-state p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ── Card sub-sections ── */
+
+.essay-support-root .card-header {
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.essay-support-root .card-header h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* ── Form elements ── */
+
+.essay-support-root .select {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.85rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.essay-support-root .select:focus {
+  outline: none;
+  border-color: var(--primary-500);
+}
+
+/* ── Data table ── */
+
+.essay-support-root .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+.essay-support-root .data-table th,
+.essay-support-root .data-table td {
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  white-space: nowrap;
+}
+.essay-support-root .data-table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.essay-support-root .data-table td {
+  border-bottom: 1px solid rgba(45, 37, 64, 0.4);
+}
+.essay-support-root .data-table tr:last-child td { border-bottom: none; }
+.essay-support-root .data-table tr:hover td { background: rgba(139, 92, 246, 0.04); }
+
+.essay-support-root .badge-topic {
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--primary-400);
+}
+
+/* ── Animations ── */
+
+.essay-support-root .fade-in {
+  animation: essayFadeIn 0.4s ease both;
+}
+.essay-support-root .fade-in-up {
+  animation: essayFadeInUp 0.45s ease both;
+}
+
+@keyframes essayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes essayFadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

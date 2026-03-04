@@ -17,7 +17,9 @@
     "rehype-raw": "^7.0.0",
     "react-syntax-highlighter": "^16.1.0",
     "react-icons": "^5.5.0",
-    "@hpcc-js/wasm": "^2.32.3"
+    "@hpcc-js/wasm": "^2.32.3",
+    "chart.js": "^4.5.1",
+    "react-chartjs-2": "^5.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

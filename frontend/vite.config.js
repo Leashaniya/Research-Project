@@ -20,6 +20,11 @@ export default defineConfig({
         target: gatewayTarget,
         changeOrigin: true,
       },
+      '/essay': {
+        target: process.env.ESSAY_TARGET || 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/essay/, ''),
+      },
     },
   },
 })
