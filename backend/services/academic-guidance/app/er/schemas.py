@@ -52,6 +52,10 @@ class AggregationRelationship(BaseModel):
     cardinality: Cardinality
     direction: AggregationDirection
     inAggregationBox: bool = True
+    # Optional attributes that belong specifically to this inner aggregation
+    # relationship (e.g., WORKS_FOR has its own attributes separate from the
+    # aggregation container).
+    attributes: list[Attribute] = Field(default_factory=list)
 
 
 class Relationship(BaseModel):

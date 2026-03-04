@@ -15,6 +15,8 @@ export interface AggregationRelationship {
   cardinality: Cardinality;
   direction: AggregationDirection;
   inAggregationBox: boolean;
+  // Optional attributes specific to this inner aggregation relationship
+  attributes?: Attribute[];
 }
 
 export interface Attribute {

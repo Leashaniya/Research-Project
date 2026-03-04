@@ -146,6 +146,11 @@ export function erModelToDot(model: ERModel): string {
   
   // Relationship attributes
   for (const rel of model.relationships) {
+    // Skip aggregation container itself here; its inner relationships are
+    // rendered separately below (and can have their own attributes).
+    if (rel.relationshipType === "aggregation") {
+      continue;
+    }
     for (const attr of rel.attributes) {
       const nodeId = `A_${attr.id}`;
       const label = getAttributeLabel(attr);
@@ -310,6 +315,36 @@ export function erModelToDot(model: ERModel): string {
           partCard
         )}, style=solid, arrowhead=none${tailClusterAttr}];`
       );
+
+      // --- Attributes on inner aggregation relationships ---
+      if (aggr.attributes && aggr.attributes.length > 0) {
+        for (const attr of aggr.attributes) {
+          const aNodeId = `A_${attr.id}`;
+          const aLabel = getAttributeLabel(attr);
+          const aShapeInfo = getAttributeShape(attr);
+          const aShapeStr = aShapeInfo.peripheries
+            ? `shape=${aShapeInfo.shape}, peripheries=${aShapeInfo.peripheries}`
+            : `shape=${aShapeInfo.shape}`;
+          lines.push(`  ${escapeId(aNodeId)} [${aShapeStr}, label=${aLabel}];`);
+
+          // Connect attribute to the inner relationship diamond
+          lines.push(`  ${escapeId(innerNodeId)} -> ${escapeId(aNodeId)} [style=solid, arrowhead=none];`);
+
+          // Composite attributes on inner aggregation relationships
+          if (attr.type === "composite" && attr.subAttributes && attr.subAttributes.length > 0) {
+            for (const subAttr of attr.subAttributes) {
+              const subNodeId = `A_${subAttr.id}`;
+              const subLabel = getAttributeLabel(subAttr);
+              const subShapeInfo = getAttributeShape(subAttr);
+              const subShapeStr = subShapeInfo.peripheries
+                ? `shape=${subShapeInfo.shape}, peripheries=${subShapeInfo.peripheries}`
+                : `shape=${subShapeInfo.shape}`;
+              lines.push(`  ${escapeId(subNodeId)} [${subShapeStr}, label=${subLabel}];`);
+              lines.push(`  ${escapeId(aNodeId)} -> ${escapeId(subNodeId)} [style=solid, arrowhead=none];`);
+            }
+          }
+        }
+      }
     }
 
     // Build dashed aggregation box (cluster) around selected entities and relationships
