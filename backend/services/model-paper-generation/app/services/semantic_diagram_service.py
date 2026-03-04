@@ -67,7 +67,13 @@ class SemanticDiagramService:
         
         return None
     
-    def parse_semantic_description(self, description: str, requires_isa: bool = False) -> Dict[str, Any]:
+    def parse_semantic_description(
+        self,
+        description: str,
+        requires_isa: bool = False,
+        requires_aggregation: bool = False,
+        aggregation_spec: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         """
         Parse a semantic description to extract ER/EER diagram components.
         
@@ -105,6 +111,34 @@ Each subtype MUST have at least 2-3 specific attributes that are NOT in the pare
 If the scenario does NOT naturally support an ISA hierarchy with two or more meaningful subtypes, DO NOT invent one – in that case, use only regular relationships (no ISA).
 """        
         
+        aggregation_requirement_note = ""
+        if requires_aggregation:
+            # Keep this extremely explicit so the model returns a parsable aggregation block.
+            agg_details = ""
+            if aggregation_spec and isinstance(aggregation_spec, dict):
+                inside_entities = aggregation_spec.get("entities_inside_aggregation") or []
+                inside_rel = aggregation_spec.get("relationship_inside_aggregation") or ""
+                ext_entity = aggregation_spec.get("external_entity") or ""
+                ext_rel = aggregation_spec.get("external_relationship") or ""
+                agg_details = f"""
+AGGREGATION SPEC (MUST FOLLOW):
+- Entities inside aggregation (dotted box): {inside_entities}
+- Relationship inside aggregation (diamond inside dotted box): {inside_rel}
+- External entity (outside box): {ext_entity}
+- External relationship (connects external entity to the aggregated unit): {ext_rel}
+"""
+
+            aggregation_requirement_note = f"""
+⚠️ MANDATORY AGGREGATION REQUIREMENT ⚠️
+This diagram MUST include an AGGREGATION (dotted box) where a relationship participates in another relationship.
+You MUST return an "aggregations" array describing the aggregation block(s).
+{agg_details}
+Rules:
+- Aggregation must include: (at minimum) 2 entities + 1 relationship inside the dotted box.
+- There MUST be an external entity connected to the aggregated unit via an external relationship.
+- The aggregation must be meaningful and consistent with the scenario text (do not invent unrelated parts).
+"""
+        
         # Escape curly braces in JSON example to avoid format string errors
         json_example = """{
     "entities": [
@@ -138,6 +172,15 @@ If the scenario does NOT naturally support an ISA hierarchy with two or more mea
             "descriptive_attributes": ["EnrollmentDate", "Grade"]
         }
     ],
+    "aggregations": [
+        {
+            "name": "AggregationName",
+            "entities": ["EntityInside1", "EntityInside2"],
+            "relationship": "RelationshipInsideAggregation",
+            "external_entity": "ExternalEntity",
+            "external_relationship": "ExternalRelationship"
+        }
+    ],
     "isa_hierarchies": [
         {
             "supertype": "SuperType",
@@ -163,10 +206,12 @@ Description:
 {description}
 
 {isa_requirement_note}
+{aggregation_requirement_note}
 
 Extract:
 1. Entities with their attributes and primary keys (MINIMUM 4 entities required)
 2. Relationships between entities with cardinalities AND participation constraints (min/max)
+3. Aggregations (if any) where a relationship participates in another relationship (dotted box aggregation)
 3. ISA hierarchies (subtype/supertype relationships) with subtype-specific attributes
    ⚠️ CRITICAL: ISA hierarchies are ONLY for subtype/supertype relationships (e.g., Student → GraduateStudent, UndergraduateStudent)
    ⚠️ ISA is NOT for regular relationships (e.g., Student → Course is a RELATIONSHIP, NOT an ISA hierarchy)
@@ -185,6 +230,7 @@ Extract:
         - MINIMUM 4 distinct entities must be included (at least 4 entities)
         - ⚠️ ALL entities MUST be connected through relationships - NO standalone entities
         - ⚠️ If an entity like "Instructor" or "Department" exists, it MUST be connected to at least one other entity via a relationship
+        - {"⚠️ AGGREGATION IS REQUIRED. You MUST include at least one aggregation and include it in the 'aggregations' array." if requires_aggregation else ""}
         - ⚠️ ISA hierarchies MUST be subtype/supertype only (e.g., Student → GraduateStudent, NOT Student → Course)
         - ⚠️ For every ISA hierarchy returned, the "subtypes" array MUST contain at least TWO subtype objects. Never create an ISA hierarchy with only one subtype.
         - ⚠️ DO NOT repeat the same attribute multiple times within an entity - each attribute should appear only once per entity
@@ -273,6 +319,9 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             result = self._remove_duplicate_attributes(result)
             # Enforce that ISA hierarchies are valid (context + ≥ 2 subtypes + subtype-specific attributes)
             result = self._enforce_minimum_isa_subtypes(result)
+            # Ensure aggregations is always present for downstream code (even if empty)
+            if "aggregations" not in result or result.get("aggregations") is None:
+                result["aggregations"] = []
             return result
         except json.JSONDecodeError as e:
             print(f"[WARN] JSON parsing error: {e}")
@@ -718,6 +767,7 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         """
         entities = parsed_data.get("entities", [])
         relationships = parsed_data.get("relationships", [])
+        aggregations = parsed_data.get("aggregations", []) or []
         
         if not entities:
             return parsed_data
@@ -742,6 +792,18 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                 else:
                     subtype = str(subtype_data).lower()
                 connected_entity_names.add(subtype)
+
+        # Treat all entities that participate in an aggregation as connected,
+        # even if the LLM forgot to explicitly connect them via a relationship.
+        # This prevents important entities like Department in a Department–Course–Offers
+        # aggregation from being pruned as "standalone" and disappearing from the diagram.
+        for agg in aggregations:
+            for ent_name in (agg.get("entities") or []):
+                if ent_name:
+                    connected_entity_names.add(str(ent_name).lower())
+            ext_entity = (agg.get("external_entity") or "").lower()
+            if ext_entity:
+                connected_entity_names.add(ext_entity)
         
         # Check for standalone entities and REMOVE them from entities list
         standalone_entities = []
@@ -1151,12 +1213,15 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         """
         entities = parsed_data.get("entities", [])
         relationships = parsed_data.get("relationships", [])
+        aggregations = parsed_data.get("aggregations", []) or []
         isa_hierarchies = parsed_data.get("isa_hierarchies", [])
         weak_entities = parsed_data.get("weak_entities", [])
         
         lines = []
         lines.append("digraph ER_Diagram {")
         lines.append("    rankdir=LR;")
+        # Allow edges to visually target clusters while still terminating at inner nodes.
+        lines.append("    compound=true;")
         lines.append("    node [fontname=\"Arial\", fontsize=10];")
         lines.append("")
         
@@ -1181,12 +1246,22 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         
         lines.append("")
         
+        # Build a list of primary key names (lowercase) to help filter out
+        # foreign-key-looking attributes from entity attribute lists. In
+        # conceptual ER/EER diagrams we typically don't show foreign keys.
+        pk_names: List[str] = []
+        for e in entities:
+            pk_name = (e.get("primary_key") or "").strip()
+            if pk_name:
+                pk_names.append(pk_name.lower())
+
         # Draw attributes as ovals connected to entities
         for entity in entities:
             entity_name = entity["name"]
             entity_id = entity_name.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "")
             attrs = entity.get("attributes", [])
             pk = entity.get("primary_key", "")
+            pk_lower_current = pk.lower() if isinstance(pk, str) else ""
             composite_attrs = entity.get("composite_attributes", [])
             multivalued_attrs = entity.get("multivalued_attributes", [])
             
@@ -1257,7 +1332,7 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                         attr = attr.get("name", str(attr))
                     else:
                         attr = str(attr)
-                
+
                 # Skip if this attribute is a composite (already drawn above)
                 is_composite_attr = False
                 for comp_attr_data in composite_attrs:
@@ -1270,18 +1345,41 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                         break
                 if is_composite_attr:
                     continue
-                
+
                 # Clean attribute name for node ID (remove spaces, hyphens, parentheses, etc.)
                 attr_clean = attr.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "_")
                 # Remove (PK) suffix if present for node ID
                 attr_clean = attr_clean.replace("_PK", "").replace("_pk", "")
                 attr_id = f"{entity_id}_{attr_clean}"
-                
+
                 # Sanitize node ID to ensure it's valid Graphviz identifier
                 attr_id = "".join(c if c.isalnum() or c == "_" else "_" for c in attr_id)
-                
+
                 # Determine if this is the primary key (underline in label)
                 is_pk = pk and isinstance(pk, str) and (pk.lower() in attr.lower() or attr.lower().endswith("(pk)"))
+
+                # Filter out attributes that likely represent foreign keys:
+                # if this attribute's name clearly embeds *another* entity's
+                # primary key and it is not the primary key of the current entity,
+                # skip it. Example: "Course_DepartmentID" when "DepartmentID" is
+                # the primary key of Department.
+                attr_lower = attr.lower()
+                if not is_pk:
+                    for pk_name in pk_names:
+                        if not pk_name:
+                            continue
+                        # If this attribute's name exactly matches another entity's PK
+                        # and it is not this entity's PK, treat it as a foreign key.
+                        if pk_name == attr_lower and pk_name != pk_lower_current:
+                            attr_lower = None
+                            break
+                        # Or if it clearly embeds another PK name (e.g., Course_DepartmentID),
+                        # also treat it as a foreign-key-style attribute.
+                        if pk_name in attr_lower and pk_name != pk_lower_current:
+                            attr_lower = None
+                            break
+                    if attr_lower is None:
+                        continue
                 
                 # Check if this is a multivalued attribute
                 # CRITICAL: Ensure mv is a string before calling .lower()
@@ -1326,8 +1424,80 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         
         lines.append("")
         
-        # Draw relationships as diamonds
+        # Precompute a quick lookup for entities and relationships by name
+        entity_by_name = {e.get("name"): e for e in entities if e.get("name")}
+        rel_by_name = {r.get("name"): r for r in relationships if r.get("name")}
+
+        # Ensure that each aggregation's inner relationship actually exists in the
+        # relationships list. If the LLM forgot to emit it (e.g., "Offers" between
+        # Department and Course), we either align to an existing relationship that
+        # connects the same pair of entities or synthesize a reasonable default.
+        if aggregations:
+            existing_rel_names = { (r.get("name") or "").strip().lower() for r in relationships }
+            for agg in aggregations:
+                inside_rel = (agg.get("relationship") or "").strip()
+                inside_entities = agg.get("entities") or []
+                if not inside_rel:
+                    continue
+
+                rel_key = inside_rel.strip().lower()
+                if rel_key in existing_rel_names:
+                    continue
+
+                # Try to infer a matching relationship by endpoints (order-insensitive).
+                inferred = None
+                if len(inside_entities) >= 2:
+                    ent1, ent2 = inside_entities[0], inside_entities[1]
+                    endpoints = {str(ent1).strip().lower(), str(ent2).strip().lower()}
+                    for r in relationships:
+                        n1 = str(r.get("entity1") or "").strip().lower()
+                        n2 = str(r.get("entity2") or "").strip().lower()
+                        if {n1, n2} == endpoints:
+                            inferred = r
+                            break
+
+                if inferred:
+                    # Align aggregation to the actual relationship name the parser used.
+                    agg["relationship"] = inferred.get("name", inside_rel)
+                    continue
+
+                # Otherwise, synthesize a simple one-to-many relationship connecting
+                # the first two inside entities so that the aggregation box always
+                # contains a proper relationship diamond.
+                if len(inside_entities) < 2:
+                    continue
+
+                ent1, ent2 = inside_entities[0], inside_entities[1]
+                new_rel = {
+                    "name": inside_rel,
+                    "entity1": ent1,
+                    "entity2": ent2,
+                    "cardinality": "one-to-many",
+                    "min1": 1,
+                    "max1": "N",
+                    "min2": 1,
+                    "max2": 1,
+                    "descriptive_attributes": [],
+                }
+                relationships.append(new_rel)
+                rel_by_name[inside_rel] = new_rel
+
+        # If aggregations exist, treat their external relationships specially:
+        # we will draw those external relationships ourselves so we can connect
+        # them to the aggregated unit (the inner relationship diamond) instead
+        # of directly to inner entities. To avoid duplicate lines, skip them
+        # in the generic relationship-drawing loop.
+        external_rel_names = set()
+        for agg in aggregations:
+            name = (agg.get("external_relationship") or "").strip()
+            if name:
+                external_rel_names.add(name)
+
+        # Draw relationships as diamonds (except external aggregation relationships,
+        # which are handled later in the aggregation block).
         for rel in relationships:
+            if rel.get("name") in external_rel_names:
+                continue
             entity1 = rel["entity1"].replace(" ", "_").replace("-", "_")
             entity1 = "".join(c if c.isalnum() or c == "_" else "_" for c in entity1)
             entity2 = rel["entity2"].replace(" ", "_").replace("-", "_")
@@ -1387,6 +1557,124 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
                     lines.append(f'    {rel_node_id} -> {desc_attr_id} [style=solid, arrowhead=none];')
         
         lines.append("")
+
+        # Draw aggregations (dotted box) if present.
+        # Representation:
+        # - Dotted cluster containing the inside entities, the inside relationship diamond,
+        #   and all of their attributes.
+        # - An external relationship diamond that connects the external entity
+        #   directly to the inside relationship diamond (treating that relationship
+        #   as the aggregated unit). No extra "agg" node is drawn.
+        if aggregations:
+            for idx, agg in enumerate(aggregations):
+                agg_name = (agg.get("name") or f"Aggregation{idx+1}").strip() or f"Aggregation{idx+1}"
+                inside_entities = agg.get("entities") or []
+                inside_rel = (agg.get("relationship") or "").strip()
+                external_entity = (agg.get("external_entity") or "").strip()
+                external_rel = (agg.get("external_relationship") or "").strip()
+
+                # Sanitize IDs
+                cluster_id = f"cluster_agg_{idx}_{agg_name}".replace(" ", "_").replace("-", "_")
+                cluster_id = "".join(c if c.isalnum() or c == "_" else "_" for c in cluster_id)
+
+                member_ids: List[str] = []
+                # Entity nodes
+                for ent in inside_entities:
+                    if not ent:
+                        continue
+                    ent_id = str(ent).replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "")
+                    ent_id = "".join(c if c.isalnum() or c == "_" else "_" for c in ent_id)
+                    member_ids.append(ent_id)
+                    # Also include this entity's attribute nodes inside the cluster
+                    ent_obj = entity_by_name.get(ent)
+                    if ent_obj:
+                        attrs = ent_obj.get("attributes", []) or []
+                        pk_ent = ent_obj.get("primary_key", "")
+                        pk_ent_lower = pk_ent.lower() if isinstance(pk_ent, str) else ""
+                        for attr in attrs:
+                            if not isinstance(attr, str):
+                                if isinstance(attr, dict):
+                                    attr = attr.get("name", str(attr))
+                                else:
+                                    attr = str(attr)
+
+                            # Apply the same foreign-key-style filter used when drawing attributes
+                            attr_lower = attr.lower()
+                            skip_attr = False
+                            for pk_name in pk_names:
+                                if not pk_name:
+                                    continue
+                                # Exact match with another entity's PK
+                                if pk_name == attr_lower and pk_name != pk_ent_lower:
+                                    skip_attr = True
+                                    break
+                                # Or clearly embeds another PK name (e.g., Course_DepartmentID)
+                                if pk_name in attr_lower and pk_name != pk_ent_lower:
+                                    skip_attr = True
+                                    break
+                            if skip_attr:
+                                continue
+
+                            attr_clean = attr.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "_")
+                            attr_clean = attr_clean.replace("_PK", "").replace("_pk", "")
+                            ent_node_id = ent_id
+                            attr_id = f"{ent_node_id}_{attr_clean}"
+                            attr_id = "".join(c if c.isalnum() or c == "_" else "_" for c in attr_id)
+                            member_ids.append(attr_id)
+
+                # Inside relationship node and its descriptive attributes
+                inside_rel_node_id = None
+                if inside_rel:
+                    rel_id = inside_rel.replace(" ", "_").replace("-", "_")
+                    rel_id = "".join(c if c.isalnum() or c == "_" else "_" for c in rel_id)
+                    inside_rel_node_id = f"R_{rel_id}"
+                    member_ids.append(inside_rel_node_id)
+                    rel_obj = rel_by_name.get(inside_rel)
+                    if rel_obj:
+                        for desc_attr in rel_obj.get("descriptive_attributes", []) or []:
+                            if not desc_attr:
+                                continue
+                            desc_attr_clean = desc_attr.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace(".", "_")
+                            desc_attr_id = f"{inside_rel_node_id}_{desc_attr_clean}"
+                            desc_attr_id = "".join(c if c.isalnum() or c == "_" else "_" for c in desc_attr_id)
+                            member_ids.append(desc_attr_id)
+
+                # Create dotted cluster
+                lines.append(f"    subgraph {cluster_id} {{")
+                lines.append('        style="dotted";')
+                lines.append('        color="gray40";')
+                # Do not add a visible heading/label for aggregation; the dotted box alone
+                # indicates aggregation visually.
+                # We still set an empty label to keep layout stable.
+                lines.append('        label="";')
+                lines.append('        fontname="Arial";')
+                lines.append('        fontsize=10;')
+                for mid in member_ids:
+                    lines.append(f"        {mid};")
+                lines.append("    }")
+
+                # External relationship: conceptually connects external entity to the aggregation
+                # as a whole. In Graphviz we approximate this by drawing the edge to the inner
+                # relationship node, but using lhead=cluster_id so the edge visually enters the
+                # dotted box instead of pointing at an arbitrary entity/relationship.
+                if external_entity and external_rel and inside_rel_node_id:
+                    external_entity_id = external_entity.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "")
+                    external_entity_id = "".join(c if c.isalnum() or c == "_" else "_" for c in external_entity_id)
+                    external_rel_id = external_rel.replace(" ", "_").replace("-", "_")
+                    external_rel_id = "".join(c if c.isalnum() or c == "_" else "_" for c in external_rel_id)
+                    external_rel_node_id = f"R_{external_rel_id}"
+                    external_rel_label = external_rel.replace('"', '\\"').replace('\\', '\\\\') or "Relates"
+
+                    lines.append(f'    {external_rel_node_id} [label="{external_rel_label}", shape=diamond, style="filled", fillcolor=lightgray, fontsize=10];')
+                    # Default to optional-many on both sides.
+                    lines.append(f'    {external_entity_id} -> {external_rel_node_id} [label="(0,N)", arrowhead=none];')
+                    # Connect external relationship to the inner aggregation relationship;
+                    # lhead=cluster_id ensures the edge visually targets the dotted box.
+                    lines.append(
+                        f'    {external_rel_node_id} -> {inside_rel_node_id} '
+                        f'[label="(0,N)", arrowhead=none, lhead="{cluster_id}"];'
+                    )
+                lines.append("")
         
         # Draw ISA hierarchies (EER) - single ISA node per hierarchy, no inherited attributes on subtypes
         if diagram_type == "EER" and isa_hierarchies:
@@ -1558,7 +1846,9 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         output_path: Path,
         diagram_type: str = "EER",
         format: str = "png",
-        requires_isa: bool = False
+        requires_isa: bool = False,
+        requires_aggregation: bool = False,
+        aggregation_spec: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Complete pipeline: Parse semantic description and generate diagram image.
@@ -1582,8 +1872,13 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         try:
             print(f"   [INFO] Parsing semantic description for {diagram_type} diagram...")
             
-            # Step 1: Parse semantic description (pass requires_isa flag)
-            parsed_data = self.parse_semantic_description(description, requires_isa=requires_isa)
+            # Step 1: Parse semantic description (pass ISA + aggregation requirements)
+            parsed_data = self.parse_semantic_description(
+                description,
+                requires_isa=requires_isa,
+                requires_aggregation=requires_aggregation,
+                aggregation_spec=aggregation_spec,
+            )
             
             if not parsed_data.get("entities"):
                 return {
@@ -1768,6 +2063,15 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
             # Step 2: Generate Graphviz code
             print(f"   [INFO] Generating Graphviz DOT code...")
             dot_code = self.generate_graphviz_code(parsed_data, diagram_type)
+
+            # If aggregation was required but not present, surface an error to allow caller-side repair.
+            if requires_aggregation and not parsed_data.get("aggregations"):
+                return {
+                    "success": False,
+                    "error": "Aggregation required but was not parsed from description",
+                    "dot_code": dot_code,
+                    "parsed_data": parsed_data,
+                }
             
             # Step 3: Render to image
             print(f"   [INFO] Rendering diagram to {format}...")

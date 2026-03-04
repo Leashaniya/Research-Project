@@ -2308,6 +2308,47 @@ class AgentOrchestrator:
             # Attempt loop (Writer + Critic)
             for attempt in range(MAX_RETRIES):
                 try:
+                    # Aggregation requirements (for ER/EER diagram generation)
+                    # Hard-wire aggregation for Q1 ER/EER questions so that template JSON regeneration
+                    # cannot accidentally disable aggregation behaviour.
+                    is_q1 = q_no in ["Q1", "1"]
+                    is_er_intent = bool(template_intent and ("er" in template_intent.lower() or "eer" in template_intent.lower()))
+                    requires_aggregation = bool(template.get("requires_aggregation")) or (is_q1 and is_er_intent)
+
+                    aggregation_scenarios = template.get("aggregation_scenarios") or []
+                    selected_aggregation_spec = None
+                    if requires_aggregation:
+                        if aggregation_scenarios:
+                            # Pick a scenario that matches the draft/template context if possible (light heuristic).
+                            preview_text = (template.get("full_text") or "") + " " + (template.get("dominant_topic") or "")
+                            preview_lower = preview_text.lower()
+                            # Prefer project scenario if "project" appears; else patient if "patient/doctor/treatment" appears; else first.
+                            for s in aggregation_scenarios:
+                                sid = (s.get("id") or "").lower()
+                                if "project" in preview_lower or "project" in sid:
+                                    selected_aggregation_spec = s
+                                    break
+                                if any(k in preview_lower for k in ["patient", "doctor", "treatment"]) or any(k in sid for k in ["patient", "treatment"]):
+                                    selected_aggregation_spec = s
+                                    break
+                            if not selected_aggregation_spec:
+                                selected_aggregation_spec = aggregation_scenarios[0]
+                        else:
+                            # Default hard-coded aggregation scenario:
+                            # Departments OFFER Courses (inside aggregation) and Students ENROLL in those offerings (external).
+                            selected_aggregation_spec = {
+                                "id": "department_course_offers_enrolls",
+                                "description": (
+                                    "Departments offer courses, and students enroll in those specific offerings. "
+                                    "Aggregation groups Department, Course, and the Offers relationship; "
+                                    "the Student entity connects to this aggregated unit via Enrolls."
+                                ),
+                                "entities_inside_aggregation": ["Department", "Course"],
+                                "relationship_inside_aggregation": "Offers",
+                                "external_entity": "Student",
+                                "external_relationship": "Enrolls",
+                            }
+
                     writer_input = {
                         "slot": slot,
                         "template": template,
@@ -2317,7 +2358,9 @@ class AgentOrchestrator:
                         "global_context": global_context,
                         "banned_topics": list(banned_topics),
                         "needs_diagram": needs_diagram,
-                        "diagram_type": diagram_type
+                        "diagram_type": diagram_type,
+                        "requires_aggregation": requires_aggregation,
+                        "aggregation_spec": selected_aggregation_spec,
                     }
                     
                     draft = await self.writer.run(writer_input)
@@ -4178,6 +4221,57 @@ class AgentOrchestrator:
                         
                         # Extract semantic description from question text
                         semantic_description = draft.get("text", "")
+
+                        # Aggregation requirement: hard-wire for Q1 ER/EER questions and also respect template flag when present.
+                        # This injects explicit aggregation wording into the semantic description so the diagram parser
+                        # can reliably produce an aggregation block.
+                        is_q1 = q_no in ["Q1", "1"]
+                        is_er_intent = bool(template_intent and ("er" in template_intent.lower() or "eer" in template_intent.lower()))
+                        requires_aggregation = bool(template.get("requires_aggregation")) or (is_q1 and is_er_intent)
+
+                        aggregation_scenarios = template.get("aggregation_scenarios") or []
+                        selected_aggregation_spec = None
+                        if requires_aggregation:
+                            if aggregation_scenarios:
+                                # Prefer a scenario that matches the semantic description (stronger heuristic).
+                                desc_lower = semantic_description.lower()
+                                for s in aggregation_scenarios:
+                                    sid = (s.get("id") or "").lower()
+                                    if "project" in desc_lower and "project" in sid:
+                                        selected_aggregation_spec = s
+                                        break
+                                    if any(k in desc_lower for k in ["patient", "doctor", "treatment"]) and any(k in sid for k in ["patient", "treatment"]):
+                                        selected_aggregation_spec = s
+                                        break
+                                if not selected_aggregation_spec:
+                                    selected_aggregation_spec = aggregation_scenarios[0]
+                            else:
+                                # Default hard-coded aggregation scenario for Q1 ER/EER questions.
+                                selected_aggregation_spec = {
+                                    "id": "department_course_offers_enrolls",
+                                    "description": (
+                                        "Departments offer courses, and students enroll in those specific offerings. "
+                                        "Aggregation groups Department, Course, and the Offers relationship; "
+                                        "the Student entity connects to this aggregated unit via Enrolls."
+                                    ),
+                                    "entities_inside_aggregation": ["Department", "Course"],
+                                    "relationship_inside_aggregation": "Offers",
+                                    "external_entity": "Student",
+                                    "external_relationship": "Enrolls",
+                                }
+
+                            # Append a concise aggregation hint (plain text, no diagram syntax, no "MANDATORY" wording).
+                            inside_entities = selected_aggregation_spec.get("entities_inside_aggregation") or []
+                            inside_rel = selected_aggregation_spec.get("relationship_inside_aggregation") or "Relates"
+                            ext_entity = selected_aggregation_spec.get("external_entity") or "ExternalEntity"
+                            ext_rel = selected_aggregation_spec.get("external_relationship") or "Connects"
+                            semantic_description += (
+                                "\n\nThis EER diagram includes a situation where a relationship between "
+                                f"{inside_entities} (for example, '{inside_rel}') is treated as a single unit when "
+                                f"relating to {ext_entity} via '{ext_rel}'. Model this using an aggregation so that "
+                                "the external relationship is between the external entity and the combined "
+                                "Department–Course–Offers structure, not directly to only one inner entity."
+                            )
                         
                         # Check if any subquestion asks about ISA hierarchies
                         requires_isa = False
@@ -4244,10 +4338,39 @@ class AgentOrchestrator:
                         result = service.generate_diagram_from_semantic_description(
                             description=semantic_description,
                             output_path=output_path,
-                        diagram_type=diagram_type,
+                            diagram_type=diagram_type,
                             format="png",
-                            requires_isa=requires_isa  # Pass ISA requirement flag
+                            requires_isa=requires_isa,  # Pass ISA requirement flag
+                            requires_aggregation=requires_aggregation,
+                            aggregation_spec=selected_aggregation_spec,
                         )
+
+                        # If aggregation is required but the diagram generation did not include it,
+                        # do a single repair attempt with stronger, structured wording.
+                        if requires_aggregation and (not result or not result.get("success")):
+                            err = (result or {}).get("error", "")
+                            print(f"    [WARN] Aggregation-required diagram attempt failed: {err}. Retrying once with stronger aggregation instruction...")
+                            inside_entities = (selected_aggregation_spec or {}).get("entities_inside_aggregation") or []
+                            inside_rel = (selected_aggregation_spec or {}).get("relationship_inside_aggregation") or "Relates"
+                            ext_entity = (selected_aggregation_spec or {}).get("external_entity") or "ExternalEntity"
+                            ext_rel = (selected_aggregation_spec or {}).get("external_relationship") or "Connects"
+                            repaired_description = (
+                                semantic_description
+                                + "\n\nREPAIR INSTRUCTION (AGGREGATION REQUIRED): "
+                                "Return an aggregation (dotted box) that contains exactly the following inside elements: "
+                                f"entities {inside_entities} and relationship '{inside_rel}'. "
+                                f"Create an external relationship '{ext_rel}' between the external entity '{ext_entity}' and the aggregated unit (treat the aggregation as a higher-level entity). "
+                                "Do not omit the aggregation."
+                            )
+                            result = service.generate_diagram_from_semantic_description(
+                                description=repaired_description,
+                                output_path=output_path,
+                                diagram_type=diagram_type,
+                                format="png",
+                                requires_isa=requires_isa,
+                                requires_aggregation=requires_aggregation,
+                                aggregation_spec=selected_aggregation_spec,
+                            )
                         
                         # CRITICAL: Always add diagram reference and cardinality notation, even if diagram generation failed
                         # This ensures the question text has the proper format regardless of diagram generation success

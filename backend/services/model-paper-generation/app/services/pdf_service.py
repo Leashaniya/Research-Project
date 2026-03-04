@@ -30,6 +30,10 @@ class PDFService:
         text = text.replace("‘", "'")
         text = text.replace("“", '"')
         text = text.replace("”", '"')
+        # Normalize dashes and other punctuation that are outside latin-1
+        text = text.replace("–", "-")  # en dash
+        text = text.replace("—", "-")  # em dash
+        text = text.replace("…", "...")  # ellipsis
         # Remove other special characters that might cause issues
         # Keep basic ASCII and common Unicode
         return text

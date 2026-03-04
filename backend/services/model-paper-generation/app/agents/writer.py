@@ -50,6 +50,13 @@ class QuestionWriter(BaseAgent):
         # Extract diagram flags from input_data
         needs_diagram = input_data.get("needs_diagram", False)
         diagram_type = input_data.get("diagram_type", None)
+
+        # Propagate aggregation requirements into slot/template context for prompt builders.
+        # (Orchestrator may pass these flags at the top-level of input_data.)
+        if input_data.get("requires_aggregation") is not None:
+            slot["requires_aggregation"] = bool(input_data.get("requires_aggregation"))
+        if input_data.get("aggregation_spec") is not None:
+            slot["aggregation_spec"] = input_data.get("aggregation_spec")
         
         # Select Prompt Strategy
         if mode == "generate":
@@ -1642,6 +1649,12 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         is_er_question = "er" in pattern_label or "eer" in pattern_label or "diagram" in pattern_label or "schema" in pattern_label
         is_norm_question = "normalization" in pattern_label or "normal form" in pattern_label
         is_rel_algebra_question = "relational algebra" in pattern_label or "relational_algebra" in pattern_label or "tuple calculus" in pattern_label
+
+        # Aggregation requirement (for EER diagrams)
+        requires_aggregation = bool(slot.get("requires_aggregation")) or bool(template.get("requires_aggregation"))
+        aggregation_spec = slot.get("aggregation_spec") or template.get("aggregation_spec") or {}
+        if not isinstance(aggregation_spec, dict):
+            aggregation_spec = {}
         
         
         er_context = ""
@@ -1653,6 +1666,23 @@ VALUES ('John Smith', 'john@example.com', 25);"""
              er_context = "Include a relational database schema with ALL relations and their attributes listed explicitly (e.g., 'passenger (pid, pname, pgender, pcity)', 'booking (pid, aid, fid, fdate)')."
         else:
              er_context = "Include relevant context and background information."
+
+        aggregation_instructions = ""
+        if is_er_question and requires_aggregation:
+            inside_entities = aggregation_spec.get("entities_inside_aggregation") or ["EntityA", "EntityB"]
+            inside_rel = aggregation_spec.get("relationship_inside_aggregation") or "RelationshipInside"
+            external_entity = aggregation_spec.get("external_entity") or "ExternalEntity"
+            external_rel = aggregation_spec.get("external_relationship") or "ExternalRel"
+            # Soft guidance: describe an aggregation scenario, but let the question read like a normal exam
+            # question. Avoid shouting words like IMPORTANT/MANDATORY in user-facing text.
+            aggregation_instructions = f"""
+
+        Aggregation requirement for EER diagrams (do NOT mention the word "aggregation" explicitly in the question text):
+        - Design the scenario so that a relationship between {inside_entities} (for example, '{inside_rel}') naturally
+          participates as a unit in another relationship with {external_entity} (for example, '{external_rel}').
+        - The exam question should describe this situation in plain language (e.g., departments offer courses and
+          students enroll in those offerings), without meta-instructions like "mandatory aggregation" or "dotted box".
+"""
 
         prompt = f"""
         You are an expert Exam Setter for a Database Management Systems course.
@@ -1692,6 +1722,8 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         - Do NOT output Mermaid, Graphviz, Kroki links, or any external-diagram syntax.
         - Do NOT include code fences like ```mermaid.
         - If a diagram would normally be required, phrase it as a normal exam instruction in plain text (e.g., "Draw an ER diagram...") without any generated diagram code.
+
+        {aggregation_instructions}
         
         METADATA:
         - Question No: {slot.get('question_no', '?')}
@@ -1988,6 +2020,12 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         pattern_label = template.get('pattern_label', '').lower()
         is_er_question = "er" in pattern_label or "eer" in pattern_label or "diagram" in pattern_label or "schema" in pattern_label
         is_norm_question = "normalization" in pattern_label or "normal form" in pattern_label
+
+        # Aggregation requirement (for EER diagrams)
+        requires_aggregation = bool(slot.get("requires_aggregation")) or bool(template.get("requires_aggregation"))
+        aggregation_spec = slot.get("aggregation_spec") or template.get("aggregation_spec") or {}
+        if not isinstance(aggregation_spec, dict):
+            aggregation_spec = {}
         
         # Get required structure and count
         structure_fingerprint = template.get("required_structure") or [{"label": "a", "marks": slot.get("target_marks")}]
@@ -2031,6 +2069,21 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         else:
              er_context = "Include relevant context and background information."
         
+        aggregation_instructions = ""
+        if is_er_question and requires_aggregation:
+            inside_entities = aggregation_spec.get("entities_inside_aggregation") or ["EntityA", "EntityB"]
+            inside_rel = aggregation_spec.get("relationship_inside_aggregation") or "RelationshipInside"
+            external_entity = aggregation_spec.get("external_entity") or "ExternalEntity"
+            external_rel = aggregation_spec.get("external_relationship") or "ExternalRel"
+            aggregation_instructions = f"""
+
+        Aggregation requirement for EER diagrams (do NOT mention the word "aggregation" explicitly in the question text):
+        - Preserve a situation where the relationship between {inside_entities} (for example, '{inside_rel}')
+          is treated as a unit in another relationship with {external_entity} (for example, '{external_rel}').
+        - Describe this as a natural business scenario (e.g., departments offer courses and students enroll in those offerings),
+          not as meta-instructions about dotted boxes or mandatory aggregation.
+"""
+
         base_prompt = f"""
         Generate ONE high-quality university exam question for a Database Systems course.
         
@@ -2052,6 +2105,8 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         - Any other topics NOT in Database Management Systems curriculum
         
         ALL questions MUST remain within Database Management Systems (DMS) scope ONLY.
+
+        {aggregation_instructions}
         
         TASK:
         You are given a 'Reference Question' from a past paper.
