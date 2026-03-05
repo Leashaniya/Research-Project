@@ -413,7 +413,8 @@ export function erModelToDot(model: ERModel): string {
       }
     }
 
-    // Build dashed aggregation box (cluster) around selected entities and relationships
+    // Build dashed aggregation box (cluster) around selected entities, inner
+    // aggregation relationships, and their attributes
     const clusterNodeIds = new Set<string>();
 
     // Always include the whole entity
@@ -425,6 +426,17 @@ export function erModelToDot(model: ERModel): string {
         clusterNodeIds.add(`E_${aggr.partEntityId}`);
       }
       clusterNodeIds.add(`R_${rel.id}_${aggr.id}`);
+    }
+
+    // If an inner aggregation relationship is inside the dashed box, include
+    // its relationship attributes (and any composite sub-attributes) inside
+    // the same dashed box.
+    for (const aggr of aggregationRels) {
+      if (!aggr.inAggregationBox) continue;
+      if (!aggr.attributes || aggr.attributes.length === 0) continue;
+      for (const attrNodeId of collectAttributeNodeIds(aggr.attributes)) {
+        clusterNodeIds.add(attrNodeId);
+      }
     }
 
     // If an entity is inside the dashed aggregation box, include its attributes too
