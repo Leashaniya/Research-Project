@@ -19,7 +19,7 @@ export default function CommonHeader({ onUserChange, onLogout }) {
           onUserChange?.(null);
         }
       } catch (error) {
-        console.error('Error checking user status:', error);
+        // Auth service may not be running (e.g. when using MCQ-only) - fail silently
         onUserChange?.(null);
       }
     };

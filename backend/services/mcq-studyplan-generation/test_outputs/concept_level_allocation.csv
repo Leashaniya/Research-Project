@@ -1,0 +1,5 @@
+concept_id,concept_name,baseline_weight,weakness_score,centrality,adaptive_weight,allocated_hours,delta_hours
+concept_0,machine learning,1.0,0.8,1.2857142857142856,1.8,3.125,0.625
+concept_1,algorithms,1.0,0.0,1.1428571428571428,1.0,2.0833333333333335,-0.4166666666666665
+concept_2,neural networks,1.0,0.0,1.1428571428571428,1.0,2.0833333333333335,-0.4166666666666665
+concept_3,deep learning,1.0,0.0,1.1428571428571428,1.0,2.0833333333333335,-0.4166666666666665

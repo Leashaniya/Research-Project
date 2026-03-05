@@ -4,6 +4,7 @@
 #   - /health          -> gateway health
 #   - /guidance/       -> academic-guidance (CA guidance, auth, summaries, ER)
 #   - /papers/         -> model-paper-generation (past papers, model paper)
+#   - /mcq/            -> mcq-study-plan (MCQ study plan generation)
 
 services:
   gateway:
@@ -16,6 +17,7 @@ services:
     depends_on:
       - academic-guidance
       - model-paper-generation
+      - mcq-study-plan
     restart: unless-stopped
 
   academic-guidance:
@@ -45,6 +47,21 @@ services:
     volumes:
       # Use host's app/data (includes text_extraction_hybrid with paper folders)
       - ./services/model-paper-generation/app/data:/app/data
+    restart: unless-stopped
+
+  mcq-study-plan:
+    build:
+      context: ./services/mcq-studyplan-generation
+      dockerfile: Dockerfile
+    container_name: mcq-study-plan
+    env_file:
+      - ./services/mcq-studyplan-generation/.env
+    environment:
+      - PORT=8002
+    volumes:
+      - ./services/mcq-studyplan-generation/Lecture_slides:/app/Lecture_slides
+      - ./services/mcq-studyplan-generation/Questions:/app/Questions
+      - ./services/mcq-studyplan-generation/outputs:/app/outputs
     restart: unless-stopped
 
   # Optional: local MongoDB (disable if using Atlas; set MONGO_URI to your Atlas URI)

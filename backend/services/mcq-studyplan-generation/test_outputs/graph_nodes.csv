@@ -1,0 +1,9 @@
+node_id,type,title,file,question_count,degree_centrality,betweenness_centrality,lecture_id,keywords,weight,topic_text,name,keyword,embedding,question,options,source
+lec_1,Lecture,Test Lecture 1,test_lecture_1.pdf,5.0,0.8571428571428571,0.0,,,,,,,,,,
+lec_1_topic_0,Topic,,,,0.42857142857142855,0.0,lec_1,"['machine learning', 'algorithms']",1.0,,,,,,,
+lec_1_topic_1,Topic,,,,0.42857142857142855,0.0,lec_1,"['neural networks', 'deep learning']",0.8,,,,,,,
+concept_0,Concept,,,,1.2857142857142856,0.09523809523809523,,,,,machine learning,machine learning,"[0.1, 0.2, 0.3]",,,
+concept_1,Concept,,,,1.1428571428571428,0.023809523809523808,,,,,algorithms,algorithms,"[0.2, 0.3, 0.4]",,,
+concept_2,Concept,,,,1.1428571428571428,0.023809523809523808,,,,,neural networks,neural networks,"[0.3, 0.4, 0.5]",,,
+concept_3,Concept,,,,1.1428571428571428,0.023809523809523808,,,,,deep learning,deep learning,"[0.4, 0.5, 0.6]",,,
+mcq_0,MCQ,,,,0.14285714285714285,0.0,lec_1,,,,,,,What is machine learning?,"['A', 'B', 'C', 'D']",

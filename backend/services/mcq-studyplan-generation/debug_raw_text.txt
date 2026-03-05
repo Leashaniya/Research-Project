@@ -1,0 +1,26 @@
+DATABASE MANAGEMENT SYSTEMS (IT 2040) Question 1
+What is a view in a database? • A) A physical table stored permanently on disk • B) A virtual table derived from base tables that doesn't necessarily exist in physical form • C) A backup copy of a table • D) An index on a table Answer: B Question 2
+Which statement about views is FALSE? • A) Views can simplify complex queries • B) Views can provide security by restricting data access • C) All views are updateable • D) Views don't physically store data Answer: C. Question 3
+Given a view created as: CREATE VIEW dept_summary AS SELECT deptId, COUNT(*) as empCount, AVG(salary) as avgSalary FROM Employee GROUP BY deptId; Can you execute: UPDATE dept_summary SET avgSalary = 50000 WHERE deptId = 10;? • A) Yes, it updates the average salary • B) No, views with aggregate functions are not updateable • C) Yes, but it updates all employee salaries • D) Yes, but only if there's an INSTEAD OF trigger Answer: B (or D if trigger exists) Question 4
+What happens when you drop a base table that a view depends on?
+• A) The view is automatically dropped • B) The view remains but queries fail • C) The view is converted to a regular table • D) Depends on the DBMS Answer: D Question 5
+In T-SQL, which is the correct way to declare a variable? • A) VAR @empId INT; • B) DECLARE @empId INT; • C) SET @empId INT; • D) INT @empId; Answer: B Question 6
+What is the initial value of a declared T-SQL variable? • A) 0 for numbers, empty string for text • B) NULL • C) Undefined • D) Must be initialized immediately Answer: B Question 7
+How do you assign a value to a variable in T-SQL? • A) @empId = 100; • B) SET @empId = 100; • C) LET @empId = 100; • D) ASSIGN @empId = 100; Answer: B Question 8
+What does the BREAK statement do in a WHILE loop?
+• A) Skips current iteration and continues to next • B) Exits the innermost WHILE loop completely • C) Pauses execution temporarily • D) Exits all nested loops Answer: B Question 9
+What does the CONTINUE statement do in a WHILE loop? • A) Exits the loop • B) Skips remaining statements in current iteration and restarts the loop • C) Continues to the next loop • D) Does nothing Answer: B Question 10
+What is the key difference between a stored function and a stored procedure? • A) Functions can have parameters, procedures cannot • B) Functions must return a single value, procedures may return multiple values via OUTPUT • C) Procedures execute faster • D) No significant difference Answer: B Question 11
+Can a stored function use OUTPUT parameters? • A) Yes, just like procedures • B) No, functions only use IN parameters and RETURN value • C) Only for table-valued functions • D) Yes, but only one OUTPUT parameter Answer: B Question 12
+
+How do you call a stored function in T-SQL? • A) EXEC functionName(parameters); • B) CALL functionName(parameters); • C) SELECT dbo.functionName(parameters); • D) EXECUTE FUNCTION functionName(parameters); Answer: C Question 13
+Given: CREATE FUNCTION dbo.getBonus(@salary FLOAT) RETURNS FLOAT AS BEGIN RETURN @salary * 0.10 END Which call is INCORRECT? • A) SELECT dbo.getBonus(50000); • B) SELECT dbo.getBonus(salary) FROM Employee; • C) EXEC dbo.getBonus 50000; • D) SELECT *, dbo.getBonus(salary) as bonus FROM Employee; Answer: C Question 14
+What is the default parameter mode for stored procedures if not specified? • A) OUTPUT • B) IN • C) INOUT • D) Must always be specified Answer: B Question 15
+Given a procedure: CREATE PROCEDURE calcStats(@deptId INT, @maxSal FLOAT OUTPUT, @minSal FLOAT OUTPUT)
+AS BEGIN SELECT @maxSal=MAX(salary), @minSal=MIN(salary) FROM Employee WHERE deptId=@deptId END Which call is CORRECT? • A) EXEC calcStats 10, @max, @min; • B) DECLARE @max FLOAT, @min FLOAT; EXEC calcStats 10, @max OUTPUT, @min OUTPUT; • C) SELECT calcStats(10, @max, @min); • D) CALL calcStats(10, @max, @min); Answer: B Question 16
+What is a trigger in a database? • A) A scheduled task that runs periodically • B) A special stored procedure that automatically executes in response to DML/DDL events • C) A constraint on a table • D) A backup mechanism Answer: B Question 17
+What are the INSERTED and DELETED virtual tables in triggers? • A) Permanent system tables • B) Temporary tables created during trigger execution storing affected rows
+• C) Backup tables • D) User-created tables Answer: B Question 18
+For an INSERT operation, what data appears in trigger tables? • A) INSERTED has new rows, DELETED is empty • B) DELETED has new rows, INSERTED is empty • C) Both tables have the new rows • D) Both tables are empty Answer: A Question 19
+For an UPDATE operation, what appears in INSERTED and DELETED tables? • A) INSERTED has old values, DELETED has new values • B) INSERTED has new values, DELETED has old values • C) Both have new values • D) Only INSERTED has values Answer: B Question 20
+For a DELETE operation, what appears in trigger tables? • A) INSERTED has deleted rows, DELETED is empty • B) DELETED has deleted rows, INSERTED is empty • C) Both

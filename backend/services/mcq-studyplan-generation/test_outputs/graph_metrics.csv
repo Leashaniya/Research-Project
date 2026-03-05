@@ -1,0 +1,5 @@
+node_id,node_type,name,degree_centrality,betweenness_centrality
+concept_0,Concept,machine learning,1.2857142857142856,0.09523809523809523
+concept_1,Concept,algorithms,1.1428571428571428,0.023809523809523808
+concept_2,Concept,neural networks,1.1428571428571428,0.023809523809523808
+concept_3,Concept,deep learning,1.1428571428571428,0.023809523809523808

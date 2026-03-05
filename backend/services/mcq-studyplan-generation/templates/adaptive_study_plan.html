@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2><i class="fas fa-brain me-2"></i>Adaptive Study Plan</h2>
+                            <p class="mb-0">Personalized study schedule recalibrated based on your quiz performance</p>
+                        </div>
+                        <div class="text-end">
+                            <h4 class="mb-0">α = {{ "%.1f"|format(params.alpha) }}</h4>
+                            <small>Adaptation Factor</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adaptive Parameters Summary -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card bg-gradient-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Total Hours</h6>
+                            <h2 class="text-white mb-0">{{ params.total_hours }}</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-clock fa-3x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-gradient-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Study Days</h6>
+                            <h2 class="text-white mb-0">{{ params.study_days }}</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-calendar fa-3x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-gradient-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Max Increase</h6>
+                            <h2 class="text-white mb-0">{{ "%.0f"|format(params.max_increase * 100) }}%</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-arrow-up fa-3x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card bg-gradient-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">Max Decrease</h6>
+                            <h2 class="text-white mb-0">{{ "%.0f"|format(params.max_decrease * 100) }}%</h2>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-arrow-down fa-3x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Baseline vs Adaptive Hours Comparison</h5>
+                </div>
+                <div class="card-body">
+                    <div id="comparisonChart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adaptive Study Plan Table -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-table me-2"></i>Adaptive Study Plan Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Priority</th>
+                                    <th>Lecture</th>
+                                    <th>Baseline Hours</th>
+                                    <th>Adaptive Hours</th>
+                                    <th>Delta</th>
+                                    <th>Quiz Accuracy</th>
+                                    <th>Mastery Gap</th>
+                                    <th>Focus Intensity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for plan in adaptive_plan %}
+                                <tr>
+                                    <td><span class="badge bg-primary">{{ plan.Priority }}</span></td>
+                                    <td><strong>{{ plan.Lecture }}</strong></td>
+                                    <td class="text-center">{{ "%.1f"|format(plan.Baseline_Hours) }}h</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-{{ 'success' if plan.Adaptive_Hours > plan.Baseline_Hours else 'warning' }}">
+                                            {{ "%.1f"|format(plan.Adaptive_Hours) }}h
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if plan.Delta_Hours > 0 %}
+                                            <span class="text-success">+{{ "%.1f"|format(plan.Delta_Hours) }}h</span>
+                                        {% elif plan.Delta_Hours < 0 %}
+                                            <span class="text-danger">{{ "%.1f"|format(plan.Delta_Hours) }}h</span>
+                                        {% else %}
+                                            <span class="text-muted">0.0h</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar 
+                                                {% if plan.Quiz_Accuracy|replace('%','')|float >= 80 %}bg-success
+                                                {% elif plan.Quiz_Accuracy|replace('%','')|float >= 60 %}bg-warning
+                                                {% else %}bg-danger{% endif %}" 
+                                                 style="width: {{ plan.Quiz_Accuracy }};"
+                                                 role="progressbar">
+                                                {{ plan.Quiz_Accuracy }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">{{ plan.Mastery_Gap }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ 
+                                            'danger' if 'High' in plan.Focus_Intensity 
+                                            else 'warning' if 'Medium' in plan.Focus_Intensity 
+                                            else 'info' }}">
+                                            {{ plan.Focus_Intensity }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <i class="fas fa-brain fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No adaptive study plan data available</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adaptive Daily Schedule -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Adaptive Daily Schedule</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Date</th>
+                                    <th>Lectures</th>
+                                    <th>Total Hours</th>
+                                    <th>Target</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for schedule in adaptive_daily %}
+                                <tr>
+                                    <td><span class="badge bg-info">Day {{ schedule.Day }}</span></td>
+                                    <td>{{ schedule.Date }}</td>
+                                    <td>{{ schedule.Lectures }}</td>
+                                    <td class="text-center"><strong>{{ schedule.Total_Hours }}h</strong></td>
+                                    <td>{{ schedule.Target }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">
+                                        <i class="fas fa-calendar fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">No daily schedule available</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Research Outputs -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-file-download me-2"></i>Research Outputs</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center p-3 border rounded">
+                                <i class="fas fa-file-csv fa-3x text-success mb-2"></i>
+                                <h6>Baseline Study Plan</h6>
+                                <p class="text-muted small">baseline_study_plan.csv</p>
+                                <small class="text-success">✓ Generated</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 border rounded">
+                                <i class="fas fa-file-csv fa-3x text-info mb-2"></i>
+                                <h6>Adaptive Study Plan</h6>
+                                <p class="text-muted small">adaptive_study_plan.csv</p>
+                                <small class="text-success">✓ Generated</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 border rounded">
+                                <i class="fas fa-chart-bar fa-3x text-warning mb-2"></i>
+                                <h6>Study Plan Shift Chart</h6>
+                                <p class="text-muted small">study_plan_shift_chart.png</p>
+                                <small class="text-success">✓ Generated</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <a href="{{ url_for('student_progress') }}" class="btn btn-primary me-2">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Progress
+                    </a>
+                    <a href="{{ url_for('study_plan') }}" class="btn btn-info me-2">
+                        <i class="fas fa-calendar-alt me-2"></i>View Baseline Plan
+                    </a>
+                    <a href="{{ url_for('graph_view') }}" class="btn btn-secondary">
+                        <i class="fas fa-project-diagram me-2"></i>Graph View
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    // Comparison Chart
+    const comparisonData = {{ comparison_chart|safe }};
+    Plotly.newPlot('comparisonChart', comparisonData.data, comparisonData.layout, {responsive: true});
+</script>
+{% endblock %}
