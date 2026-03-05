@@ -69,6 +69,20 @@ export function erModelToDot(model: ERModel): string {
     // Regular and composite: single oval
     return { shape: "ellipse" };
   };
+
+  const collectAttributeNodeIds = (attrs: Attribute[]): string[] => {
+    const ids: string[] = [];
+    const stack: Attribute[] = [...attrs];
+    while (stack.length > 0) {
+      const a = stack.pop();
+      if (!a) continue;
+      ids.push(`A_${a.id}`);
+      if (a.type === "composite" && a.subAttributes && a.subAttributes.length > 0) {
+        for (const sub of a.subAttributes) stack.push(sub);
+      }
+    }
+    return ids;
+  };
   
   // Create entity nodes
   for (const entity of model.entities) {
@@ -359,6 +373,17 @@ export function erModelToDot(model: ERModel): string {
         clusterNodeIds.add(`E_${aggr.partEntityId}`);
       }
       clusterNodeIds.add(`R_${rel.id}_${aggr.id}`);
+    }
+
+    // If an entity is inside the dashed aggregation box, include its attributes too
+    for (const nodeId of Array.from(clusterNodeIds)) {
+      if (!nodeId.startsWith("E_")) continue;
+      const entityId = nodeId.slice("E_".length);
+      const entity = model.entities.find((e) => e.id === entityId);
+      if (!entity) continue;
+      for (const attrNodeId of collectAttributeNodeIds(entity.attributes)) {
+        clusterNodeIds.add(attrNodeId);
+      }
     }
 
     if (clusterNodeIds.size > 1) {
