@@ -21,6 +21,8 @@ export function erModelToDot(model: ERModel): string {
   
   // Graph header
   lines.push("digraph ERDiagram {");
+  // Needed for lhead/ltail to attach edges to clusters
+  lines.push("  compound=true;");
   lines.push("  rankdir=LR;");
   lines.push("  nodesep=1.0;");
   lines.push("  ranksep=1.5;");
@@ -83,6 +85,42 @@ export function erModelToDot(model: ERModel): string {
     }
     return ids;
   };
+
+  // Precompute aggregation clusters keyed by their whole entity id. We only keep
+  // clusters that actually have at least one inner relationship inside the
+  // dashed box (inAggregationBox === true), since those are the ones that
+  // render an aggregation container visually.
+  const aggregationClustersByWhole = new Map<string, string>();
+  const aggregationClusterByEntity = new Map<string, string>();
+  for (const rel of model.relationships) {
+    if (rel.relationshipType !== "aggregation") continue;
+    const wholeEntityId = rel.aggregationWholeEntityId;
+    const aggregationRels: AggregationRelationship[] = rel.aggregationRelationships || [];
+    if (!wholeEntityId || aggregationRels.length === 0) continue;
+
+    const hasInBox = aggregationRels.some((aggr) => aggr.inAggregationBox && aggr.partEntityId);
+    if (!hasInBox) continue;
+
+    const clusterIdRaw = `cluster_agg_${String(rel.id)}`;
+    const safeClusterId = clusterIdRaw.replace(/[^a-zA-Z0-9_]/g, "_");
+
+    if (!aggregationClustersByWhole.has(wholeEntityId)) {
+      aggregationClustersByWhole.set(wholeEntityId, safeClusterId);
+    }
+
+    // Any entity that is visually inside the dashed box should connect to the
+    // cluster boundary when it participates in an outside relationship.
+    if (!aggregationClusterByEntity.has(wholeEntityId)) {
+      aggregationClusterByEntity.set(wholeEntityId, safeClusterId);
+    }
+    for (const aggr of aggregationRels) {
+      if (!aggr.inAggregationBox) continue;
+      if (!aggr.partEntityId) continue;
+      if (!aggregationClusterByEntity.has(aggr.partEntityId)) {
+        aggregationClusterByEntity.set(aggr.partEntityId, safeClusterId);
+      }
+    }
+  }
   
   // Create entity nodes
   for (const entity of model.entities) {
@@ -230,15 +268,19 @@ export function erModelToDot(model: ERModel): string {
       // ISA relationship: parent at top, children at bottom (no cardinality labels)
       if (rel.parentEntityId) {
         const parentId = `E_${rel.parentEntityId}`;
+        const parentCluster = aggregationClusterByEntity.get(rel.parentEntityId);
+        const parentClusterAttr = parentCluster ? `, ltail=${parentCluster}` : "";
         // Connect parent to triangle (at top)
-        lines.push(`  ${escapeId(parentId)} -> ${escapeId(relId)} [style=solid, arrowhead=none];`);
+        lines.push(`  ${escapeId(parentId)} -> ${escapeId(relId)} [style=solid, arrowhead=none${parentClusterAttr}];`);
         
         // Connect triangle to each child (at bottom)
         if (rel.childEntityIds && rel.childEntityIds.length > 0) {
           for (const childId of rel.childEntityIds) {
             if (childId) {
               const childEntityId = `E_${childId}`;
-              lines.push(`  ${escapeId(relId)} -> ${escapeId(childEntityId)} [style=solid, arrowhead=none];`);
+              const childCluster = aggregationClusterByEntity.get(childId);
+              const childClusterAttr = childCluster ? `, lhead=${childCluster}` : "";
+              lines.push(`  ${escapeId(relId)} -> ${escapeId(childEntityId)} [style=solid, arrowhead=none${childClusterAttr}];`);
             }
           }
         }
@@ -248,33 +290,43 @@ export function erModelToDot(model: ERModel): string {
       const fromEntityId = `E_${rel.fromEntityId}`;
       const toEntityId = `E_${rel.toEntityId}`;
       const thirdEntityId = rel.thirdEntityId ? `E_${rel.thirdEntityId}` : null;
+      const fromCluster = aggregationClusterByEntity.get(rel.fromEntityId);
+      const toCluster = aggregationClusterByEntity.get(rel.toEntityId);
+      const thirdCluster = rel.thirdEntityId ? aggregationClusterByEntity.get(rel.thirdEntityId) : undefined;
       
       // Edge from entity A to relationship
       const fromStyle = getEdgeStyle(rel.fromParticipation, rel.isWeak);
-      lines.push(`  ${escapeId(fromEntityId)} -> ${escapeId(relId)} [label=${escapeLabel(rel.fromCardinality)}, ${fromStyle}, arrowhead=none];`);
+      const fromClusterAttr = fromCluster ? `, ltail=${fromCluster}` : "";
+      lines.push(`  ${escapeId(fromEntityId)} -> ${escapeId(relId)} [label=${escapeLabel(rel.fromCardinality)}, ${fromStyle}, arrowhead=none${fromClusterAttr}];`);
       
       // Edge from relationship to entity B
       const toStyle = getEdgeStyle(rel.toParticipation, rel.isWeak);
-      lines.push(`  ${escapeId(relId)} -> ${escapeId(toEntityId)} [label=${escapeLabel(rel.toCardinality)}, ${toStyle}, arrowhead=none];`);
+      const toClusterAttr = toCluster ? `, lhead=${toCluster}` : "";
+      lines.push(`  ${escapeId(relId)} -> ${escapeId(toEntityId)} [label=${escapeLabel(rel.toCardinality)}, ${toStyle}, arrowhead=none${toClusterAttr}];`);
       
       // Edge from relationship to entity C (if specified)
       if (thirdEntityId) {
         const thirdStyle = getEdgeStyle(rel.thirdParticipation || "none", rel.isWeak);
         const thirdCardinality = rel.thirdCardinality || "0..*";
-        lines.push(`  ${escapeId(relId)} -> ${escapeId(thirdEntityId)} [label=${escapeLabel(thirdCardinality)}, ${thirdStyle}, arrowhead=none];`);
+        const thirdClusterAttr = thirdCluster ? `, lhead=${thirdCluster}` : "";
+        lines.push(`  ${escapeId(relId)} -> ${escapeId(thirdEntityId)} [label=${escapeLabel(thirdCardinality)}, ${thirdStyle}, arrowhead=none${thirdClusterAttr}];`);
       }
     } else {
       // Binary relationship: connect 2 entities
       const fromEntityId = `E_${rel.fromEntityId}`;
       const toEntityId = `E_${rel.toEntityId}`;
+      const fromCluster = aggregationClusterByEntity.get(rel.fromEntityId);
+      const toCluster = aggregationClusterByEntity.get(rel.toEntityId);
       
       // Edge from entity to relationship (with cardinality label and participation)
       const fromStyle = getEdgeStyle(rel.fromParticipation, rel.isWeak);
-      lines.push(`  ${escapeId(fromEntityId)} -> ${escapeId(relId)} [label=${escapeLabel(rel.fromCardinality)}, ${fromStyle}, arrowhead=none];`);
+      const fromClusterAttr = fromCluster ? `, ltail=${fromCluster}` : "";
+      lines.push(`  ${escapeId(fromEntityId)} -> ${escapeId(relId)} [label=${escapeLabel(rel.fromCardinality)}, ${fromStyle}, arrowhead=none${fromClusterAttr}];`);
       
       // Edge from relationship to entity (with cardinality label and participation)
       const toStyle = getEdgeStyle(rel.toParticipation, rel.isWeak);
-      lines.push(`  ${escapeId(relId)} -> ${escapeId(toEntityId)} [label=${escapeLabel(rel.toCardinality)}, ${toStyle}, arrowhead=none];`);
+      const toClusterAttr = toCluster ? `, lhead=${toCluster}` : "";
+      lines.push(`  ${escapeId(relId)} -> ${escapeId(toEntityId)} [label=${escapeLabel(rel.toCardinality)}, ${toStyle}, arrowhead=none${toClusterAttr}];`);
     }
   }
 
@@ -306,28 +358,28 @@ export function erModelToDot(model: ERModel): string {
       lines.push(`  ${escapeId(innerNodeId)} [shape=diamond, label=${innerLabel}];`);
 
       // Determine which side gets the specified cardinality based on direction
-      const defaultOne: Cardinality = "1..1";
+      const defaultOne = "1..1" as const;
       const wholeCard =
         aggr.direction === "part_to_whole" ? aggr.cardinality : defaultOne;
       const partCard =
         aggr.direction === "whole_to_part" ? aggr.cardinality : defaultOne;
 
-      // Edge from whole entity to inner relationship.
-      // Use lhead=<cluster> so the line visually terminates at the dashed aggregation box.
+      // Edges within an aggregation:
+      // - If the inner relationship is inside the dashed box, draw edges normally.
+      // - If the inner relationship is outside, the whole entity is still inside the box
+      //   (cluster always includes the whole), so attach the edge to the cluster border.
+      const wholeToInnerClusterAttr = aggr.inAggregationBox ? "" : `, ltail=${safeClusterId}`;
       lines.push(
         `  ${escapeId(wholeNodeId)} -> ${escapeId(innerNodeId)} [label=${escapeLabel(
           wholeCard
-        )}, style=solid, arrowhead=none, lhead=${safeClusterId}];`
+        )}, style=solid, arrowhead=none${wholeToInnerClusterAttr}];`
       );
 
-      // Edge from inner relationship to part entity – when the part is outside
-      // the aggregation box (inAggregationBox === false), attach the tail of the
-      // edge to the dashed cluster so it visually connects to the box border.
-      const tailClusterAttr = aggr.inAggregationBox ? "" : `, ltail=${safeClusterId}`;
+      // Edge from inner relationship to part entity
       lines.push(
         `  ${escapeId(innerNodeId)} -> ${escapeId(partNodeId)} [label=${escapeLabel(
           partCard
-        )}, style=solid, arrowhead=none${tailClusterAttr}];`
+        )}, style=solid, arrowhead=none];`
       );
 
       // --- Attributes on inner aggregation relationships ---
