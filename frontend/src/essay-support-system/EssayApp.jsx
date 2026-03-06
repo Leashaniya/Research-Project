@@ -4,7 +4,6 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Practice from './pages/Practice';
 import Analytics from './pages/Analytics';
-import History from './pages/History';
 import NotFound from './pages/NotFound';
 import './essay-support.css';
 
@@ -17,7 +16,6 @@ export default function EssayApp() {
             <Route index element={<Home />} />
             <Route path="practice" element={<Practice />} />
             <Route path="analytics" element={<Analytics />} />
-            <Route path="history" element={<History />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

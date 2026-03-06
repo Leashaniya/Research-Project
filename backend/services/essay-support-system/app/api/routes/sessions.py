@@ -68,5 +68,8 @@ async def reset_session(
     x_session_id: Optional[str] = Header(None),
 ):
     sid, sess = get_session(x_session_id)
+    # Preserve the difficulty setting when resetting
+    preserved_difficulty = sess.get("difficulty", "easy")
     sessions[sid] = _new_session()
-    return {"session_id": sid, "message": "Session reset"}
+    sessions[sid]["difficulty"] = preserved_difficulty
+    return {"session_id": sid, "message": "Session reset", "difficulty": preserved_difficulty}

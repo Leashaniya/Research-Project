@@ -5,7 +5,6 @@ from pydantic import BaseModel
 
 from app.api.routes.sessions import get_session
 from app.services.question_bank import question_bank
-from app.services.bloom_classifier import classify_bloom_level
 
 router = APIRouter(tags=["questions"])
 
@@ -24,10 +23,9 @@ async def get_question(
 
     q = question_bank.get_question(difficulty)
     if not q:
-        raise HTTPException(status_code=404, detail="No questions available")
+        raise HTTPException(status_code=404, detail=f"No questions available for difficulty '{difficulty}'")
 
     sess["current_question"] = q
-    bloom = classify_bloom_level(q["question"])
 
     return {
         "session_id": sid,
@@ -36,7 +34,7 @@ async def get_question(
         "topic": q.get("topic", "General"),
         "source": q.get("source", ""),
         "page": q.get("page"),
-        "bloom_level": bloom,
+        "bloom_level": q.get("bloom_level", "Unknown"),
     }
 
 

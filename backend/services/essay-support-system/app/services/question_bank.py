@@ -6,15 +6,24 @@ Question Extraction, Formatting & Question Bank
 import os
 import re
 import time
-import random
+import json
 from typing import List, Optional
 
 import fitz
 
 from app.core.config import settings
 from app.services.evaluation_service import get_openai_client, detect_topic
-from app.services.bloom_classifier import classify_bloom_level
+from app.services.bloom_classifier import classify_bloom_level, map_bloom_to_difficulty
 from app.services.rl_engine import rl_engine
+
+
+def _log_extracted_question(entry: dict) -> None:
+    """Append a single extracted question with metadata to the log file."""
+    try:
+        with open(settings.EXTRACTION_LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=True) + "\n")
+    except Exception as e:
+        print(f"✗ Failed to write extraction log: {e}")
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -229,6 +238,8 @@ class QuestionBank:
     def __init__(self):
         self.questions: List[dict] = []
         self._loaded = False
+        # Per-difficulty cursors so selection is deterministic instead of random
+        self._cursor = {"easy": 0, "medium": 0, "hard": 0}
 
     def load(self, force: bool = False):
         """Walk Data/ directory, extract questions from all PDFs."""
@@ -260,15 +271,19 @@ class QuestionBank:
                         qs = extract_questions_from_text(text)
                         print(f"Extracted {len(qs)} questions from page {page_num + 1}")
                         for q in qs:
-                            level = classify_bloom_level(q)
+                            bloom_level = classify_bloom_level(q)
+                            difficulty = map_bloom_to_difficulty(bloom_level)
                             topic = detect_topic(q)
-                            self.questions.append({
+                            record = {
                                 "question": q,
-                                "difficulty": level,
+                                "bloom_level": bloom_level,
+                                "difficulty": difficulty,
                                 "topic": topic,
                                 "source": fname,
                                 "page": page_num + 1,
-                            })
+                            }
+                            self.questions.append(record)
+                            _log_extracted_question(record)
                     doc.close()
                     print(f"  ✓ {fname}")
                 except Exception as e:
@@ -278,32 +293,54 @@ class QuestionBank:
             print("No PDF files found in the Data directory")
         else:
             print(f"Total questions extracted: {len(self.questions)}")
+            easy = sum(1 for q in self.questions if q.get("difficulty") == "easy")
+            medium = sum(1 for q in self.questions if q.get("difficulty") == "medium")
+            hard = sum(1 for q in self.questions if q.get("difficulty") == "hard")
+            unknown = len(self.questions) - (easy + medium + hard)
+            print(f"Difficulty breakdown → easy={easy}, medium={medium}, hard={hard}, unknown={unknown}")
 
         self._loaded = True
 
     def get_question(self, difficulty: str) -> Optional[dict]:
-        """Select a question using RL-influenced selection (mirrors app.py)."""
+        """Select a question using RL-influenced selection within the specified difficulty."""
         if not self.questions:
             return None
 
+        # Filter strictly by stored difficulty field
         filtered = [q for q in self.questions if q["difficulty"] == difficulty]
         print(f"Found {len(filtered)} questions for difficulty '{difficulty}' "
               f"out of {len(self.questions)} total")
 
         if not filtered:
-            filtered = self.questions
-            print(f"Using all {len(filtered)} questions as fallback")
+            # No questions found for this difficulty - return None instead of fallback
+            print(f"No questions available for difficulty '{difficulty}'")
+            return None
 
+        # Use RL engine for ordering within the same difficulty, with deterministic tie-breaks
         policy = rl_engine.policy
         if policy and len(policy) > 0:
             filtered.sort(
-                key=lambda q: policy.get(f"{difficulty}_{q['topic']}", 0),
-                reverse=True,
+                key=lambda q: (
+                    -policy.get(f"{difficulty}_{q['topic']}", 0),
+                    q.get("source", ""),
+                    q.get("page", 0),
+                    q.get("question", ""),
+                )
             )
-            top = filtered[: min(5, len(filtered))]
-            return random.choice(top)
+        else:
+            # Stable, deterministic order when no policy is present
+            filtered.sort(
+                key=lambda q: (
+                    q.get("source", ""),
+                    q.get("page", 0),
+                    q.get("question", ""),
+                )
+            )
 
-        return random.choice(filtered)
+        # Deterministic round-robin selection per difficulty
+        idx = self._cursor.get(difficulty, 0) % len(filtered)
+        self._cursor[difficulty] = idx + 1
+        return filtered[idx]
 
     @property
     def count(self) -> int:

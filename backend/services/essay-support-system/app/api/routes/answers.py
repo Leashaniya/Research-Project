@@ -4,6 +4,7 @@ from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
 
 from app.api.routes.sessions import get_session
+from app.core.config import settings
 from app.services.evaluation_service import evaluate_answer, detect_topic
 from app.services.rl_engine import rl_engine
 from app.services.logging_service import log_attempt
@@ -33,10 +34,11 @@ async def submit_answer(
 
     # Evaluate
     result = evaluate_answer(body.answer, question_text, difficulty)
-    score = result.get("score", 50)
+    score = float(result.get("score", 50))
     behaviour = result.get("behaviour", {
         "concept_count": 0, "mistakes": 0, "answer_length": len(body.answer.split()),
     })
+    is_correct = score >= settings.CORRECTNESS_THRESHOLD
 
     # Reward signal (mirrors app.py)
     if score >= 80:
@@ -75,13 +77,35 @@ async def submit_answer(
     # Log to CSV
     log_attempt(sess["attempt"], topic, difficulty, behaviour, reward, score)
 
+    # Store last result in session (useful for exports / history)
+    sess["last_result"] = {
+        "question": question_text,
+        "student_answer": body.answer,
+        "score": score,
+        "is_correct": is_correct,
+        "feedback": result.get("feedback", {}),
+        "study_recommendations": result.get("study_recommendations", []),
+        "difficulty": difficulty,
+        "topic": topic,
+        "attempt": sess["attempt"],
+        "next_difficulty": next_diff,
+    }
+
     return {
         "session_id": sid,
+        "question": question_text,
+        "student_answer": body.answer,
         "score": score,
+        "is_correct": is_correct,
         "reward": reward,
         "feedback": result.get("feedback", {}),
         "study_recommendations": result.get("study_recommendations", []),
+        "recommendations": result.get("study_recommendations", []),
         "behaviour": behaviour,
         "next_difficulty": next_diff,
         "attempt": sess["attempt"],
+        "topic": topic,
+        "difficulty": difficulty,
+        "validated": bool(result.get("_validated", False)),
+        "fallback_used": bool(result.get("_fallback_used", False)),
     }

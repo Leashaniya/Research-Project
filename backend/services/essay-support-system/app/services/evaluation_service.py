@@ -7,10 +7,13 @@ import os
 import re
 import json
 import time
+import textwrap
 from typing import Dict, Any, List, Optional
 
 import fitz
 from openai import OpenAI
+from pydantic import BaseModel, Field, ValidationError
+from typing import Literal
 
 from app.core.config import settings
 
@@ -100,51 +103,97 @@ def extract_behaviour_metrics(result: dict, user_answer: str) -> dict:
 
 
 # ═══════════════════════════════════════════════════════════════
+#  Model output validation (server-side)
+# ═══════════════════════════════════════════════════════════════
+
+class FeedbackPayload(BaseModel):
+    strengths: str = ""
+    weaknesses: str = ""
+    improvements: str = ""
+
+
+class EvaluationPayload(BaseModel):
+    score: float = Field(ge=0, le=100)
+    feedback: FeedbackPayload = FeedbackPayload()
+    study_recommendations: List[str] = []
+    next_level: Literal["easy", "medium", "hard"]
+
+
+def _extract_json_object(text: str) -> Optional[dict]:
+    """
+    Best-effort extraction of a single JSON object from an LLM response.
+    Handles cases where the model wraps JSON in prose or code fences.
+    """
+    if not text:
+        return None
+    s = text.strip()
+    # Strip common fenced code blocks
+    if s.startswith("```"):
+        s = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", s)
+        s = re.sub(r"\s*```$", "", s)
+        s = s.strip()
+    start = s.find("{")
+    end = s.rfind("}")
+    if start == -1 or end == -1 or end <= start:
+        return None
+    candidate = s[start : end + 1]
+    try:
+        return json.loads(candidate)
+    except Exception:
+        return None
+
+
+# ═══════════════════════════════════════════════════════════════
 #  Answer Evaluation  (from evaluator.py)
 # ═══════════════════════════════════════════════════════════════
 
-def evaluate_answer(user_answer: str, reference_answer: str, difficulty: str) -> dict:
-    """Evaluate a student answer against a reference using OpenAI."""
+def evaluate_answer(user_answer: str, question_text: str, difficulty: str) -> dict:
+    """Evaluate a student answer for a question using OpenAI (validated JSON output)."""
     lecture_topics = extract_lecture_topics()
     client = get_openai_client()
 
-    prompt = f"""
-You are an expert university examiner.
+    threshold = settings.CORRECTNESS_THRESHOLD
+    topics_preview = lecture_topics[:50]  # keep prompt bounded
 
-Reference Answer:
-{reference_answer}
+    prompt = textwrap.dedent(
+        f"""
+        You are an expert university examiner.
 
-Student Answer:
-{user_answer}
+        Question:
+        {question_text}
 
-Difficulty Level: {difficulty}
+        Student Answer:
+        {user_answer}
 
-Lecture Topics:
-{lecture_topics}
+        Difficulty Level: {difficulty}
 
-TASKS:
-1. Give similarity score (0–100).
-2. Give VERY SPECIFIC feedback:
-   - Missing concepts
-   - Incorrect explanations
-   - What was partially correct
-3. If score < 30:
-   - Recommend EXACT lecture topics to study
-   - Explain WHY each topic is needed
-4. Recommend next difficulty level adaptively.
+        Lecture Topics (choose from these when recommending study):
+        {topics_preview}
 
-Return JSON ONLY:
-{{
-  "score": number,
-  "feedback": {{
-      "strengths": string,
-      "weaknesses": string,
-      "improvements": string
-  }},
-  "study_recommendations": [string],
-  "next_level": "easy | medium | hard"
-}}
-"""
+        TASKS:
+        1) Score the student answer for correctness and completeness (0–100).
+        2) Provide VERY SPECIFIC feedback:
+           - strengths: what is correct / well-explained
+           - weaknesses: what is incorrect / missing
+           - improvements: what to add/change next time
+        3) If score < {threshold} (treat as incorrect):
+           - Provide 3–6 study_recommendations as short bullet-like strings
+           - Each recommendation must include a topic and a brief reason (e.g., "Normalization — revisit 2NF/3NF to fix dependency errors")
+        4) Recommend next_level adaptively: "easy" | "medium" | "hard".
+
+        Return STRICT JSON only with this exact schema:
+        {{
+          "score": number,
+          "feedback": {{
+              "strengths": string,
+              "weaknesses": string,
+              "improvements": string
+          }},
+          "study_recommendations": [string],
+          "next_level": "easy" | "medium" | "hard"
+        }}
+        """
+    ).strip()
 
     fallback = {
         "score": 50,
@@ -160,6 +209,8 @@ Return JSON ONLY:
             "mistakes": 0,
             "answer_length": len(user_answer.split()),
         },
+        "_validated": False,
+        "_fallback_used": True,
     }
 
     if not client:
@@ -167,16 +218,27 @@ Return JSON ONLY:
 
     try:
         resp = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model=settings.OPENAI_MODEL,
             messages=[
                 {"role": "system", "content": "You evaluate answers like a strict examiner."},
                 {"role": "user", "content": prompt},
             ],
             temperature=0.2,
         )
-        parsed = json.loads(resp.choices[0].message.content)
-        parsed["behaviour"] = extract_behaviour_metrics(parsed, user_answer)
-        return parsed
+        raw = (resp.choices[0].message.content or "").strip()
+        parsed_obj = _extract_json_object(raw)
+        if parsed_obj is None:
+            raise ValueError("Model did not return valid JSON")
+
+        payload = EvaluationPayload.model_validate(parsed_obj).model_dump()
+        payload["behaviour"] = extract_behaviour_metrics(payload, user_answer)
+        payload["_validated"] = True
+        payload["_fallback_used"] = False
+        return payload
+    except ValidationError as e:
+        print(f"Evaluation validation error: {e}")
+        fallback["feedback"]["strengths"] = "Evaluation failed validation; using fallback."
+        return fallback
     except Exception as e:
         print(f"Evaluation error: {e}")
         fallback["feedback"]["strengths"] = f"Evaluation failed: {e}"

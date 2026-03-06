@@ -11,7 +11,6 @@ const links = [
   { to: '/essay-support',          label: 'Home',      icon: <LuHouse size={20} /> },
   { to: '/essay-support/practice',  label: 'Practice',  icon: <LuBrain size={20} /> },
   { to: '/essay-support/analytics', label: 'Analytics', icon: <LuChartBar size={20} /> },
-  { to: '/essay-support/history',   label: 'History',   icon: <LuHistory size={20} /> },
 ];
 
 export default function Sidebar() {
@@ -72,95 +71,144 @@ export default function Sidebar() {
           top: 0; left: 0;
           width: var(--sidebar-w);
           height: 100vh;
-          background: var(--bg-sidebar);
-          border-right: 1px solid var(--border);
+          background: linear-gradient(180deg, var(--bg-sidebar) 0%, #1a2332 100%);
+          border-right: 1px solid rgba(255, 255, 255, 0.1);
           display: flex;
           flex-direction: column;
           z-index: 100;
+          backdrop-filter: blur(10px);
+          box-shadow: var(--shadow-xl);
         }
 
         .sidebar-brand {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
-          padding: 1.5rem 1.25rem;
-          border-bottom: 1px solid var(--border);
+          gap: 1rem;
+          padding: 2.5rem 2rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+          position: relative;
         }
 
         .sidebar-logo {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 42px;
-          height: 42px;
-          border-radius: 12px;
+          width: 52px;
+          height: 52px;
+          border-radius: 16px;
           background: linear-gradient(135deg, var(--primary-600), var(--primary-400));
           color: #fff;
           font-weight: 800;
-          font-size: 1rem;
+          font-size: 1.2rem;
           flex-shrink: 0;
+          box-shadow: var(--shadow-lg);
+          position: relative;
+          overflow: hidden;
+        }
+        .sidebar-logo::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.6s;
+        }
+        .sidebar-logo:hover::before {
+          left: 100%;
         }
 
         .sidebar-title {
           font-weight: 700;
-          font-size: 0.95rem;
-          line-height: 1.25;
-          color: var(--text);
+          font-size: 1.1rem;
+          line-height: 1.4;
+          color: rgba(255, 255, 255, 0.95);
+          letter-spacing: 0.02em;
         }
 
         .sidebar-nav {
           flex: 1;
-          padding: 1rem 0.75rem;
+          padding: 2rem 1.25rem;
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.75rem;
         }
 
         .sidebar-link {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
-          padding: 0.7rem 1rem;
-          border-radius: var(--radius-sm);
-          color: var(--text-muted);
+          gap: 1rem;
+          padding: 1rem 1.25rem;
+          border-radius: var(--radius);
+          color: rgba(255, 255, 255, 0.8);
           font-weight: 500;
-          font-size: 0.9rem;
-          transition: all 0.2s;
+          font-size: 0.95rem;
+          transition: var(--transition);
           text-decoration: none;
+          position: relative;
+          overflow: hidden;
+        }
+        .sidebar-link::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+          transition: left 0.5s;
         }
         .sidebar-link:hover {
-          background: rgba(139, 92, 246, 0.08);
-          color: var(--primary-400);
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(96, 165, 250, 0.1));
+          color: #ffffff;
           text-decoration: none;
+          transform: translateX(4px);
+          box-shadow: var(--shadow-md);
+        }
+        .sidebar-link:hover::before {
+          left: 100%;
         }
         .sidebar-link.active {
-          background: linear-gradient(135deg, rgba(124, 58, 237, 0.20), rgba(167, 139, 250, 0.10));
-          color: var(--primary-400);
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(96, 165, 250, 0.15));
+          color: #ffffff;
           font-weight: 600;
+          box-shadow: var(--shadow-lg);
+          transform: translateX(2px);
+        }
+        .sidebar-link.active::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
         }
 
         .sidebar-footer {
-          padding: 1rem 1.25rem;
-          border-top: 1px solid var(--border);
-          font-size: 0.75rem;
-          color: var(--text-muted);
+          padding: 1.5rem 1.25rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          font-size: 0.8rem;
+          color: rgba(255, 255, 255, 0.6);
           text-align: center;
         }
 
         .sidebar-back-link {
           display: inline-flex;
           align-items: center;
-          gap: 0.4rem;
-          color: var(--primary-400);
-          font-size: 0.8rem;
+          gap: 0.5rem;
+          color: rgba(255, 255, 255, 0.8);
+          font-size: 0.85rem;
           font-weight: 500;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.75rem;
           text-decoration: none;
-          transition: color 0.2s;
+          transition: var(--transition);
         }
         .sidebar-back-link:hover {
-          color: var(--primary-300);
+          color: #ffffff;
           text-decoration: none;
+          transform: translateX(2px);
         }
 
         /* ── Mobile Bottom Nav ── */
@@ -188,7 +236,7 @@ export default function Sidebar() {
           padding: 0.35rem 0.75rem;
         }
         .mobile-link.active {
-          color: var(--primary-400);
+          color: var(--primary-600);
         }
 
         @media (max-width: 768px) {

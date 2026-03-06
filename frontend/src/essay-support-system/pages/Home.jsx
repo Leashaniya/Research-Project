@@ -10,26 +10,20 @@ const features = [
   {
     icon: <LuFileText size={28} />,
     title: 'Smart Question Extraction',
-    description:
-      'Automatically extracts and formats questions from your lecture notes and past papers using OCR and AI enhancement.',
     color: 'var(--primary)',
     bg: 'var(--primary-50)',
   },
   {
     icon: <LuBrain size={28} />,
     title: 'AI-Powered Evaluation',
-    description:
-      'Your answers are evaluated by GPT with detailed feedback on strengths, weaknesses, and specific improvements.',
     color: 'var(--success)',
     bg: 'var(--success-light)',
   },
   {
     icon: <LuTrendingUp size={28} />,
     title: 'Adaptive Difficulty',
-    description:
-      'Reinforcement learning adjusts question difficulty based on your performance, concepts covered, and mistakes.',
     color: 'var(--secondary)',
-    bg: '#ede9fe',
+    bg: 'var(--primary-50)',
   },
 ]
 
@@ -46,11 +40,7 @@ export default function Home() {
             Master Your Subjects with{' '}
             <span className="hero-highlight">Intelligent Practice</span>
           </h1>
-          <p>
-            Practice with questions automatically extracted from your course PDFs.
-            Get instant AI-powered feedback, track your progress, and let the
-            system adapt to your learning pace using reinforcement learning.
-          </p>
+
           <div className="hero-actions">
             <button
               className="btn btn-primary btn-lg"
@@ -85,7 +75,6 @@ export default function Home() {
                 {feat.icon}
               </div>
               <h3>{feat.title}</h3>
-              <p>{feat.description}</p>
             </div>
           ))}
         </div>
@@ -93,115 +82,169 @@ export default function Home() {
 
       <style>{`
         .home-page {
-          max-width: 960px;
+          max-width: 1100px;
           margin: 0 auto;
+          padding: 8px 0 72px;
         }
 
         /* Hero */
         .hero {
+          position: relative;
           text-align: center;
-          padding: 60px 20px 48px;
+          padding: 120px 48px 100px;
+          background: linear-gradient(135deg, var(--primary-900) 0%, var(--primary-800) 50%, var(--primary-700) 100%);
+          border: none;
+          border-radius: var(--radius-lg);
+          box-shadow: var(--shadow-xl);
+          overflow: hidden;
+          margin-bottom: 4rem;
+        }
+
+        .hero::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: 
+            radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(96, 165, 250, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 40% 90%, rgba(147, 197, 253, 0.15) 0%, transparent 50%);
+          opacity: 1;
+        }
+        .hero::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(30, 58, 138, 0.05));
+          opacity: 1;
+        }
+
+        .hero-content {
+          position: relative;
+          z-index: 1;
         }
 
         .hero-badge {
-          display: inline-block;
-          padding: 6px 16px;
-          background: var(--primary-50);
-          color: var(--primary);
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          padding: 12px 24px;
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+          color: #ffffff;
+          border: 1px solid rgba(255, 255, 255, 0.2);
           border-radius: var(--radius-full);
-          font-size: 0.8rem;
+          font-size: 0.95rem;
           font-weight: 600;
-          margin-bottom: 20px;
+          letter-spacing: 0.03em;
+          margin-bottom: 36px;
+          backdrop-filter: blur(12px);
+          box-shadow: var(--shadow-md);
+          text-transform: uppercase;
         }
 
         .hero h1 {
-          font-size: 2.6rem;
-          font-weight: 800;
-          line-height: 1.2;
-          letter-spacing: -0.03em;
-          margin-bottom: 16px;
-          color: var(--text);
+          font-size: 4rem;
+          font-weight: 900;
+          line-height: 1.05;
+          letter-spacing: -0.04em;
+          margin-bottom: 28px;
+          color: #ffffff;
+          text-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
         }
 
         .hero-highlight {
-          background: linear-gradient(135deg, var(--primary), var(--secondary));
+          background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 50%, #dbeafe 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+          position: relative;
         }
-
-        .hero p {
-          font-size: 1.1rem;
-          color: var(--text-secondary);
-          max-width: 600px;
-          margin: 0 auto 32px;
-          line-height: 1.7;
+        .hero-highlight::after {
+          content: '';
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          width: 100%;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+          border-radius: 2px;
         }
 
         .hero-actions {
           display: flex;
-          gap: 12px;
+          gap: 20px;
           justify-content: center;
           flex-wrap: wrap;
+          margin-top: 40px;
+        }
+
+        .hero-actions .btn {
+          min-width: 200px;
+          padding: 18px 28px;
+          font-size: 1.1rem;
+          font-weight: 700;
+          border-radius: var(--radius);
         }
 
         /* Features */
         .features-section {
-          padding: 20px 0 40px;
+          padding: 36px 0 0;
         }
 
         .section-title {
-          font-size: 1.4rem;
-          font-weight: 700;
+          font-size: 2rem;
+          font-weight: 800;
           text-align: center;
-          margin-bottom: 28px;
+          margin-bottom: 3rem;
           color: var(--text);
+          letter-spacing: -0.02em;
         }
 
         .features-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 20px;
+          gap: 24px;
         }
 
         .feature-card {
-          background: var(--surface);
+          background: var(--bg-card);
           border: 1px solid var(--border);
-          border-radius: var(--radius-lg);
-          padding: 28px 24px;
+          border-radius: 20px;
+          padding: 32px 24px;
           text-align: center;
           transition: var(--transition);
+          box-shadow: var(--shadow-sm);
         }
 
         .feature-card:hover {
-          transform: translateY(-3px);
+          transform: translateY(-8px);
+          border-color: var(--primary-300);
           box-shadow: var(--shadow-lg);
         }
 
         .feature-icon {
-          width: 56px;
-          height: 56px;
+          width: 70px;
+          height: 70px;
           border-radius: var(--radius-lg);
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 0 auto 16px;
+          margin: 0 auto 20px;
+          background: var(--primary-50);
+          border: 1px solid var(--primary-200);
+          box-shadow: var(--shadow-sm);
         }
 
         .feature-card h3 {
-          font-size: 1rem;
+          font-size: 1.1rem;
           font-weight: 700;
-          margin-bottom: 8px;
-        }
-
-        .feature-card p {
-          font-size: 0.85rem;
-          color: var(--text-secondary);
-          line-height: 1.6;
+          margin: 0;
+          color: var(--text);
+          letter-spacing: -0.01em;
         }
 
         @media (max-width: 768px) {
-          .hero h1 { font-size: 1.8rem; }
+          .hero { padding: 56px 20px 48px; }
+          .hero h1 { font-size: 2.2rem; }
           .features-grid { grid-template-columns: 1fr; }
         }
       `}</style>

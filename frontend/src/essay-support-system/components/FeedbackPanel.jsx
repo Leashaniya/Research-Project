@@ -20,14 +20,6 @@ export default function FeedbackPanel({ feedback, onNext }) {
     <div className="feedback-panel card">
       <div className="fb-metrics">
         <div className="fb-metric">
-          <span className="fb-metric-val">{behaviour.concept_count ?? '–'}</span>
-          <span className="fb-metric-lbl">Concepts</span>
-        </div>
-        <div className="fb-metric">
-          <span className="fb-metric-val">{behaviour.mistakes ?? '–'}</span>
-          <span className="fb-metric-lbl">Mistakes</span>
-        </div>
-        <div className="fb-metric">
           <span className="fb-metric-val" style={{ color: reward.color }}>{reward.text}</span>
           <span className="fb-metric-lbl">Outcome</span>
         </div>

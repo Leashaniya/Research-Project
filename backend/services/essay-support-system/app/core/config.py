@@ -20,7 +20,8 @@ class Settings:
     BLOOM_DATASET_DIR: Path = SERVICE_ROOT / "bloomsDataset"
     RL_FILE: Path = SERVICE_ROOT / "rl.pkl"
     LOG_FILE: Path = SERVICE_ROOT / "attempt_log.csv"
-    BLOOM_MODEL_PATH: Path = SERVICE_ROOT / "bloom_model.pkl"
+    EXTRACTION_LOG_FILE: Path = Path("C:/Users/PC/Videos/Research-Project/backend/services/essay-support-system/extracted_questions.log")
+    BLOOM_MODEL_PATH: Path = SERVICE_ROOT / "scripts" / "bloom_model.pkl"
     LECTURE_DIR: Path = SERVICE_ROOT / "Data" / "Lecture_Notes"
 
     # ─── RL Hyperparameters ──────────────────────────────────────
@@ -29,11 +30,17 @@ class Settings:
 
     # ─── OpenAI ───────────────────────────────────────────────────
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
+    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+    BLOOM_CLASSIFIER_TEMPERATURE: float = float(os.getenv("BLOOM_CLASSIFIER_TEMPERATURE", "0.2"))
 
     # ─── Server ───────────────────────────────────────────────────
     HOST: str = os.getenv("HOST", "0.0.0.0")
     PORT: int = int(os.getenv("PORT", "8000"))
     DEBUG: bool = os.getenv("DEBUG", "true").lower() == "true"
+
+    # ─── Evaluation ───────────────────────────────────────────────
+    # Score threshold at/above which an answer is treated as "correct".
+    CORRECTNESS_THRESHOLD: float = float(os.getenv("CORRECTNESS_THRESHOLD", "75"))
 
     # ─── CORS ─────────────────────────────────────────────────────
     CORS_ORIGINS: list = [
