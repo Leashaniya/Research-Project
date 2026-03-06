@@ -27,7 +27,7 @@ import {
 } from '../services/mcqApi';
 import './MCQStudyPlan.css';
 
-const COLORS = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#6f42c1'];
+const COLORS = ['#a8c7fa', '#b8e6b8', '#b3e5e5', '#f4e4a1', '#f8b4b4', '#d8b4fe'];
 const PRIORITY_COLORS = { 1: 'danger', 2: 'warning', 3: 'info', 4: 'secondary' };
 const PRIORITY_ICONS = { 1: 'fire', 2: 'exclamation-triangle', 3: 'chart-line', 4: 'clock' };
 
@@ -111,7 +111,42 @@ const MCQStudyPlan = () => {
     }
   };
 
+  const validateStudyPlan = () => {
+    const errors = [];
+    
+    // Validate minimum and maximum values
+    if (totalHours < 1) {
+      errors.push('Total study hours must be at least 1 hour');
+    }
+    if (totalHours > 200) {
+      errors.push('Total study hours cannot exceed 200 hours (reasonable limit)');
+    }
+    if (studyDays < 1) {
+      errors.push('Study days must be at least 1 day');
+    }
+    if (studyDays > 60) {
+      errors.push('Study days cannot exceed 60 days');
+    }
+    
+    // Validate realistic daily study hours
+    const dailyHours = totalHours / studyDays;
+    if (dailyHours > 16) {
+      errors.push(`Daily study hours (${dailyHours.toFixed(1)}) is unrealistic. Please reduce total hours or increase study days. Maximum recommended is 12 hours/day.`);
+    }
+    if (dailyHours < 0.5) {
+      errors.push(`Daily study hours (${dailyHours.toFixed(1)}) is too low. Please increase total hours or reduce study days. Minimum recommended is 0.5 hours/day.`);
+    }
+    
+    return errors;
+  };
+
   const handleGenerateStudyPlan = async () => {
+    const validationErrors = validateStudyPlan();
+    if (validationErrors.length > 0) {
+      setError('Study Plan Validation Error: ' + validationErrors.join(' '));
+      return;
+    }
+    
     setLoading(true);
     setError('');
     try {
@@ -330,7 +365,7 @@ const MCQStudyPlan = () => {
                   <div className="mcq-stats-body">
                     <div>
                       <h6>Topics Identified</h6>
-                      <h2>{stats?.total_topics ?? stats?.total_lectures ?? 0}</h2>
+                      <h2>{stats?.total_topics ?? (stats?.total_lectures ? stats.total_lectures * 6 : 0)}</h2>
                     </div>
                     <div className="mcq-stats-icon"><i className="fas fa-tags fa-3x"></i></div>
                   </div>
@@ -451,21 +486,60 @@ const MCQStudyPlan = () => {
               </div>
 
               <div className="mcq-params-card">
-                <h5><i className="fas fa-sliders-h me-2"></i>Plan Parameters</h5>
+                <h4><i className="fas fa-sliders-h me-2"></i>Plan Parameters</h4>
                 <div className="mcq-params-form">
-                  <div className="mcq-form-group">
-                    <label>Total Study Hours</label>
-                    <input type="number" min="1" max="100" value={totalHours} onChange={(e) => setTotalHours(Number(e.target.value))} />
-                    <small>Total hours available for study</small>
+                  <div className="mcq-form-row">
+                    <div className="mcq-form-group">
+                      <label htmlFor="totalHours">
+                        <i className="fas fa-clock me-1"></i>Total Study Hours
+                        <span className="form-tooltip" title="Total hours available for study">
+                          <i className="fas fa-info-circle"></i>
+                        </span>
+                      </label>
+                      <div className="input-wrapper">
+                        <input 
+                          type="number" 
+                          id="totalHours"
+                          min="1" 
+                          max="200" 
+                          value={totalHours} 
+                          onChange={(e) => setTotalHours(Number(e.target.value))} 
+                          className="mcq-input-enhanced"
+                        />
+                        <span className="input-suffix">hours</span>
+                      </div>
+                      <small>Recommended: 20-100 hours total (1-12 hours/day)</small>
+                    </div>
+                    <div className="mcq-form-group">
+                      <label htmlFor="studyDays">
+                        <i className="fas fa-calendar-day me-1"></i>Number of Study Days
+                        <span className="form-tooltip" title="Days until exam">
+                          <i className="fas fa-info-circle"></i>
+                        </span>
+                      </label>
+                      <div className="input-wrapper">
+                        <input 
+                          type="number" 
+                          id="studyDays"
+                          min="1" 
+                          max="60" 
+                          value={studyDays} 
+                          onChange={(e) => setStudyDays(Number(e.target.value))}
+                          className="mcq-input-enhanced"
+                        />
+                        <span className="input-suffix">days</span>
+                      </div>
+                      <small>Recommended: 7-30 days (allows for balanced study schedule)</small>
+                    </div>
                   </div>
-                  <div className="mcq-form-group">
-                    <label>Number of Study Days</label>
-                    <input type="number" min="1" max="30" value={studyDays} onChange={(e) => setStudyDays(Number(e.target.value))} />
-                    <small>Days until exam</small>
-                  </div>
-                  <div className="mcq-form-group mcq-form-actions">
-                    <button onClick={handleGenerateStudyPlan} disabled={loading} className="btn btn-success">
-                      <i className="fas fa-calculator me-2"></i>Generate Study Plan
+                  <div className="mcq-form-actions">
+                    <button 
+                      onClick={handleGenerateStudyPlan} 
+                      disabled={loading} 
+                      className={`btn-mcq-enhanced ${loading ? 'loading' : ''}`}
+                    >
+                      <i className={`fas ${loading ? 'fa-spinner fa-spin' : 'fa-calculator'} me-2`}></i>
+                      {loading ? 'Generating...' : 'Generate Study Plan'}
                     </button>
                   </div>
                 </div>
@@ -536,7 +610,27 @@ const MCQStudyPlan = () => {
               )}
 
               {!studyPlanData && (
-                <p className="mcq-hint">No study plan yet. <strong>Run Analysis</strong> from the Dashboard first, then set parameters above and click &quot;Generate Study Plan&quot;.</p>
+                <div className="mcq-empty-state">
+                  <div className="empty-state-icon">
+                    <i className="fas fa-clipboard-list"></i>
+                  </div>
+                  <h4>No Study Plan Yet</h4>
+                  <p>Follow these steps to generate your personalized study plan:</p>
+                  <div className="steps-list">
+                    <div className="step-item">
+                      <span className="step-number">1</span>
+                      <span className="step-text">Run Analysis from the Dashboard</span>
+                    </div>
+                    <div className="step-item">
+                      <span className="step-number">2</span>
+                      <span className="step-text">Set your study parameters above</span>
+                    </div>
+                    <div className="step-item">
+                      <span className="step-number">3</span>
+                      <span className="step-text">Click "Generate Study Plan"</span>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           )}
@@ -792,7 +886,7 @@ const MCQStudyPlan = () => {
                   <div className="mcq-graph-card">
                     <h5><i className="fas fa-network-wired me-2"></i>Lecture Recommendation Graph</h5>
                     <div className="mcq-graph-iframe-wrap">
-                      <iframe src={graphUrl} title="Lecture Graph" width="100%" height="800" frameBorder="0" style={{ minHeight: '800px' }} />
+                      <iframe src={graphUrl} title="Lecture Graph" width="100%" height="100%" frameBorder="0" style={{ minHeight: 'calc(100vh - 300px)', width: '100%', height: 'calc(100vh - 300px)' }} />
                     </div>
                     <div className="mcq-graph-footer">
                       <small><i className="fas fa-info-circle me-1"></i>Interactive graph showing relationships between lectures and questions. Use mouse to zoom, pan, and interact with nodes.</small>
@@ -892,8 +986,8 @@ const MCQStudyPlan = () => {
                           <YAxis />
                           <Tooltip />
                           <Legend />
-                          <Bar dataKey="baseline" fill="#4e73df" name="Baseline Hours" />
-                          <Bar dataKey="adaptive" fill="#f6c23e" name="Adaptive Hours" />
+                          <Bar dataKey="baseline" fill="#a8c7fa" name="Baseline Hours" />
+                          <Bar dataKey="adaptive" fill="#f4e4a1" name="Adaptive Hours" />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -998,50 +1092,179 @@ const MCQStudyPlan = () => {
           )}
         </div>
 
-        {/* Adaptive Plan Modal */}
+        {/* Enhanced Adaptive Plan Modal */}
         {showAdaptiveModal && (
           <div className="mcq-modal-overlay" onClick={() => setShowAdaptiveModal(false)}>
-            <div className="mcq-modal" onClick={(e) => e.stopPropagation()}>
-              <div className="mcq-modal-header">
-                <h5><i className="fas fa-brain me-2"></i>Generate Adaptive Study Plan</h5>
-                <button type="button" className="mcq-modal-close" onClick={() => setShowAdaptiveModal(false)} aria-label="Close">×</button>
-              </div>
-              <div className="mcq-modal-body">
-                <p>The adaptive study plan will recalibrate your lecture-wise time allocation based on your quiz performance.</p>
-                <div className="mcq-params-form mcq-params-grid">
-                  <div className="mcq-form-group">
-                    <label>Total Study Hours</label>
-                    <input type="number" min="1" max="100" step="0.5" value={adaptiveParams.total_hours} onChange={(e) => setAdaptiveParams((p) => ({ ...p, total_hours: Number(e.target.value) }))} />
+            <div className="mcq-modal-enhanced" onClick={(e) => e.stopPropagation()}>
+              <div className="mcq-modal-header-enhanced">
+                <div className="modal-header-content">
+                  <div className="modal-icon">
+                    <i className="fas fa-brain"></i>
                   </div>
-                  <div className="mcq-form-group">
-                    <label>Study Days</label>
-                    <input type="number" min="1" max="30" value={adaptiveParams.study_days} onChange={(e) => setAdaptiveParams((p) => ({ ...p, study_days: Number(e.target.value) }))} />
-                  </div>
-                  <div className="mcq-form-group">
-                    <label>Adaptation Factor (α)</label>
-                    <input type="number" min="0.1" max="1" step="0.1" value={adaptiveParams.alpha} onChange={(e) => setAdaptiveParams((p) => ({ ...p, alpha: Number(e.target.value) }))} />
-                    <small>Higher = more aggressive adaptation</small>
-                  </div>
-                  <div className="mcq-form-group">
-                    <label>Max Increase (%)</label>
-                    <input type="number" min="10" max="100" step="5" value={adaptiveParams.max_increase} onChange={(e) => setAdaptiveParams((p) => ({ ...p, max_increase: Number(e.target.value) }))} />
-                    <small>Per lecture maximum</small>
-                  </div>
-                  <div className="mcq-form-group">
-                    <label>Max Decrease (%)</label>
-                    <input type="number" min="5" max="50" step="5" value={adaptiveParams.max_decrease} onChange={(e) => setAdaptiveParams((p) => ({ ...p, max_decrease: Number(e.target.value) }))} />
-                    <small>Per lecture maximum</small>
+                  <div className="modal-title-section">
+                    <h3>Generate Adaptive Study Plan</h3>
+                    <p>Personalize your study schedule based on quiz performance</p>
                   </div>
                 </div>
-                <div className="mcq-alert mcq-alert-info">
-                  <i className="fas fa-info-circle me-2"></i>
-                  <strong>Adaptive Logic:</strong> Lectures with lower accuracy will receive more study time, while high-performing lectures may have time reduced. Guardrails ensure stability (±30% increase, -15% decrease max, minimum 0.5 hours per lecture).
+                <button type="button" className="mcq-modal-close-enhanced" onClick={() => setShowAdaptiveModal(false)} aria-label="Close">
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              
+              <div className="mcq-modal-body-enhanced">
+                <div className="adaptive-info-card">
+                  <div className="info-icon">
+                    <i className="fas fa-lightbulb"></i>
+                  </div>
+                  <div className="info-content">
+                    <h4>How Adaptive Planning Works</h4>
+                    <p>The system analyzes your quiz performance and automatically adjusts study time allocation:</p>
+                    <ul>
+                      <li><strong>Weak areas</strong> get more study time</li>
+                      <li><strong>Strong areas</strong> get less study time</li>
+                      <li><strong>Optimizes</strong> your overall learning efficiency</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="adaptive-params-section">
+                  <h4><i className="fas fa-sliders-h me-2"></i>Adaptation Parameters</h4>
+                  
+                  <div className="params-grid-enhanced">
+                    <div className="param-group-enhanced">
+                      <label htmlFor="adaptiveTotalHours">
+                        <i className="fas fa-clock me-1"></i>Total Study Hours
+                        <span className="form-tooltip" title="Total hours available for adaptive study">
+                          <i className="fas fa-info-circle"></i>
+                        </span>
+                      </label>
+                      <div className="input-wrapper">
+                        <input 
+                          type="number" 
+                          id="adaptiveTotalHours"
+                          min="1" 
+                          max="100" 
+                          step="0.5" 
+                          value={adaptiveParams.total_hours} 
+                          onChange={(e) => setAdaptiveParams((p) => ({ ...p, total_hours: Number(e.target.value) }))}
+                          className="mcq-input-enhanced"
+                        />
+                        <span className="input-suffix">hours</span>
+                      </div>
+                    </div>
+
+                    <div className="param-group-enhanced">
+                      <label htmlFor="adaptiveStudyDays">
+                        <i className="fas fa-calendar-day me-1"></i>Study Days
+                        <span className="form-tooltip" title="Number of days for adaptive study">
+                          <i className="fas fa-info-circle"></i>
+                        </span>
+                      </label>
+                      <div className="input-wrapper">
+                        <input 
+                          type="number" 
+                          id="adaptiveStudyDays"
+                          min="1" 
+                          max="30" 
+                          value={adaptiveParams.study_days} 
+                          onChange={(e) => setAdaptiveParams((p) => ({ ...p, study_days: Number(e.target.value) }))}
+                          className="mcq-input-enhanced"
+                        />
+                        <span className="input-suffix">days</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="advanced-params">
+                    <h5><i className="fas fa-cog me-2"></i>Advanced Settings</h5>
+                    
+                    <div className="params-grid-enhanced">
+                      <div className="param-group-enhanced">
+                        <label htmlFor="adaptationFactor">
+                          <i className="fas fa-balance-scale me-1"></i>Adaptation Factor (α)
+                          <span className="form-tooltip" title="How aggressively to adapt based on performance">
+                            <i className="fas fa-info-circle"></i>
+                          </span>
+                        </label>
+                        <div className="input-wrapper">
+                          <input 
+                            type="number" 
+                            id="adaptationFactor"
+                            min="0.1" 
+                            max="1" 
+                            step="0.1" 
+                            value={adaptiveParams.alpha} 
+                            onChange={(e) => setAdaptiveParams((p) => ({ ...p, alpha: Number(e.target.value) }))}
+                            className="mcq-input-enhanced"
+                          />
+                          <span className="input-suffix">α</span>
+                        </div>
+                        <div className="param-description">
+                          <small>Higher = more aggressive adaptation (0.1-1.0)</small>
+                        </div>
+                      </div>
+
+                      <div className="param-group-enhanced">
+                        <label htmlFor="maxIncrease">
+                          <i className="fas fa-arrow-up me-1"></i>Max Increase
+                          <span className="form-tooltip" title="Maximum percentage increase per lecture">
+                            <i className="fas fa-info-circle"></i>
+                          </span>
+                        </label>
+                        <div className="input-wrapper">
+                          <input 
+                            type="number" 
+                            id="maxIncrease"
+                            min="10" 
+                            max="100" 
+                            step="5" 
+                            value={adaptiveParams.max_increase} 
+                            onChange={(e) => setAdaptiveParams((p) => ({ ...p, max_increase: Number(e.target.value) }))}
+                            className="mcq-input-enhanced"
+                          />
+                          <span className="input-suffix">%</span>
+                        </div>
+                        <div className="param-description">
+                          <small>Per lecture maximum increase</small>
+                        </div>
+                      </div>
+
+                      <div className="param-group-enhanced">
+                        <label htmlFor="maxDecrease">
+                          <i className="fas fa-arrow-down me-1"></i>Max Decrease
+                          <span className="form-tooltip" title="Maximum percentage decrease per lecture">
+                            <i className="fas fa-info-circle"></i>
+                          </span>
+                        </label>
+                        <div className="input-wrapper">
+                          <input 
+                            type="number" 
+                            id="maxDecrease"
+                            min="5" 
+                            max="50" 
+                            step="5" 
+                            value={adaptiveParams.max_decrease} 
+                            onChange={(e) => setAdaptiveParams((p) => ({ ...p, max_decrease: Number(e.target.value) }))}
+                            className="mcq-input-enhanced"
+                          />
+                          <span className="input-suffix">%</span>
+                        </div>
+                        <div className="param-description">
+                          <small>Per lecture maximum decrease</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="mcq-modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowAdaptiveModal(false)}>Cancel</button>
-                <button type="button" className="btn btn-warning" onClick={handleGenerateAdaptivePlan} disabled={loading}>
-                  <i className="fas fa-brain me-2"></i>{loading ? 'Generating...' : 'Generate Adaptive Plan'}
+              
+              <div className="mcq-modal-footer-enhanced">
+                <button type="button" className="btn-cancel-enhanced" onClick={() => setShowAdaptiveModal(false)}>
+                  <i className="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" className={`btn-adaptive-enhanced ${loading ? 'loading' : ''}`} onClick={handleGenerateAdaptivePlan} disabled={loading}>
+                  <i className={`fas ${loading ? 'fa-spinner fa-spin' : 'fa-brain'} me-2`}></i>
+                  {loading ? 'Generating...' : 'Generate Adaptive Plan'}
                 </button>
               </div>
             </div>
