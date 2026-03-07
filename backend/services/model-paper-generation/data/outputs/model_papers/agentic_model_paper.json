@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-08 01:33:57",
+  "generated_at": "2026-03-08 02:07:52",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university has multiple departments, each offering various courses. Each department has attributes such as DepartmentID, DepartmentName, and HeadOfDepartment. Courses are represented with attributes including CourseID, CourseName, and Credits. Students are enrolled in these courses, with data including StudentID, StudentName, and EnrollmentDate. The university also has an ISA hierarchy where The Employee entity has attributes such as EmployeeID, Name, Position. can be specialized into Faculty and Staff. Faculty members have attributes like Salary and Office, while Staff members have attributes like Position and HoursWorked. A Department can be related to many Courses through the 'Offers' relationship (Course participation is optional). A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrolls' relationship (Student participation is optional, Course participation is optional)",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university manages various programs, departments, and faculty members. Each department offers multiple programs, and each program is associated with one or more faculty members who teach in that program. Faculty members can belong to multiple departments. Identify these entities and their attributes along with their relationships in an EER model. This EER diagram includes a situation where a relationship between ['Department', 'Course'] (for example, 'Offers') is treated as a single unit when relating to Student via 'Enrolls'. Model this using an aggregation so that the external relationship is between the external entity and the combined Department\u2013Course\u2013Offers structure, not directly to only one inner entity. IMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). Student is the supertype with two subtypes: GraduateStudent and UndergraduateStudent. GraduateStudent has specific attributes: ThesisTitle, AdvisorName, ResearchArea. UndergraduateStudent has specific attributes: YearOfStudy, Major, GPA. A Department can be related to many Programs through the 'Offers' relationship (Program participation is optional). A Faculty can be related to many Programs, and a Program can be related to many Facultys through the 'Teaches' relationship (Faculty participation is optional, Program participation is optional). A Faculty can be related to many Departments, and a Department can be related to many Facultys through the 'BelongsTo' relationship (Faculty participation is optional, Department participation is optional)",
       "subquestions": [
         {
           "label": "a",
@@ -41,8 +41,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69ac844895854c910b23389c",
-      "original_semantic_description": "A university has multiple departments, each offering various courses. Each department has attributes such as DepartmentID, DepartmentName, and HeadOfDepartment. Courses are represented with attributes including CourseID, CourseName, and Credits. Students are enrolled in these courses, with data including StudentID, StudentName, and EnrollmentDate. The university also has an ISA hierarchy where The Employee entity has attributes such as EmployeeID, Name, Position. can be specialized into Faculty and Staff. Faculty members have attributes like Salary and Office, while Staff members have attributes like Position and HoursWorked. Draw an EER diagram based on these entities, their attributes, and relationships.",
+      "template_id": "69ac8c2e39806a6a78e6e449",
+      "original_semantic_description": "A university manages various programs, departments, and faculty members. Each department offers multiple programs, and each program is associated with one or more faculty members who teach in that program. Faculty members can belong to multiple departments. Identify these entities and their attributes along with their relationships in an EER model.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, AC->E, DE->A, C->B}}.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, AC->E, D->A, C->B}}",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69ac844895854c910b23389d",
+      "template_id": "69ac8c2e39806a6a78e6e44a",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,21 +84,21 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "An e-commerce company is building a centralized database system to manage its products, customers, and orders. The schema includes tables such as Products(product_id: integer, product_name: string, price: real), Customers(customer_id: integer, customer_name: string, email: string), and Orders(order_id: integer, customer_id: integer, order_date: date). The system needs to ensure data integrity and proper relationships among these tables.",
+      "text": "A university is implementing a database system to manage its student records, course information, and faculty details. The database schema includes tables for Students, Courses, and Faculty, where each table has integrity constraints to maintain consistency. Students have attributes like student_id, name, and age; Courses have course_id, course_name, and credits; and Faculty includes faculty_id, name, and department. The university aims to ensure that student enrollments in courses comply with prerequisites defined in the schema.",
       "subquestions": [
         {
           "label": "a",
-          "text": "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
+          "text": "Write SQL queries to in type 2 driver, jdbc api calls are converted to native java api calls. accept or refute the above statement justifying your answer.",
           "marks": 2
         },
         {
           "label": "b",
-          "text": "Code Segment: ```sql String sql = \"INSERT INTO employees (id, name, age) VALUES (101, 'John Doe', 30)\"; try { int rowsAffected = statement.executeUpdate(sql); if (rowsAffected > 0) { System.out.println(\"A new record has been inserted successfully!\"); } else { System.out.println(\"Failed to insert a new record!\"); } } catch (SQLException e) { e.printStackTrace(); } ``` Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used. ```sql INSERT INTO Customers (customer_id, customer_name, email) VALUES (1, 'Alice', 'alice@example.com'); ```",
+          "text": "Code Segment:\n```java\nString sql = \"SELECT * FROM employees WHERE department = ?\";\nPreparedStatement pstmt = connection.prepareStatement(sql);\npstmt.setString(1, \"IT\");\nResultSet rs = pstmt.executeQuery();\n```\n\nWhich type of JDBC statement is used in the code segment shown above?\nBriefly explain when this type of statement will be used.",
           "marks": 2
         },
         {
           "label": "c",
-          "text": "Briefly explain the role of foreign keys in maintaining referential integrity within the database schema.",
+          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
           "marks": 2
         },
         {
@@ -108,7 +108,7 @@
         },
         {
           "label": "e",
-          "text": "An organization is establishing role-based access control for its database system. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the operational database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating transaction data.",
+          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
           "marks": null,
           "subquestions": [
             {
@@ -124,7 +124,7 @@
             {
               "label": "iii",
               "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the operational database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -134,7 +134,7 @@
             {
               "label": "v",
               "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the operational databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
             }
           ]
         }
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69ac844895854c910b23389e",
+      "template_id": "69ac8c2e39806a6a78e6e44b",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,7 +152,7 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for an e-commerce platform: Product (productId: int, name: varchar(100), price: float, stock: int) Customer (customerId: int, fullName: varchar(100), email: varchar(50), phone: varchar(15)) Order (orderId: int, customerId: int, orderDate: date, totalAmount: float) OrderItem (orderItemId: int, orderId: int, productId: int, quantity: int). The 'Product' table stores details about products available for purchase, including a unique product ID, name, price, and available stock. The 'Customer' table maintains customer information such as a unique customer ID, full name, email, and phone number. The 'Order' table records customer orders containing a unique order ID, customer ID, order date, and total amount of the order. The 'OrderItem' table holds information about individual items within an order, with a unique order item ID, associated order ID, product ID, and quantity of each product ordered. The 'Customer' table holds details about customers, including unique customer ID, name, email, and address. The 'Order' table manages order records, tracking customer orders with order ID, customer ID, order date, and total amount.",
+      "text": "Consider the following schema of a database designed for a University: Student (studentId: int, name: varchar(100), email: varchar(50), enrollmentDate: date) Course (courseId: int, title: varchar(100), credits: int, department: varchar(50)) Enrollment (enrollmentId: int, studentId: int, courseId: int, grade: varchar(5)) The 'Student' table stores information about students enrolled in the university, including unique student ID, name, email, and the date of enrollment. The 'Course' table records details about courses offered, including unique course ID, title, number of credits, and the department. The 'Enrollment' table tracks which students are enrolled in which courses along with their grades. The 'Course' table holds details about courses, such as unique course ID, course name, credits, and department. The 'Enrollment' table manages student course enrollments, recording which students are enrolled in which courses and when. Fee (feeId: int, studentId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
       "subquestions": [
         {
           "label": "a",
@@ -162,35 +162,35 @@
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the name and price of all products currently in stock."
+              "text": "Find the names of students who are enrolled in the course titled 'Database Systems'."
             },
             {
               "label": "ii",
               "marks": 6,
-              "text": "Find the customer who has the highest total totalamount compared to all other customers. Find the customerId and fullName."
+              "text": "Find the student with the highest aggregate value using GROUP BY on related enrollment records."
             },
             {
               "label": "iii",
               "marks": 7,
-              "text": "Find the name and fullName from Product, Customer, and Order where Order.orderDate is not null."
+              "text": "Find the title and name from Course, Student, and Enrollment where Enrollment.enrollmentId is not null."
             }
           ]
         },
         {
           "label": "b",
           "marks": 11,
-          "text": "b) Create a function to calculate the total amount for a given customer. This function should account for customer with a late penalty of 10% applied to those marked as 'overdue' payment status."
+          "text": "b) Create a function to calculate the total fee amount for a given student. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
         },
         {
           "label": "c",
           "marks": 12,
-          "text": "c) Create a trigger that automatically updates the 'totalAmount' column in the 'Order' table whenever a new order record is added, or an existing order record is updated. The 'totalAmount' column should contain the total amount for each customer. Ensure the trigger adjusts the 'totalAmount' column accurately to reflect any partial payments made by customer. The customer pays only 50% of the total amount as an initial payment when the payment status is marked as 'Partial'."
+          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each student. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by student. The student pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69ac844895854c910b23389f",
+      "template_id": "69ac8c2e39806a6a78e6e44c",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
