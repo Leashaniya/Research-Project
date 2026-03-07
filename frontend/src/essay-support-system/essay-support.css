@@ -1,13 +1,16 @@
 /*
  * essay-support.css
- * Scoped styles for the Essay Support System subsystem.
- * All CSS custom properties and global-like styles are scoped
- * under .essay-support-root to avoid conflicts with the main app.
+ * Enhanced professional styling for the Essay Support System subsystem.
+ * Maintains blue color theme with modern, polished UI elements.
  */
 
-/* ── Scoped theme variables ── */
+/* ── Enhanced theme variables ── */
 .essay-support-root {
+<<<<<<< HEAD
   /* Enhanced blue theme with professional touches */
+=======
+  /* Professional blue theme */
+>>>>>>> e360af11 (Updated project files)
   --primary-50:  #eff6ff;
   --primary-100: #dbeafe;
   --primary-200: #bfdbfe;
@@ -26,7 +29,11 @@
 
   --bg:          #f8fafc;
   --bg-card:     #ffffff;
+<<<<<<< HEAD
   --bg-card-alt: #f1f5f9;
+=======
+  --bg-card-alt: #f8fafc;
+>>>>>>> e360af11 (Updated project files)
   --bg-sidebar:  #1e293b;
   --text:        #1e293b;
   --text-muted:  #64748b;
@@ -40,6 +47,7 @@
   --success-light: rgba(16, 185, 129, 0.08);
 
   --sidebar-w: 280px;
+<<<<<<< HEAD
   --radius:    16px;
   --radius-sm: 12px;
   --radius-lg: 20px;
@@ -52,11 +60,25 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+=======
+  --radius:    14px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+>>>>>>> e360af11 (Updated project files)
   color-scheme: light;
 
   /* Full viewport container */
   min-height: 100vh;
-  background: var(--bg);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   color: var(--text);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -90,12 +112,16 @@
 .essay-support-root img,
 .essay-support-root svg { display: block; max-width: 100%; }
 
-/* ── App-level layout chrome ── */
+/* ── Enhanced App-level layout chrome ── */
 
 .essay-support-root .app-layout {
   display: flex;
   min-height: 100vh;
+<<<<<<< HEAD
   background: var(--bg);
+=======
+  background: transparent;
+>>>>>>> e360af11 (Updated project files)
   color: var(--text);
 }
 
@@ -104,17 +130,22 @@
   flex: 1;
   margin-left: var(--sidebar-w);
   padding: 2.5rem 2.5rem 3rem;
+<<<<<<< HEAD
   max-width: 1280px;
+=======
+  max-width: 1400px;
+>>>>>>> e360af11 (Updated project files)
   background: transparent;
   min-height: 100vh;
   color: var(--text);
 }
 
-/* ── Utility Classes ── */
+/* ── Enhanced Utility Classes ── */
 
 .essay-support-root .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
+<<<<<<< HEAD
   border-radius: var(--radius);
   padding: 2rem;
   box-shadow: var(--shadow-sm);
@@ -123,22 +154,54 @@
 .essay-support-root .card:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+=======
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.essay-support-root .card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.essay-support-root .card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.essay-support-root .card:hover::before {
+  opacity: 1;
+>>>>>>> e360af11 (Updated project files)
 }
 
 .essay-support-root .card-alt {
   background: var(--bg-card-alt);
+  border: 1px solid var(--border-light);
 }
 
 .essay-support-root .gradient-text {
-  background: linear-gradient(135deg, var(--primary-400), var(--primary-300));
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-400));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  font-weight: 700;
 }
 
 .essay-support-root .btn {
   display: inline-flex;
   align-items: center;
+<<<<<<< HEAD
   gap: 0.75rem;
   padding: 0.875rem 1.75rem;
   border: none;
@@ -151,6 +214,21 @@
   letter-spacing: 0.025em;
   text-transform: none;
   font-family: inherit;
+=======
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  white-space: nowrap;
+>>>>>>> e360af11 (Updated project files)
 }
 
 .essay-support-root .btn::before {
@@ -169,6 +247,7 @@
 }
 
 .essay-support-root .btn-primary {
+<<<<<<< HEAD
   background: linear-gradient(135deg, var(--primary-800), var(--primary-700));
   color: #fff;
   box-shadow: var(--shadow-md);
@@ -185,8 +264,16 @@
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
   opacity: 0;
   transition: opacity 0.3s;
+=======
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+  color: #fff;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--primary-700);
+>>>>>>> e360af11 (Updated project files)
 }
+
 .essay-support-root .btn-primary:hover {
+<<<<<<< HEAD
   background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
@@ -197,13 +284,19 @@
 .essay-support-root .btn-primary:active {
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
+=======
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+>>>>>>> e360af11 (Updated project files)
 }
 
 .essay-support-root .btn-secondary {
-  background: var(--bg-card-alt);
+  background: var(--bg-card);
   color: var(--text);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
+<<<<<<< HEAD
   position: relative;
   overflow: hidden;
 }
@@ -217,8 +310,12 @@
   background: linear-gradient(135deg, var(--primary-50), transparent);
   opacity: 0;
   transition: opacity 0.3s;
+=======
+>>>>>>> e360af11 (Updated project files)
 }
+
 .essay-support-root .btn-secondary:hover {
+<<<<<<< HEAD
   border-color: var(--primary-500);
   color: var(--primary-600);
   transform: translateY(-3px);
@@ -226,42 +323,65 @@
 }
 .essay-support-root .btn-secondary:hover::after {
   opacity: 1;
+=======
+  border-color: var(--primary-300);
+  background: var(--primary-50);
+  color: var(--primary-700);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+>>>>>>> e360af11 (Updated project files)
 }
 
 .essay-support-root .btn-danger {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.1);
   color: var(--danger);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
+
 .essay-support-root .btn-danger:hover {
-  background: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
 }
 
 .essay-support-root .btn-sm {
-  padding: 0.4rem 0.9rem;
-  font-size: 0.8rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+.essay-support-root .btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1rem;
 }
 
 .essay-support-root .badge {
   display: inline-flex;
   align-items: center;
-  padding: 0.2rem 0.65rem;
-  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
   font-size: 0.75rem;
   font-weight: 600;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-sm);
 }
 
 .essay-support-root .badge-easy {
-  background: rgba(16, 185, 129, 0.15);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.1));
   color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
+
 .essay-support-root .badge-medium {
-  background: rgba(245, 158, 11, 0.15);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.1));
   color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
+
 .essay-support-root .badge-hard {
-  background: rgba(239, 68, 68, 0.15);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.1));
   color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .essay-support-root .page-header {
@@ -272,29 +392,50 @@
   gap: 1rem;
   margin-bottom: 2.5rem;
   padding-bottom: 1.5rem;
+<<<<<<< HEAD
   border-bottom: 1px solid var(--border);
+=======
+  border-bottom: 1px solid var(--border-light);
+>>>>>>> e360af11 (Updated project files)
 }
+
 .essay-support-root .page-header h1 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   font-size: 2rem;
   font-weight: 800;
+<<<<<<< HEAD
   letter-spacing: -0.02em;
+=======
+  color: var(--text);
+>>>>>>> e360af11 (Updated project files)
   margin: 0;
 }
+
+.essay-support-root .page-header h1 span {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .essay-support-root .page-header p {
   color: var(--text-muted);
   margin-top: 0.5rem;
   font-size: 1rem;
+<<<<<<< HEAD
+=======
+  line-height: 1.5;
+>>>>>>> e360af11 (Updated project files)
 }
 
-/* ── Grid helpers ── */
-.essay-support-root .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
-.essay-support-root .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
-.essay-support-root .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+/* ── Enhanced Grid helpers ── */
+.essay-support-root .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+.essay-support-root .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.essay-support-root .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
 
-/* ── Responsive ── */
+/* ── Enhanced Responsive ── */
 @media (max-width: 1024px) {
   .essay-support-root .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .essay-support-root .grid-3 { grid-template-columns: repeat(2, 1fr); }
@@ -303,16 +444,25 @@
 @media (max-width: 768px) {
   .essay-support-root .app-content {
     margin-left: 0;
-    padding: 1.25rem 1rem 5rem;
+    padding: 1.5rem 1rem 5rem;
   }
   .essay-support-root .grid-4,
   .essay-support-root .grid-3,
   .essay-support-root .grid-2 { grid-template-columns: 1fr; }
+  
+  .essay-support-root .page-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .essay-support-root .card {
+    padding: 1.5rem;
+  }
 }
 
-/* ── Button variants ── */
+/* ── Enhanced Button variants ── */
 
 .essay-support-root .btn-outline {
+<<<<<<< HEAD
   background: rgba(255, 255, 255, 0.95);
   color: var(--primary-800);
   border: 2px solid var(--border);
@@ -330,8 +480,17 @@
   height: 100%;
   background: linear-gradient(90deg, transparent, var(--primary-100), transparent);
   transition: left 0.6s;
+=======
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--primary-700);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(10px);
+>>>>>>> e360af11 (Updated project files)
 }
+
 .essay-support-root .btn-outline:hover {
+<<<<<<< HEAD
   border-color: var(--primary-400);
   background: var(--primary-50);
   color: var(--primary-800);
@@ -340,86 +499,131 @@
 }
 .essay-support-root .btn-outline:hover::before {
   left: 100%;
+=======
+  border-color: var(--primary-300);
+  background: var(--primary-50);
+  color: var(--primary-800);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+>>>>>>> e360af11 (Updated project files)
 }
 
-.essay-support-root .btn-lg {
-  padding: 0.8rem 1.8rem;
-  font-size: 1rem;
-}
-
-/* ── Alerts ── */
+/* ── Enhanced Alerts ── */
 
 .essay-support-root .alert {
-  padding: 1rem 1.25rem;
-  border-radius: var(--radius-sm);
-  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid transparent;
 }
-.essay-support-root .alert p { flex: 1; }
+
+.essay-support-root .alert p { 
+  flex: 1; 
+  margin: 0;
+  font-weight: 500;
+}
+
 .essay-support-root .alert button {
   background: transparent;
   border: 1px solid currentColor;
   border-radius: var(--radius-sm);
-  padding: 0.3rem 0.75rem;
+  padding: 0.4rem 0.8rem;
   color: inherit;
   font-size: 0.8rem;
   font-weight: 600;
-}
-.essay-support-root .alert-error {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--danger);
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  transition: var(--transition);
 }
 
-/* ── Empty State ── */
+.essay-support-root .alert button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.essay-support-root .alert-error {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* ── Enhanced Empty State ── */
 
 .essay-support-root .empty-state {
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, var(--bg-card-alt), var(--bg-card));
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
 }
+
 .essay-support-root .empty-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.75rem;
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
 }
+
 .essay-support-root .empty-state h3 {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+  color: var(--text);
 }
+
 .essay-support-root .empty-state p {
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
-/* ── Card sub-sections ── */
+/* ── Enhanced Card sub-sections ── */
 
 .essay-support-root .card-header {
-  padding-bottom: 0.75rem;
-  margin-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border);
-}
-.essay-support-root .card-header h3 {
-  font-size: 0.95rem;
-  font-weight: 600;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* ── Form elements ── */
+.essay-support-root .card-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.essay-support-root .card-header h3 span {
+  color: var(--primary-600);
+}
+
+/* ── Enhanced Form elements ── */
 
 .essay-support-root .select {
   background: var(--bg-card);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 0.5rem 0.85rem;
-  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
 }
+
 .essay-support-root .select:focus {
   outline: none;
   border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* ── Data table ── */

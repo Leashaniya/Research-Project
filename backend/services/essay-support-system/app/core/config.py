@@ -20,7 +20,11 @@ class Settings:
     BLOOM_DATASET_DIR: Path = SERVICE_ROOT / "bloomsDataset"
     RL_FILE: Path = SERVICE_ROOT / "rl.pkl"
     LOG_FILE: Path = SERVICE_ROOT / "attempt_log.csv"
+<<<<<<< HEAD
     EXTRACTION_LOG_FILE: Path = Path("C:/Users/PC/Videos/Research-Project/backend/services/essay-support-system/extracted_questions.log")
+=======
+    EXTRACTION_LOG_FILE: Path = Path("C:/Users/PC/Pictures/Screenshots/Research-Project/backend/services/essay-support-system/extracted_questions.log")
+>>>>>>> e360af11 (Updated project files)
     BLOOM_MODEL_PATH: Path = SERVICE_ROOT / "scripts" / "bloom_model.pkl"
     LECTURE_DIR: Path = SERVICE_ROOT / "Data" / "Lecture_Notes"
 

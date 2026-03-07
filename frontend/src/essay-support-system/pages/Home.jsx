@@ -91,6 +91,7 @@ export default function Home() {
         .hero {
           position: relative;
           text-align: center;
+<<<<<<< HEAD
           padding: 120px 48px 100px;
           background: linear-gradient(135deg, var(--primary-900) 0%, var(--primary-800) 50%, var(--primary-700) 100%);
           border: none;
@@ -98,12 +99,21 @@ export default function Home() {
           box-shadow: var(--shadow-xl);
           overflow: hidden;
           margin-bottom: 4rem;
+=======
+          padding: 84px 32px 72px;
+          background: var(--primary-800);
+          border: 1px solid var(--primary-700);
+          border-radius: 24px;
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+          overflow: hidden;
+>>>>>>> e360af11 (Updated project files)
         }
 
         .hero::before {
           content: '';
           position: absolute;
           inset: 0;
+<<<<<<< HEAD
           background: 
             radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
             radial-gradient(circle at 80% 70%, rgba(96, 165, 250, 0.2) 0%, transparent 50%),
@@ -115,6 +125,9 @@ export default function Home() {
           position: absolute;
           inset: 0;
           background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(30, 58, 138, 0.05));
+=======
+          background: radial-gradient(50% 50% at 80% 20%, rgba(59, 130, 246, 0.15), transparent 55%);
+>>>>>>> e360af11 (Updated project files)
           opacity: 1;
         }
 
@@ -126,6 +139,7 @@ export default function Home() {
         .hero-badge {
           display: inline-flex;
           align-items: center;
+<<<<<<< HEAD
           gap: 10px;
           padding: 12px 24px;
           background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
@@ -153,11 +167,37 @@ export default function Home() {
 
         .hero-highlight {
           background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 50%, #dbeafe 100%);
+=======
+          gap: 8px;
+          padding: 8px 16px;
+          background: rgba(255, 255, 255, 0.15);
+          color: #ffffff;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: var(--radius-full);
+          font-size: 0.85rem;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          margin-bottom: 24px;
+        }
+
+        .hero h1 {
+          font-size: 3rem;
+          font-weight: 800;
+          line-height: 1.15;
+          letter-spacing: -0.03em;
+          margin-bottom: 18px;
+          color: #ffffff;
+        }
+
+        .hero-highlight {
+          background: linear-gradient(135deg, #ffffff, #e0e7ff);
+>>>>>>> e360af11 (Updated project files)
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
           position: relative;
         }
+<<<<<<< HEAD
         .hero-highlight::after {
           content: '';
           position: absolute;
@@ -168,12 +208,15 @@ export default function Home() {
           background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
           border-radius: 2px;
         }
+=======
+>>>>>>> e360af11 (Updated project files)
 
         .hero-actions {
           display: flex;
           gap: 20px;
           justify-content: center;
           flex-wrap: wrap;
+<<<<<<< HEAD
           margin-top: 40px;
         }
 
@@ -183,6 +226,13 @@ export default function Home() {
           font-size: 1.1rem;
           font-weight: 700;
           border-radius: var(--radius);
+=======
+          margin-top: 6px;
+        }
+
+        .hero-actions .btn {
+          min-width: 170px;
+>>>>>>> e360af11 (Updated project files)
         }
 
         /* Features */
@@ -191,10 +241,17 @@ export default function Home() {
         }
 
         .section-title {
+<<<<<<< HEAD
           font-size: 2rem;
           font-weight: 800;
           text-align: center;
           margin-bottom: 3rem;
+=======
+          font-size: 1.6rem;
+          font-weight: 800;
+          text-align: center;
+          margin-bottom: 26px;
+>>>>>>> e360af11 (Updated project files)
           color: var(--text);
           letter-spacing: -0.02em;
         }
@@ -202,12 +259,17 @@ export default function Home() {
         .features-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
+<<<<<<< HEAD
           gap: 24px;
+=======
+          gap: 18px;
+>>>>>>> e360af11 (Updated project files)
         }
 
         .feature-card {
           background: var(--bg-card);
           border: 1px solid var(--border);
+<<<<<<< HEAD
           border-radius: 20px;
           padding: 32px 24px;
           text-align: center;
@@ -224,14 +286,38 @@ export default function Home() {
         .feature-icon {
           width: 70px;
           height: 70px;
+=======
+          border-radius: 18px;
+          padding: 26px 22px;
+          text-align: center;
+          transition: var(--transition);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card:hover {
+          transform: translateY(-6px);
+          border-color: var(--primary-300);
+          box-shadow: 0 8px 25px rgba(30, 64, 175, 0.15);
+        }
+
+        .feature-icon {
+          width: 60px;
+          height: 60px;
+>>>>>>> e360af11 (Updated project files)
           border-radius: var(--radius-lg);
           display: flex;
           align-items: center;
           justify-content: center;
+<<<<<<< HEAD
           margin: 0 auto 20px;
           background: var(--primary-50);
           border: 1px solid var(--primary-200);
           box-shadow: var(--shadow-sm);
+=======
+          margin: 0 auto 16px;
+          background: var(--primary-50);
+          border: 1px solid var(--primary-200);
+>>>>>>> e360af11 (Updated project files)
         }
 
         .feature-card h3 {
@@ -239,7 +325,10 @@ export default function Home() {
           font-weight: 700;
           margin: 0;
           color: var(--text);
+<<<<<<< HEAD
           letter-spacing: -0.01em;
+=======
+>>>>>>> e360af11 (Updated project files)
         }
 
         @media (max-width: 768px) {
