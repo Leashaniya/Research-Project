@@ -6,6 +6,28 @@ from app.ca_guidance.agents.event_scheduler_agent import event_scheduler_agent
 
 logger = logging.getLogger(__name__)
 
+
+def _chunk_assignment_text(text: str, max_chars: int = 8000) -> list[str]:
+    """
+    Split a long assignment into smaller chunks so the guidance
+    agent can reliably read and process the entire document.
+    """
+    if len(text) <= max_chars:
+        return [text]
+
+    chunks: list[str] = []
+    start = 0
+    while start < len(text):
+        end = min(start + max_chars, len(text))
+        # Try to break at a nearby paragraph boundary
+        boundary = text.rfind("\n\n", start, end)
+        if boundary == -1 or boundary <= start + 1000:
+            boundary = end
+        chunks.append(text[start:boundary].strip())
+        start = boundary
+    return [c for c in chunks if c]
+
+
 def create_guidance_crew(assignment_text: str, access_token: str):
     """
     Create a CrewAI crew to handle DBMS assignment guidance.
@@ -22,61 +44,74 @@ def create_guidance_crew(assignment_text: str, access_token: str):
     set_access_token(access_token)
     
     # Task 1: Analyze assignment and produce DBMS guidance
-    guidance_task = Task(
-        description=f"""
-        Analyze the following Database Management Systems (DBMS) assignment 
-        and produce a **complete, step-by-step guidance document or solution set** 
-        depending on what the assignment requires.
+    # If the assignment is long, split it into chunks so every part is read.
+    chunks = _chunk_assignment_text(assignment_text)
+    guidance_tasks: list[Task] = []
 
-        Assignment Text:
-        {assignment_text}
+    for idx, chunk in enumerate(chunks, start=1):
+        guidance_tasks.append(
+            Task(
+                description=f"""
+                You are processing PART {idx} of {len(chunks)} of a Database Management Systems (DBMS) assignment.
 
-        Your output MUST:
-        - Be written in clear, structured markdown format.
-        - Produce **DBMS-specific guidance**, not programming guidance.
-        - Write all notes and explanations as **normal prose text** (plain paragraphs and lists). Do not put explanatory notes inside code blocks; reserve code blocks only for actual SQL, code, or diagram syntax.
-        - Provide step-by-step instructions, explanations, or solutions based on the assignment type.
-        - If the assignment requires drawing: describe how to draw the ERD/EERD; put any diagram syntax (e.g. ASCII, Mermaid, or diagram code) inside a markdown fenced code block so it is clearly a diagram.
-        - If SQL queries are required: provide full working SQL statements in a code block.
-        - If conceptual answers are required: provide accurate, lecture-aligned explanations as normal text.
-        - If the assignment involves design (ER models, EER models, normalization, schema design, constraints):
-            → Break down each step clearly in normal text.
-            → Explain reasoning and methodology.
-        - If the assignment contains multiple questions:
-            → Provide solutions for each question or guidance for each part.
-        - If diagrams are needed: put them in markdown (e.g. a fenced code block for diagram text/ASCII, or use ![alt](url) for images). Do not mix diagram content with notes in one block.
+                You MUST treat this part as an integral section of the full assignment and:
+                - Carefully read this ENTIRE part from start to finish.
+                - For every question, sub-question, or numbered/lettered item in THIS PART, provide corresponding guidance or a solution.
+                - Do not skip any question in this part, even if it looks similar to previous ones.
 
-        IMPORTANT:
-        - Use the **query_lecture_materials** tool to verify accuracy based on course content.
-        - Align all explanations with the uploaded DBMS lectures: ER model, EER, weak entities, ISA, normalization, traps, etc.
-        - Do NOT include programming setup steps (Python installation, code files, etc.).
-        - Tailor your answer to the nature of the assignment (ERD, SQL, theory, design).
+                Assignment Text (Part {idx} of {len(chunks)}):
+                {chunk}
 
-        You are NOT required to follow any fixed structure such as:
-        - Project Overview
-        - Setup & Installation
-        - Complete Program Code
-        - Testing Instructions
-        
-        Instead, produce a **DBMS-specific solution guide** appropriate for THIS assignment.
+                Your output for this part MUST:
+                - Be written in clear, structured markdown format.
+                - Produce **DBMS-specific guidance**, not programming guidance.
+                - Write all notes and explanations as **normal prose text** (plain paragraphs and lists). Do not put explanatory notes inside code blocks; reserve code blocks only for actual SQL, code, or diagram syntax.
+                - Provide step-by-step instructions, explanations, or solutions based on the assignment type.
+                - If the assignment requires drawing: describe how to draw the ERD/EERD; put any diagram syntax (e.g. ASCII, Mermaid, or diagram code) inside a markdown fenced code block so it is clearly a diagram.
+                - If SQL queries are required: provide full working SQL statements in a code block.
+                - If conceptual answers are required: provide accurate, lecture-aligned explanations as normal text.
+                - If the assignment involves design (ER models, EER models, normalization, schema design, constraints):
+                    → Break down each step clearly in normal text.
+                    → Explain reasoning and methodology.
+                - If this part contains multiple questions:
+                    → Provide solutions for each question or guidance for each part.
+                - If diagrams are needed: put them in markdown (e.g. a fenced code block for diagram text/ASCII, or use ![alt](url) for images). Do not mix diagram content with notes in one block.
 
-        After completing the DBMS solution, add the following sections:
+                IMPORTANT:
+                - Use the **query_lecture_materials** tool to verify accuracy based on course content.
+                - Align all explanations with the uploaded DBMS lectures: ER model, EER, weak entities, ISA, normalization, traps, etc.
+                - Do NOT include programming setup steps (Python installation, code files, etc.).
+                - Tailor your answer to the nature of the assignment (ERD, SQL, theory, design) for this part.
 
-        ### Related Web Resources
-        - You MUST call the `duckduckgo_search` tool with a short topic related to the assignment 
-          (for example: "ER modeling DBMS", "normalization DBMS", "SQL queries DBMS", etc.).
-        - The tool will return:
-            - Valid article links  
-            - Valid YouTube video links  
-        - Simply insert the tool output **as-is** below this heading.
-        - Do NOT rewrite or summarize the tool output; do NOT restate the links manually.
-        - Every URL MUST be a clickable markdown link: use exactly `[Title of resource](URL)` or `[URL](URL)` so links render as links. Never output bare URLs as plain text.
-        - These links are only for reference; do NOT use their content in the main explanation.
-        - Output ONLY the raw markdown document. Do NOT wrap your entire response in a code block (no \\`\\`\\`markdown or \\`\\`\\` at the start/end). Your reply must be the guidance itself so it renders as formatted text.
-        """,
-        agent=guidance_agent,
-        expected_output="A full DBMS guidance document or solution set with step-by-step explanations aligned with lecture materials (raw markdown, not wrapped in a code block)."
-    )
+                You are NOT required to follow any fixed structure such as:
+                - Project Overview
+                - Setup & Installation
+                - Complete Program Code
+                - Testing Instructions
+                
+                Instead, produce a **DBMS-specific solution guide** appropriate for the content in THIS PART.
+
+                After completing the DBMS solution for this part, add the following sections:
+
+                ### Related Web Resources
+                - You MUST call the `duckduckgo_search` tool with a short topic related to the assignment 
+                (for example: "ER modeling DBMS", "normalization DBMS", "SQL queries DBMS", etc.).
+                - The tool will return:
+                    - Valid article links  
+                    - Valid YouTube video links  
+                - Simply insert the tool output **as-is** below this heading.
+                - Do NOT rewrite or summarize the tool output; do NOT restate the links manually.
+                - Every URL MUST be a clickable markdown link: use exactly `[Title of resource](URL)` or `[URL](URL)` so links render as links. Never output bare URLs as plain text.
+                - These links are only for reference; do NOT use their content in the main explanation.
+                - Output ONLY the raw markdown document. Do NOT wrap your entire response in a code block (no ```markdown or ``` at the start/end). Your reply must be the guidance itself so it renders as formatted text.
+                """,
+                agent=guidance_agent,
+                expected_output=(
+                    f"DBMS guidance for assignment part {idx} of {len(chunks)} "
+                    "with step-by-step explanations aligned with lecture materials (raw markdown, not wrapped in a code block)."
+                ),
+            )
+        )
 
     # Task 2: Find deadline and schedule calendar event
     scheduling_task = Task(
@@ -120,23 +155,23 @@ def create_guidance_crew(assignment_text: str, access_token: str):
         """,
         agent=event_scheduler_agent,
         expected_output="A message confirming whether a deadline was found and whether the event was created.",
-        context=[guidance_task],
     )
 
     # Task 3: Insert calendar confirmation into final guide
     finalize_task = Task(
         description="""
         Combine:
-        - The DBMS guidance document from the guidance agent
+        - All DBMS guidance documents from the guidance tasks (there may be multiple parts)
         - The calendar scheduling result
 
         Your job is to produce ONE final combined document.
 
         IMPORTANT:
-        - You MUST include the entire DBMS guidance content in your response.
+        - You MUST include the entire DBMS guidance content from **every** guidance task in your response.
         - Do NOT say things like "the solution is provided above".
         - Do NOT summarize or shorten the guidance unless explicitly asked.
-        - Start by reproducing the full guidance document.
+        - Preserve all steps, explanations, and answers from each part so that the final document covers the entire assignment.
+        - Start by reproducing the full combined guidance (you may organize it by question number or by assignment section).
         - Then at the very end, add a section:
 
         Add a final short section at the end titled:
@@ -149,13 +184,13 @@ def create_guidance_crew(assignment_text: str, access_token: str):
         """,
         agent=guidance_agent,
         expected_output="A complete DBMS guidance document with a final deadline confirmation section.",
-        context=[guidance_task, scheduling_task],
+        context=[*guidance_tasks, scheduling_task],
     )
 
     # Create crew
     crew = Crew(
         agents=[guidance_agent, event_scheduler_agent],
-        tasks=[guidance_task, scheduling_task, finalize_task],
+        tasks=[*guidance_tasks, scheduling_task, finalize_task],
         verbose=True,
     )
 

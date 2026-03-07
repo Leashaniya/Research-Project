@@ -168,7 +168,115 @@ def validate_er_model(model: ERModel) -> ValidationOutput:
                 path=rel_name_path,
             )
 
-        if rel.fromEntityId not in entity_id_set:
+        # Special handling for aggregation relationships – validate whole/parts and inner relationships,
+        # then skip generic from/to validations.
+        if rel.relationshipType == "aggregation":
+            # Whole entity must exist
+            if not rel.aggregationWholeEntityId:
+                _add_issue(
+                    out.errors,
+                    code="AGGREGATION_MISSING_WHOLE_ENTITY",
+                    message="Aggregation relationship must specify a whole entity.",
+                    path=f"relationships[{ri}].aggregationWholeEntityId",
+                )
+            elif rel.aggregationWholeEntityId not in entity_id_set:
+                _add_issue(
+                    out.errors,
+                    code="AGGREGATION_WHOLE_ENTITY_NOT_FOUND",
+                    message=f"aggregationWholeEntityId '{rel.aggregationWholeEntityId}' does not refer to an existing entity.",
+                    path=f"relationships[{ri}].aggregationWholeEntityId",
+                )
+
+            # Part entities – must exist and be different from whole
+            part_ids = rel.aggregationPartEntityIds or []
+            if len(part_ids) == 0:
+                _add_issue(
+                    out.errors,
+                    code="AGGREGATION_NO_PART_ENTITIES",
+                    message="Aggregation relationship must have at least one part entity.",
+                    path=f"relationships[{ri}].aggregationPartEntityIds",
+                )
+            else:
+                for pi, part_id in enumerate(part_ids):
+                    if not part_id:
+                        _add_issue(
+                            out.errors,
+                            code="AGGREGATION_PART_ENTITY_EMPTY",
+                            message=f"Part entity at index {pi} is empty.",
+                            path=f"relationships[{ri}].aggregationPartEntityIds[{pi}]",
+                        )
+                    elif part_id not in entity_id_set:
+                        _add_issue(
+                            out.errors,
+                            code="AGGREGATION_PART_ENTITY_NOT_FOUND",
+                            message=f"Part entity ID '{part_id}' does not refer to an existing entity.",
+                            path=f"relationships[{ri}].aggregationPartEntityIds[{pi}]",
+                        )
+                    elif rel.aggregationWholeEntityId and part_id == rel.aggregationWholeEntityId:
+                        _add_issue(
+                            out.errors,
+                            code="AGGREGATION_PART_SAME_AS_WHOLE",
+                            message="Part entity cannot be the same as the whole entity.",
+                            path=f"relationships[{ri}].aggregationPartEntityIds[{pi}]",
+                        )
+
+                # Warn on duplicate part entities
+                if len(set(part_ids)) < len(part_ids):
+                    _add_issue(
+                        out.warnings,
+                        code="AGGREGATION_DUPLICATE_PART_ENTITIES",
+                        message="Aggregation relationship has duplicate part entities.",
+                        path=f"relationships[{ri}].aggregationPartEntityIds",
+                    )
+
+            # Inner aggregation relationships
+            inner_rels = rel.aggregationRelationships or []
+            if len(inner_rels) == 0:
+                _add_issue(
+                    out.errors,
+                    code="AGGREGATION_NO_RELATIONSHIPS",
+                    message="Aggregation relationship must define at least one inner relationship.",
+                    path=f"relationships[{ri}].aggregationRelationships",
+                )
+            else:
+                for ai, agg_rel in enumerate(inner_rels):
+                    inner_path = f"relationships[{ri}].aggregationRelationships[{ai}]"
+                    if not _canon_name(agg_rel.name):
+                        _add_issue(
+                            out.errors,
+                            code="AGGREGATION_RELATIONSHIP_NAME_EMPTY",
+                            message="Inner aggregation relationship name must be non-empty.",
+                            path=f"{inner_path}.name",
+                        )
+                    if not agg_rel.partEntityId:
+                        _add_issue(
+                            out.errors,
+                            code="AGGREGATION_RELATIONSHIP_PART_EMPTY",
+                            message="Inner aggregation relationship must specify a part entity.",
+                            path=f"{inner_path}.partEntityId",
+                        )
+                    elif agg_rel.partEntityId not in entity_id_set:
+                        _add_issue(
+                            out.errors,
+                            code="AGGREGATION_RELATIONSHIP_PART_NOT_FOUND",
+                            message=f"Inner aggregation relationship partEntityId '{agg_rel.partEntityId}' does not refer to an existing entity.",
+                            path=f"{inner_path}.partEntityId",
+                        )
+                    elif part_ids and agg_rel.partEntityId not in part_ids:
+                        _add_issue(
+                            out.warnings,
+                            code="AGGREGATION_RELATIONSHIP_PART_NOT_IN_LIST",
+                            message="Inner aggregation relationship refers to a part entity that is not in aggregationPartEntityIds.",
+                            path=f"{inner_path}.partEntityId",
+                        )
+
+            # Skip the rest of the generic relationship validation for aggregation containers.
+            continue
+
+        # For ISA relationships we don't require from/to entity IDs; they use
+        # parentEntityId/childEntityIds instead. Skip generic from/to checks
+        # in that case to avoid false "entity not found" errors.
+        if rel.relationshipType != "isa" and rel.fromEntityId not in entity_id_set:
             _add_issue(
                 out.errors,
                 code="RELATIONSHIP_FROM_ENTITY_NOT_FOUND",
@@ -176,7 +284,7 @@ def validate_er_model(model: ERModel) -> ValidationOutput:
                 path=f"relationships[{ri}].fromEntityId",
             )
 
-        if rel.toEntityId not in entity_id_set:
+        if rel.relationshipType != "isa" and rel.toEntityId not in entity_id_set:
             _add_issue(
                 out.errors,
                 code="RELATIONSHIP_TO_ENTITY_NOT_FOUND",
