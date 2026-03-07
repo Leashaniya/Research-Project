@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\DELL\Downloads\Research Project\backend\services\mcq-studyplan-generation\.venv"
+VIRTUAL_ENV="C:\Users\DELL\Downloads\Research-Project\backend\services\mcq-studyplan-generation\.venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
