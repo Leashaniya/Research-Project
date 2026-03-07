@@ -1,5 +1,5 @@
 """
-Proxies /guidance/ -> academic-guidance:8000, /papers/ -> model-paper-generation:8001.
+Proxies /guidance/ -> academic-guidance, /papers/ -> model-paper-generation, /mcq/ -> mcq-study-plan.
 Run as a module:
     python -m uvicorn main:app --host 0.0.0.0 --port 80
 or directly:
@@ -15,6 +15,7 @@ import httpx
 GUIDANCE_TARGET = os.getenv("GUIDANCE_TARGET", "http://127.0.0.1:8001")
 PAPERS_TARGET = os.getenv("PAPERS_TARGET", "http://127.0.0.1:8000")
 ESSAY_TARGET = os.getenv("ESSAY_TARGET", "http://127.0.0.1:8002")
+MCQ_TARGET = os.getenv("MCQ_TARGET", "http://127.0.0.1:8003")
 PORT = int(os.getenv("PORT", "80"))
 
 app = FastAPI(title="Research Project Gateway (local)")
@@ -41,7 +42,7 @@ def root():
     return JSONResponse(
         content={
             "gateway": "Research Project API (local)",
-            "routes": {"health": "/health", "guidance": "/guidance/", "papers": "/papers/", "essay": "/essay/"},
+            "routes": {"health": "/health", "guidance": "/guidance/", "papers": "/papers/", "essay": "/essay/", "mcq": "/mcq/"},
         }
     )
 
@@ -59,6 +60,11 @@ async def proxy_papers(request: Request, path: str):
 @app.api_route("/essay/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 async def proxy_essay(request: Request, path: str):
     return await _proxy(request, ESSAY_TARGET, "essay", path)
+
+
+@app.api_route("/mcq/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
+async def proxy_mcq(request: Request, path: str):
+    return await _proxy(request, MCQ_TARGET, "mcq", path)
 
 
 async def _proxy(request: Request, target_base: str, prefix: str, path: str):

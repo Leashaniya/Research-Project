@@ -1,0 +1,23 @@
+/* MCQ Study Plan Card Styles */
+.btn-mcq {
+    background: linear-gradient(135deg, #2a5a94 0%, #234a7a 100%);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(42, 90, 148, 0.3);
+    width: 100%;
+}
+
+.btn-mcq:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(42, 90, 148, 0.4);
+}
+
+.bg-gradient-mcq {
+    background: linear-gradient(135deg, #2a5a94 0%, #234a7a 100%);
+}

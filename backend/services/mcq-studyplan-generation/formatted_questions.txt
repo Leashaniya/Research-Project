@@ -1,0 +1,385 @@
+====================================================================================================
+                                   TOP PRIORITY QUESTIONS
+====================================================================================================
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 30 (Priority 1)
+
+Which require GROUP BY clause? (Select all that apply)
+
+Options:
+  A. Using HAVING clause
+  B. Computing aggregate per group
+  C. Using aggregate functions
+  D. Combining aggregates with non-aggregated columns in SELECT E) Using ORDER BY Answers: A, B, D
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 88 (Priority 1)
+
+Which of the following queries will result in an error? (Select one or more)
+
+Options:
+  A. SELECT dept_id, COUNT(name) FROM employees;
+  B. SELECT eid FROM employees WHERE salary > AVG(salary);
+  C. SELECT dept_id, AVG(salary) FROM employees GROUP BY dept_id;
+  D. SELECT dept_id
+
+Answer: A
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 7 (Priority 1)
+
+What is the result of: SELECT DISTINCT progId FROM student; compared to: SELECT progId FROM student;
+
+Options:
+  A. Same result always
+  B. DISTINCT removes duplicate program IDs
+  C. DISTINCT sorts the results
+  D. DISTINCT shows only NULL values
+
+Answer: B
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 31 (Priority 1)
+
+Scenario: Database has Student(sid, name, major, gpa) and Enrollment(sid, courseId, grade)
+
+Options:
+  A. SELECT sid FROM Enrollment GROUP BY sid HAVING COUNT(*) = 10;
+  B. SELECT sid FROM Enrollment GROUP BY sid HAVING COUNT(DISTINCT courseId) = 10;
+  C. SELECT sid FROM Student WHERE sid IN (SELECT sid FROM Enrollment);
+  D. SELECT DISTINCT sid FROM Enrollment;
+
+Answer: B
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 74 (Priority 1)
+
+Which of the following queries will result in an error? (Select one or more)
+
+Options:
+  A. SELECT dept_id, AVG(salary) FROM employees GROUP BY dept_id;
+  B. SELECT dept_id, COUNT(name) FROM employees;
+  C. SELECT AVG(salary) FROM employees GROUP BY dept_id;
+  D. SELECT dept_id, job_id, AVG(salary) FROM employees GROUP BY dept_id, job_id;
+
+Answer: B
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 11 (Priority 1)
+
+Which is correct about INNER JOIN vs LEFT OUTER JOIN?
+
+Options:
+  A. INNER JOIN returns more rows
+  B. LEFT OUTER JOIN returns all rows from left table
+  C. They always produce same result
+  D. INNER JOIN includes NULL values
+
+Answer: B
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 61 (Priority 1)
+
+Consider the following tables: Patient(pid, pname, age) Admission(pid, admissionDate)
+
+Options:
+  A. Query 2 and Query 4 return identical row sets but Query 1 and Query 2 return different row sets
+  B. All queries return identical row sets
+  C. Query 3 returns strictly fewer rows than Query 2
+  D. Query 4 will encounter an integrity violation at runtime
+
+Answer: A
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 62 (Priority 2)
+
+Consider the following relation: R(A, C, E, G, I, K, L, N, P, Q) With the following set of functional dependencies: { ACE, AGI, CK, K → LN, GPQ } Question: Identify the candidate key(s) in relation R
+
+Options:
+  A. A
+  B. G
+  C. C
+  D. AC
+
+Answer: A
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 34 (Priority 2)
+
+Scenario: Employee entity has empID, name, salary, supervisor_ID (an employee's supervisor is also an employee - recursive relationship)
+
+Options:
+  A. Employee(empID, name, salary), Supervises(empID, supervisor_ID)
+  B. Employee(empID, name, salary, supervisor_ID*)
+  C. Employee(empID, name, salary), Supervisor(supervisor_ID, empID*)
+  D. Cannot be mapped in relational model
+
+Answer: B
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 11 (Priority 2)
+
+You are mapping an aggregation: Players play Matches, and this play relationship wins Awards
+
+Options:
+  A. awardName only
+  B. (playerId, matchId) only
+  C. (awardName, playerId, matchId) - composite of all three
+  D. (playerId, matchId, awardDate)
+
+Answer: C
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 65 (Priority 2)
+
+Which of the following statements about rooms in a university description are true? (Select one or more)
+
+Options:
+  A. The type of the rooms could be represented using subclasses
+  B. The type of the rooms could be represented as an attribute
+  C. There are only strong entities in this description
+  D. If building is an entity, room will be a weak entity
+
+Answer: A
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 66 (Priority 2)
+
+University rooms description: lecture halls and laboratories—both have capacity and number of resources; located in buildings (e
+
+Options:
+  A. The type of the rooms could be represented using subclasses
+  B. The type of the rooms could be represented as an attribute
+  C. There are only strong entities in this description
+  D. If building is an entity, room will be a weak entity
+
+Answer: A
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 51 (Priority 2)
+
+Which of the following normal forms is based on the concept of functional dependency?
+
+Options:
+  A. 1NF
+  B. 2NF
+  C. 3NF
+  D. BCNF
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 36 (Priority 2)
+
+Which of the following is true related to ISA relationships? (Select one or more) , B, D
+
+Options:
+  A. The hierarchy in which each entity participates in only one subclass relationship is classified as disjoint
+  B. A subtype of an ISA hierarchy can have its own key
+  C. A shape object with circle, rectangle, and triangle as subtypes is an example of total participation
+  D. If subtypes are overlapping, the participation constraint must be partial
+
+Answer: A
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 52 (Priority 3)
+
+Server-level permissions include: (Select all that apply)
+
+Options:
+  A. CREATE ANY DATABASE
+  B. ALTER ANY LOGIN
+  C. SELECT - read tables
+  D. SHUTDOWN - stop server
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 51 (Priority 3)
+
+Permissions that can be granted on database objects include: (Select all that apply)
+
+Options:
+  A. SELECT - read data
+  B. INSERT - add data
+  C. UPDATE - modify data
+  D. DELETE - remove data
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 26 (Priority 3)
+
+Which fixed server role can create, alter, drop, and restore databases?
+
+Options:
+  A. sysadmin
+  B. dbcreator
+  C. databaseadmin
+  D. serveradmin
+
+Answer: B
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 35 (Priority 3)
+
+Which fixed database role can perform all configuration and maintenance activities on the database?
+
+Options:
+  A. db_admin
+  B. db_owner
+  C. db_maintainer
+  D. db_sysadmin
+
+Answer: B
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 2 (Priority 3)
+
+Which security objective ensures that information should not be disclosed to unauthorized users?
+
+Options:
+  A. Integrity
+  B. Availability
+  C. Secrecy
+  D. Authentication
+
+Answer: C
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 8 (Priority 3)
+
+What is authentication in SQL Server security?
+
+Options:
+  A. Granting permissions to users
+  B. Verifying the identities of users trying to connect C) Creating user accounts
+  D) Monitoring user activities
+
+Answer: B
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 48 (Priority 3)
+
+When creating a SQL Server Authentication login, you can specify: (Select all that apply)
+
+Options:
+  A. Password
+  B. MUST_CHANGE - force password change on first login
+  C. CHECK_EXPIRATION - enable password expiration
+  D. CHECK_POLICY - enforce password policy
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 22 (Priority 4)
+
+Can AFTER triggers be defined on views?
+
+Options:
+  A. Yes, on any view
+  B. No, AFTER triggers cannot be defined on views
+  C. Only on updateable views
+  D. Only with special permissions
+
+Answer: B
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 46 (Priority 4)
+
+Scenario: HR system - Employee(eid, name, salary, deptId), Department(deptId, name, budget)
+
+Options:
+  A. Transaction management
+  B. Business rule enforcement in stored procedures
+  C. OUTPUT parameter usage
+  D. All of the above
+
+Answer: D
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 15 (Priority 4)
+
+Given a procedure: CREATE PROCEDURE calcStats(@deptId INT, @maxSal FLOAT OUTPUT, @minSal FLOAT OUTPUT) AS BEGIN SELECT @maxSal=MAX(salary), @minSal=MIN(salary) FROM Employee WHERE deptId=@deptId END Which call is CORRECT?
+
+Options:
+  A. EXEC calcStats 10, @max, @min;
+  B. DECLARE @max FLOAT, @min FLOAT; EXEC calcStats 10, @max OUTPUT, @min OUTPUT;
+  C. SELECT calcStats(10, @max, @min);
+  D. CALL calcStats(10, @max, @min);
+
+Answer: B
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 3 (Priority 4)
+
+Given a view created as: CREATE VIEW dept_summary AS SELECT deptId, COUNT(*) as empCount, AVG(salary) as avgSalary FROM Employee GROUP BY deptId; Can you execute: UPDATE dept_summary SET avgSalary = 50000 WHERE deptId = 10;? (or D if trigger exists)
+
+Options:
+  A. Yes, it updates the average salary
+  B. No, views with aggregate functions are not updateable
+  C. Yes, but it updates all employee salaries
+  D. Yes, but only if there's an INSTEAD OF trigger
+
+Answer: B
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 28 (Priority 4)
+
+What happens if a trigger raises an error?
+
+Options:
+  A. Error is ignored, operation continues
+  B. Trigger code stops, but DML operation completes
+  C. Entire transaction is rolled back (for AFTER triggers)
+  D. Only the trigger is rolled back
+
+Answer: C
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 54 (Priority 4)
+
+Consider the following table definition: CREATE TABLE Product ( pid CHAR(4) PRIMARY KEY, pname VARCHAR(30), manufactureDate DATETIME DEFAULT GETDATE(), qty INT, CONSTRAINT pid_chk CHECK (pid LIKE 'P|S|T[0-5][0-5]|10-5|10-577'), CONSTRAINT qty_chk CHECK (qty > 0) ); Which of the following statements are TRUE related to the above definition? (Select one or more)
+
+Options:
+  A. Consider a product with a quantity (qty) of 10
+  B. T12 is a valid pid that could be stored in the Product table
+  C. P333 is a valid pid that could be stored in the Product table
+  D. Executing the following insert statement will cause an error:
+
+Answer: A
+────────────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+Question 26 (Priority 4)
+
+Which trigger is better for implementing validation logic?
+
+Options:
+  A. AFTER trigger with ROLLBACK if validation fails
+  B. INSTEAD OF trigger that only executes DML if validation passes
+  C. Both are equally good
+  D. Neither - use CHECK constraints
+
+Answer: B
+────────────────────────────────────────────────────────────────────────────────────────────────────
+

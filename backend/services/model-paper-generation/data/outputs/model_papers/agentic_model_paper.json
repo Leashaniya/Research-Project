@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-05 02:05:57",
+  "generated_at": "2026-03-07 17:50:10",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nIn a university database, the entity 'Department' has attributes: DepartmentID, Name, and Location. The entity 'Course' includes attributes: CourseID, Title, Credits, and Prerequisites. The relationship 'Offers' connects 'Department' and 'Course', where each department can offer multiple courses. The entity 'Student' possesses attributes: StudentID, Name, and Major, while the relationship 'Enrolls' links 'Student' to 'Course' with an attribute EnrollmentDate. Additionally, the entity 'Faculty' has attributes: FacultyID, Name, and Rank. The 'Teaches' relationship connects 'Faculty' to 'Course', allowing for multiple faculty members teaching the same course. The 'Course' entity is specialized into 'ElectiveCourse' and 'CoreCourse', with 'ElectiveCourse' having an attribute ElectiveType, and 'CoreCourse' including attributes: Required and Foundation. This EER diagram includes a situation where a relationship between ['Department', 'Course'] (for example, 'Offers') is treated as a single unit when relating to Student via 'Enrolls'. Model this using an aggregation so that the external relationship is between the external entity and the combined Department\u2013Course\u2013Offers structure, not directly to only one inner entity. A Department can be related to many Courses through the 'Offers' relationship (Course participation is optional). A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrolls' relationship (Student participation is optional, Course participation is optional). A Faculty can be related to many Courses, and a Course can be related to many Facultys through the 'Teaches' relationship (Faculty participation is optional, Course participation is optional)",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university manages information about its courses, students, and faculty. The 'Course' entity has attributes CourseID, CourseName, and Credits. The 'Student' entity consists of StudentID, Name, EnrollmentDate, and PhoneNumbers (a multivalued attribute). Faculty members are captured in the 'Faculty' entity, which includes FacultyID, Name, and Department. Each course is offered by a specific faculty member, establishing a relationship 'Teaches'. Additionally, students enroll in courses through the 'Enrolls' relationship, which includes a composite attribute EnrollmentDetails consisting of EnrollmentDate and Grade. A specialization hierarchy exists where 'Student' further subdivides into 'UndergraduateStudent' with YearOfStudy and Major attributes, and 'GraduateStudent' with ThesisTitle and AdvisorName attributes. This EER diagram includes a situation where a relationship between ['Department', 'Course'] (for example, 'Offers') is treated as a single unit when relating to Student via 'Enrolls'. Model this using an aggregation so that the external relationship is between the external entity and the combined Department\u2013Course\u2013Offers structure, not directly to only one inner entity. A Faculty can be related to many Courses through the 'Teaches' relationship. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrolls' relationship (Student participation is optional, Course participation is optional)",
       "subquestions": [
         {
           "label": "a",
@@ -41,9 +41,9 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69a89728726d7a1427612f39",
-      "original_semantic_description": "In a university database, the entity 'Department' has attributes: DepartmentID, Name, and Location. The entity 'Course' includes attributes: CourseID, Title, Credits, and Prerequisites. The relationship 'Offers' connects 'Department' and 'Course', where each department can offer multiple courses. The entity 'Student' possesses attributes: StudentID, Name, and Major, while the relationship 'Enrolls' links 'Student' to 'Course' with an attribute EnrollmentDate. Additionally, the entity 'Faculty' has attributes: FacultyID, Name, and Rank. The 'Teaches' relationship connects 'Faculty' to 'Course', allowing for multiple faculty members teaching the same course. The 'Course' entity is specialized into 'ElectiveCourse' and 'CoreCourse', with 'ElectiveCourse' having an attribute ElectiveType, and 'CoreCourse' including attributes: Required and Foundation.",
-      "diagram_image_path": "C:\\Users\\DELL\\Downloads\\RP\\RP\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
+      "template_id": "69ac17847841beaaa5f4c35d",
+      "original_semantic_description": "A university manages information about its courses, students, and faculty. The 'Course' entity has attributes CourseID, CourseName, and Credits. The 'Student' entity consists of StudentID, Name, EnrollmentDate, and PhoneNumbers (a multivalued attribute). Faculty members are captured in the 'Faculty' entity, which includes FacultyID, Name, and Department. Each course is offered by a specific faculty member, establishing a relationship 'Teaches'. Additionally, students enroll in courses through the 'Enrolls' relationship, which includes a composite attribute EnrollmentDetails consisting of EnrollmentDate and Grade. A specialization hierarchy exists where 'Student' further subdivides into 'UndergraduateStudent' with YearOfStudy and Major attributes, and 'GraduateStudent' with ThesisTitle and AdvisorName attributes.",
+      "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, CD->E, E->A, AC->B}}",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, C->EF, DE->B}}.",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69a89728726d7a1427612f3a",
+      "template_id": "69ac17847841beaaa5f4c35e",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,7 +84,7 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A university has designed a database to manage its student information system. The schema includes the following relation: Courses(course_id: string, title: string, credits: integer, department: string). The university needs to ensure that certain conditions are met for the data it stores, thus implementing various integrity constraints to maintain accuracy and consistency throughout the database system.",
+      "text": "A retail company is developing a database system to manage its inventory and sales. The database includes tables such as Products, Orders, and Customers. The Products table stores information about items available for sale, including product ID, name, price, and quantity in stock. The Orders table records sales transactions, linking each order to a customer and the purchased products. The Customers table keeps track of customer details, including customer ID, name, and contact information. This data structure will allow the company to efficiently manage inventory, track sales, and analyze customer purchasing behavior.",
       "subquestions": [
         {
           "label": "a",
@@ -98,17 +98,17 @@
         },
         {
           "label": "c",
-          "text": "Briefly explain the different types of integrity constraints that can be implemented in a relational database schema.",
+          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how foreign key constraints can enforce referential integrity in the context of a student enrollment database.",
+          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
+          "text": "An organization is establishing role-based access control for its database system. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the operational database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating transaction data.",
           "marks": null,
           "subquestions": [
             {
@@ -124,7 +124,7 @@
             {
               "label": "iii",
               "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the operational database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -134,7 +134,7 @@
             {
               "label": "v",
               "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the operational databases."
             }
           ]
         }
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69a89728726d7a1427612f3b",
+      "template_id": "69ac17847841beaaa5f4c35f",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,7 +152,7 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for a Hospital: Patient (patientId: int, name: varchar(100), address: varchar(150), dob: date) Appointment (appointmentId: int, appointmentDate: date, status: varchar(50), patientId: int) Fee (feeId: int, amount: real, paymentStatus: varchar(50), appointmentId: int) Doctor (doctorId: int, name: varchar(100), specialty: varchar(50), patientId: int) The 'Patient' table stores information about patients, including unique patient ID, name, address, and date of birth. The 'Appointment' table stores details about appointments, including a unique appointment ID, appointment date, status, and associated patient ID. The 'Fee' table contains appointment fee information, including unique fee ID, fee amount, payment status, and associated appointment ID. The 'Doctor' table lists doctors along with their unique ID, name, specialty, and the patient they are treating. The 'Doctor' table contains details about doctors, including unique doctor ID, name, specialization, and contact information.",
+      "text": "Consider the following schema of a database designed for a hospital: Patient (patientId: int, name: varchar(100), address: varchar(150), dob: date) Doctor (doctorId: int, name: varchar(100), specialization: varchar(50), phone: varchar(15)) Appointment (appointmentId: int, appointmentDate: date, patientId: int, doctorId: int) Fee (feeId: int, amount: real, status: varchar(20), appointmentId: int). The 'Patient' table stores the details of patients, the 'Doctor' table keeps records of doctors and their specialties, the 'Appointment' table records the appointments made by patients with doctors, and the 'Fee' table contains details on the fees associated with each appointment. The 'Doctor' table holds details about doctors, including unique doctor ID, name, specialization, and contact information. The 'Appointment' table manages appointment records, tracking scheduled appointments between patients and doctors with dates and times.",
       "subquestions": [
         {
           "label": "a",
@@ -162,7 +162,7 @@
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the name of patients who are linked to appointment records where appointmentDate is 'SampleValue'."
+              "text": "Find the name and phone number of the doctor who has a specialization in 'Pediatrics'."
             },
             {
               "label": "ii",
@@ -172,7 +172,7 @@
             {
               "label": "iii",
               "marks": 7,
-              "text": "Find the appointmentDate, status, and name from Appointment, Patient, and Appointment where Appointment.appointmentDate is not null."
+              "text": "Find the name and name from Doctor, Patient, and Appointment where Appointment.appointmentDate is not null."
             }
           ]
         },
@@ -190,7 +190,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69a89728726d7a1427612f3c",
+      "template_id": "69ac17847841beaaa5f4c360",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,

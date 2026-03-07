@@ -1,0 +1,49 @@
+# Run all services and local gateway in separate windows
+# Usage: from backend/ run: .\scripts\run-all.ps1
+
+$ErrorActionPreference = "Stop"
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+
+Write-Host "Starting all backend services..."
+
+# 1. Academic Guidance (Port 8081)
+$AgScript = Join-Path $ScriptDir "run-academic-guidance.ps1"
+if (Test-Path $AgScript) {
+    Write-Host "- Academic Guidance (Port 8081)"
+    Start-Process powershell -ArgumentList "-NoExit","-Command","`$env:PORT='8081'; & '$AgScript'"
+}
+
+# 2. Model Paper Generation (Port 8000)
+$MpScript = Join-Path $ScriptDir "run-model-paper.ps1"
+if (Test-Path $MpScript) {
+    Write-Host "- Model Paper Generation (Port 8000)"
+    Start-Process powershell -ArgumentList "-NoExit","-Command","`$env:PORT='8000'; & '$MpScript'"
+}
+
+# 3. Essay Support System (Port 8002)
+$EsScript = Join-Path $ScriptDir "run-essay-support.ps1"
+if (Test-Path $EsScript) {
+    Write-Host "- Essay Support System (Port 8002)"
+    Start-Process powershell -ArgumentList "-NoExit","-Command","`$env:PORT='8002'; & '$EsScript'"
+}
+
+# 4. MCQ Studyplan Generation (Port 8003)
+$McqScript = Join-Path $ScriptDir "run-mcq-studyplan.ps1"
+if (Test-Path $McqScript) {
+    Write-Host "- MCQ Studyplan Generation (Port 8003)"
+    Start-Process powershell -ArgumentList "-NoExit","-Command","`$env:PORT='8003'; & '$McqScript'"
+}
+
+# Wait a few seconds for services to start initializing
+Start-Sleep -Seconds 3
+
+# 5. Local Gateway (Port 80)
+$GwScript = Join-Path $ScriptDir "run-gateway.ps1"
+if (Test-Path $GwScript) {
+    Write-Host "- Local Gateway (Port 80)"
+    $GwArgs = "-NoExit", "-Command", "`$env:GUIDANCE_TARGET='http://127.0.0.1:8081'; `$env:PAPERS_TARGET='http://127.0.0.1:8000'; `$env:ESSAY_TARGET='http://127.0.0.1:8002'; `$env:MCQ_TARGET='http://127.0.0.1:8003'; `$env:PORT='80'; & '$GwScript'"
+    Start-Process powershell -ArgumentList $GwArgs
+}
+
+Write-Host "Done! Services are booting up in separate PowerShell windows."
+Write-Host "Gateway will be available at http://127.0.0.1:80/"

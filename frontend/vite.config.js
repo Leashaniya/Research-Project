@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Gateway URL for dev proxy (when using docker compose: gateway is on port 80)
-const gatewayTarget = process.env.GATEWAY_URL || 'http://localhost:80'
+// All requests are routed through the local gateway running on port 80
+const gatewayTarget = process.env.GATEWAY_URL || 'http://127.0.0.1:80'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -10,7 +10,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
-    // Proxy API routes to the microservice gateway so relative /guidance and /papers work in dev
+    // Proxy API routes through Gateway
     proxy: {
       '/guidance': {
         target: gatewayTarget,
@@ -20,10 +20,13 @@ export default defineConfig({
         target: gatewayTarget,
         changeOrigin: true,
       },
-      '/essay': {
-        target: process.env.ESSAY_TARGET || 'http://localhost:8000',
+      '/mcq': {
+        target: gatewayTarget,
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/essay/, ''),
+      },
+      '/essay': {
+        target: gatewayTarget,
+        changeOrigin: true,
       },
     },
   },
