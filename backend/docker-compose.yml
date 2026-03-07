@@ -4,6 +4,7 @@
 #   - /health          -> gateway health
 #   - /guidance/       -> academic-guidance (CA guidance, auth, summaries, ER)
 #   - /papers/         -> model-paper-generation (past papers, model paper)
+#   - /essay/          -> essay-support-system (adaptive learning, practice)
 
 services:
   gateway:
@@ -16,6 +17,7 @@ services:
     depends_on:
       - academic-guidance
       - model-paper-generation
+      - essay-support-system
     restart: unless-stopped
 
   academic-guidance:
@@ -45,6 +47,17 @@ services:
     volumes:
       # Use host's app/data (includes text_extraction_hybrid with paper folders)
       - ./services/model-paper-generation/app/data:/app/data
+    restart: unless-stopped
+
+  essay-support-system:
+    build:
+      context: ./services/essay-support-system
+      dockerfile: Dockerfile
+    container_name: essay-support-system
+    env_file:
+      - ./services/essay-support-system/.env
+    environment:
+      - PORT=8002
     restart: unless-stopped
 
   # Optional: local MongoDB (disable if using Atlas; set MONGO_URI to your Atlas URI)
