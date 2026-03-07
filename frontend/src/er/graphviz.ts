@@ -1,4 +1,10 @@
-import type { ERModel, Entity, Relationship, Attribute } from "./types";
+import type {
+  ERModel,
+  Entity,
+  Relationship,
+  Attribute,
+  AggregationRelationship,
+} from "./types";
 
 /**
  * Converts an ERModel to Graphviz DOT format.
@@ -15,6 +21,8 @@ export function erModelToDot(model: ERModel): string {
   
   // Graph header
   lines.push("digraph ERDiagram {");
+  // Needed for lhead/ltail to attach edges to clusters
+  lines.push("  compound=true;");
   lines.push("  rankdir=LR;");
   lines.push("  nodesep=1.0;");
   lines.push("  ranksep=1.5;");
@@ -63,6 +71,56 @@ export function erModelToDot(model: ERModel): string {
     // Regular and composite: single oval
     return { shape: "ellipse" };
   };
+
+  const collectAttributeNodeIds = (attrs: Attribute[]): string[] => {
+    const ids: string[] = [];
+    const stack: Attribute[] = [...attrs];
+    while (stack.length > 0) {
+      const a = stack.pop();
+      if (!a) continue;
+      ids.push(`A_${a.id}`);
+      if (a.type === "composite" && a.subAttributes && a.subAttributes.length > 0) {
+        for (const sub of a.subAttributes) stack.push(sub);
+      }
+    }
+    return ids;
+  };
+
+  // Precompute aggregation clusters keyed by their whole entity id. We only keep
+  // clusters that actually have at least one inner relationship inside the
+  // dashed box (inAggregationBox === true), since those are the ones that
+  // render an aggregation container visually.
+  const aggregationClustersByWhole = new Map<string, string>();
+  const aggregationClusterByEntity = new Map<string, string>();
+  for (const rel of model.relationships) {
+    if (rel.relationshipType !== "aggregation") continue;
+    const wholeEntityId = rel.aggregationWholeEntityId;
+    const aggregationRels: AggregationRelationship[] = rel.aggregationRelationships || [];
+    if (!wholeEntityId || aggregationRels.length === 0) continue;
+
+    const hasInBox = aggregationRels.some((aggr) => aggr.inAggregationBox && aggr.partEntityId);
+    if (!hasInBox) continue;
+
+    const clusterIdRaw = `cluster_agg_${String(rel.id)}`;
+    const safeClusterId = clusterIdRaw.replace(/[^a-zA-Z0-9_]/g, "_");
+
+    if (!aggregationClustersByWhole.has(wholeEntityId)) {
+      aggregationClustersByWhole.set(wholeEntityId, safeClusterId);
+    }
+
+    // Any entity that is visually inside the dashed box should connect to the
+    // cluster boundary when it participates in an outside relationship.
+    if (!aggregationClusterByEntity.has(wholeEntityId)) {
+      aggregationClusterByEntity.set(wholeEntityId, safeClusterId);
+    }
+    for (const aggr of aggregationRels) {
+      if (!aggr.inAggregationBox) continue;
+      if (!aggr.partEntityId) continue;
+      if (!aggregationClusterByEntity.has(aggr.partEntityId)) {
+        aggregationClusterByEntity.set(aggr.partEntityId, safeClusterId);
+      }
+    }
+  }
   
   // Create entity nodes
   for (const entity of model.entities) {
@@ -80,6 +138,10 @@ export function erModelToDot(model: ERModel): string {
   
   // Create relationship nodes (diamonds for binary/ternary, triangle for ISA)
   for (const rel of model.relationships) {
+    // Aggregation relationships are rendered via their inner aggregationRelationships below
+    if (rel.relationshipType === "aggregation") {
+      continue;
+    }
     const nodeId = `R_${rel.id}`;
     const label = escapeLabel(rel.name);
     
@@ -136,6 +198,11 @@ export function erModelToDot(model: ERModel): string {
   
   // Relationship attributes
   for (const rel of model.relationships) {
+    // Skip aggregation container itself here; its inner relationships are
+    // rendered separately below (and can have their own attributes).
+    if (rel.relationshipType === "aggregation") {
+      continue;
+    }
     for (const attr of rel.attributes) {
       const nodeId = `A_${attr.id}`;
       const label = getAttributeLabel(attr);
@@ -171,6 +238,10 @@ export function erModelToDot(model: ERModel): string {
   
   // Create entity->relationship edges with cardinality labels and participation constraints
   for (const rel of model.relationships) {
+    // Aggregation relationships handled separately below
+    if (rel.relationshipType === "aggregation") {
+      continue;
+    }
     const relId = `R_${rel.id}`;
     
     // Determine edge style based on participation and weak relationship
@@ -197,15 +268,19 @@ export function erModelToDot(model: ERModel): string {
       // ISA relationship: parent at top, children at bottom (no cardinality labels)
       if (rel.parentEntityId) {
         const parentId = `E_${rel.parentEntityId}`;
+        const parentCluster = aggregationClusterByEntity.get(rel.parentEntityId);
+        const parentClusterAttr = parentCluster ? `, ltail=${parentCluster}` : "";
         // Connect parent to triangle (at top)
-        lines.push(`  ${escapeId(parentId)} -> ${escapeId(relId)} [style=solid, arrowhead=none];`);
+        lines.push(`  ${escapeId(parentId)} -> ${escapeId(relId)} [style=solid, arrowhead=none${parentClusterAttr}];`);
         
         // Connect triangle to each child (at bottom)
         if (rel.childEntityIds && rel.childEntityIds.length > 0) {
           for (const childId of rel.childEntityIds) {
             if (childId) {
               const childEntityId = `E_${childId}`;
-              lines.push(`  ${escapeId(relId)} -> ${escapeId(childEntityId)} [style=solid, arrowhead=none];`);
+              const childCluster = aggregationClusterByEntity.get(childId);
+              const childClusterAttr = childCluster ? `, lhead=${childCluster}` : "";
+              lines.push(`  ${escapeId(relId)} -> ${escapeId(childEntityId)} [style=solid, arrowhead=none${childClusterAttr}];`);
             }
           }
         }
@@ -215,36 +290,180 @@ export function erModelToDot(model: ERModel): string {
       const fromEntityId = `E_${rel.fromEntityId}`;
       const toEntityId = `E_${rel.toEntityId}`;
       const thirdEntityId = rel.thirdEntityId ? `E_${rel.thirdEntityId}` : null;
+      const fromCluster = aggregationClusterByEntity.get(rel.fromEntityId);
+      const toCluster = aggregationClusterByEntity.get(rel.toEntityId);
+      const thirdCluster = rel.thirdEntityId ? aggregationClusterByEntity.get(rel.thirdEntityId) : undefined;
       
       // Edge from entity A to relationship
       const fromStyle = getEdgeStyle(rel.fromParticipation, rel.isWeak);
-      lines.push(`  ${escapeId(fromEntityId)} -> ${escapeId(relId)} [label=${escapeLabel(rel.fromCardinality)}, ${fromStyle}, arrowhead=none];`);
+      const fromClusterAttr = fromCluster ? `, ltail=${fromCluster}` : "";
+      lines.push(`  ${escapeId(fromEntityId)} -> ${escapeId(relId)} [label=${escapeLabel(rel.fromCardinality)}, ${fromStyle}, arrowhead=none${fromClusterAttr}];`);
       
       // Edge from relationship to entity B
       const toStyle = getEdgeStyle(rel.toParticipation, rel.isWeak);
-      lines.push(`  ${escapeId(relId)} -> ${escapeId(toEntityId)} [label=${escapeLabel(rel.toCardinality)}, ${toStyle}, arrowhead=none];`);
+      const toClusterAttr = toCluster ? `, lhead=${toCluster}` : "";
+      lines.push(`  ${escapeId(relId)} -> ${escapeId(toEntityId)} [label=${escapeLabel(rel.toCardinality)}, ${toStyle}, arrowhead=none${toClusterAttr}];`);
       
       // Edge from relationship to entity C (if specified)
       if (thirdEntityId) {
         const thirdStyle = getEdgeStyle(rel.thirdParticipation || "none", rel.isWeak);
         const thirdCardinality = rel.thirdCardinality || "0..*";
-        lines.push(`  ${escapeId(relId)} -> ${escapeId(thirdEntityId)} [label=${escapeLabel(thirdCardinality)}, ${thirdStyle}, arrowhead=none];`);
+        const thirdClusterAttr = thirdCluster ? `, lhead=${thirdCluster}` : "";
+        lines.push(`  ${escapeId(relId)} -> ${escapeId(thirdEntityId)} [label=${escapeLabel(thirdCardinality)}, ${thirdStyle}, arrowhead=none${thirdClusterAttr}];`);
       }
     } else {
       // Binary relationship: connect 2 entities
       const fromEntityId = `E_${rel.fromEntityId}`;
       const toEntityId = `E_${rel.toEntityId}`;
+      const fromCluster = aggregationClusterByEntity.get(rel.fromEntityId);
+      const toCluster = aggregationClusterByEntity.get(rel.toEntityId);
       
       // Edge from entity to relationship (with cardinality label and participation)
       const fromStyle = getEdgeStyle(rel.fromParticipation, rel.isWeak);
-      lines.push(`  ${escapeId(fromEntityId)} -> ${escapeId(relId)} [label=${escapeLabel(rel.fromCardinality)}, ${fromStyle}, arrowhead=none];`);
+      const fromClusterAttr = fromCluster ? `, ltail=${fromCluster}` : "";
+      lines.push(`  ${escapeId(fromEntityId)} -> ${escapeId(relId)} [label=${escapeLabel(rel.fromCardinality)}, ${fromStyle}, arrowhead=none${fromClusterAttr}];`);
       
       // Edge from relationship to entity (with cardinality label and participation)
       const toStyle = getEdgeStyle(rel.toParticipation, rel.isWeak);
-      lines.push(`  ${escapeId(relId)} -> ${escapeId(toEntityId)} [label=${escapeLabel(rel.toCardinality)}, ${toStyle}, arrowhead=none];`);
+      const toClusterAttr = toCluster ? `, lhead=${toCluster}` : "";
+      lines.push(`  ${escapeId(relId)} -> ${escapeId(toEntityId)} [label=${escapeLabel(rel.toCardinality)}, ${toStyle}, arrowhead=none${toClusterAttr}];`);
     }
   }
-  
+
+  // Aggregation relationships: render inner relationships and dashed aggregation boxes
+  for (const rel of model.relationships) {
+    if (rel.relationshipType !== "aggregation") continue;
+
+    const wholeEntityId = rel.aggregationWholeEntityId;
+    const aggregationRels: AggregationRelationship[] = rel.aggregationRelationships || [];
+
+    if (!wholeEntityId || aggregationRels.length === 0) {
+      continue;
+    }
+
+    const wholeNodeId = `E_${wholeEntityId}`;
+    // Cluster IDs must not contain characters that break DOT syntax (like "-")
+    const clusterIdRaw = `cluster_agg_${String(rel.id)}`;
+    const safeClusterId = clusterIdRaw.replace(/[^a-zA-Z0-9_]/g, "_");
+
+    // Create inner relationship nodes and edges
+    for (const aggr of aggregationRels) {
+      if (!aggr.partEntityId) continue;
+
+      const partNodeId = `E_${aggr.partEntityId}`;
+      const innerNodeId = `R_${rel.id}_${aggr.id}`;
+      const innerLabel = escapeLabel(aggr.name || "");
+
+      // Diamond node for inner aggregation relationship
+      lines.push(`  ${escapeId(innerNodeId)} [shape=diamond, label=${innerLabel}];`);
+
+      // Determine which side gets the specified cardinality based on direction
+      const defaultOne = "1..1" as const;
+      const wholeCard =
+        aggr.direction === "part_to_whole" ? aggr.cardinality : defaultOne;
+      const partCard =
+        aggr.direction === "whole_to_part" ? aggr.cardinality : defaultOne;
+
+      // Edges within an aggregation:
+      // - If the inner relationship is inside the dashed box, draw edges normally.
+      // - If the inner relationship is outside, the whole entity is still inside the box
+      //   (cluster always includes the whole), so attach the edge to the cluster border.
+      const wholeToInnerClusterAttr = aggr.inAggregationBox ? "" : `, ltail=${safeClusterId}`;
+      lines.push(
+        `  ${escapeId(wholeNodeId)} -> ${escapeId(innerNodeId)} [label=${escapeLabel(
+          wholeCard
+        )}, style=solid, arrowhead=none${wholeToInnerClusterAttr}];`
+      );
+
+      // Edge from inner relationship to part entity
+      lines.push(
+        `  ${escapeId(innerNodeId)} -> ${escapeId(partNodeId)} [label=${escapeLabel(
+          partCard
+        )}, style=solid, arrowhead=none];`
+      );
+
+      // --- Attributes on inner aggregation relationships ---
+      if (aggr.attributes && aggr.attributes.length > 0) {
+        for (const attr of aggr.attributes) {
+          const aNodeId = `A_${attr.id}`;
+          const aLabel = getAttributeLabel(attr);
+          const aShapeInfo = getAttributeShape(attr);
+          const aShapeStr = aShapeInfo.peripheries
+            ? `shape=${aShapeInfo.shape}, peripheries=${aShapeInfo.peripheries}`
+            : `shape=${aShapeInfo.shape}`;
+          lines.push(`  ${escapeId(aNodeId)} [${aShapeStr}, label=${aLabel}];`);
+
+          // Connect attribute to the inner relationship diamond
+          lines.push(`  ${escapeId(innerNodeId)} -> ${escapeId(aNodeId)} [style=solid, arrowhead=none];`);
+
+          // Composite attributes on inner aggregation relationships
+          if (attr.type === "composite" && attr.subAttributes && attr.subAttributes.length > 0) {
+            for (const subAttr of attr.subAttributes) {
+              const subNodeId = `A_${subAttr.id}`;
+              const subLabel = getAttributeLabel(subAttr);
+              const subShapeInfo = getAttributeShape(subAttr);
+              const subShapeStr = subShapeInfo.peripheries
+                ? `shape=${subShapeInfo.shape}, peripheries=${subShapeInfo.peripheries}`
+                : `shape=${subShapeInfo.shape}`;
+              lines.push(`  ${escapeId(subNodeId)} [${subShapeStr}, label=${subLabel}];`);
+              lines.push(`  ${escapeId(aNodeId)} -> ${escapeId(subNodeId)} [style=solid, arrowhead=none];`);
+            }
+          }
+        }
+      }
+    }
+
+    // Build dashed aggregation box (cluster) around selected entities, inner
+    // aggregation relationships, and their attributes
+    const clusterNodeIds = new Set<string>();
+
+    // Always include the whole entity
+    clusterNodeIds.add(wholeNodeId);
+
+    for (const aggr of aggregationRels) {
+      if (!aggr.inAggregationBox) continue;
+      if (aggr.partEntityId) {
+        clusterNodeIds.add(`E_${aggr.partEntityId}`);
+      }
+      clusterNodeIds.add(`R_${rel.id}_${aggr.id}`);
+    }
+
+    // If an inner aggregation relationship is inside the dashed box, include
+    // its relationship attributes (and any composite sub-attributes) inside
+    // the same dashed box.
+    for (const aggr of aggregationRels) {
+      if (!aggr.inAggregationBox) continue;
+      if (!aggr.attributes || aggr.attributes.length === 0) continue;
+      for (const attrNodeId of collectAttributeNodeIds(aggr.attributes)) {
+        clusterNodeIds.add(attrNodeId);
+      }
+    }
+
+    // If an entity is inside the dashed aggregation box, include its attributes too
+    for (const nodeId of Array.from(clusterNodeIds)) {
+      if (!nodeId.startsWith("E_")) continue;
+      const entityId = nodeId.slice("E_".length);
+      const entity = model.entities.find((e) => e.id === entityId);
+      if (!entity) continue;
+      for (const attrNodeId of collectAttributeNodeIds(entity.attributes)) {
+        clusterNodeIds.add(attrNodeId);
+      }
+    }
+
+    if (clusterNodeIds.size > 1) {
+      lines.push("");
+      lines.push(`  subgraph ${safeClusterId} {`);
+      // No label at top of the aggregation box (remove "Relationship 1" heading)
+      lines.push(`    style="dashed";`);
+      lines.push(`    color="#6c757d";`);
+      lines.push(`    penwidth=1.5;`);
+      for (const nodeId of clusterNodeIds) {
+        lines.push(`    ${escapeId(nodeId)};`);
+      }
+      lines.push("  }");
+    }
+  }
+
   lines.push("}");
   
   return lines.join("\n");

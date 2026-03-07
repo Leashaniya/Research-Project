@@ -4,6 +4,7 @@
 #   - /health          -> gateway health
 #   - /guidance/       -> academic-guidance (CA guidance, auth, summaries, ER)
 #   - /papers/         -> model-paper-generation (past papers, model paper)
+#   - /essay/          -> essay-support-system (adaptive learning, practice)
 #   - /mcq/            -> mcq-study-plan (MCQ study plan generation)
 
 services:
@@ -17,6 +18,7 @@ services:
     depends_on:
       - academic-guidance
       - model-paper-generation
+      - essay-support-system
       - mcq-study-plan
     restart: unless-stopped
 
@@ -47,6 +49,17 @@ services:
     volumes:
       # Use host's app/data (includes text_extraction_hybrid with paper folders)
       - ./services/model-paper-generation/app/data:/app/data
+    restart: unless-stopped
+
+  essay-support-system:
+    build:
+      context: ./services/essay-support-system
+      dockerfile: Dockerfile
+    container_name: essay-support-system
+    env_file:
+      - ./services/essay-support-system/.env
+    environment:
+      - PORT=8002
     restart: unless-stopped
 
   mcq-study-plan:

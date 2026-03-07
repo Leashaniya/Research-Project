@@ -20,6 +20,6 @@ if __name__ == "__main__":
         print("Run: pip install motor")
         sys.exit(1)
 
-    print("🚀 Starting Server (http://127.0.0.1:8001)...")
+    print("🚀 Starting Server (http://127.0.0.1:8000)...")
     # Using 'app.main:app' assumes 'app' is importable from service root
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8001, reload=False)
+    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=False)

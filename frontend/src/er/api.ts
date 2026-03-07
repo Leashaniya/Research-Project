@@ -54,6 +54,16 @@ function normalizeModelForAPI(model: ERModel): ERModel {
         if (rel.isTotal !== undefined && rel.isTotal !== null) {
           normalized.isTotal = rel.isTotal;
         }
+      } else if (relationshipType === "aggregation") {
+        if (rel.aggregationWholeEntityId !== undefined && rel.aggregationWholeEntityId !== null) {
+          normalized.aggregationWholeEntityId = rel.aggregationWholeEntityId;
+        }
+        if (rel.aggregationPartEntityIds !== undefined && rel.aggregationPartEntityIds !== null) {
+          normalized.aggregationPartEntityIds = rel.aggregationPartEntityIds;
+        }
+        if (rel.aggregationRelationships !== undefined && rel.aggregationRelationships !== null) {
+          normalized.aggregationRelationships = rel.aggregationRelationships;
+        }
       }
       
       // Remove any undefined values (JSON.stringify will omit them, but be explicit)

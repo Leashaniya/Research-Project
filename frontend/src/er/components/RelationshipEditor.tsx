@@ -1,11 +1,21 @@
-import type { Attribute, Cardinality, Entity, Relationship, AttributeType, ParticipationType, RelationshipType } from "../types";
+import type {
+  Attribute,
+  Cardinality,
+  Entity,
+  Relationship,
+  AttributeType,
+  ParticipationType,
+  RelationshipType,
+  AggregationRelationship,
+  AggregationDirection,
+} from "../types";
 import { createId } from "../id";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { FaTrash, FaPlus } from "react-icons/fa";
 
 const CARDINALITIES: Cardinality[] = ["0..1", "1..1", "0..*", "1..*"];
 const PARTICIPATION_TYPES: ParticipationType[] = ["none", "partial", "total"];
-const RELATIONSHIP_TYPES: RelationshipType[] = ["binary", "ternary", "isa"];
+const RELATIONSHIP_TYPES: RelationshipType[] = ["binary", "ternary", "isa", "aggregation"];
 const DEFAULT_CARD: Cardinality = "0..*";
 
 interface Props {
@@ -160,7 +170,10 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
       parentEntityId: undefined,
       childEntityIds: undefined,
       isDisjoint: undefined,
-      isTotal: undefined
+      isTotal: undefined,
+      aggregationWholeEntityId: undefined,
+      aggregationPartEntityIds: undefined,
+      aggregationRelationships: undefined,
     };
 
     if (newType === "ternary") {
@@ -178,10 +191,120 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
         isDisjoint: normalizedRelationship.isDisjoint || false,
         isTotal: normalizedRelationship.isTotal || false
       });
+    } else if (newType === "aggregation") {
+      // Initialize aggregation-specific fields
+      onChange({
+        ...base,
+        aggregationWholeEntityId: normalizedRelationship.aggregationWholeEntityId || "",
+        aggregationPartEntityIds: normalizedRelationship.aggregationPartEntityIds || [],
+        aggregationRelationships: normalizedRelationship.aggregationRelationships || [],
+      });
     } else {
       // Binary - keep base as is (fields already cleared)
       onChange(base);
     }
+  };
+
+  const aggregationPartEntityIds: string[] = normalizedRelationship.aggregationPartEntityIds || [];
+  const aggregationRelationships: AggregationRelationship[] = normalizedRelationship.aggregationRelationships || [];
+
+  const isAggregationType = normalizedRelationship.relationshipType === "aggregation";
+
+  // Track which inner aggregation relationship is currently selected for editing attributes
+  const [selectedAggregationRelId, setSelectedAggregationRelId] = useState<string | null>(null);
+
+  // Ensure selectedAggregationRelId always points to an existing inner relationship (or null)
+  useEffect(() => {
+    if (!isAggregationType) {
+      if (selectedAggregationRelId !== null) {
+        setSelectedAggregationRelId(null);
+      }
+      return;
+    }
+    if (!aggregationRelationships.length) {
+      if (selectedAggregationRelId !== null) {
+        setSelectedAggregationRelId(null);
+      }
+      return;
+    }
+    if (!selectedAggregationRelId || !aggregationRelationships.some((ar) => ar.id === selectedAggregationRelId)) {
+      setSelectedAggregationRelId(aggregationRelationships[0].id);
+    }
+  }, [isAggregationType, aggregationRelationships, selectedAggregationRelId]);
+
+  const activeAggregationRel =
+    isAggregationType && selectedAggregationRelId
+      ? aggregationRelationships.find((ar) => ar.id === selectedAggregationRelId) || null
+      : null;
+
+  const updateAggregation = (patch: Partial<Relationship>) => {
+    onChange({
+      ...normalizedRelationship,
+      ...patch,
+    });
+  };
+
+  const addAggregationPartEntity = () => {
+    updateAggregation({
+      aggregationPartEntityIds: [...aggregationPartEntityIds, ""],
+    });
+  };
+
+  const removeAggregationPartEntity = (index: number) => {
+    const next = [...aggregationPartEntityIds];
+    next.splice(index, 1);
+    updateAggregation({
+      aggregationPartEntityIds: next.length > 0 ? next : [],
+      aggregationRelationships: aggregationRelationships.filter((ar) => next.includes(ar.partEntityId)),
+    });
+  };
+
+  const updateAggregationPartEntity = (index: number, entityId: string) => {
+    const next = [...aggregationPartEntityIds];
+    next[index] = entityId;
+    updateAggregation({
+      aggregationPartEntityIds: next,
+      aggregationRelationships: aggregationRelationships.map((ar) =>
+        next.includes(ar.partEntityId) ? ar : { ...ar, partEntityId: "" }
+      ),
+    });
+  };
+
+  const addAggregationRelationship = () => {
+    if (!normalizedRelationship.aggregationWholeEntityId) {
+      alert("Select a whole entity before adding aggregation relationships.");
+      return;
+    }
+    if (aggregationPartEntityIds.length === 0) {
+      alert("Add at least one part entity before adding aggregation relationships.");
+      return;
+    }
+    const defaultPartId = aggregationPartEntityIds[0] || "";
+    const nextRel: AggregationRelationship = {
+      id: createId("agrel"),
+      name: "",
+      partEntityId: defaultPartId,
+      cardinality: DEFAULT_CARD,
+      direction: "whole_to_part",
+      inAggregationBox: true,
+    };
+    updateAggregation({
+      aggregationRelationships: [...aggregationRelationships, nextRel],
+    });
+  };
+
+  const updateAggregationRelationship = (id: string, patch: Partial<AggregationRelationship>) => {
+    updateAggregation({
+      aggregationRelationships: aggregationRelationships.map((ar) =>
+        ar.id === id ? { ...ar, ...patch } : ar
+      ),
+    });
+  };
+
+  const removeAggregationRelationship = (id: string) => {
+    updateAggregation({
+      aggregationRelationships: aggregationRelationships.filter((ar) => ar.id !== id),
+    });
   };
 
   return (
@@ -211,14 +334,231 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
           className="er-select"
           value={normalizedRelationship.relationshipType}
           onChange={(e) => handleRelationshipTypeChange(e.target.value as RelationshipType)}
-        >
+          >
           {RELATIONSHIP_TYPES.map((type) => (
             <option key={type} value={type}>
-              {type === "binary" ? "Binary (2 entities)" : type === "ternary" ? "Ternary (3 entities)" : "ISA (Inheritance)"}
+              {type === "binary"
+                ? "Binary (2 entities)"
+                : type === "ternary"
+                ? "Ternary (3 entities)"
+                : type === "isa"
+                ? "ISA (Inheritance)"
+                : "Aggregation (whole + parts)"}
             </option>
           ))}
         </select>
       </div>
+
+      {/* Aggregation Relationship UI */}
+      {normalizedRelationship.relationshipType === "aggregation" && (
+        <>
+          {/* Whole entity + Add Part Entity button on the same row */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-end",
+              justifyContent: "space-between",
+              gap: 12,
+              marginBottom: 8,
+            }}
+          >
+            <div style={{ flex: 1 }}>
+              <label className="er-muted" htmlFor="agg-whole-entity">
+                Whole Entity
+              </label>
+              <select
+                id="agg-whole-entity"
+                className="er-select"
+                value={normalizedRelationship.aggregationWholeEntityId || ""}
+                onChange={(e) =>
+                  updateAggregation({
+                    aggregationWholeEntityId: e.target.value || "",
+                  })
+                }
+              >
+                <option value="">Select whole entity (e.g., PROJECT)</option>
+                {entities.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.name || "(unnamed entity)"}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <button
+                className="er-btn er-btn-icon primary"
+                type="button"
+                onClick={addAggregationPartEntity}
+                style={{ fontSize: "0.85rem", padding: "4px 10px", whiteSpace: "nowrap" }}
+              >
+                <FaPlus />
+                <span>Add Part Entity</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Part entities listed below the button */}
+          <div style={{ marginBottom: 8 }}>
+            <label className="er-muted" style={{ marginBottom: 4, display: "block" }}>
+              Part Entities
+            </label>
+            {aggregationPartEntityIds.length === 0 ? (
+              <div className="er-muted" style={{ fontSize: "0.85rem", paddingTop: 4 }}>
+                No part entities yet. Add entities that are part of the aggregation (e.g., EMPLOYEE, MACHINERY).
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {aggregationPartEntityIds.map((partId, index) => (
+                  <div key={index} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <select
+                      className="er-select"
+                      value={partId}
+                      onChange={(e) => updateAggregationPartEntity(index, e.target.value)}
+                      style={{ flex: 1 }}
+                    >
+                      <option value="">Select part entity</option>
+                      {entities.map((e) => (
+                        <option key={e.id} value={e.id}>
+                          {e.name || "(unnamed entity)"}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      className="er-btn er-btn-icon-only danger"
+                      type="button"
+                      onClick={() => removeAggregationPartEntity(index)}
+                      title="Remove part entity"
+                      style={{ fontSize: "0.8rem" }}
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div style={{ marginTop: 8, marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+              <span className="er-muted" style={{ fontWeight: 700 }}>
+                Aggregation Relationships
+              </span>
+              <button
+                className="er-btn er-btn-icon primary"
+                type="button"
+                onClick={addAggregationRelationship}
+                style={{ fontSize: "0.9rem", padding: "6px 12px" }}
+              >
+                <FaPlus />
+                <span>Add Relationship</span>
+              </button>
+            </div>
+            <div className="er-muted" style={{ fontSize: "0.8rem", marginTop: 4 }}>
+              Define multiple relationships between the whole entity and its parts (e.g., WORKS_FOR, REQUIRE).
+              Use the checkbox to include a relationship inside the dashed aggregation box.
+            </div>
+          </div>
+
+          {aggregationRelationships.length === 0 ? (
+            <div className="er-muted" style={{ fontSize: "0.85rem", padding: 8 }}>
+              No aggregation relationships yet. Add at least one relationship such as WORKS_FOR or REQUIRE.
+            </div>
+          ) : (
+            <table className="er-attrs-table" style={{ marginTop: 4 }}>
+              <thead>
+                <tr>
+                  <th>Rel&nbsp;Name</th>
+                  <th>Part</th>
+                  <th>Card.</th>
+                  <th>Direction</th>
+                  <th>In&nbsp;Box</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {aggregationRelationships.map((ar) => (
+                  <tr key={ar.id}>
+                    <td>
+                      <input
+                        className="er-input"
+                        value={ar.name}
+                        onChange={(e) => updateAggregationRelationship(ar.id, { name: e.target.value })}
+                        placeholder="e.g., WORKS_FOR"
+                      />
+                    </td>
+                    <td>
+                      <select
+                        className="er-select"
+                        value={ar.partEntityId}
+                        onChange={(e) => updateAggregationRelationship(ar.id, { partEntityId: e.target.value })}
+                      >
+                        <option value="">Select part entity</option>
+                        {aggregationPartEntityIds
+                          .map((pid) => entities.find((e) => e.id === pid))
+                          .filter((e): e is Entity => Boolean(e))
+                          .map((e) => (
+                            <option key={e.id} value={e.id}>
+                              {e.name || "(unnamed entity)"}
+                            </option>
+                          ))}
+                      </select>
+                    </td>
+                    <td>
+                      <select
+                        className="er-select"
+                        value={ar.cardinality}
+                        onChange={(e) =>
+                          updateAggregationRelationship(ar.id, { cardinality: e.target.value as Cardinality })
+                        }
+                      >
+                        {CARDINALITIES.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <select
+                        className="er-select"
+                        value={ar.direction}
+                        onChange={(e) =>
+                          updateAggregationRelationship(ar.id, {
+                            direction: e.target.value as AggregationDirection,
+                          })
+                        }
+                      >
+                        <option value="whole_to_part">Whole → Part</option>
+                        <option value="part_to_whole">Part → Whole</option>
+                      </select>
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={ar.inAggregationBox}
+                        onChange={(e) =>
+                          updateAggregationRelationship(ar.id, { inAggregationBox: e.target.checked })
+                        }
+                        aria-label="Group inside aggregation box"
+                      />
+                    </td>
+                    <td>
+                      <button
+                        className="er-btn er-btn-icon-only danger"
+                        type="button"
+                        onClick={() => removeAggregationRelationship(ar.id)}
+                        title="Delete aggregation relationship"
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
+      )}
 
       {/* Binary Relationship UI */}
       {normalizedRelationship.relationshipType === "binary" && (
@@ -625,11 +965,39 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
         </>
       )}
 
+      {/* Relationship Attributes header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 6 }}>
         <div className="er-muted" style={{ fontWeight: 700 }}>
           Relationship Attributes
+          {isAggregationType && activeAggregationRel && (
+            <>{" "}(for {activeAggregationRel.name || "aggregation relationship"})</>
+          )}
         </div>
-        <button className="er-btn er-btn-icon primary" type="button" onClick={addAttr}>
+        <button
+          className="er-btn er-btn-icon primary"
+          type="button"
+          onClick={() => {
+            if (isAggregationType && activeAggregationRel) {
+              const nextAttr: Attribute = {
+                id: createId("attr"),
+                name: "",
+                pk: false,
+                unique: false,
+                nullable: true,
+                type: "regular",
+              };
+              updateAggregation({
+                aggregationRelationships: aggregationRelationships.map((ar) =>
+                  ar.id === activeAggregationRel.id
+                    ? { ...ar, attributes: [...(ar.attributes || []), nextAttr] }
+                    : ar
+                ),
+              });
+            } else {
+              addAttr();
+            }
+          }}
+        >
           <FaPlus />
           <span>Add Attribute</span>
         </button>
@@ -639,33 +1007,80 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
         PK on relationship attributes is allowed (we will warn later if needed).
       </div>
 
+      {/* For aggregation, let user choose which inner relationship's attributes they are editing */}
+      {isAggregationType && aggregationRelationships.length > 0 && (
+        <div style={{ marginTop: 8, marginBottom: 4 }}>
+          <label className="er-muted" htmlFor="agg-rel-attr-target" style={{ marginRight: 8 }}>
+            Edit attributes for:
+          </label>
+          <select
+            id="agg-rel-attr-target"
+            className="er-select"
+            value={activeAggregationRel?.id || ""}
+            onChange={(e) => {
+              const id = e.target.value || null;
+              setSelectedAggregationRelId(id);
+            }}
+            style={{ maxWidth: "260px" }}
+          >
+            {aggregationRelationships.map((ar) => (
+              <option key={ar.id} value={ar.id}>
+                {(ar.name || "Relationship") +
+                  (entities.find((e) => e.id === ar.partEntityId)?.name
+                    ? ` – ${entities.find((e) => e.id === ar.partEntityId)!.name}`
+                    : "")}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <table className="er-attrs-table" style={{ marginTop: 10 }}>
         <thead>
           <tr>
-            <th style={{ width: "30%" }}>Name</th>
-            <th style={{ width: "15%" }}>Type</th>
+            <th>Name</th>
+            <th>Type</th>
             <th>PK</th>
             <th>Unique</th>
             <th>Nullable</th>
-            <th style={{ width: 90 }} />
+            <th />
           </tr>
         </thead>
         <tbody>
-          {normalizedRelationship.attributes.length === 0 ? (
+          {(isAggregationType ? !activeAggregationRel || !activeAggregationRel.attributes?.length : !normalizedRelationship.attributes.length) ? (
             <tr>
-              <td colSpan={6} className="er-muted">
+              <td
+                colSpan={6}
+                className="er-muted"
+                style={{ textAlign: "center", padding: "12px 0" }}
+              >
                 No relationship attributes.
               </td>
             </tr>
           ) : (
-            normalizedRelationship.attributes.map((a) => (
+            (isAggregationType ? activeAggregationRel!.attributes || [] : normalizedRelationship.attributes).map((a) => (
               <>
                 <tr key={a.id}>
                   <td>
                     <input
                       className="er-input"
                       value={a.name}
-                      onChange={(e) => updateAttr(a.id, { name: e.target.value })}
+                      onChange={(e) =>
+                        isAggregationType && activeAggregationRel
+                          ? updateAggregation({
+                              aggregationRelationships: aggregationRelationships.map((ar) =>
+                                ar.id === activeAggregationRel.id
+                                  ? {
+                                      ...ar,
+                                      attributes: (ar.attributes || []).map((attr) =>
+                                        attr.id === a.id ? { ...attr, name: e.target.value } : attr
+                                      ),
+                                    }
+                                  : ar
+                              ),
+                            })
+                          : updateAttr(a.id, { name: e.target.value })
+                      }
                       placeholder="e.g., grade"
                     />
                   </td>
@@ -673,7 +1088,30 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
                     <select
                       className="er-input"
                       value={a.type}
-                      onChange={(e) => updateAttr(a.id, { type: e.target.value as AttributeType })}
+                      onChange={(e) =>
+                        isAggregationType && activeAggregationRel
+                          ? updateAggregation({
+                              aggregationRelationships: aggregationRelationships.map((ar) =>
+                                ar.id === activeAggregationRel.id
+                                  ? {
+                                      ...ar,
+                                      attributes: (ar.attributes || []).map((attr) => {
+                                        if (attr.id !== a.id) return attr;
+                                        const next: Attribute = { ...attr, type: e.target.value as AttributeType };
+                                        if (next.type !== "composite" && next.subAttributes) {
+                                          delete next.subAttributes;
+                                        }
+                                        if (next.type === "composite" && !next.subAttributes) {
+                                          next.subAttributes = [];
+                                        }
+                                        return next;
+                                      }),
+                                    }
+                                  : ar
+                              ),
+                            })
+                          : updateAttr(a.id, { type: e.target.value as AttributeType })
+                      }
                       style={{ fontSize: "0.9rem", padding: "4px 8px" }}
                     >
                       <option value="regular">Regular</option>
@@ -685,7 +1123,22 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
                     <input
                       type="checkbox"
                       checked={a.pk}
-                      onChange={(e) => updateAttr(a.id, { pk: e.target.checked })}
+                      onChange={(e) =>
+                        isAggregationType && activeAggregationRel
+                          ? updateAggregation({
+                              aggregationRelationships: aggregationRelationships.map((ar) =>
+                                ar.id === activeAggregationRel.id
+                                  ? {
+                                      ...ar,
+                                      attributes: (ar.attributes || []).map((attr) =>
+                                        attr.id === a.id ? { ...attr, pk: e.target.checked } : attr
+                                      ),
+                                    }
+                                  : ar
+                              ),
+                            })
+                          : updateAttr(a.id, { pk: e.target.checked })
+                      }
                       aria-label="Primary key"
                     />
                   </td>
@@ -693,7 +1146,22 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
                     <input
                       type="checkbox"
                       checked={a.unique}
-                      onChange={(e) => updateAttr(a.id, { unique: e.target.checked })}
+                      onChange={(e) =>
+                        isAggregationType && activeAggregationRel
+                          ? updateAggregation({
+                              aggregationRelationships: aggregationRelationships.map((ar) =>
+                                ar.id === activeAggregationRel.id
+                                  ? {
+                                      ...ar,
+                                      attributes: (ar.attributes || []).map((attr) =>
+                                        attr.id === a.id ? { ...attr, unique: e.target.checked } : attr
+                                      ),
+                                    }
+                                  : ar
+                              ),
+                            })
+                          : updateAttr(a.id, { unique: e.target.checked })
+                      }
                       aria-label="Unique"
                     />
                   </td>
@@ -701,7 +1169,22 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
                     <input
                       type="checkbox"
                       checked={a.nullable}
-                      onChange={(e) => updateAttr(a.id, { nullable: e.target.checked })}
+                      onChange={(e) =>
+                        isAggregationType && activeAggregationRel
+                          ? updateAggregation({
+                              aggregationRelationships: aggregationRelationships.map((ar) =>
+                                ar.id === activeAggregationRel.id
+                                  ? {
+                                      ...ar,
+                                      attributes: (ar.attributes || []).map((attr) =>
+                                        attr.id === a.id ? { ...attr, nullable: e.target.checked } : attr
+                                      ),
+                                    }
+                                  : ar
+                              ),
+                            })
+                          : updateAttr(a.id, { nullable: e.target.checked })
+                      }
                       aria-label="Nullable"
                     />
                   </td>
@@ -709,7 +1192,22 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
                     <button 
                       className="er-btn er-btn-icon-only danger" 
                       type="button" 
-                      onClick={() => deleteAttr(a.id)}
+                      onClick={() => {
+                        if (isAggregationType && activeAggregationRel) {
+                          updateAggregation({
+                            aggregationRelationships: aggregationRelationships.map((ar) =>
+                              ar.id === activeAggregationRel.id
+                                ? {
+                                    ...ar,
+                                    attributes: (ar.attributes || []).filter((attr) => attr.id !== a.id),
+                                  }
+                                : ar
+                            ),
+                          });
+                        } else {
+                          deleteAttr(a.id);
+                        }
+                      }}
                       title="Delete attribute"
                     >
                       <FaTrash />
@@ -727,28 +1225,106 @@ export function RelationshipEditor({ relationship, entities, onChange }: Props) 
                         <button
                           className="er-btn er-btn-icon primary"
                           type="button"
-                          onClick={() => addSubAttr(a.id)}
+                          onClick={() => {
+                            const nextSubAttr: Attribute = {
+                              id: createId("subattr"),
+                              name: "",
+                              pk: false,
+                              unique: false,
+                              nullable: true,
+                              type: "regular",
+                            };
+                            if (isAggregationType && activeAggregationRel) {
+                              updateAggregation({
+                                aggregationRelationships: aggregationRelationships.map((ar) =>
+                                  ar.id === activeAggregationRel.id
+                                    ? {
+                                        ...ar,
+                                        attributes: (ar.attributes || []).map((attr) =>
+                                          attr.id === a.id
+                                            ? {
+                                                ...attr,
+                                                subAttributes: [...(attr.subAttributes || []), nextSubAttr],
+                                              }
+                                            : attr
+                                        ),
+                                      }
+                                    : ar
+                                ),
+                              });
+                            } else {
+                              addSubAttr(a.id);
+                            }
+                          }}
                           style={{ fontSize: "0.85rem", padding: "4px 10px" }}
                         >
                           <FaPlus />
                           <span>Add Sub-attribute</span>
                         </button>
                       </div>
-                      {a.subAttributes && a.subAttributes.length > 0 ? (
+                          {a.subAttributes && a.subAttributes.length > 0 ? (
                         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                           {a.subAttributes.map((subAttr) => (
                             <div key={subAttr.id} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                               <input
                                 className="er-input"
                                 value={subAttr.name}
-                                onChange={(e) => updateSubAttr(a.id, subAttr.id, { name: e.target.value })}
+                                onChange={(e) =>
+                                  isAggregationType && activeAggregationRel
+                                    ? updateAggregation({
+                                        aggregationRelationships: aggregationRelationships.map((ar) =>
+                                          ar.id === activeAggregationRel.id
+                                            ? {
+                                                ...ar,
+                                                attributes: (ar.attributes || []).map((attr) =>
+                                                  attr.id === a.id && attr.subAttributes
+                                                    ? {
+                                                        ...attr,
+                                                        subAttributes: attr.subAttributes.map((sa) =>
+                                                          sa.id === subAttr.id
+                                                            ? { ...sa, name: e.target.value }
+                                                            : sa
+                                                        ),
+                                                      }
+                                                    : attr
+                                                ),
+                                              }
+                                            : ar
+                                        ),
+                                      })
+                                    : updateSubAttr(a.id, subAttr.id, { name: e.target.value })
+                                }
                                 placeholder="e.g., street, city"
                                 style={{ flex: 1, fontSize: "0.9rem" }}
                               />
                               <button
                                 className="er-btn er-btn-icon-only danger"
                                 type="button"
-                                onClick={() => deleteSubAttr(a.id, subAttr.id)}
+                                onClick={() => {
+                                  if (isAggregationType && activeAggregationRel) {
+                                    updateAggregation({
+                                      aggregationRelationships: aggregationRelationships.map((ar) =>
+                                        ar.id === activeAggregationRel.id
+                                          ? {
+                                              ...ar,
+                                              attributes: (ar.attributes || []).map((attr) =>
+                                                attr.id === a.id && attr.subAttributes
+                                                  ? {
+                                                      ...attr,
+                                                      subAttributes: attr.subAttributes.filter(
+                                                        (sa) => sa.id !== subAttr.id
+                                                      ),
+                                                    }
+                                                  : attr
+                                              ),
+                                            }
+                                          : ar
+                                      ),
+                                    });
+                                  } else {
+                                    deleteSubAttr(a.id, subAttr.id);
+                                  }
+                                }}
                                 title="Remove sub-attribute"
                                 style={{ fontSize: "0.85rem", padding: "4px 8px" }}
                               >

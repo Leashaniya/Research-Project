@@ -4,7 +4,20 @@ export type AttributeType = "regular" | "composite" | "multivalued";
 
 export type ParticipationType = "partial" | "total" | "none"; // none = no special constraint
 
-export type RelationshipType = "binary" | "ternary" | "isa";
+export type RelationshipType = "binary" | "ternary" | "isa" | "aggregation";
+
+export type AggregationDirection = "whole_to_part" | "part_to_whole";
+
+export interface AggregationRelationship {
+  id: string;
+  name: string;
+  partEntityId: string;
+  cardinality: Cardinality;
+  direction: AggregationDirection;
+  inAggregationBox: boolean;
+  // Optional attributes specific to this inner aggregation relationship
+  attributes?: Attribute[];
+}
 
 export interface Attribute {
   id: string;
@@ -27,7 +40,7 @@ export interface Entity {
 export interface Relationship {
   id: string;
   name: string;
-  relationshipType: RelationshipType; // binary, ternary, or isa
+  relationshipType: RelationshipType; // binary, ternary, isa, or aggregation
   
   // Binary relationship fields (always present)
   fromEntityId: string; // entity A
@@ -47,6 +60,12 @@ export interface Relationship {
   childEntityIds?: string[]; // child entities (subtypes)
   isDisjoint?: boolean; // true if ISA is disjoint (mutually exclusive subtypes)
   isTotal?: boolean; // true if ISA is total (all instances must belong to a subtype)
+  
+  // Aggregation relationship fields (only when relationshipType === "aggregation")
+  // These are front-end only and are not sent to the backend validation/render APIs.
+  aggregationWholeEntityId?: string; // whole entity (e.g., PROJECT)
+  aggregationPartEntityIds?: string[]; // part entities (e.g., EMPLOYEE, MACHINERY)
+  aggregationRelationships?: AggregationRelationship[]; // grouped relationships with cardinality, direction, and grouping flag 
   
   attributes: Attribute[];
   isWeak: boolean; // true if this is a weak relationship (connecting weak entity to strong entity) - always mandatory

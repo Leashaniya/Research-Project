@@ -4,6 +4,9 @@
 .env.local
 .env.*.local
 
+# Vite cache
+.vite/
+
 # Python
 __pycache__/
 *.py[cod]

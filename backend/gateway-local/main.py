@@ -14,7 +14,8 @@ import httpx
 
 GUIDANCE_TARGET = os.getenv("GUIDANCE_TARGET", "http://127.0.0.1:8001")
 PAPERS_TARGET = os.getenv("PAPERS_TARGET", "http://127.0.0.1:8000")
-MCQ_TARGET = os.getenv("MCQ_TARGET", "http://127.0.0.1:8002")
+ESSAY_TARGET = os.getenv("ESSAY_TARGET", "http://127.0.0.1:8002")
+MCQ_TARGET = os.getenv("MCQ_TARGET", "http://127.0.0.1:8003")
 PORT = int(os.getenv("PORT", "80"))
 
 app = FastAPI(title="Research Project Gateway (local)")
@@ -41,7 +42,7 @@ def root():
     return JSONResponse(
         content={
             "gateway": "Research Project API (local)",
-            "routes": {"health": "/health", "guidance": "/guidance/", "papers": "/papers/", "mcq": "/mcq/"},
+            "routes": {"health": "/health", "guidance": "/guidance/", "papers": "/papers/", "essay": "/essay/", "mcq": "/mcq/"},
         }
     )
 
@@ -54,6 +55,11 @@ async def proxy_guidance(request: Request, path: str):
 @app.api_route("/papers/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 async def proxy_papers(request: Request, path: str):
     return await _proxy(request, PAPERS_TARGET, "papers", path)
+
+
+@app.api_route("/essay/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
+async def proxy_essay(request: Request, path: str):
+    return await _proxy(request, ESSAY_TARGET, "essay", path)
 
 
 @app.api_route("/mcq/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
