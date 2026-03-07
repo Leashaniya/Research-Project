@@ -12,7 +12,7 @@ export default function EssayApp() {
     <SessionProvider>
       <div className="essay-support-root">
         <Routes>
-          <Route element={<Layout />}>
+          <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="practice" element={<Practice />} />
             <Route path="analytics" element={<Analytics />} />

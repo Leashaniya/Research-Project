@@ -107,10 +107,17 @@ export default function Sidebar() {
           align-items: center;
           justify-content: center;
 <<<<<<< HEAD
+<<<<<<< HEAD
           width: 52px;
           height: 52px;
           border-radius: 16px;
           background: linear-gradient(135deg, var(--primary-600), var(--primary-400));
+=======
+          width: 42px;
+          height: 42px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, var(--primary-800), var(--primary-600));
+>>>>>>> fb81cdee (Updated analytics page)
           color: #fff;
           font-weight: 800;
           font-size: 1.2rem;
@@ -156,6 +163,7 @@ export default function Sidebar() {
           font-size: 1.1rem;
           font-weight: 700;
 <<<<<<< HEAD
+<<<<<<< HEAD
           font-size: 1.1rem;
           line-height: 1.4;
           color: rgba(255, 255, 255, 0.95);
@@ -164,6 +172,11 @@ export default function Sidebar() {
           color: #fff;
           line-height: 1.2;
 >>>>>>> e360af11 (Updated project files)
+=======
+          font-size: 0.95rem;
+          line-height: 1.25;
+          color: #fff;
+>>>>>>> fb81cdee (Updated analytics page)
         }
 
         .sidebar-nav {
@@ -204,6 +217,7 @@ export default function Sidebar() {
           transition: left 0.5s;
 =======
           gap: 0.75rem;
+<<<<<<< HEAD
           padding: 0.875rem 1rem;
           border-radius: var(--radius);
           color: rgba(255, 255, 255, 0.7);
@@ -214,6 +228,30 @@ export default function Sidebar() {
           position: relative;
           overflow: hidden;
 >>>>>>> e360af11 (Updated project files)
+=======
+          padding: 0.85rem 1rem;
+          border-radius: 12px;
+          color: rgba(255, 255, 255, 0.8);
+          font-weight: 500;
+          font-size: 0.9rem;
+          transition: all 0.3s ease;
+          text-decoration: none;
+          position: relative;
+          overflow: hidden;
+        }
+        .sidebar-link::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+          transition: left 0.5s ease;
+        }
+        .sidebar-link:hover::before {
+          left: 100%;
+>>>>>>> fb81cdee (Updated analytics page)
         }
 
         .sidebar-link::before {
@@ -233,11 +271,18 @@ export default function Sidebar() {
 
         .sidebar-link:hover {
 <<<<<<< HEAD
+<<<<<<< HEAD
           background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(96, 165, 250, 0.1));
           color: #ffffff;
           text-decoration: none;
           transform: translateX(4px);
           box-shadow: var(--shadow-md);
+=======
+          background: rgba(255, 255, 255, 0.15);
+          color: #fff;
+          text-decoration: none;
+          transform: translateX(4px);
+>>>>>>> fb81cdee (Updated analytics page)
         }
         .sidebar-link:hover::before {
           left: 100%;
@@ -249,6 +294,7 @@ export default function Sidebar() {
         }
 
         .sidebar-link.active {
+<<<<<<< HEAD
 <<<<<<< HEAD
           background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(96, 165, 250, 0.15));
           color: #ffffff;
@@ -281,6 +327,13 @@ export default function Sidebar() {
           height: 70%;
           background: linear-gradient(180deg, var(--primary-400), var(--primary-600));
           border-radius: 2px;
+=======
+          background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+          color: #fff;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+          transform: translateX(4px);
+>>>>>>> fb81cdee (Updated analytics page)
         }
 
         .sidebar-footer {
@@ -300,17 +353,27 @@ export default function Sidebar() {
         .sidebar-back-link {
           display: flex;
           align-items: center;
+<<<<<<< HEAD
           gap: 0.5rem;
 <<<<<<< HEAD
           color: rgba(255, 255, 255, 0.8);
           font-size: 0.85rem;
+=======
+          gap: 0.4rem;
+          color: var(--primary-600);
+          font-size: 0.8rem;
+>>>>>>> fb81cdee (Updated analytics page)
           font-weight: 500;
           margin-bottom: 0.75rem;
           text-decoration: none;
           transition: var(--transition);
         }
         .sidebar-back-link:hover {
+<<<<<<< HEAD
           color: #ffffff;
+=======
+          color: var(--primary-700);
+>>>>>>> fb81cdee (Updated analytics page)
           text-decoration: none;
           transform: translateX(2px);
 =======
@@ -359,6 +422,7 @@ export default function Sidebar() {
           display: flex;
           flex-direction: column;
           align-items: center;
+<<<<<<< HEAD
           gap: 0.25rem;
           padding: 0.5rem;
           color: rgba(255, 255, 255, 0.6);
@@ -367,6 +431,19 @@ export default function Sidebar() {
           font-weight: 500;
           transition: var(--transition);
           flex: 1;
+=======
+          gap: 0.3rem;
+          font-size: 0.65rem;
+          color: rgba(255, 255, 255, 0.8);
+          text-decoration: none;
+          padding: 0.5rem 0.75rem;
+          border-radius: 12px;
+          transition: all 0.3s ease;
+        }
+        .mobile-link:hover {
+          background: rgba(255, 255, 255, 0.15);
+          color: #fff;
+>>>>>>> fb81cdee (Updated analytics page)
         }
 
         .mobile-link:hover {
@@ -374,12 +451,17 @@ export default function Sidebar() {
         }
 
         .mobile-link.active {
+<<<<<<< HEAD
           color: var(--primary-600);
         }
 
         .mobile-link svg {
           width: 20px;
           height: 20px;
+=======
+          color: #fff;
+          background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+>>>>>>> fb81cdee (Updated analytics page)
         }
 
         @media (max-width: 768px) {

@@ -7,10 +7,14 @@
 /* ── Enhanced theme variables ── */
 .essay-support-root {
 <<<<<<< HEAD
+<<<<<<< HEAD
   /* Enhanced blue theme with professional touches */
 =======
   /* Professional blue theme */
 >>>>>>> e360af11 (Updated project files)
+=======
+  /* Dark blue theme matching the sample image */
+>>>>>>> fb81cdee (Updated analytics page)
   --primary-50:  #eff6ff;
   --primary-100: #dbeafe;
   --primary-200: #bfdbfe;
@@ -30,10 +34,14 @@
   --bg:          #f8fafc;
   --bg-card:     #ffffff;
 <<<<<<< HEAD
+<<<<<<< HEAD
   --bg-card-alt: #f1f5f9;
 =======
   --bg-card-alt: #f8fafc;
 >>>>>>> e360af11 (Updated project files)
+=======
+  --bg-card-alt: #f1f5f9;
+>>>>>>> fb81cdee (Updated analytics page)
   --bg-sidebar:  #1e293b;
   --text:        #1e293b;
   --text-muted:  #64748b;
@@ -52,6 +60,7 @@
   --radius-sm: 12px;
   --radius-lg: 20px;
   --radius-full: 999px;
+<<<<<<< HEAD
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
@@ -74,6 +83,12 @@
 
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 >>>>>>> e360af11 (Updated project files)
+=======
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
+  --transition: all 0.2s ease;
+
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+>>>>>>> fb81cdee (Updated analytics page)
   color-scheme: light;
 
   /* Full viewport container */
@@ -118,10 +133,14 @@
   display: flex;
   min-height: 100vh;
 <<<<<<< HEAD
+<<<<<<< HEAD
   background: var(--bg);
 =======
   background: transparent;
 >>>>>>> e360af11 (Updated project files)
+=======
+  background: var(--bg);
+>>>>>>> fb81cdee (Updated analytics page)
   color: var(--text);
 }
 
@@ -131,20 +150,29 @@
   margin-left: var(--sidebar-w);
   padding: 2.5rem 2.5rem 3rem;
 <<<<<<< HEAD
+<<<<<<< HEAD
   max-width: 1280px;
 =======
   max-width: 1400px;
 >>>>>>> e360af11 (Updated project files)
+=======
+  max-width: 1280px;
+>>>>>>> fb81cdee (Updated analytics page)
   background: transparent;
   min-height: 100vh;
   color: var(--text);
 }
 
+<<<<<<< HEAD
 /* ── Enhanced Utility Classes ── */
+=======
+/* ── Enhanced Card Design ── */
+>>>>>>> fb81cdee (Updated analytics page)
 
 .essay-support-root .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
+<<<<<<< HEAD
 <<<<<<< HEAD
   border-radius: var(--radius);
   padding: 2rem;
@@ -159,6 +187,12 @@
   padding: 2rem;
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
+=======
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+>>>>>>> fb81cdee (Updated analytics page)
   position: relative;
   overflow: hidden;
 }
@@ -170,6 +204,7 @@
   left: 0;
   right: 0;
   height: 4px;
+<<<<<<< HEAD
   background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
   opacity: 0;
   transition: var(--transition);
@@ -183,6 +218,21 @@
 .essay-support-root .card:hover::before {
   opacity: 1;
 >>>>>>> e360af11 (Updated project files)
+=======
+  background: linear-gradient(90deg, var(--primary-600) 0%, var(--primary-400) 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.essay-support-root .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(30, 64, 175, 0.12);
+  border-color: var(--primary-200);
+}
+
+.essay-support-root .card:hover::before {
+  transform: scaleX(1);
+>>>>>>> fb81cdee (Updated analytics page)
 }
 
 .essay-support-root .card-alt {
@@ -198,9 +248,12 @@
   font-weight: 700;
 }
 
+/* ── Enhanced Button Design ── */
+
 .essay-support-root .btn {
   display: inline-flex;
   align-items: center;
+<<<<<<< HEAD
 <<<<<<< HEAD
   gap: 0.75rem;
   padding: 0.875rem 1.75rem;
@@ -215,13 +268,16 @@
   text-transform: none;
   font-family: inherit;
 =======
+=======
+>>>>>>> fb81cdee (Updated analytics page)
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 50px;
   font-weight: 600;
   font-size: 0.9rem;
+<<<<<<< HEAD
   transition: var(--transition);
   cursor: pointer;
   position: relative;
@@ -229,6 +285,12 @@
   text-decoration: none;
   white-space: nowrap;
 >>>>>>> e360af11 (Updated project files)
+=======
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+>>>>>>> fb81cdee (Updated analytics page)
 }
 
 .essay-support-root .btn::before {
@@ -239,7 +301,11 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+<<<<<<< HEAD
   transition: left 0.5s;
+=======
+  transition: left 0.5s ease;
+>>>>>>> fb81cdee (Updated analytics page)
 }
 
 .essay-support-root .btn:hover::before {
@@ -248,11 +314,17 @@
 
 .essay-support-root .btn-primary {
 <<<<<<< HEAD
+<<<<<<< HEAD
   background: linear-gradient(135deg, var(--primary-800), var(--primary-700));
   color: #fff;
   box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
+=======
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+>>>>>>> fb81cdee (Updated analytics page)
 }
 .essay-support-root .btn-primary::after {
   content: '';
@@ -274,6 +346,7 @@
 
 .essay-support-root .btn-primary:hover {
 <<<<<<< HEAD
+<<<<<<< HEAD
   background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
@@ -289,16 +362,27 @@
   box-shadow: var(--shadow-lg);
   transform: translateY(-1px);
 >>>>>>> e360af11 (Updated project files)
+=======
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(30, 64, 175, 0.3);
+>>>>>>> fb81cdee (Updated analytics page)
 }
 
 .essay-support-root .btn-secondary {
   background: var(--bg-card);
+<<<<<<< HEAD
   color: var(--text);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
 <<<<<<< HEAD
   position: relative;
   overflow: hidden;
+=======
+  color: var(--primary-700);
+  border: 2px solid var(--primary-200);
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.1);
+>>>>>>> fb81cdee (Updated analytics page)
 }
 .essay-support-root .btn-secondary::after {
   content: '';
@@ -316,6 +400,7 @@
 
 .essay-support-root .btn-secondary:hover {
 <<<<<<< HEAD
+<<<<<<< HEAD
   border-color: var(--primary-500);
   color: var(--primary-600);
   transform: translateY(-3px);
@@ -330,6 +415,13 @@
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 >>>>>>> e360af11 (Updated project files)
+=======
+  border-color: var(--primary-400);
+  background: var(--primary-50);
+  color: var(--primary-700);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
+>>>>>>> fb81cdee (Updated analytics page)
 }
 
 .essay-support-root .btn-danger {
@@ -393,16 +485,21 @@
   margin-bottom: 2.5rem;
   padding-bottom: 1.5rem;
 <<<<<<< HEAD
+<<<<<<< HEAD
   border-bottom: 1px solid var(--border);
 =======
   border-bottom: 1px solid var(--border-light);
 >>>>>>> e360af11 (Updated project files)
+=======
+  border-bottom: 1px solid var(--border);
+>>>>>>> fb81cdee (Updated analytics page)
 }
 
 .essay-support-root .page-header h1 {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+<<<<<<< HEAD
   font-size: 2rem;
   font-weight: 800;
 <<<<<<< HEAD
@@ -410,6 +507,11 @@
 =======
   color: var(--text);
 >>>>>>> e360af11 (Updated project files)
+=======
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--primary-800);
+>>>>>>> fb81cdee (Updated analytics page)
   margin: 0;
 }
 
@@ -423,11 +525,16 @@
 .essay-support-root .page-header p {
   color: var(--text-muted);
   margin-top: 0.5rem;
+<<<<<<< HEAD
   font-size: 1rem;
 <<<<<<< HEAD
 =======
   line-height: 1.5;
 >>>>>>> e360af11 (Updated project files)
+=======
+  font-size: 1.1rem;
+  line-height: 1.6;
+>>>>>>> fb81cdee (Updated analytics page)
 }
 
 /* ── Enhanced Grid helpers ── */
@@ -463,6 +570,7 @@
 
 .essay-support-root .btn-outline {
 <<<<<<< HEAD
+<<<<<<< HEAD
   background: rgba(255, 255, 255, 0.95);
   color: var(--primary-800);
   border: 2px solid var(--border);
@@ -487,9 +595,16 @@
   box-shadow: var(--shadow-sm);
   backdrop-filter: blur(10px);
 >>>>>>> e360af11 (Updated project files)
+=======
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--primary-800);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+>>>>>>> fb81cdee (Updated analytics page)
 }
 
 .essay-support-root .btn-outline:hover {
+<<<<<<< HEAD
 <<<<<<< HEAD
   border-color: var(--primary-400);
   background: var(--primary-50);
@@ -506,6 +621,12 @@
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 >>>>>>> e360af11 (Updated project files)
+=======
+  border-color: var(--primary-300);
+  background: var(--primary-50);
+  color: var(--primary-800);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
+>>>>>>> fb81cdee (Updated analytics page)
 }
 
 /* ── Enhanced Alerts ── */
@@ -658,13 +779,19 @@
   color: var(--primary-700);
 }
 
-/* ── Animations ── */
+/* ── Enhanced Animations ── */
 
 .essay-support-root .fade-in {
-  animation: essayFadeIn 0.4s ease both;
+  animation: essayFadeIn 0.6s ease both;
 }
 .essay-support-root .fade-in-up {
-  animation: essayFadeInUp 0.45s ease both;
+  animation: essayFadeInUp 0.7s ease both;
+}
+.essay-support-root .slide-in-left {
+  animation: essaySlideInLeft 0.5s ease both;
+}
+.essay-support-root .scale-in {
+  animation: essayScaleIn 0.4s ease both;
 }
 
 @keyframes essayFadeIn {
@@ -672,6 +799,42 @@
   to   { opacity: 1; }
 }
 @keyframes essayFadeInUp {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes essaySlideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes essayScaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Professional Loading States ── */
+
+.essay-support-root .skeleton {
+  background: linear-gradient(90deg, var(--primary-50) 0%, var(--primary-100) 50%, var(--primary-50) 100%);
+  background-size: 200% 100%;
+  animation: skeleton 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes skeleton {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Enhanced Interactivity ── */
+
+.essay-support-root .interactive {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.essay-support-root .interactive:hover {
+  transform: translateY(-2px);
+}
+
+.essay-support-root .interactive:active {
+  transform: translateY(0);
 }

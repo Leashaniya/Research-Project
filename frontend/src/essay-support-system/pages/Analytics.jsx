@@ -1,466 +1,464 @@
 import { useState, useEffect } from 'react'
-import { LuChartBar, LuRefreshCw, LuTrendingUp, LuTarget } from 'react-icons/lu'
+import { LuChartBar, LuTrendingUp } from 'react-icons/lu'
+import { useSession } from '../context/SessionContext'
 import api from '../api/api'
 import LoadingOverlay from '../components/LoadingOverlay'
 
-// Helper function to convert difficulty to numeric value
-const difficultyToNumber = (difficulty) => {
-  const map = { easy: 1, medium: 2, hard: 3 }
-  return map[difficulty] || 2
+// Helper function to convert reward numbers to text messages
+const getRewardMessage = (reward) => {
+  if (reward > 10) return 'Excellent Progress'
+  if (reward > 5) return 'Great Job'
+  if (reward > 0) return 'Good Attempt'
+  if (reward === 0) return 'Keep Practicing'
+  if (reward > -5) return 'Needs Improvement'
+  return 'Review Required'
 }
 
-// Helper function to convert number back to difficulty
-const numberToDifficulty = (num) => {
-  const map = { 1: 'easy', 2: 'medium', 3: 'hard' }
-  return map[num] || 'medium'
-}
-
-export default function Analytics() {
-  const [sessionData, setSessionData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  const loadData = () => {
-    setLoading(true)
-    setError(null)
-    
-    // Fetch only session data for consistency
-    api.getStats()
-      .then(stats => {
-        setSessionData(stats)
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false))
-  }
-
-  useEffect(loadData, [])
-
-  if (loading) return <LoadingOverlay message="Loading analytics…" />
-
-  if (error) {
+// Adaptive Difficulty Timeline Chart Component
+const DifficultyTimeline = ({ data }) => {
+  if (!data || data.length === 0) {
     return (
-      <div>
-        <div className="page-header">
-          <h1><LuChartBar size={28} /> Analytics</h1>
-        </div>
-        <div className="alert alert-error">
-          <p>{error}</p>
-          <button onClick={loadData}>Retry</button>
-        </div>
+      <div className="empty-state">
+        <div className="empty-icon">📊</div>
+        <h3>No Session Data Yet</h3>
+        <p>Complete some practice questions to see your difficulty timeline.</p>
       </div>
     )
   }
 
-  // Process session flow data from session history
-  const sessionFlowData = sessionData?.score_history?.map((item, index) => ({
-    x: index + 1,
-    y: difficultyToNumber(item.difficulty),
-    question: `Q${index + 1}`,
-    difficulty: item.difficulty,
-    score: item.score
-  })) || []
-
-  // Process difficulty distribution from SESSION data (not analytics data)
-  const difficultyDistribution = {}
-  sessionData?.score_history?.forEach(item => {
-    const diff = item.difficulty || 'medium'
-    difficultyDistribution[diff] = (difficultyDistribution[diff] || 0) + 1
+  const difficultyLevels = { easy: 1, medium: 2, hard: 3 }
+  const width = 700
+  const height = 250
+  const padding = 50
+  const chartWidth = width - 2 * padding
+  const chartHeight = height - 2 * padding
+  
+  // Calculate positions
+  const xStep = chartWidth / Math.max(data.length - 1, 1)
+  const yScale = chartHeight / 2.5 // Scale for 3 difficulty levels
+  
+  const points = data.map((item, index) => {
+    const x = padding + index * xStep
+    const y = padding + chartHeight - (difficultyLevels[item.difficulty] * yScale)
+    return { x, y, ...item }
   })
 
-  const totalSessionAttempts = sessionData?.attempts || 0
+  const pathData = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
 
-  // Calculate statistics
-  const avgScore = sessionData?.average_score || 0
-  const currentDifficulty = sessionData?.difficulty || 'medium'
+  return (
+    <div className="chart-container">
+      <h3 className="chart-title">Adaptive Difficulty Timeline</h3>
+      <svg width={width} height={height} className="difficulty-chart">
+        {/* Grid lines */}
+        {[1, 2, 3].map((level, i) => (
+          <line
+            key={level}
+            x1={padding}
+            y1={padding + chartHeight - (level * yScale)}
+            x2={width - padding}
+            y2={padding + chartHeight - (level * yScale)}
+            stroke="#e5e7eb"
+            strokeWidth="1"
+            strokeDasharray="3,3"
+          />
+        ))}
+        
+        {/* Difficulty labels */}
+        <text x={padding - 15} y={padding + chartHeight - (1 * yScale) + 5} textAnchor="end" fill="#6b7280" fontSize="14" fontWeight="500">Easy</text>
+        <text x={padding - 15} y={padding + chartHeight - (2 * yScale) + 5} textAnchor="end" fill="#6b7280" fontSize="14" fontWeight="500">Medium</text>
+        <text x={padding - 15} y={padding + chartHeight - (3 * yScale) + 5} textAnchor="end" fill="#6b7280" fontSize="14" fontWeight="500">Hard</text>
+        
+        {/* Axes */}
+        <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#374151" strokeWidth="2"/>
+        <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="#374151" strokeWidth="2"/>
+        
+        {/* Timeline line */}
+        <path
+          d={pathData}
+          fill="none"
+          stroke="#8b5cf6"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        
+        {/* Data points */}
+        {points.map((point, i) => (
+          <g key={i}>
+            <circle
+              cx={point.x}
+              cy={point.y}
+              r="8"
+              fill="#8b5cf6"
+              stroke="white"
+              strokeWidth="3"
+            />
+            <text
+              x={point.x}
+              y={height - padding + 25}
+              textAnchor="middle"
+              fill="#374151"
+              fontSize="14"
+              fontWeight="600"
+            >
+              Q{i + 1}
+            </text>
+            {/* Score label */}
+            <text
+              x={point.x}
+              y={point.y - 15}
+              textAnchor="middle"
+              fill="#6b7280"
+              fontSize="12"
+            >
+              {point.score}%
+            </text>
+          </g>
+        ))}
+      </svg>
+    </div>
+  )
+}
+
+// Stats Card Component
+const StatsCard = ({ title, value, subtitle, color = "primary", trend = null }) => (
+  <div className={`stats-card stats-card-${color}`}>
+    <div className="stats-card-content">
+      <h3>{title}</h3>
+      <div className="stats-card-value">
+        {value}
+        {trend && <span className={`trend ${trend > 0 ? 'positive' : trend < 0 ? 'negative' : 'neutral'}`}>
+          {trend > 0 ? '↑' : trend < 0 ? '↓' : '→'} {Math.abs(trend)}%
+        </span>}
+      </div>
+      <p>{subtitle}</p>
+    </div>
+  </div>
+)
+
+export default function Analytics() {
+  const { session } = useSession()
+  const [analyticsData, setAnalyticsData] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const loadData = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      // Try to get analytics overview if available
+      const data = await api.getAnalytics()
+      setAnalyticsData(data)
+    } catch (e) {
+      // If analytics endpoint fails, we'll still show session-based data
+      console.log('Analytics endpoint not available, using session data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
+  if (loading) return <LoadingOverlay message="Loading analytics…" />
 
   return (
     <div className="analytics-page">
       <div className="page-header">
-        <h1><LuChartBar size={28} /> Analytics Dashboard</h1>
-        <button className="btn btn-outline" onClick={loadData}>
-          <LuRefreshCw size={16} /> Refresh
-        </button>
+        <h1>
+          <LuChartBar size={28} /> Analytics Dashboard
+        </h1>
       </div>
 
-      {/* Summary Statistics */}
-      <div className="analytics-summary">
-        <div className="summary-item">
-          <span className="summary-value">{totalSessionAttempts}</span>
-          <span className="summary-label">Total Attempts</span>
+      {error && (
+        <div className="alert alert-error">
+          <p>{error}</p>
+          <button onClick={loadData}>Retry</button>
         </div>
-        <div className="summary-item">
-          <span className="summary-value">{avgScore}</span>
-          <span className="summary-label">Average Score</span>
-        </div>
-        <div className="summary-item">
-          <span className="summary-value">{currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1)}</span>
-          <span className="summary-label">Current Difficulty</span>
+      )}
+
+      {/* Session Stats Overview */}
+      <div className="analytics-section fade-in">
+        <div className="stats-grid">
+          <StatsCard
+            title="Total Attempts"
+            value={session.attempts}
+            subtitle="Questions answered"
+            color="primary"
+          />
+          <StatsCard
+            title="Average Score"
+            value={`${session.averageScore}%`}
+            subtitle="Overall performance"
+            color={session.averageScore >= 70 ? "success" : session.averageScore >= 50 ? "warning" : "danger"}
+          />
+          <StatsCard
+            title="Current Difficulty"
+            value={session.difficulty.charAt(0).toUpperCase() + session.difficulty.slice(1)}
+            subtitle="Adaptive level"
+            color="primary"
+          />
         </div>
       </div>
 
-      {/* Session Flow Chart */}
-      <div className="card">
-        <div className="card-header">
-          <h3><LuTrendingUp size={20} /> Session Difficulty Flow</h3>
+      {/* Difficulty Timeline Chart */}
+      <div className="analytics-section fade-in-up">
+        <div className="card interactive">
+          <DifficultyTimeline data={session.scoreHistory} />
         </div>
-        <div className="card-body">
-          {sessionFlowData.length > 0 ? (
-            <SessionFlowChart data={sessionFlowData} />
-          ) : (
-            <div className="empty-state">
-              <div className="empty-icon">📈</div>
-              <h3>No Session Data</h3>
-              <p>Complete some practice questions to see your session flow here.</p>
+      </div>
+
+      {/* Recent Attempts Table */}
+      {session.scoreHistory.length > 0 && (
+        <div className="analytics-section fade-in-up">
+          <h3>Recent Attempts</h3>
+          <div className="card interactive">
+            <div style={{ overflowX: 'auto' }}>
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Attempt</th>
+                    <th>Difficulty</th>
+                    <th>Score</th>
+                    <th>Reward</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {session.scoreHistory
+                    .slice()
+                    .reverse()
+                    .slice(0, 10)
+                    .map((entry, i) => (
+                      <tr key={i}>
+                        <td style={{ fontWeight: 600 }}>#{entry.attempt}</td>
+                        <td>
+                          <span className={`badge badge-${entry.difficulty}`}>
+                            {entry.difficulty.charAt(0).toUpperCase() + entry.difficulty.slice(1)}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              color:
+                                entry.score >= 80
+                                  ? 'var(--success)'
+                                  : entry.score >= 50
+                                    ? 'var(--warning)'
+                                    : 'var(--danger)',
+                            }}
+                          >
+                            {entry.score}%
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              color:
+                                entry.reward > 5
+                                  ? 'var(--success)'
+                                  : entry.reward > 0
+                                    ? 'var(--primary)'
+                                    : entry.reward === 0
+                                      ? 'var(--warning)'
+                                      : 'var(--danger)',
+                            }}
+                          >
+                            {getRewardMessage(entry.reward)}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
             </div>
-          )}
+          </div>
         </div>
-      </div>
-
-      {/* Difficulty Distribution */}
-      <div className="card">
-        <div className="card-header">
-          <h3><LuTarget size={20} /> Difficulty Distribution</h3>
-        </div>
-        <div className="card-body">
-          {totalSessionAttempts > 0 ? (
-            <DifficultyDistribution data={difficultyDistribution} total={totalSessionAttempts} />
-          ) : (
-            <div className="empty-state">
-              <p>No difficulty data available</p>
-            </div>
-          )}
-        </div>
-      </div>
+      )}
 
       <style>{`
-        .analytics-summary {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 16px;
-          margin-bottom: 24px;
+        .analytics-page {
+          padding: 1rem;
+          max-width: 1200px;
+          margin: 0 auto;
         }
-
-        .summary-item {
-          background: var(--surface);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-lg);
-          padding: 20px;
-          text-align: center;
+        
+        .analytics-section {
+          margin-bottom: 2rem;
         }
-
-        .summary-value {
-          display: block;
-          font-size: 2rem;
-          font-weight: 800;
-          color: var(--primary);
-          line-height: 1.2;
-        }
-
-        .summary-label {
-          font-size: 0.8rem;
-          color: var(--text-muted);
-          font-weight: 500;
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-        }
-
-        .card {
-          background: var(--bg-card);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-lg);
-          margin-bottom: 20px;
-          overflow: hidden;
-        }
-
-        .card-header {
-          padding: 20px;
-          border-bottom: 1px solid var(--border);
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .card-header h3 {
-          margin: 0;
+        
+        .analytics-section h3 {
+          margin-bottom: 1rem;
+          color: var(--text);
           font-size: 1.1rem;
           font-weight: 600;
-          color: var(--text);
         }
-
-        .card-body {
-          padding: 20px;
-        }
-
-        .empty-state {
-          text-align: center;
-          padding: 40px 20px;
-          color: var(--text-muted);
-        }
-
-        .empty-icon {
-          font-size: 3rem;
-          margin-bottom: 16px;
-        }
-
-        .empty-state h3 {
-          margin: 0 0 8px 0;
-          color: var(--text);
-        }
-
-        @media (max-width: 768px) {
-          .analytics-summary {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
-    </div>
-  )
-}
-
-// Session Flow Chart Component
-function SessionFlowChart({ data }) {
-  const maxValue = Math.max(...data.map(d => d.y), 3)
-  const minValue = Math.min(...data.map(d => d.y), 1)
-  
-  return (
-    <div className="session-flow-chart">
-      <div className="chart-container">
-        {/* Y-axis labels */}
-        <div className="y-axis">
-          <div className="y-label" style={{ top: '0%' }}>Hard</div>
-          <div className="y-label" style={{ top: '50%' }}>Medium</div>
-          <div className="y-label" style={{ top: '100%' }}>Easy</div>
-        </div>
         
-        {/* Chart area */}
-        <div className="chart-area">
-          {/* Grid lines */}
-          <div className="grid-line" style={{ top: '0%' }}></div>
-          <div className="grid-line" style={{ top: '50%' }}></div>
-          <div className="grid-line" style={{ top: '100%' }}></div>
-          
-          {/* Line chart */}
-          {data.length > 1 && (
-            <svg className="chart-line" viewBox="0 0 100 60" preserveAspectRatio="none">
-              <polyline
-                fill="none"
-                stroke="var(--primary)"
-                strokeWidth="2"
-                points={data.map((d, i) => {
-                  const x = (i / (data.length - 1)) * 100
-                  const y = ((maxValue - d.y) / (maxValue - minValue)) * 60
-                  return `${x},${y}`
-                }).join(' ')}
-              />
-            </svg>
-          )}
-          
-          {/* Data points */}
-          {data.map((point, index) => (
-            <div
-              key={index}
-              className="data-point"
-              style={{
-                left: `${(index / (data.length - 1)) * 100}%`,
-                top: `${((maxValue - point.y) / (maxValue - minValue)) * 100}%`
-              }}
-              title={`${point.question}: ${point.difficulty} (Score: ${point.score})`}
-            >
-              <span className="point-label" style={{ top: '-20px' }}>{point.question}</span>
-            </div>
-          ))}
-        </div>
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 1rem;
+          margin-bottom: 2rem;
+        }
         
-        {/* X-axis */}
-        <div className="x-axis">
-          {data.map((point, index) => (
-            <div key={index} className="x-label">
-              {point.question}
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <style>{`
-        .session-flow-chart {
-          width: 100%;
-          height: 300px;
+        .stats-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          padding: 1.5rem;
+          transition: transform 0.2s, box-shadow 0.2s;
           position: relative;
+          overflow: hidden;
         }
         
-        .chart-container {
-          width: 100%;
-          height: 100%;
-          position: relative;
-          display: flex;
-        }
-        
-        .y-axis {
-          width: 60px;
-          position: relative;
-          padding-right: 10px;
-        }
-        
-        .y-label {
-          position: absolute;
-          right: 0;
-          font-size: 0.8rem;
-          color: var(--text-muted);
-          transform: translateY(-50%);
-        }
-        
-        .chart-area {
-          flex: 1;
-          position: relative;
-          height: 240px;
-          border-left: 1px solid var(--border);
-          border-bottom: 1px solid var(--border);
-        }
-        
-        .grid-line {
-          position: absolute;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: var(--border);
-          opacity: 0.5;
-        }
-        
-        .chart-line {
+        .stats-card::before {
+          content: '';
           position: absolute;
           top: 0;
           left: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-        }
-        
-        .data-point {
-          position: absolute;
-          width: 12px;
-          height: 12px;
-          background: var(--primary);
-          border: 2px solid white;
-          border-radius: 50%;
-          transform: translate(-50%, -50%);
-          cursor: pointer;
-          z-index: 2;
-        }
-        
-        .data-point:hover {
-          transform: translate(-50%, 50%) scale(1.2);
-        }
-        
-        .point-label {
-          position: absolute;
-          top: -20px;
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: 0.7rem;
-          color: var(--text-muted);
-          white-space: nowrap;
-        }
-        
-        .x-axis {
-          position: absolute;
-          bottom: -30px;
-          left: 60px;
           right: 0;
-          display: flex;
-          justify-content: space-between;
-          padding: 0 10px;
+          height: 4px;
+          background: var(--primary);
         }
         
-        .x-label {
-          font-size: 0.8rem;
+        .stats-card-success::before {
+          background: var(--success);
+        }
+        
+        .stats-card-warning::before {
+          background: var(--warning);
+        }
+        
+        .stats-card-danger::before {
+          background: var(--danger);
+        }
+        
+        .stats-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+        
+        .stats-card h3 {
+          font-size: 0.85rem;
           color: var(--text-muted);
-          text-align: center;
-        }
-      `}</style>
-    </div>
-  )
-}
-
-// Difficulty Distribution Component
-function DifficultyDistribution({ data, total }) {
-  const difficulties = ['easy', 'medium', 'hard']
-  const colors = {
-    easy: '#10b981',    // Green
-    medium: '#f59e0b',  // Orange/Yellow
-    hard: '#ef4444'     // Red
-  }
-  
-  return (
-    <div className="difficulty-distribution">
-      <div className="distribution-bars">
-        {difficulties.map(level => {
-          const count = data[level] || 0
-          const percentage = total > 0 ? (count / total) * 100 : 0
-          
-          return (
-            <div key={level} className="difficulty-item">
-              <div className="difficulty-label">{level.charAt(0).toUpperCase() + level.slice(1)}</div>
-              <div className="difficulty-bar-container">
-                <div 
-                  className="difficulty-bar"
-                  style={{
-                    width: `${percentage}%`,
-                    backgroundColor: colors[level]
-                  }}
-                />
-              </div>
-              <div className="difficulty-count">{count}</div>
-            </div>
-          )
-        })}
-      </div>
-      
-      <style>{`
-        .difficulty-distribution {
-          width: 100%;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          margin-bottom: 0.5rem;
+          font-weight: 600;
         }
         
-        .distribution-bars {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        
-        .difficulty-item {
+        .stats-card-value {
+          font-size: 2rem;
+          font-weight: 700;
+          color: var(--text);
+          margin-bottom: 0.25rem;
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 0.5rem;
         }
         
-        .difficulty-label {
-          width: 80px;
+        .trend {
           font-size: 0.9rem;
           font-weight: 500;
+        }
+        
+        .trend.positive {
+          color: var(--success);
+        }
+        
+        .trend.negative {
+          color: var(--danger);
+        }
+        
+        .trend.neutral {
+          color: var(--text-muted);
+        }
+        
+        .stats-card p {
+          font-size: 0.8rem;
+          color: var(--text-muted);
+          margin: 0;
+        }
+        
+        .chart-container {
+          padding: 2rem;
+          background: white;
+          border-radius: var(--radius);
+          border: 1px solid var(--border);
+        }
+        
+        .chart-title {
+          text-align: center;
+          margin-bottom: 2rem;
           color: var(--text);
+          font-size: 1.3rem;
+          font-weight: 600;
         }
         
-        .difficulty-bar-container {
-          flex: 1;
-          height: 32px;
-          background: var(--border);
-          border-radius: var(--radius-lg);
-          position: relative;
-          overflow: hidden;
+        .difficulty-chart {
+          max-width: 100%;
+          height: auto;
+          display: block;
+          margin: 0 auto;
         }
         
-        .difficulty-bar {
-          height: 100%;
-          border-radius: var(--radius-lg);
-          transition: width 0.3s ease;
-          min-width: 8px;
-        }
-        
-        .difficulty-count {
-          width: 40px;
-          text-align: right;
+        .difficulty-badge {
+          padding: 0.25rem 0.75rem;
+          border-radius: 12px;
           font-size: 0.9rem;
           font-weight: 600;
+        }
+        
+        .difficulty-easy {
+          background: var(--success);
+          color: white;
+        }
+        
+        .difficulty-medium {
+          background: var(--warning);
+          color: white;
+        }
+        
+        .difficulty-hard {
+          background: var(--danger);
+          color: white;
+        }
+        
+        .empty-state {
+          text-align: center;
+          padding: 3rem;
+          color: var(--text-muted);
+        }
+        
+        .empty-icon {
+          font-size: 3rem;
+          margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
           color: var(--text);
+          margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+          .analytics-page {
+            padding: 0.5rem;
+          }
+          
+          .stats-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .chart-container {
+            padding: 1rem;
+          }
+          
+          .difficulty-chart {
+            width: 100%;
+            height: auto;
+          }
         }
       `}</style>
     </div>

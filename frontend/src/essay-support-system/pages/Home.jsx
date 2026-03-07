@@ -92,6 +92,7 @@ export default function Home() {
           position: relative;
           text-align: center;
 <<<<<<< HEAD
+<<<<<<< HEAD
           padding: 120px 48px 100px;
           background: linear-gradient(135deg, var(--primary-900) 0%, var(--primary-800) 50%, var(--primary-700) 100%);
           border: none;
@@ -100,19 +101,25 @@ export default function Home() {
           overflow: hidden;
           margin-bottom: 4rem;
 =======
+=======
+>>>>>>> fb81cdee (Updated analytics page)
           padding: 84px 32px 72px;
           background: var(--primary-800);
           border: 1px solid var(--primary-700);
           border-radius: 24px;
           box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
           overflow: hidden;
+<<<<<<< HEAD
 >>>>>>> e360af11 (Updated project files)
+=======
+>>>>>>> fb81cdee (Updated analytics page)
         }
 
         .hero::before {
           content: '';
           position: absolute;
           inset: 0;
+<<<<<<< HEAD
 <<<<<<< HEAD
           background: 
             radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
@@ -128,6 +135,9 @@ export default function Home() {
 =======
           background: radial-gradient(50% 50% at 80% 20%, rgba(59, 130, 246, 0.15), transparent 55%);
 >>>>>>> e360af11 (Updated project files)
+=======
+          background: radial-gradient(50% 50% at 80% 20%, rgba(59, 130, 246, 0.15), transparent 55%);
+>>>>>>> fb81cdee (Updated analytics page)
           opacity: 1;
         }
 
@@ -139,6 +149,7 @@ export default function Home() {
         .hero-badge {
           display: inline-flex;
           align-items: center;
+<<<<<<< HEAD
 <<<<<<< HEAD
           gap: 10px;
           padding: 12px 24px;
@@ -192,11 +203,37 @@ export default function Home() {
         .hero-highlight {
           background: linear-gradient(135deg, #ffffff, #e0e7ff);
 >>>>>>> e360af11 (Updated project files)
+=======
+          gap: 8px;
+          padding: 8px 16px;
+          background: rgba(255, 255, 255, 0.15);
+          color: #ffffff;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: var(--radius-full);
+          font-size: 0.85rem;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          margin-bottom: 24px;
+        }
+
+        .hero h1 {
+          font-size: 3rem;
+          font-weight: 800;
+          line-height: 1.15;
+          letter-spacing: -0.03em;
+          margin-bottom: 18px;
+          color: #ffffff;
+        }
+
+        .hero-highlight {
+          background: linear-gradient(135deg, #ffffff, #e0e7ff);
+>>>>>>> fb81cdee (Updated analytics page)
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
           position: relative;
         }
+<<<<<<< HEAD
 <<<<<<< HEAD
         .hero-highlight::after {
           content: '';
@@ -210,12 +247,15 @@ export default function Home() {
         }
 =======
 >>>>>>> e360af11 (Updated project files)
+=======
+>>>>>>> fb81cdee (Updated analytics page)
 
         .hero-actions {
           display: flex;
           gap: 20px;
           justify-content: center;
           flex-wrap: wrap;
+<<<<<<< HEAD
 <<<<<<< HEAD
           margin-top: 40px;
         }
@@ -227,12 +267,17 @@ export default function Home() {
           font-weight: 700;
           border-radius: var(--radius);
 =======
+=======
+>>>>>>> fb81cdee (Updated analytics page)
           margin-top: 6px;
         }
 
         .hero-actions .btn {
           min-width: 170px;
+<<<<<<< HEAD
 >>>>>>> e360af11 (Updated project files)
+=======
+>>>>>>> fb81cdee (Updated analytics page)
         }
 
         /* Features */
@@ -241,6 +286,7 @@ export default function Home() {
         }
 
         .section-title {
+<<<<<<< HEAD
 <<<<<<< HEAD
           font-size: 2rem;
           font-weight: 800;
@@ -252,6 +298,12 @@ export default function Home() {
           text-align: center;
           margin-bottom: 26px;
 >>>>>>> e360af11 (Updated project files)
+=======
+          font-size: 1.6rem;
+          font-weight: 800;
+          text-align: center;
+          margin-bottom: 26px;
+>>>>>>> fb81cdee (Updated analytics page)
           color: var(--text);
           letter-spacing: -0.02em;
         }
@@ -260,15 +312,20 @@ export default function Home() {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
 <<<<<<< HEAD
+<<<<<<< HEAD
           gap: 24px;
 =======
           gap: 18px;
 >>>>>>> e360af11 (Updated project files)
+=======
+          gap: 18px;
+>>>>>>> fb81cdee (Updated analytics page)
         }
 
         .feature-card {
           background: var(--bg-card);
           border: 1px solid var(--border);
+<<<<<<< HEAD
 <<<<<<< HEAD
           border-radius: 20px;
           padding: 32px 24px;
@@ -304,6 +361,24 @@ export default function Home() {
           width: 60px;
           height: 60px;
 >>>>>>> e360af11 (Updated project files)
+=======
+          border-radius: 18px;
+          padding: 26px 22px;
+          text-align: center;
+          transition: var(--transition);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card:hover {
+          transform: translateY(-6px);
+          border-color: var(--primary-300);
+          box-shadow: 0 8px 25px rgba(30, 64, 175, 0.15);
+        }
+
+        .feature-icon {
+          width: 60px;
+          height: 60px;
+>>>>>>> fb81cdee (Updated analytics page)
           border-radius: var(--radius-lg);
           display: flex;
           align-items: center;
@@ -317,7 +392,10 @@ export default function Home() {
           margin: 0 auto 16px;
           background: var(--primary-50);
           border: 1px solid var(--primary-200);
+<<<<<<< HEAD
 >>>>>>> e360af11 (Updated project files)
+=======
+>>>>>>> fb81cdee (Updated analytics page)
         }
 
         .feature-card h3 {
@@ -326,9 +404,12 @@ export default function Home() {
           margin: 0;
           color: var(--text);
 <<<<<<< HEAD
+<<<<<<< HEAD
           letter-spacing: -0.01em;
 =======
 >>>>>>> e360af11 (Updated project files)
+=======
+>>>>>>> fb81cdee (Updated analytics page)
         }
 
         @media (max-width: 768px) {
