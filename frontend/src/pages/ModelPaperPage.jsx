@@ -171,6 +171,18 @@ function ModelPaperPage() {
       setStatus("Timed out or Connection Lost. Check backend console.");
       // Check if a checkpoint exists and we can resume later
       addLog("Retrying may resume from the last saved question.");
+      // Try to load the latest paper from disk anyway (it may exist from a prior run)
+      try {
+        const fallbackResp = await fetch(`${API_BASE}/model-paper/paper-json`);
+        if (fallbackResp.ok) {
+          const fallbackData = await fallbackResp.json();
+          setPaper(fallbackData);
+          addLog("Loaded latest paper from disk.");
+          setStatus("Paper loaded (from disk)");
+        }
+      } catch (_) {
+        // Ignore fallback errors
+      }
     } finally {
       setProcessing(false);
     }
