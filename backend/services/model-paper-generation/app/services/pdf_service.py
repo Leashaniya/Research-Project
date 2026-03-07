@@ -17,6 +17,20 @@ class PDFService:
         self.pdf = None
     
     @staticmethod
+    def _wrap_long_words(text: str, max_chars: int = 70) -> str:
+        """Insert newlines in very long words so FPDF can wrap (avoids overflow in Q3 and elsewhere)."""
+        if not text or max_chars <= 0:
+            return text
+        out = []
+        for word in text.split():
+            if len(word) > max_chars:
+                for i in range(0, len(word), max_chars):
+                    out.append(word[i : i + max_chars])
+            else:
+                out.append(word)
+        return " ".join(out)
+
+    @staticmethod
     def _sanitize_text(text: str) -> str:
         """Remove or replace characters that FPDF cannot handle."""
         # Replace problematic characters
@@ -40,11 +54,16 @@ class PDFService:
 
     @staticmethod
     def _get_available_width(pdf: FPDF) -> float:
-        """Calculate available width for text (page width minus margins)."""
-        # A4 width is 210mm, get current margins
+        """Calculate available width for text (page width minus margins). Use a safety margin so text never overflows (Q2, Q3, Q4)."""
+        # Use actual page width (e.g. 210mm for A4) and subtract margins plus safety so wordings don't go out of the PDF
+        try:
+            page_width = getattr(pdf, "w", 210)
+        except Exception:
+            page_width = 210
         left_margin = pdf.l_margin
         right_margin = pdf.r_margin
-        return 210 - left_margin - right_margin
+        safety = 5.0  # mm buffer so text stays well inside (avoids overflow in Q3 and other long content)
+        return max(0, page_width - left_margin - right_margin - safety)
     
     def generate_pdf(self, paper_data: Dict[str, Any], output_path) -> bool:
         """
@@ -59,20 +78,20 @@ class PDFService:
         """
         try:
             pdf = FPDF()
-            # Set explicit margins to ensure proper text wrapping
-            pdf.set_margins(left=15, top=15, right=15)
+            # Set explicit margins so text stays inside the page (no overflow)
+            pdf.set_margins(left=18, top=15, right=18)
             pdf.set_auto_page_break(auto=True, margin=15)
             pdf.add_page()
             
             # Header
-            pdf.set_font("helvetica", "B", 16)
-            pdf.cell(0, 10, PDFService._sanitize_text("Model Paper - Database Management Systems"), ln=True, align="C")
+            pdf.set_font("helvetica", "B", 18)
+            pdf.cell(0, 12, PDFService._sanitize_text("Model Paper - Database Management Systems"), ln=True, align="C")
             pdf.ln(5)
             
             # Metadata
-            pdf.set_font("helvetica", "", 10)
+            pdf.set_font("helvetica", "", 11)
             generated_at = paper_data.get("generated_at", "N/A")
-            pdf.cell(0, 5, PDFService._sanitize_text(f"Generated: {generated_at}"), ln=True, align="C")
+            pdf.cell(0, 6, PDFService._sanitize_text(f"Generated: {generated_at}"), ln=True, align="C")
             pdf.ln(10)
             
             # Questions
@@ -99,8 +118,8 @@ class PDFService:
         marks = q.get("marks", 0)
         
         # Question header
-        pdf.set_font("helvetica", "B", 12)
-        pdf.cell(0, 10, PDFService._sanitize_text(f"{question_no} ({marks} marks)"), ln=True)
+        pdf.set_font("helvetica", "B", 13)
+        pdf.cell(0, 11, PDFService._sanitize_text(f"{question_no} ({marks} marks)"), ln=True)
         pdf.ln(2)
         
         # Question Stem/Text (if exists and no subquestions, or as intro)
@@ -108,7 +127,7 @@ class PDFService:
         if question_stem and question_stem.strip():
             # Only show stem if it's substantial and not just a placeholder
             if len(question_stem.strip()) > 20:  # Substantial text
-                pdf.set_font("helvetica", "", 11)
+                pdf.set_font("helvetica", "", 12)
                 # Use multi_cell for proper text wrapping (handles long lines that exceed page width)
                 # Split by newlines first to preserve paragraph structure, then wrap each line if needed
                 available_width = PDFService._get_available_width(pdf)
@@ -116,10 +135,8 @@ class PDFService:
                 for line_idx, line in enumerate(lines):
                     sanitized_line = PDFService._sanitize_text(line.strip())
                     if sanitized_line:  # Only process non-empty lines
-                        # Use multi_cell with calculated width for automatic wrapping
-                        # h=6 is line height, align='L' is left alignment
-                        # This ensures long descriptions wrap properly and don't overflow
-                        pdf.multi_cell(available_width, 6, sanitized_line, align='L')
+                        wrapped = PDFService._wrap_long_words(sanitized_line)
+                        pdf.multi_cell(available_width, 7, wrapped, align='L')
                         # Add spacing between paragraphs (but not after the last line)
                         if line_idx < len(lines) - 1:
                             pdf.ln(1)
@@ -151,13 +168,12 @@ class PDFService:
                         available_height = 297 - current_y - 15
                     
                     pdf.ln(3)
-                    pdf.set_font("helvetica", "B", 10)
+                    pdf.set_font("helvetica", "B", 11)
                     diagram_type = q.get("diagram_type", "Diagram")
-                    pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
+                    pdf.cell(0, 11, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
                     
-                    # Calculate available width (A4 width - margins)
-                    avail_width = 180
-                    
+                    # Keep diagram within content width so layout doesn't push text out
+                    avail_width = PDFService._get_available_width(pdf)
                     # Get image dimensions to check if it fits
                     if Image is not None:
                         try:
@@ -198,7 +214,7 @@ class PDFService:
         # Subquestions
         subquestions = q.get("subquestions", [])
         if subquestions:
-            pdf.set_font("helvetica", "", 10)
+            pdf.set_font("helvetica", "", 11)
             for sq in subquestions:
                 self._add_subquestion_to_pdf(pdf, sq, q)
         
@@ -227,18 +243,22 @@ class PDFService:
         # Calculate available width for text wrapping
         available_width = PDFService._get_available_width(pdf)
         
+        def _render_cell(s: str) -> None:
+            safe = PDFService._sanitize_text(s)
+            wrapped = PDFService._wrap_long_words(safe)
+            pdf.multi_cell(available_width, 7, wrapped, align='L')
+
         if nested_subquestions:
             # Parent subquestion (bold, e.g., "a) Write SQL Queries to perform the following:")
-            pdf.set_font("helvetica", "B", 10)
+            pdf.set_font("helvetica", "B", 11)
             if marks:
-                # Use multi_cell with calculated width for text wrapping to prevent truncation
-                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text} ({marks} marks)"), align='L')
+                _render_cell(f"{label}) {text} ({marks} marks)")
             else:
-                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text}"), align='L')
+                _render_cell(f"{label}) {text}")
             pdf.ln(2)
             
             # Nested subquestions (indented, regular font, e.g., "   i. Find...", "   ii. Find...")
-            pdf.set_font("helvetica", "", 10)
+            pdf.set_font("helvetica", "", 11)
             for nested_sq in nested_subquestions:
                 nested_label = nested_sq.get("label", "")
                 nested_text = nested_sq.get("text", "")
@@ -246,29 +266,24 @@ class PDFService:
 
                 # CRITICAL: Remove any existing label prefix from nested_text to prevent duplicates (e.g., "i. i. ")
                 import re
-                # Remove label prefixes (i., ii., iii., iv., v.) at the start of text
                 clean_nested_text = nested_text
                 while True:
                     old_text = clean_nested_text
-                    # Remove label prefixes (with period or space) - remove ALL occurrences
                     clean_nested_text = re.sub(r'^(i{1,3}|iv|v)[\.\s]+\s*', '', clean_nested_text, flags=re.IGNORECASE).strip()
                     if clean_nested_text == old_text:
-                        break  # No more labels to remove
+                        break
 
-                # Format: "   i. Text (marks)" - indented with 3 spaces to show hierarchy
-                # Use multi_cell with calculated width for text wrapping to prevent truncation
                 if nested_marks:
-                    pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"   {nested_label}. {clean_nested_text} ({nested_marks} marks)"), align='L')
+                    _render_cell(f"   {nested_label}. {clean_nested_text} ({nested_marks} marks)")
                 else:
-                    pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"   {nested_label}. {clean_nested_text}"), align='L')
+                    _render_cell(f"   {nested_label}. {clean_nested_text}")
         else:
             # Regular subquestion (no nesting)
-            pdf.set_font("helvetica", "", 10)
-            # Use multi_cell with calculated width for text wrapping to prevent truncation
+            pdf.set_font("helvetica", "", 11)
             if marks:
-                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text} ({marks} marks)"), align='L')
+                _render_cell(f"{label}) {text} ({marks} marks)")
             else:
-                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text}"), align='L')
+                _render_cell(f"{label}) {text}")
         
         pdf.ln(2)
         
@@ -292,12 +307,11 @@ class PDFService:
             if os.path.exists(img_path_str):
                 try:
                     pdf.ln(5)
-                    pdf.set_font("helvetica", "B", 10)
+                    pdf.set_font("helvetica", "B", 11)
                     diagram_type = parent_q.get("diagram_type", "Diagram")
-                    pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
+                    pdf.cell(0, 11, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
                     
-                    # Calculate available width (A4 width - margins)
-                    avail_width = 180
+                    avail_width = PDFService._get_available_width(pdf)
                     # Embed diagram image (FPDF.image accepts string path with forward slashes)
                     pdf.image(img_path_normalized, w=avail_width)
                     pdf.ln(5)
@@ -330,13 +344,13 @@ class PDFService:
                     
                     if success and os.path.exists(temp_img_path):
                         pdf.ln(5)
-                        pdf.set_font("helvetica", "B", 10)
+                        pdf.set_font("helvetica", "B", 11)
                         diagram_type = parent_q.get("diagram_type", "Diagram")
-                        pdf.cell(0, 10, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
+                        pdf.cell(0, 11, PDFService._sanitize_text(f"Figure: {diagram_type}"), ln=True)
                         
                         # Normalize path
                         temp_img_normalized = temp_img_path.replace("\\", "/")
-                        pdf.image(temp_img_normalized, w=180)
+                        pdf.image(temp_img_normalized, w=PDFService._get_available_width(pdf))
                         pdf.ln(5)
                         
                         # Clean up temp file
@@ -348,11 +362,14 @@ class PDFService:
                     print(f"    ⚠️ Mermaid diagram rendering failed: {e}. Using placeholder.")
                     # Fallback Placeholder
                     pdf.ln(5)
-                    pdf.set_font("helvetica", "I", 9)
-                    pdf.cell(0, 5, PDFService._sanitize_text("[DIAGRAM PLACEHOLDER]"), ln=True)
+                    pdf.set_font("helvetica", "I", 10)
+                    pdf.cell(0, 6, PDFService._sanitize_text("[DIAGRAM PLACEHOLDER]"), ln=True)
             
-        # Priority 3: Placeholder text
+        # Priority 3: Placeholder text (use multi_cell so long text wraps and doesn't overflow)
         if diagram_placeholder:
             pdf.ln(3)
-            pdf.set_font("helvetica", "I", 9)
-            pdf.cell(0, 5, PDFService._sanitize_text(diagram_placeholder), ln=True)
+            pdf.set_font("helvetica", "I", 10)
+            available_width = PDFService._get_available_width(pdf)
+            ph_safe = PDFService._sanitize_text(diagram_placeholder)
+            ph_wrapped = PDFService._wrap_long_words(ph_safe)
+            pdf.multi_cell(available_width, 6, ph_wrapped, align="L")
