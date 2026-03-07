@@ -25,6 +25,6 @@ if (-not (Test-Path $DataDir) -and (Test-Path $AppDataDir)) {
     New-Item -ItemType Junction -Path $DataDir -Target $AppDataDir -Force | Out-Null
 }
 
-$Port = if ($env:PORT) { $env:PORT } else { "8001" }
+$Port = if ($env:PORT) { $env:PORT } else { "8000" }
 Write-Host "Starting Model Paper Generation on port $Port ..."
-python -m uvicorn app.main:app --host 0.0.0.0 --port $Port
+python start_server.py

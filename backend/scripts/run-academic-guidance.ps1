@@ -18,6 +18,7 @@ Write-Host "Installing/updating dependencies from pyproject.toml ..."
 pip install -q --upgrade pip
 pip install -q -e .
 
-$Port = if ($env:PORT) { $env:PORT } else { "8000" }
+$Port = if ($env:PORT) { $env:PORT } else { "8081" }
+$env:PORT = $Port
 Write-Host "Starting Academic Guidance on port $Port ..."
-python -m uvicorn app.main:app --host 0.0.0.0 --port $Port
+python main.py

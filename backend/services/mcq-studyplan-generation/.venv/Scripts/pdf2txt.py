@@ -1,4 +1,4 @@
-#!D:\SLIIT\Kajamalan\research-project-copy\Research-Project\backend\services\mcq-studyplan-generation\.venv\Scripts\python.exe
+#!C:\Users\DELL\Downloads\Research Project\backend\services\mcq-studyplan-generation\.venv\Scripts\python.exe
 """A command line tool for extracting text and images from PDF and
 output it to plain text, html, xml or tags.
 """
