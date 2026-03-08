@@ -1117,8 +1117,17 @@ class QuestionWriter(BaseAgent):
                 else:
                     self.log(f"    🔍 Detected code segment reference in subquestion {sq_label}")
                 
-                # Generate appropriate code snippet based on question context
-                sql_code = self._generate_sql_code_for_context(question_text, pattern_label, sq_text)
+                q_no = (slot.get("question_no") or slot.get("slot_id", "") or "").strip().upper()
+                if q_no in ("Q3", "3") and sq_label == "b":
+                    # CRITICAL: Q3 part (b) must ALWAYS be JDBC (Java code segment), not SQL DDL/DML.
+                    self.log(f"    🔧 Q3(b): Forcing JDBC Java code segment and JDBC question text")
+                    sql_code = """String sql = "SELECT * FROM employees WHERE department = ?";
+PreparedStatement pstmt = connection.prepareStatement(sql);
+pstmt.setString(1, "IT");
+ResultSet rs = pstmt.executeQuery();"""
+                    # Will set code_lang = "java" and JDBC question text below (after updated_text block)
+                else:
+                    sql_code = self._generate_sql_code_for_context(question_text, pattern_label, sq_text)
                 
                 if sql_code:
                     original_text = sq.get("text", "")
@@ -1190,17 +1199,12 @@ class QuestionWriter(BaseAgent):
                     # Use java fence for JDBC snippets, sql otherwise.
                     code_lang = "java" if ("preparedstatement" in sql_code.lower() or "resultset" in sql_code.lower() or "connection.preparestatement" in sql_code.lower()) else "sql"
 
-                    # If generated code is JDBC-style, keep wording JDBC-specific (not generic SQL-DML phrasing).
+                    # If generated code is JDBC-style, use past-paper wording (JDBC API, result sets, code segment).
                     if code_lang == "java":
-                        updated_text = re.sub(
-                            r"there are several different types of statements in sql for data manipulation\.\s*",
-                            "",
-                            updated_text,
-                            flags=re.IGNORECASE,
-                        )
                         updated_text = (
-                            "Which type of JDBC statement is used in the code segment shown above? "
-                            "Briefly explain when this type of statement will be used."
+                            "There are several different statements in the JDBC API to retrieve result sets "
+                            "based on different requirements. Which type of statements is used in the code segment "
+                            "shown above? Briefly explain when this type of statement will be used."
                         )
 
                     # Insert code block directly into the subquestion text

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-08 11:03:12",
+  "generated_at": "2026-03-08 12:24:26",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university maintains a database for its courses and students. The entities include 'Department', which has attributes DepartmentID, Name, and OfficeLocation; 'Course', which has CourseID, Title, and Credits; 'Student', which consists of StudentID, Name, and Email; and 'Enrollment', which records the StudentID, CourseID, and EnrollmentDate. Each department offers multiple courses, and students enroll in various courses. There is a specialization where 'GraduateCourse' extends 'Course' with additional attributes like ThesisRequired and AdvisorName, while 'UndergraduateCourse' extends 'Course' with attributes such as YearOfStudy and Major. The 'Enrollment' entity captures the relationship between 'Student' and 'Course'",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nIn a university system, a 'Department' entity has attributes: DepartmentID, Name, and Location. The 'Course' entity has attributes: CourseID, Title, and Credits. The 'Instructor' entity includes InstructorID, Name, and Email. The 'Student' entity has attributes: StudentID, Name, and Major. The Department offers multiple courses, and each course can be taught by multiple instructors. Students enroll in these courses. Additionally, the instructor relationship can have attributes such as OfficeHours and Specialization. There is specialization in The Instructor entity has attributes such as InstructorID, Name, Department., differentiating FullTimeInstructor with an additional Salary attribute and PartTimeInstructor with HoursWorked attribute",
       "subquestions": [
         {
           "label": "a",
@@ -41,8 +41,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69ad09b51fe14f0335587a10",
-      "original_semantic_description": "A university maintains a database for its courses and students. The entities include 'Department', which has attributes DepartmentID, Name, and OfficeLocation; 'Course', which has CourseID, Title, and Credits; 'Student', which consists of StudentID, Name, and Email; and 'Enrollment', which records the StudentID, CourseID, and EnrollmentDate. Each department offers multiple courses, and students enroll in various courses. There is a specialization where 'GraduateCourse' extends 'Course' with additional attributes like ThesisRequired and AdvisorName, while 'UndergraduateCourse' extends 'Course' with attributes such as YearOfStudy and Major. The 'Enrollment' entity captures the relationship between 'Student' and 'Course'.",
+      "template_id": "69ad1cb6c6dff5a02cdcf17d",
+      "original_semantic_description": "In a university system, a 'Department' entity has attributes: DepartmentID, Name, and Location. The 'Course' entity has attributes: CourseID, Title, and Credits. The 'Instructor' entity includes InstructorID, Name, and Email. The 'Student' entity has attributes: StudentID, Name, and Major. The Department offers multiple courses, and each course can be taught by multiple instructors. Students enroll in these courses. Additionally, the instructor relationship can have attributes such as OfficeHours and Specialization. There is specialization in The Instructor entity has attributes such as InstructorID, Name, Department., differentiating FullTimeInstructor with an additional Salary attribute and PartTimeInstructor with HoursWorked attribute. Draw the EER diagram to represent this scenario with appropriate relationships and cardinalities.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, CD->E, E->A, A->B}}. This schema is being analyzed for normalization. Identify the dependencies present and their implications on the relation.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, AC->E, D->A, C->B}}",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69ad09b51fe14f0335587a11",
+      "template_id": "69ad1cb6c6dff5a02cdcf17e",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,7 +84,7 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A medical clinic is developing a comprehensive database system to manage patient records, doctor information, and appointment scheduling. Different roles are assigned to various team members for database administration and management. Alice is the senior database administrator responsible for overseeing the entire database system's design and maintenance. Bob and Carol are junior database administrators under Alice's supervision. Bob manages the patient records database, while Carol works with the doctors' information database. David is a database developer reporting to Bob and Carol, responsible for designing and implementing database schemas for patients and doctors. Eva and Frank are data entry operators tasked with inputting patient details and doctor contact information into the system.",
+      "text": "A university database is designed to manage student records, course registrations, and grades. The database schema includes tables named Students, Courses, and Enrollments, defined as follows: Students(student_id INT PRIMARY KEY, name VARCHAR(100), major VARCHAR(50)); Courses(course_id INT PRIMARY KEY, title VARCHAR(100), credits INT); Enrollments(enrollment_id INT PRIMARY KEY, student_id INT, course_id INT, grade CHAR(2), FOREIGN KEY(student_id) REFERENCES Students(student_id), FOREIGN KEY(course_id) REFERENCES Courses(course_id)). Use this schema to answer the following questions.",
       "subquestions": [
         {
           "label": "a",
@@ -93,22 +93,22 @@
         },
         {
           "label": "b",
-          "text": "Code Segment:\n```java\nString sql = \"SELECT * FROM employees WHERE department = ?\";\nPreparedStatement pstmt = connection.prepareStatement(sql);\npstmt.setString(1, \"IT\");\nResultSet rs = pstmt.executeQuery();\n```\n\nWhich type of JDBC statement is used in the code segment shown above?\nBriefly explain when this type of statement will be used.",
+          "text": "Code Segment:\n```java\nString sql = \"SELECT * FROM employees WHERE department = ?\";\nPreparedStatement pstmt = connection.prepareStatement(sql);\npstmt.setString(1, \"IT\");\nResultSet rs = pstmt.executeQuery();\n```\n\nThere are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
           "marks": 2
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for data manipulation in SQL, including how to insert, update, and delete records in tables.",
+          "text": "Briefly explain the options available for transferring data between two tables within the same database.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how constraints can be enforced in SQL Server to ensure data integrity in a database.",
+          "text": "Briefly explain how integrity constraints are applied in SQL databases.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "The medical clinic aims to maintain accurate records of Doctor details and Doctor availability. Write a SQL DDL statement to create a table named 'Doctors' with the attributes 'patient_id', 'name', 'dob', and 'contact_info', ensuring 'patient_id' is the primary key. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance.. Michael is a data entry operator responsible for inputting data into the system.. Emily is a junior database administrator managing specific databases within the system.. Nathan is a database developer responsible for designing and implementing database schemas..",
+          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
           "marks": null,
           "subquestions": [
             {
@@ -124,7 +124,7 @@
             {
               "label": "iii",
               "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Loans database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -134,7 +134,7 @@
             {
               "label": "v",
               "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Members and Loans databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
             }
           ]
         }
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69ad09b51fe14f0335587a12",
+      "template_id": "69ad1cb6c6dff5a02cdcf17f",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,7 +152,7 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for a university: Student (studentId: int, name: varchar(100), major: varchar(50), enrollmentDate: date) Course (courseId: int, title: varchar(100), credits: int, instructorId: int) Enrollment (enrollmentId: int, studentId: int, courseId: int, grade: varchar(2)) Instructor (instructorId: int, name: varchar(100), department: varchar(50), hireDate: date). This schema represents a simple university database where students can enroll in courses, and instructors are associated with courses. The 'Student' table stores information about students, including unique student ID, name, program, and enrollment date. The 'Course' table holds details about courses, such as unique course ID, course name, credits, and department. The 'Enrollment' table manages student course enrollments, recording which students are enrolled in which courses and when. The 'Instructor' table contains relevant information for the database system. Fee (feeId: int, studentId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
+      "text": "Consider the following schema of a database designed for a Hospital: Patient (patientId: int, name: varchar(100), address: varchar(150), dob: date) Doctor (doctorId: int, name: varchar(100), specialty: varchar(100), phone: varchar(15)) Appointment (appointmentId: int, patientId: int, doctorId: int, appointmentDate: date, status: varchar(20)) Fee (feeId: int, appointmentId: int, amount: real, paymentStatus: varchar(20)) The 'Patient' table stores information about patients, including a unique patient ID, name, address, and date of birth. The 'Doctor' table contains details about doctors, including their unique ID, name, specialty, and phone number. The 'Appointment' table records appointment details, linking patients with doctors, including appointment date and status. The 'Fee' table keeps track of fees associated with appointments, including the amount and payment status. The 'Appointment' table manages appointment records, tracking scheduled appointments between patients and doctors with dates and times. The 'Fee' table contains relevant information for the database system.",
       "subquestions": [
         {
           "label": "a",
@@ -162,35 +162,35 @@
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the names of students who are enrolled in the course titled 'Database Systems'."
+              "text": "Find the names of doctors who have appointments scheduled on '2023-10-01'."
             },
             {
               "label": "ii",
               "marks": 6,
-              "text": "Find the student with the highest aggregate value using GROUP BY on related enrollment records."
+              "text": "Find the patient who has the highest total amount compared to all other patients. Find the patientId and name."
             },
             {
               "label": "iii",
               "marks": 7,
-              "text": "Find the title and name from Course, Student, and Enrollment where Enrollment.enrollmentId is not null."
+              "text": "Find the name and name from Doctor, Patient, and Appointment where Appointment.appointmentDate is not null."
             }
           ]
         },
         {
           "label": "b",
           "marks": 11,
-          "text": "b) Create a function to calculate the total fee amount for a given student. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
+          "text": "b) Create a function to calculate the total fee amount for a given patient. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
         },
         {
           "label": "c",
           "marks": 12,
-          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each student. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by student. The student pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
+          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each patient. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by patient. The patient pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69ad09b51fe14f0335587a13",
+      "template_id": "69ad1cb6c6dff5a02cdcf180",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
