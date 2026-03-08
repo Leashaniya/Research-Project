@@ -95,7 +95,7 @@ export default function FeedbackPanel({ feedback, onNext }) {
 
         .fb-recs {
           padding: 1rem;
-          background: rgba(59,130,246,0.06);
+          background: rgba(42,90,148,0.06);
           border-radius: var(--radius-sm);
           margin-bottom: 1.25rem;
         }

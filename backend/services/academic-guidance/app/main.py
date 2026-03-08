@@ -15,6 +15,14 @@ from pathlib import Path
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown: close MongoDB on exit so Ctrl+C doesn't hang on PyMongo threads."""
+    # Validate Google OAuth config so we fail fast with a clear message
+    if settings.GOOGLE_CLIENT_ID and settings.GOOGLE_CLIENT_SECRET:
+        logger.info("Google OAuth configured (client_id present)")
+    else:
+        logger.warning(
+            "Google OAuth not configured (GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET missing in .env). "
+            "Sign-in with Google will fail. See .env.example for setup."
+        )
     # Log TTS (Piper) availability so we know why audio may be missing after summarization
     piper_exe = (getattr(settings, "PIPER_EXE", None) or "").strip()
     piper_model = (getattr(settings, "PIPER_MODEL", None) or "").strip()

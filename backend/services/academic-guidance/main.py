@@ -1,8 +1,11 @@
 import os
 import uvicorn
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Load .env from the service root (works regardless of CWD when started via script/Docker)
+_env_path = Path(__file__).resolve().parent / ".env"
+load_dotenv(_env_path)
 
 from app.main import app
 from app.core.config import settings

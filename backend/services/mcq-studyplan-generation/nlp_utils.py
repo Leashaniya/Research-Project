@@ -6,8 +6,17 @@ from sklearn.cluster import KMeans
 from sentence_transformers import SentenceTransformer
 from config import EMBED_MODEL_NAME, TOP_KEYWORDS_PER_TOPIC
 
-# Load NLP & embedding model
-nlp = spacy.load("en_core_web_sm")
+# Load NLP model (download if missing)
+def _load_nlp():
+    try:
+        return spacy.load("en_core_web_sm")
+    except OSError:
+        import subprocess
+        import sys
+        subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+        return spacy.load("en_core_web_sm")
+
+nlp = _load_nlp()
 if "sentencizer" not in nlp.pipe_names:
     nlp.add_pipe("sentencizer")
 

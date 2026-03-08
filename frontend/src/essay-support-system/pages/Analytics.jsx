@@ -78,7 +78,7 @@ const DifficultyTimeline = ({ data }) => {
         <path
           d={pathData}
           fill="none"
-          stroke="#3b82f6"
+          stroke="#2a5a94"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -91,7 +91,7 @@ const DifficultyTimeline = ({ data }) => {
               cx={point.x}
               cy={point.y}
               r="8"
-              fill="#3b82f6"
+              fill="#2a5a94"
               stroke="white"
               strokeWidth="3"
             />

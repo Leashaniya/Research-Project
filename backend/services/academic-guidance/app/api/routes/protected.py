@@ -3,6 +3,7 @@ import logging
 import re
 from pathlib import Path
 from typing import Optional
+from urllib.parse import unquote, urlparse, quote
 
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
 from fastapi.responses import StreamingResponse
@@ -101,27 +102,40 @@ def extract_and_replace_images(
             flags=re.DOTALL | re.MULTILINE | re.IGNORECASE
         )
         
-        # CRITICAL: Handle plain markdown image syntax: ![alt](filename.png)
-        # This is what CrewAI is outputting - plain markdown without IMAGE: prefix
-        # Only match if it looks like an image filename (has image extension and doesn't start with http/https)
+        # CRITICAL: Handle plain markdown image syntax: ![alt](filename.png) and ![alt](https://.../filename.png)
+        # CrewAI/LLM may output either local filenames or full URLs; we need [IMAGE:filename] for lookup.
         def fix_plain_markdown_image(match):
             alt_text = match.group(1) if match.group(1) else ""
             img_content = match.group(2)
-            # Remove newlines and normalize whitespace
+            # Remove newlines and normalize whitespace (URLs can be split across lines)
             img_content = re.sub(r'\s+', '', img_content)
             
             # Skip if it already has IMAGE: prefix (should have been processed already, but double-check)
             if 'IMAGE:' in img_content.upper():
                 return match.group(0)
             
-            # Only convert if it looks like an image filename (has image extension and is not a URL)
             img_content_lower = img_content.lower()
-            if (re.search(r'\.(png|jpg|jpeg|gif|webp)$', img_content, re.IGNORECASE) and 
-                not img_content_lower.startswith(('http://', 'https://', '//')) and
+            filename_for_ref = None
+
+            # Case 1: Full URL (http/https) – extract filename from path for local lookup
+            if img_content_lower.startswith(('http://', 'https://', '//')):
+                try:
+                    parsed = urlparse(img_content)
+                    path = unquote(parsed.path)
+                    if path and path != '/':
+                        filename_for_ref = path.rstrip('/').split('/')[-1]
+                except Exception:
+                    filename_for_ref = None
+                if filename_for_ref and re.search(r'\.(png|jpg|jpeg|gif|webp)$', filename_for_ref, re.IGNORECASE):
+                    logger.info(f"Converting URL image to [IMAGE:...]: .../{filename_for_ref[:50]}...")
+                    return f'[IMAGE:{filename_for_ref}]'
+                return match.group(0)
+
+            # Case 2: Local filename (has image extension, not a URL)
+            if (re.search(r'\.(png|jpg|jpeg|gif|webp)$', img_content, re.IGNORECASE) and
                 not img_content.startswith('/')):
                 logger.info(f"Converting plain markdown image to [IMAGE:...]: {img_content[:50]}...")
                 return f'[IMAGE:{img_content}]'
-            # Otherwise, leave it as-is (might be a URL or other link)
             return match.group(0)
         
         # Match ALL markdown images first, then filter in the function
@@ -186,8 +200,6 @@ def extract_and_replace_images(
 
     def replace_image(match):
         img_name = match.group(1).strip()
-        import urllib.parse
-        
         logger.debug(f"Processing image reference: '{img_name[:80]}...'")
 
         actual_name = None
@@ -214,7 +226,7 @@ def extract_and_replace_images(
         
         if actual_name:
             image_paths.append(actual_name)
-            encoded_name = urllib.parse.quote(actual_name)
+            encoded_name = quote(actual_name)
             image_markdown = f'![{actual_name}]({base_url}{encoded_name})'
             logger.info(f"Matched image '{img_name[:50]}...' -> '{actual_name}', URL: {base_url}{encoded_name}")
             
@@ -290,7 +302,7 @@ def extract_and_replace_images(
         # Still generate HTML figure tag even if image not found, so explanation can be shown
         image_counter[0] += 1
         figure_num = image_counter[0]
-        encoded_name = urllib.parse.quote(img_name)
+        encoded_name = quote(img_name)
         # Try to generate explanation even if image file not found (might work if path is slightly different)
         explanation_text = f"Image: {img_name.replace('_', ' ').replace('-', ' ').title()}"
         if generate_explanations:

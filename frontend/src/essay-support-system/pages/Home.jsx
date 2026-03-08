@@ -122,8 +122,8 @@ export default function Home() {
 <<<<<<< HEAD
 <<<<<<< HEAD
           background: 
-            radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 70%, rgba(96, 165, 250, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 20% 30%, rgba(42, 90, 148, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(91, 155, 213, 0.2) 0%, transparent 50%),
             radial-gradient(circle at 40% 90%, rgba(147, 197, 253, 0.15) 0%, transparent 50%);
           opacity: 1;
         }
@@ -131,12 +131,12 @@ export default function Home() {
           content: '';
           position: absolute;
           inset: 0;
-          background: linear-gradient(135deg, rgba(30, 64, 175, 0.1), rgba(30, 58, 138, 0.05));
+          background: linear-gradient(135deg, rgba(42, 90, 148, 0.1), rgba(35, 74, 122, 0.05));
 =======
-          background: radial-gradient(50% 50% at 80% 20%, rgba(59, 130, 246, 0.15), transparent 55%);
+          background: radial-gradient(50% 50% at 80% 20%, rgba(42, 90, 148, 0.15), transparent 55%);
 >>>>>>> e360af11 (Updated project files)
 =======
-          background: radial-gradient(50% 50% at 80% 20%, rgba(59, 130, 246, 0.15), transparent 55%);
+          background: radial-gradient(50% 50% at 80% 20%, rgba(42, 90, 148, 0.15), transparent 55%);
 >>>>>>> fb81cdee (Updated analytics page)
           opacity: 1;
         }
@@ -354,7 +354,7 @@ export default function Home() {
         .feature-card:hover {
           transform: translateY(-6px);
           border-color: var(--primary-300);
-          box-shadow: 0 8px 25px rgba(30, 64, 175, 0.15);
+          box-shadow: 0 8px 25px rgba(42, 90, 148, 0.15);
         }
 
         .feature-icon {
@@ -372,7 +372,7 @@ export default function Home() {
         .feature-card:hover {
           transform: translateY(-6px);
           border-color: var(--primary-300);
-          box-shadow: 0 8px 25px rgba(30, 64, 175, 0.15);
+          box-shadow: 0 8px 25px rgba(42, 90, 148, 0.15);
         }
 
         .feature-icon {

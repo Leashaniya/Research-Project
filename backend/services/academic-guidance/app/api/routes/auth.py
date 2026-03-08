@@ -39,6 +39,14 @@ def _build_redirect_uri(request: Request) -> str:
 @router.get("/login")
 async def login(request: Request):
     """Initiate Google OAuth login flow."""
+    if not (settings.GOOGLE_CLIENT_ID and settings.GOOGLE_CLIENT_SECRET):
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=(
+                "Google OAuth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in "
+                "backend/services/academic-guidance/.env. See .env.example for setup instructions."
+            ),
+        )
     redirect_uri = _build_redirect_uri(request)
     return await oauth.google.authorize_redirect(request, redirect_uri, prompt="select_account")
 

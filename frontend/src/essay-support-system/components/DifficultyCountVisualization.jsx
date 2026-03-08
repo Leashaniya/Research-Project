@@ -40,10 +40,10 @@ export default function DifficultyCountVisualization({ session }) {
       icon: '🟢'
     },
     medium: {
-      color: '#3b82f6',
-      gradient: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-      bgColor: 'rgba(59, 130, 246, 0.1)',
-      borderColor: 'rgba(59, 130, 246, 0.3)',
+      color: '#2a5a94',
+      gradient: 'linear-gradient(135deg, #2a5a94, #234a7a)',
+      bgColor: 'rgba(42, 90, 148, 0.1)',
+      borderColor: 'rgba(42, 90, 148, 0.3)',
       label: 'Medium',
       icon: '🔵'
     },

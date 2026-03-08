@@ -2,6 +2,39 @@ import os
 from pathlib import Path
 from typing import Optional
 
+# Load .env from service root (works for uvicorn app.main:app, python main.py, Docker, etc.)
+from dotenv import load_dotenv
+_service_root = Path(__file__).resolve().parent.parent.parent
+_env_path = _service_root / ".env"
+if _env_path.exists():
+    load_dotenv(_env_path)
+else:
+    load_dotenv()
+
+# Fallback: if Google OAuth vars still missing (e.g. BOM/encoding), read .env manually
+def _read_env_google_vars():
+    if os.getenv("GOOGLE_CLIENT_ID"):
+        return
+    if not _env_path.exists():
+        return
+    try:
+        raw = _env_path.read_bytes()
+        text = raw.decode("utf-8-sig").strip()  # utf-8-sig strips BOM
+        for line in text.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" in line:
+                key, _, value = line.partition("=")
+                key, value = key.strip(), value.strip().strip('"').strip("'")
+                if key == "GOOGLE_CLIENT_ID" and value and not os.getenv("GOOGLE_CLIENT_ID"):
+                    os.environ["GOOGLE_CLIENT_ID"] = value
+                elif key == "GOOGLE_CLIENT_SECRET" and value and not os.getenv("GOOGLE_CLIENT_SECRET"):
+                    os.environ["GOOGLE_CLIENT_SECRET"] = value
+    except Exception:
+        pass
+_read_env_google_vars()
+
 # Single output dir for TTS WAV files (used by tts_tool and main.py static mount)
 AUDIO_OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "outputs" / "audio"
 AUDIO_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

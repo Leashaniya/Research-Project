@@ -19,6 +19,10 @@ if (Test-Path "requirements.txt") {
     pip install -q -r requirements.txt
 }
 
+# Ensure spaCy English model is installed (required by nlp_utils)
+Write-Host "Ensuring spaCy model en_core_web_sm is installed ..."
+python -m spacy download en_core_web_sm
+
 $Port = if ($env:PORT) { $env:PORT } else { "8003" }
 Write-Host "Starting MCQ Studyplan Generation on port $Port ..."
 python -m uvicorn app.main:app --host 0.0.0.0 --port $Port

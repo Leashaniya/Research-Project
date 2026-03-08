@@ -12,7 +12,7 @@ from fastapi.responses import Response, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import httpx
 
-GUIDANCE_TARGET = os.getenv("GUIDANCE_TARGET", "http://127.0.0.1:8001")
+GUIDANCE_TARGET = os.getenv("GUIDANCE_TARGET", "http://127.0.0.1:8081")
 PAPERS_TARGET = os.getenv("PAPERS_TARGET", "http://127.0.0.1:8000")
 ESSAY_TARGET = os.getenv("ESSAY_TARGET", "http://127.0.0.1:8002")
 MCQ_TARGET = os.getenv("MCQ_TARGET", "http://127.0.0.1:8003")

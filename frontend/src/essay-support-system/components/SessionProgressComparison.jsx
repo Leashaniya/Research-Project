@@ -143,7 +143,7 @@ export default function SessionProgressComparison({ session }) {
     switch (trend) {
       case 'improving': return '#22c55e';
       case 'declining': return '#ef4444';
-      case 'stable': return '#3b82f6';
+      case 'stable': return '#2a5a94';
       default: return '#6b7280';
     }
   };
@@ -286,7 +286,7 @@ export default function SessionProgressComparison({ session }) {
         }
 
         .metric-value.recent {
-          border: 2px solid #3b82f6;
+          border: 2px solid #2a5a94;
         }
 
         .metric-value.historical {
