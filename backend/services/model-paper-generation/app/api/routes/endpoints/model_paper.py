@@ -53,9 +53,11 @@ async def download_pdf():
     with open(json_path, "r", encoding="utf-8") as f:
         paper_data = json.load(f)
 
-    pdf_service = PDFService()
-    if not pdf_service.generate_pdf(paper_data, path):
-        raise HTTPException(status_code=500, detail="Failed to generate PDF.")
+    try:
+        pdf_service = PDFService()
+        pdf_service.generate_pdf(paper_data, path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate PDF: {str(e)}")
 
     return FileResponse(path, filename="Model_Paper.pdf", media_type="application/pdf")
 

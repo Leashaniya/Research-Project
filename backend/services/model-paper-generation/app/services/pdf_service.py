@@ -46,8 +46,12 @@ class PDFService:
         text = text.replace("–", "-")  # en dash
         text = text.replace("—", "-")  # em dash
         text = text.replace("…", "...")  # ellipsis
-        # Remove other special characters that might cause issues
-        # Keep basic ASCII and common Unicode
+        # Fallback: ensure string is encodable for FPDF core fonts (latin-1)
+        # Characters outside latin-1 can cause truncation or render failures
+        try:
+            text.encode("latin-1")
+        except UnicodeEncodeError:
+            text = "".join(c if ord(c) < 256 else "?" for c in text)
         return text
 
     @staticmethod
@@ -115,7 +119,7 @@ class PDFService:
             print(f"Error generating PDF: {e}")
             import traceback
             traceback.print_exc()
-            return False
+            raise  # re-raise so API can return meaningful 500 detail
     
     def _add_question_to_pdf(self, pdf: FPDF, q: Dict[str, Any], q_no: int):
         """Add a single question to the PDF."""
@@ -135,15 +139,12 @@ class PDFService:
                 pdf.set_font("helvetica", "", 11)
                 # Use multi_cell for proper text wrapping (handles long lines that exceed page width)
                 # Split by newlines first to preserve paragraph structure, then wrap each line if needed
-                available_width = PDFService._get_available_width(pdf)
                 lines = question_stem.split("\n")
                 for line_idx, line in enumerate(lines):
                     sanitized_line = PDFService._sanitize_text(line.strip())
                     if sanitized_line:  # Only process non-empty lines
-                        # Use multi_cell with calculated width for automatic wrapping
-                        # h=6 is line height, align='L' is left alignment
-                        # This ensures long descriptions wrap properly and don't overflow
-                        pdf.multi_cell(available_width, 6, sanitized_line, align='L')
+                        pdf.set_x(pdf.l_margin)  # ensure horizontal space for multi_cell(0,...)
+                        pdf.multi_cell(0, 6, sanitized_line, align='L')
                         # Add spacing between paragraphs (but not after the last line)
                         if line_idx < len(lines) - 1:
                             pdf.ln(1)
@@ -213,6 +214,7 @@ class PDFService:
                     # Embed diagram image (FPDF.image accepts string path with forward slashes)
                     pdf.image(img_path_normalized, w=avail_width)
                     pdf.ln(5)
+                    pdf.set_x(pdf.l_margin)  # reset x so next multi_cell(0,...) has horizontal space
                     print(f"    [OK] Embedded diagram image after question text: {img_path_normalized}")
                 except Exception as e:
                     print(f"    [WARN] Failed to embed diagram image: {e}")
@@ -242,7 +244,8 @@ class PDFService:
             pdf.set_font("helvetica", "", 10)
             intro = parts[0].strip()  # e.g. "Code Segment:"
             if intro:
-                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {intro}"), align='L')
+                pdf.set_x(pdf.l_margin)
+                pdf.multi_cell(0, 6, PDFService._sanitize_text(f"{label}) {intro}"), align='L')
                 pdf.ln(2)
             # Code in monospace, line by line for proper alignment
             if len(parts) >= 2:
@@ -264,8 +267,9 @@ class PDFService:
                     code_lines[0] = code_lines[0].strip()[4:].strip()
                 pdf.set_font("courier", "", 9)
                 for line in code_lines:
+                    pdf.set_x(pdf.l_margin)  # ensure horizontal space for multi_cell(0,...)
                     if line.strip():
-                        pdf.multi_cell(available_width, 5, PDFService._sanitize_text(line), align='L')
+                        pdf.multi_cell(0, 5, PDFService._sanitize_text(line), align='L')
                     else:
                         pdf.ln(3)  # preserve blank lines inside code blocks
                 pdf.ln(2)
@@ -273,17 +277,19 @@ class PDFService:
             if len(parts) >= 3:
                 question_text = parts[2].strip()
                 pdf.set_font("helvetica", "", 10)
+                pdf.set_x(pdf.l_margin)
                 if marks:
-                    pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{question_text} ({marks} marks)"), align='L')
+                    pdf.multi_cell(0, 6, PDFService._sanitize_text(f"{question_text} ({marks} marks)"), align='L')
                 else:
-                    pdf.multi_cell(available_width, 6, PDFService._sanitize_text(question_text), align='L')
+                    pdf.multi_cell(0, 6, PDFService._sanitize_text(question_text), align='L')
             return
         # No code block: render as single line
         pdf.set_font("helvetica", "", 10)
+        pdf.set_x(pdf.l_margin)
         if marks:
-            pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text} ({marks} marks)"), align='L')
+            pdf.multi_cell(0, 6, PDFService._sanitize_text(f"{label}) {text} ({marks} marks)"), align='L')
         else:
-            pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text}"), align='L')
+            pdf.multi_cell(0, 6, PDFService._sanitize_text(f"{label}) {text}"), align='L')
 
     def _add_subquestion_to_pdf(self, pdf: FPDF, sq: Dict[str, Any], parent_q: Dict[str, Any]):
         """
@@ -316,11 +322,11 @@ class PDFService:
         if nested_subquestions:
             # Parent subquestion (bold, e.g., "a) Write SQL Queries to perform the following:")
             pdf.set_font("helvetica", "B", 10)
+            pdf.set_x(pdf.l_margin)
             if marks:
-                # Use multi_cell with calculated width for text wrapping to prevent truncation
-                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text} ({marks} marks)"), align='L')
+                pdf.multi_cell(0, 6, PDFService._sanitize_text(f"{label}) {text} ({marks} marks)"), align='L')
             else:
-                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text}"), align='L')
+                pdf.multi_cell(0, 6, PDFService._sanitize_text(f"{label}) {text}"), align='L')
             PDFService._ensure_height_then_ln(pdf, need_mm=45)
             
             # Nested subquestions (indented, regular font, e.g., "   i. Find...", "   ii. Find...")
@@ -328,7 +334,6 @@ class PDFService:
             for nested_sq in nested_subquestions:
                 if PDFService._get_available_height(pdf) < 30:
                     pdf.add_page()
-                available_width = PDFService._get_available_width(pdf)
                 nested_label = nested_sq.get("label", "")
                 nested_text = str(nested_sq.get("text") or "").strip()
                 nested_marks = nested_sq.get("marks", 0)
@@ -338,11 +343,12 @@ class PDFService:
                 if not clean_nested_text:
                     clean_nested_text = nested_text
 
-                # Format: "   i. Text (marks)" - indented, full width, left-aligned
+                # Format: "   i. Text (marks)" - indented, full width to right margin
+                pdf.set_x(pdf.l_margin)
                 if nested_marks:
-                    pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"   {nested_label}. {clean_nested_text} ({nested_marks} marks)"), align='L')
+                    pdf.multi_cell(0, 6, PDFService._sanitize_text(f"   {nested_label}. {clean_nested_text} ({nested_marks} marks)"), align='L')
                 else:
-                    pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"   {nested_label}. {clean_nested_text}"), align='L')
+                    pdf.multi_cell(0, 6, PDFService._sanitize_text(f"   {nested_label}. {clean_nested_text}"), align='L')
         else:
             # Regular subquestion (no nesting) — may contain code block (e.g. Q3 b)
             self._render_subquestion_content(pdf, sq, label, text, marks, available_width)
@@ -378,6 +384,7 @@ class PDFService:
                     # Embed diagram image (FPDF.image accepts string path with forward slashes)
                     pdf.image(img_path_normalized, w=avail_width)
                     pdf.ln(5)
+                    pdf.set_x(pdf.l_margin)  # reset x so next multi_cell(0,...) has horizontal space
                     print(f"    [OK] Embedded diagram image: {img_path_normalized}")
                 except Exception as e:
                     print(f"    [WARN] Failed to embed diagram image: {e}")
@@ -415,6 +422,7 @@ class PDFService:
                         temp_img_normalized = temp_img_path.replace("\\", "/")
                         pdf.image(temp_img_normalized, w=180)
                         pdf.ln(5)
+                        pdf.set_x(pdf.l_margin)  # reset x so next multi_cell(0,...) has horizontal space
                         
                         # Clean up temp file
                         try:
