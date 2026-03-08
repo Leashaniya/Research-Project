@@ -9,11 +9,37 @@ from app.ca_guidance.tools.calendar_tool import clear_access_token
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+
+def _build_redirect_uri(request: Request) -> str:
+    """
+    Build OAuth callback URL so it is the same origin as the login request.
+    This prevents 'mismatching_state' CSRF errors: the session cookie set at login
+    must be sent when Google redirects to the callback (same host/path).
+    When behind a reverse proxy, use X-Forwarded-Proto and X-Forwarded-Host.
+    """
+    if settings.REDIRECT_URI.strip():
+        return settings.REDIRECT_URI.strip()
+    # Same-origin callback: use the host/scheme the user's browser sees
+    proto = (request.headers.get("x-forwarded-proto") or request.url.scheme or "https").strip().lower()
+    if proto == "http" and (request.headers.get("x-forwarded-proto") or "").strip().lower() == "https":
+        proto = "https"
+    host = request.headers.get("x-forwarded-host") or request.headers.get("host") or request.url.netloc
+    if host:
+        host = host.split(",")[0].strip()
+    base = f"{proto}://{host}"
+    # If app is under a path (e.g. /guidance/auth/login), keep that path for callback
+    path = request.url.path
+    if "/auth" in path:
+        path_prefix = path[: path.index("/auth")]
+    else:
+        path_prefix = ""
+    return f"{base}{path_prefix}/auth/callback"
+
+
 @router.get("/login")
 async def login(request: Request):
     """Initiate Google OAuth login flow."""
-    # Use configured REDIRECT_URI when behind a gateway (e.g. /guidance/) so it matches Google Console
-    redirect_uri = settings.REDIRECT_URI.strip() or request.url_for("auth_callback")
+    redirect_uri = _build_redirect_uri(request)
     return await oauth.google.authorize_redirect(request, redirect_uri, prompt="select_account")
 
 @router.get("/callback", name="auth_callback")

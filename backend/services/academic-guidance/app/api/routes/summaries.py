@@ -51,11 +51,15 @@ async def reinforce_summary_from_feedback(
         if not request.force:
             existing = service.get_latest_summary(topic, prefer_reinforced=True, user_email=user.email)
             if existing and existing.get("summary_type") == "reinforced":
+                # Prefer GridFS URL when audio is stored there
+                audio_url = existing.get("audio_url") or (
+                    f"/protected/summaries/{existing['_id']}/audio" if existing.get("audio_file_id") else None
+                )
                 return {
                     "summary": existing["summary_text"],
                     "images": existing.get("images", []),
                     "topic": topic,
-                    "audio_url": existing.get("audio_url"),
+                    "audio_url": audio_url,
                     "summary_id": existing["_id"],
                     "summary_type": "reinforced",
                     "created_at": existing.get("created_at").isoformat() if existing.get("created_at") else None,
@@ -161,14 +165,24 @@ async def reinforce_summary_from_feedback(
                 session_id=request.session_id,
             )
             audio_duration_seconds = attach.get("audio_duration_seconds")
+            if attach.get("audio_file_id"):
+                audio_url = f"/protected/summaries/{reinforced_id}/audio"
+                service.summaries_collection.update_one(
+                    {"_id": ObjectId(reinforced_id)},
+                    {"$set": {"audio_url": audio_url}},
+                )
 
         stored = service.summaries_collection.find_one({"_id": ObjectId(reinforced_id)})
+        # Use GridFS URL when we have audio in DB
+        effective_audio_url = (
+            f"/protected/summaries/{reinforced_id}/audio" if stored and stored.get("audio_file_id") else audio_url
+        )
 
         return {
             "summary": reinforced_text,
             "images": images,
             "topic": topic,
-            "audio_url": audio_url,
+            "audio_url": effective_audio_url,
             "summary_id": reinforced_id,
             "summary_type": "reinforced",
             "base_summary_id": str(base_doc["_id"]),

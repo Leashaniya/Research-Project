@@ -60,8 +60,14 @@ AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 #Serve audio files
 app.mount("/audio", StaticFiles(directory=str(AUDIO_DIR)), name="audio")
 
-# Add session middleware for OAuth
-app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+# Add session middleware for OAuth (state is stored in session for CSRF check on callback)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=settings.SECRET_KEY,
+    path="/",
+    same_site="lax",
+    max_age=14 * 24 * 60 * 60,
+)
 
 # Add CORS middleware
 # Allow both production and development frontend URLs
