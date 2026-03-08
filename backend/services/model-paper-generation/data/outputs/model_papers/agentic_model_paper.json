@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-08 02:07:52",
+  "generated_at": "2026-03-08 11:03:12",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university manages various programs, departments, and faculty members. Each department offers multiple programs, and each program is associated with one or more faculty members who teach in that program. Faculty members can belong to multiple departments. Identify these entities and their attributes along with their relationships in an EER model. This EER diagram includes a situation where a relationship between ['Department', 'Course'] (for example, 'Offers') is treated as a single unit when relating to Student via 'Enrolls'. Model this using an aggregation so that the external relationship is between the external entity and the combined Department\u2013Course\u2013Offers structure, not directly to only one inner entity. IMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). Student is the supertype with two subtypes: GraduateStudent and UndergraduateStudent. GraduateStudent has specific attributes: ThesisTitle, AdvisorName, ResearchArea. UndergraduateStudent has specific attributes: YearOfStudy, Major, GPA. A Department can be related to many Programs through the 'Offers' relationship (Program participation is optional). A Faculty can be related to many Programs, and a Program can be related to many Facultys through the 'Teaches' relationship (Faculty participation is optional, Program participation is optional). A Faculty can be related to many Departments, and a Department can be related to many Facultys through the 'BelongsTo' relationship (Faculty participation is optional, Department participation is optional)",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university maintains a database for its courses and students. The entities include 'Department', which has attributes DepartmentID, Name, and OfficeLocation; 'Course', which has CourseID, Title, and Credits; 'Student', which consists of StudentID, Name, and Email; and 'Enrollment', which records the StudentID, CourseID, and EnrollmentDate. Each department offers multiple courses, and students enroll in various courses. There is a specialization where 'GraduateCourse' extends 'Course' with additional attributes like ThesisRequired and AdvisorName, while 'UndergraduateCourse' extends 'Course' with attributes such as YearOfStudy and Major. The 'Enrollment' entity captures the relationship between 'Student' and 'Course'",
       "subquestions": [
         {
           "label": "a",
@@ -41,8 +41,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69ac8c2e39806a6a78e6e449",
-      "original_semantic_description": "A university manages various programs, departments, and faculty members. Each department offers multiple programs, and each program is associated with one or more faculty members who teach in that program. Faculty members can belong to multiple departments. Identify these entities and their attributes along with their relationships in an EER model.",
+      "template_id": "69ad09b51fe14f0335587a10",
+      "original_semantic_description": "A university maintains a database for its courses and students. The entities include 'Department', which has attributes DepartmentID, Name, and OfficeLocation; 'Course', which has CourseID, Title, and Credits; 'Student', which consists of StudentID, Name, and Email; and 'Enrollment', which records the StudentID, CourseID, and EnrollmentDate. Each department offers multiple courses, and students enroll in various courses. There is a specialization where 'GraduateCourse' extends 'Course' with additional attributes like ThesisRequired and AdvisorName, while 'UndergraduateCourse' extends 'Course' with attributes such as YearOfStudy and Major. The 'Enrollment' entity captures the relationship between 'Student' and 'Course'.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, AC->E, D->A, C->B}}",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, CD->E, E->A, A->B}}. This schema is being analyzed for normalization. Identify the dependencies present and their implications on the relation.",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69ac8c2e39806a6a78e6e44a",
+      "template_id": "69ad09b51fe14f0335587a11",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,11 +84,11 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A university is implementing a database system to manage its student records, course information, and faculty details. The database schema includes tables for Students, Courses, and Faculty, where each table has integrity constraints to maintain consistency. Students have attributes like student_id, name, and age; Courses have course_id, course_name, and credits; and Faculty includes faculty_id, name, and department. The university aims to ensure that student enrollments in courses comply with prerequisites defined in the schema.",
+      "text": "A medical clinic is developing a comprehensive database system to manage patient records, doctor information, and appointment scheduling. Different roles are assigned to various team members for database administration and management. Alice is the senior database administrator responsible for overseeing the entire database system's design and maintenance. Bob and Carol are junior database administrators under Alice's supervision. Bob manages the patient records database, while Carol works with the doctors' information database. David is a database developer reporting to Bob and Carol, responsible for designing and implementing database schemas for patients and doctors. Eva and Frank are data entry operators tasked with inputting patient details and doctor contact information into the system.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Write SQL queries to in type 2 driver, jdbc api calls are converted to native java api calls. accept or refute the above statement justifying your answer.",
+          "text": "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
           "marks": 2
         },
         {
@@ -98,17 +98,17 @@
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
+          "text": "Briefly explain the options available for data manipulation in SQL, including how to insert, update, and delete records in tables.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
+          "text": "Briefly explain how constraints can be enforced in SQL Server to ensure data integrity in a database.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
+          "text": "The medical clinic aims to maintain accurate records of Doctor details and Doctor availability. Write a SQL DDL statement to create a table named 'Doctors' with the attributes 'patient_id', 'name', 'dob', and 'contact_info', ensuring 'patient_id' is the primary key. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance.. Michael is a data entry operator responsible for inputting data into the system.. Emily is a junior database administrator managing specific databases within the system.. Nathan is a database developer responsible for designing and implementing database schemas..",
           "marks": null,
           "subquestions": [
             {
@@ -124,7 +124,7 @@
             {
               "label": "iii",
               "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Loans database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -134,7 +134,7 @@
             {
               "label": "v",
               "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Members and Loans databases."
             }
           ]
         }
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69ac8c2e39806a6a78e6e44b",
+      "template_id": "69ad09b51fe14f0335587a12",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,7 +152,7 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for a University: Student (studentId: int, name: varchar(100), email: varchar(50), enrollmentDate: date) Course (courseId: int, title: varchar(100), credits: int, department: varchar(50)) Enrollment (enrollmentId: int, studentId: int, courseId: int, grade: varchar(5)) The 'Student' table stores information about students enrolled in the university, including unique student ID, name, email, and the date of enrollment. The 'Course' table records details about courses offered, including unique course ID, title, number of credits, and the department. The 'Enrollment' table tracks which students are enrolled in which courses along with their grades. The 'Course' table holds details about courses, such as unique course ID, course name, credits, and department. The 'Enrollment' table manages student course enrollments, recording which students are enrolled in which courses and when. Fee (feeId: int, studentId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
+      "text": "Consider the following schema of a database designed for a university: Student (studentId: int, name: varchar(100), major: varchar(50), enrollmentDate: date) Course (courseId: int, title: varchar(100), credits: int, instructorId: int) Enrollment (enrollmentId: int, studentId: int, courseId: int, grade: varchar(2)) Instructor (instructorId: int, name: varchar(100), department: varchar(50), hireDate: date). This schema represents a simple university database where students can enroll in courses, and instructors are associated with courses. The 'Student' table stores information about students, including unique student ID, name, program, and enrollment date. The 'Course' table holds details about courses, such as unique course ID, course name, credits, and department. The 'Enrollment' table manages student course enrollments, recording which students are enrolled in which courses and when. The 'Instructor' table contains relevant information for the database system. Fee (feeId: int, studentId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
       "subquestions": [
         {
           "label": "a",
@@ -190,7 +190,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69ac8c2e39806a6a78e6e44c",
+      "template_id": "69ad09b51fe14f0335587a13",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
