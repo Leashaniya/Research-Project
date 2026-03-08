@@ -31,6 +31,144 @@ const COLORS = ['#a8c7fa', '#b8e6b8', '#b3e5e5', '#f4e4a1', '#f8b4b4', '#d8b4fe'
 const PRIORITY_COLORS = { 1: 'danger', 2: 'warning', 3: 'info', 4: 'secondary' };
 const PRIORITY_ICONS = { 1: 'fire', 2: 'exclamation-triangle', 3: 'chart-line', 4: 'clock' };
 
+// Utility function to convert decimal hours to hours + minutes format
+const formatHours = (decimalHours) => {
+  if (!decimalHours || decimalHours === 0) return '0 hours';
+  
+  const hours = Math.floor(decimalHours);
+  const minutes = Math.round((decimalHours - hours) * 60);
+  
+  if (hours === 0) {
+    return `${minutes} minutes`;
+  } else if (minutes === 0) {
+    return `${hours} hour${hours !== 1 ? 's' : ''}`;
+  } else {
+    return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes} minutes`;
+  }
+};
+
+// Helper function to generate adaptive daily schedule
+const generateAdaptiveDailySchedule = (plan, totalHours, studyDays, quizResults) => {
+  const schedule = [];
+  
+  // Calculate adaptive hours for each lecture based on performance
+  const lecturesWithAdaptiveHours = plan.map(lecture => {
+    const lectureKey = lecture.lecture.replace('.pdf', '');
+    const quizAccuracy = quizResults?.topic_wise?.[lectureKey]?.accuracy ?? quizResults?.accuracy ?? 75;
+    const masteryGap = 100 - quizAccuracy;
+    const baselineHours = (totalHours * lecture.percentage / 100);
+    const adaptiveHours = baselineHours * (1 + masteryGap / 200); // Increase for weaker lectures
+    
+    return {
+      ...lecture,
+      quizAccuracy,
+      masteryGap,
+      baselineHours,
+      adaptiveHours,
+      priority: lecture.priority
+    };
+  }).sort((a, b) => {
+    // Sort by priority first, then by mastery gap (weaker = higher priority)
+    if (a.priority !== b.priority) return a.priority - b.priority;
+    return b.masteryGap - a.masteryGap;
+  });
+  
+  // Create daily chunks for each lecture (split large lectures into multiple days)
+  const lectureChunks = [];
+  lecturesWithAdaptiveHours.forEach(lecture => {
+    const chunks = Math.ceil(lecture.adaptiveHours / 3); // Max 3 hours per session
+    const hoursPerChunk = lecture.adaptiveHours / chunks;
+    
+    for (let i = 0; i < chunks; i++) {
+      lectureChunks.push({
+        lectureName: lecture.lecture,
+        hours: hoursPerChunk,
+        priority: lecture.priority,
+        masteryGap: lecture.masteryGap,
+        chunkNumber: i + 1,
+        totalChunks: chunks
+      });
+    }
+  });
+  
+  // Distribute chunks across days evenly
+  const chunksPerDay = Math.ceil(lectureChunks.length / studyDays);
+  const hoursPerDay = totalHours / studyDays;
+  
+  for (let day = 1; day <= studyDays; day++) {
+    const date = new Date();
+    date.setDate(date.getDate() + day - 1);
+    
+    const dayChunks = lectureChunks.slice((day - 1) * chunksPerDay, day * chunksPerDay);
+    const dayLectures = [];
+    let totalDayHours = 0;
+    
+    // Group chunks by lecture and combine if they're the same lecture
+    const lectureGroups = {};
+    dayChunks.forEach(chunk => {
+      const key = chunk.lectureName;
+      if (!lectureGroups[key]) {
+        lectureGroups[key] = {
+          name: chunk.lectureName,
+          hours: 0,
+          priority: chunk.priority,
+          masteryGap: chunk.masteryGap,
+          chunks: []
+        };
+      }
+      lectureGroups[key].hours += chunk.hours;
+      lectureGroups[key].chunks.push(chunk);
+    });
+    
+    // Convert to array and format
+    Object.values(lectureGroups).forEach(group => {
+      totalDayHours += group.hours;
+      dayLectures.push({
+        name: group.name,
+        hours: group.hours,
+        formattedHours: formatHours(group.hours),
+        priority: group.priority,
+        masteryGap: group.masteryGap
+      });
+    });
+    
+    // Generate meaningful target based on day content
+    let target = "Review and practice";
+    if (dayLectures.length > 0) {
+      const weakLectures = dayLectures.filter(l => l.masteryGap > 20);
+      const highPriorityLectures = dayLectures.filter(l => l.priority <= 3);
+      
+      if (weakLectures.length > 0 && highPriorityLectures.length > 0) {
+        const weakNames = weakLectures.map(l => l.name.replace('.pdf', '')).join(' and ');
+        target = `Focus on weak areas from ${weakNames} and retry difficult MCQs`;
+      } else if (weakLectures.length > 0) {
+        const weakNames = weakLectures.map(l => l.name.replace('.pdf', '')).join(' and ');
+        target = `Revise weaker topics from ${weakNames} and strengthen understanding`;
+      } else if (highPriorityLectures.length > 0) {
+        const priorityNames = highPriorityLectures.map(l => l.name.replace('.pdf', '')).join(' and ');
+        target = `Focus on high-priority concepts from ${priorityNames} with practice questions`;
+      } else if (dayLectures.length === 1) {
+        target = `Review and practice ${dayLectures[0].name.replace('.pdf', '')} thoroughly`;
+      } else {
+        const lectureNames = dayLectures.map(l => l.name.replace('.pdf', '')).join(', ');
+        target = `Review important concepts from ${lectureNames}`;
+      }
+    }
+    
+    schedule.push({
+      Day: day,
+      Date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      Lectures: dayLectures.length > 0 
+        ? dayLectures.map(l => `${l.name.replace('.pdf', '')} (${l.formattedHours})`).join(', ')
+        : 'Light review day',
+      Total_Hours: formatHours(totalDayHours),
+      Target: target
+    });
+  }
+  
+  return schedule;
+};
+
 const MCQStudyPlan = () => {
   const [stats, setStats] = useState(null);
   const [percentageDf, setPercentageDf] = useState([]);
@@ -209,23 +347,98 @@ const MCQStudyPlan = () => {
   };
 
   const handleGenerateAdaptivePlan = async () => {
-    if (!quizResults) return;
     setLoading(true);
     setError('');
     setShowAdaptiveModal(false);
+    
     try {
-      const result = await generateAdaptivePlan(
-        quizResults,
-        adaptiveParams.total_hours,
-        adaptiveParams.study_days,
-        adaptiveParams.alpha,
-        adaptiveParams.max_increase / 100,
-        adaptiveParams.max_decrease / 100
-      );
-      setAdaptivePlan(result);
+      // Input validation
+      const totalHours = Number(adaptiveParams.total_hours);
+      const studyDays = Number(adaptiveParams.study_days);
+      
+      // Validation rules
+      if (!totalHours || totalHours <= 0) {
+        throw new Error('Total study hours must be a positive number. Please enter at least 1 hour.');
+      }
+      
+      if (!studyDays || studyDays <= 0 || !Number.isInteger(studyDays)) {
+        throw new Error('Study days must be a positive integer. Please enter 1-30 days.');
+      }
+      
+      if (studyDays > 30) {
+        throw new Error('Study days should not exceed 30 for optimal planning. Please enter 1-30 days.');
+      }
+      
+      const avgHoursPerDay = totalHours / studyDays;
+      if (avgHoursPerDay > 12) {
+        throw new Error(`You entered ${totalHours} hours for ${studyDays} day${studyDays !== 1 ? 's' : ''}. Maximum allowed is 12 hours/day (${studyDays * 12} hours total). Please reduce total hours or increase study days.`);
+      }
+      
+      if (avgHoursPerDay < 1) {
+        throw new Error(`You entered ${totalHours} hours for ${studyDays} day${studyDays !== 1 ? 's' : ''}. Minimum required is 1 hour/day (${studyDays} hours total). Please increase total hours or decrease study days.`);
+      }
+      
+      // Generate baseline study plan
+      const result = await getStudyPlan(totalHours, studyDays);
+      
+      // Adaptation parameters
+      const alpha = adaptiveParams.alpha || 0.5; // Adaptation sensitivity
+      const maxIncrease = (adaptiveParams.max_increase || 30) / 100; // 30% default
+      const maxDecrease = (adaptiveParams.max_decrease || 15) / 100; // 15% default
+      
+      // Transform to adaptive plan with performance-based adaptation
+      const adaptivePlan = {
+        params: adaptiveParams,
+        adaptive_plan: result.plan.map((lecture, index) => {
+          // Calculate baseline hours (frequency-based)
+          const baselineHours = (totalHours * lecture.percentage / 100);
+          
+          // Calculate mastery gap and adaptation factor
+          const lectureKey = lecture.lecture.replace('.pdf', '');
+          const quizAccuracy = quizResults?.topic_wise?.[lectureKey]?.accuracy ?? quizResults?.accuracy ?? 75; // Use real quiz accuracy
+          const masteryGap = 100 - quizAccuracy; // Higher gap = more adaptation needed
+          const adaptationFactor = 1 + (alpha * masteryGap / 100);
+          
+          // Calculate adaptive hours with caps
+          let adaptiveHours = baselineHours * adaptationFactor;
+          const maxAllowed = baselineHours * (1 + maxIncrease);
+          const minAllowed = baselineHours * (1 - maxDecrease);
+          
+          adaptiveHours = Math.max(minAllowed, Math.min(maxAllowed, adaptiveHours));
+          
+          // Calculate delta
+          const deltaHours = adaptiveHours - baselineHours;
+          
+          // Determine focus intensity based on priority and mastery gap
+          let focusIntensity = 'Low';
+          if (lecture.priority <= 3 && masteryGap >= 25) {
+            focusIntensity = 'High';
+          } else if (lecture.priority <= 6 || masteryGap >= 15) {
+            focusIntensity = 'Medium';
+          }
+          
+          return {
+            Priority: lecture.priority,
+            Lecture: lecture.lecture,
+            Baseline_Hours: baselineHours,
+            Adaptive_Hours: adaptiveHours,
+            Delta_Hours: deltaHours,
+            Quiz_Accuracy: `${Number(quizAccuracy).toFixed(2)}%`,
+            Mastery_Gap: `${Number(masteryGap).toFixed(2)}%`,
+            Focus_Intensity: focusIntensity
+          };
+        }),
+        
+        daily_schedule: result.daily_schedule || [],
+        total_hours: totalHours,
+        study_days: studyDays
+      };
+      
+      setAdaptivePlan(adaptivePlan);
       setActiveTab('adaptive-plan');
+      
     } catch (err) {
-      setError('Failed to generate adaptive plan: ' + err.message);
+      setError('Failed to generate adaptive study plan: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -278,7 +491,7 @@ const MCQStudyPlan = () => {
   if (!backendConnected) {
     return (
       <div className="mcq-page">
-        <CommonHeader />
+        <CommonHeader hideGoogleSignIn={true} />
         <div className="mcq-container">
           <div className="mcq-error-card">
             <h2><i className="fas fa-unlink me-2"></i>Backend Connection Error</h2>
@@ -295,7 +508,7 @@ const MCQStudyPlan = () => {
 
   return (
     <div className="mcq-page">
-      <CommonHeader />
+      <CommonHeader hideGoogleSignIn={true} />
       <div className="mcq-container">
         <div className="mcq-header-card mcq-header-primary">
           <div className="mcq-header-content">
@@ -365,7 +578,7 @@ const MCQStudyPlan = () => {
                   <div className="mcq-stats-body">
                     <div>
                       <h6>Topics Identified</h6>
-                      <h2>{stats?.total_topics ?? (stats?.total_lectures ? stats.total_lectures * 6 : 0)}</h2>
+                      <h2>{stats?.total_topics && stats.total_topics > stats?.total_lectures ? stats.total_topics : (stats?.total_lectures ? stats.total_lectures * 6 : 0)}</h2>
                     </div>
                     <div className="mcq-stats-icon"><i className="fas fa-tags fa-3x"></i></div>
                   </div>
@@ -385,7 +598,7 @@ const MCQStudyPlan = () => {
                 <div className="mcq-chart-card mcq-chart-wide">
                   <h5><i className="fas fa-chart-bar me-2"></i>Question Distribution by Lecture</h5>
                   {chartData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={300}>
+                    <ResponsiveContainer width="100%" height={350}>
                       <BarChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
@@ -405,7 +618,7 @@ const MCQStudyPlan = () => {
                 <div className="mcq-chart-card mcq-chart-narrow">
                   <h5><i className="fas fa-chart-pie me-2"></i>Distribution Pie Chart</h5>
                   {pieData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={300}>
+                    <ResponsiveContainer width="100%" height={350}>
                       <PieChart>
                         <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label />
                         <Tooltip />
@@ -555,7 +768,7 @@ const MCQStudyPlan = () => {
                       </a>
                     </div>
                     <div className="mcq-alert mcq-alert-info">
-                      Total study hours: <strong>{studyPlanData.total_hours}</strong> | Study days: <strong>{studyPlanData.study_days}</strong> | Average: <strong>{(studyPlanData.total_hours / studyPlanData.study_days).toFixed(1)} hours/day</strong>
+                      Total study hours: <strong>{studyPlanData.total_hours}</strong> | Study days: <strong>{studyPlanData.study_days}</strong> | Average: <strong>{formatHours(studyPlanData.total_hours / studyPlanData.study_days)}/day</strong>
                     </div>
                     <h6>Recommended Focus Areas</h6>
                     <div className="mcq-table-wrap">
@@ -575,7 +788,7 @@ const MCQStudyPlan = () => {
                               <td><span className={`mcq-badge mcq-badge-${row.priority <= 3 ? 'danger' : row.priority <= 6 ? 'warning' : 'info'}`}>Priority {row.priority}</span></td>
                               <td>{row.lecture}</td>
                               <td>{row.percentage}%</td>
-                              <td>{row.recommended_hours}h</td>
+                              <td>{formatHours(row.recommended_hours)}</td>
                               <td><span className={`mcq-badge mcq-badge-${row.focus_intensity === 'High' ? 'danger' : row.focus_intensity === 'Medium' ? 'warning' : 'info'}`}>{row.focus_intensity}</span></td>
                             </tr>
                           ))}
@@ -599,7 +812,7 @@ const MCQStudyPlan = () => {
                               <td>Day {row.Day}</td>
                               <td>{row.Date}</td>
                               <td>{row.Lectures}</td>
-                              <td>{row.Total_Hours}h</td>
+                              <td>{formatHours(row.Total_Hours)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -807,7 +1020,7 @@ const MCQStudyPlan = () => {
                   <div className="mcq-chart-card">
                     <h5><i className="fas fa-chart-bar me-2"></i>Performance Overview</h5>
                     {Object.keys(quizResults.topic_wise || {}).length > 0 ? (
-                      <ResponsiveContainer width="100%" height={250}>
+                      <ResponsiveContainer width="100%" height={300}>
                         <BarChart data={Object.entries(quizResults.topic_wise || {}).map(([topic, d]) => ({ name: topic, accuracy: d.accuracy || 0 }))}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="name" />
@@ -892,29 +1105,6 @@ const MCQStudyPlan = () => {
                       <small><i className="fas fa-info-circle me-1"></i>Interactive graph showing relationships between lectures and questions. Use mouse to zoom, pan, and interact with nodes.</small>
                     </div>
                   </div>
-                  <div className="mcq-table-card">
-                    <h5><i className="fas fa-question-circle me-2"></i>How to Use the Graph</h5>
-                    <div className="mcq-how-to-row">
-                      <div>
-                        <h6><i className="fas fa-mouse-pointer me-2"></i>Navigation</h6>
-                        <ul>
-                          <li><strong>Scroll:</strong> Zoom in/out</li>
-                          <li><strong>Click &amp; Drag:</strong> Pan around the graph</li>
-                          <li><strong>Click Node:</strong> View details about lectures or questions</li>
-                          <li><strong>Double Click:</strong> Focus on a specific node</li>
-                        </ul>
-                      </div>
-                      <div>
-                        <h6><i className="fas fa-palette me-2"></i>Node Colors</h6>
-                        <ul>
-                          <li><strong>Blue Nodes:</strong> Lectures</li>
-                          <li><strong>Green Nodes:</strong> Questions</li>
-                          <li><strong>Edge Thickness:</strong> Relationship strength</li>
-                          <li><strong>Node Size:</strong> Importance/weight</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
                 </>
               ) : (
                 <div className="mcq-empty-card">
@@ -964,13 +1154,13 @@ const MCQStudyPlan = () => {
                     </div>
                     <div className="mcq-stats-card bg-gradient-info">
                       <div className="mcq-stats-body">
-                        <div><h6>Max Increase</h6><h2>{(adaptivePlan.params.max_increase * 100).toFixed(0)}%</h2></div>
+                        <div><h6>Max Increase</h6><h2>{adaptivePlan.params.max_increase}%</h2></div>
                         <div className="mcq-stats-icon"><i className="fas fa-arrow-up fa-3x"></i></div>
                       </div>
                     </div>
                     <div className="mcq-stats-card bg-gradient-danger">
                       <div className="mcq-stats-body">
-                        <div><h6>Max Decrease</h6><h2>{(adaptivePlan.params.max_decrease * 100).toFixed(0)}%</h2></div>
+                        <div><h6>Max Decrease</h6><h2>{adaptivePlan.params.max_decrease}%</h2></div>
                         <div className="mcq-stats-icon"><i className="fas fa-arrow-down fa-3x"></i></div>
                       </div>
                     </div>
@@ -979,15 +1169,22 @@ const MCQStudyPlan = () => {
                   {comparisonChartData.length > 0 && (
                     <div className="mcq-chart-card">
                       <h5><i className="fas fa-chart-bar me-2"></i>Baseline vs Adaptive Hours Comparison</h5>
-                      <ResponsiveContainer width="100%" height={300}>
+                      <ResponsiveContainer width="100%" height={350}>
                         <BarChart data={comparisonChartData}>
                           <CartesianGrid strokeDasharray="3 3" />
                           <XAxis dataKey="lecture" />
                           <YAxis />
-                          <Tooltip />
-                          <Legend />
-                          <Bar dataKey="baseline" fill="#a8c7fa" name="Baseline Hours" />
-                          <Bar dataKey="adaptive" fill="#f4e4a1" name="Adaptive Hours" />
+                          <Tooltip 
+                            formatter={(value, name) => [
+                              formatHours(value), 
+                              name === 'baseline' ? 'Baseline' : 'Adaptive'
+                            ]}
+                          />
+                          <Legend 
+                            formatter={(value) => value === 'baseline' ? 'Baseline Hours' : 'Adaptive Hours'}
+                          />
+                          <Bar dataKey="baseline" fill="#a8c7fa" name="baseline" />
+                          <Bar dataKey="adaptive" fill="#f4e4a1" name="adaptive" />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -1014,16 +1211,16 @@ const MCQStudyPlan = () => {
                             <tr key={i}>
                               <td><span className="mcq-badge mcq-badge-primary">{row.Priority}</span></td>
                               <td><strong>{row.Lecture}</strong></td>
-                              <td className="text-center">{Number(row.Baseline_Hours).toFixed(1)}h</td>
+                              <td className="text-center">{formatHours(Number(row.Baseline_Hours))}</td>
                               <td className="text-center">
                                 <span className={`mcq-badge mcq-badge-${row.Adaptive_Hours > row.Baseline_Hours ? 'success' : 'warning'}`}>
-                                  {Number(row.Adaptive_Hours).toFixed(1)}h
+                                  {formatHours(Number(row.Adaptive_Hours))}
                                 </span>
                               </td>
                               <td className="text-center">
-                                {row.Delta_Hours > 0 ? <span className="text-success">+{Number(row.Delta_Hours).toFixed(1)}h</span> :
-                                 row.Delta_Hours < 0 ? <span className="text-danger">{Number(row.Delta_Hours).toFixed(1)}h</span> :
-                                 <span className="text-muted">0.0h</span>}
+                                {row.Delta_Hours > 0 ? <span className="text-success">+{formatHours(Number(row.Delta_Hours))}</span> :
+                                 row.Delta_Hours < 0 ? <span className="text-danger">{formatHours(Number(row.Delta_Hours))}</span> :
+                                 <span className="text-muted">0 hours</span>}
                               </td>
                               <td className="text-center">{row.Quiz_Accuracy}</td>
                               <td className="text-center">{row.Mastery_Gap}</td>
@@ -1036,37 +1233,6 @@ const MCQStudyPlan = () => {
                           ))}
                           {(!adaptivePlan.adaptive_plan || adaptivePlan.adaptive_plan.length === 0) && (
                             <tr><td colSpan={8} className="text-center py-4"><p className="text-muted">No adaptive study plan data available</p></td></tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
-                  <div className="mcq-table-card">
-                    <h5><i className="fas fa-calendar-alt me-2"></i>Adaptive Daily Schedule</h5>
-                    <div className="mcq-table-wrap">
-                      <table className="mcq-table">
-                        <thead>
-                          <tr>
-                            <th>Day</th>
-                            <th>Date</th>
-                            <th>Lectures</th>
-                            <th>Total Hours</th>
-                            <th>Target</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {(adaptivePlan.adaptive_daily || []).map((row, i) => (
-                            <tr key={i}>
-                              <td><span className="mcq-badge mcq-badge-info">Day {row.Day}</span></td>
-                              <td>{row.Date}</td>
-                              <td>{row.Lectures}</td>
-                              <td className="text-center"><strong>{row.Total_Hours}h</strong></td>
-                              <td>{row.Target}</td>
-                            </tr>
-                          ))}
-                          {(!adaptivePlan.adaptive_daily || adaptivePlan.adaptive_daily.length === 0) && (
-                            <tr><td colSpan={5} className="text-center py-4"><p className="text-muted">No daily schedule available</p></td></tr>
                           )}
                         </tbody>
                       </table>
@@ -1086,7 +1252,7 @@ const MCQStudyPlan = () => {
                   </div>
                 </>
               ) : (
-                <p className="mcq-hint">Complete the quiz and click &quot;Generate Adaptive Study Plan&quot; from the Progress tab.</p>
+                <p className="mcq-hint">Click &quot;Generate Frequency-Based Plan&quot; to create an optimized study schedule.</p>
               )}
             </div>
           )}
@@ -1102,8 +1268,8 @@ const MCQStudyPlan = () => {
                     <i className="fas fa-brain"></i>
                   </div>
                   <div className="modal-title-section">
-                    <h3>Generate Adaptive Study Plan</h3>
-                    <p>Personalize your study schedule based on quiz performance</p>
+                    <h3>Adaptive Study Plan</h3>
+                    <p>Adjust your study plan based on lecture priority and your quiz results.</p>
                   </div>
                 </div>
                 <button type="button" className="mcq-modal-close-enhanced" onClick={() => setShowAdaptiveModal(false)} aria-label="Close">
@@ -1117,24 +1283,25 @@ const MCQStudyPlan = () => {
                     <i className="fas fa-lightbulb"></i>
                   </div>
                   <div className="info-content">
-                    <h4>How Adaptive Planning Works</h4>
-                    <p>The system analyzes your quiz performance and automatically adjusts study time allocation:</p>
+                    <h4>How this plan is created</h4>
+                    <p>The system creates your personalized study schedule by considering:</p>
                     <ul>
-                      <li><strong>Weak areas</strong> get more study time</li>
-                      <li><strong>Strong areas</strong> get less study time</li>
-                      <li><strong>Optimizes</strong> your overall learning efficiency</li>
+                      <li>Lecture priority is used to decide what needs more focus</li>
+                      <li>Quiz results help identify weaker areas</li>
+                      <li>Study time is adjusted to balance strong and weak topics</li>
+                      <li>The plan stays within realistic study limits</li>
                     </ul>
                   </div>
                 </div>
 
                 <div className="adaptive-params-section">
-                  <h4><i className="fas fa-sliders-h me-2"></i>Adaptation Parameters</h4>
+                  <h4><i className="fas fa-sliders-h me-2"></i>Basic Settings</h4>
                   
                   <div className="params-grid-enhanced">
                     <div className="param-group-enhanced">
                       <label htmlFor="adaptiveTotalHours">
                         <i className="fas fa-clock me-1"></i>Total Study Hours
-                        <span className="form-tooltip" title="Total hours available for adaptive study">
+                        <span className="form-tooltip" title="Enter the total time you can spend studying">
                           <i className="fas fa-info-circle"></i>
                         </span>
                       </label>
@@ -1143,7 +1310,7 @@ const MCQStudyPlan = () => {
                           type="number" 
                           id="adaptiveTotalHours"
                           min="1" 
-                          max="100" 
+                          max="200" 
                           step="0.5" 
                           value={adaptiveParams.total_hours} 
                           onChange={(e) => setAdaptiveParams((p) => ({ ...p, total_hours: Number(e.target.value) }))}
@@ -1156,7 +1323,7 @@ const MCQStudyPlan = () => {
                     <div className="param-group-enhanced">
                       <label htmlFor="adaptiveStudyDays">
                         <i className="fas fa-calendar-day me-1"></i>Study Days
-                        <span className="form-tooltip" title="Number of days for adaptive study">
+                        <span className="form-tooltip" title="Enter how many days you have before finishing this plan">
                           <i className="fas fa-info-circle"></i>
                         </span>
                       </label>
@@ -1165,7 +1332,7 @@ const MCQStudyPlan = () => {
                           type="number" 
                           id="adaptiveStudyDays"
                           min="1" 
-                          max="30" 
+                          max="60" 
                           value={adaptiveParams.study_days} 
                           onChange={(e) => setAdaptiveParams((p) => ({ ...p, study_days: Number(e.target.value) }))}
                           className="mcq-input-enhanced"
@@ -1174,85 +1341,85 @@ const MCQStudyPlan = () => {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+              
+              <div className="advanced-params">
+                <h5><i className="fas fa-cog me-2"></i>Adjustment Settings</h5>
+                
+                <div className="params-grid-enhanced">
+                  <div className="param-group-enhanced">
+                    <label htmlFor="adaptationFactor">
+                      <i className="fas fa-balance-scale me-1"></i>Adaptation Factor (α)
+                      <span className="form-tooltip" title="Controls how strongly the plan responds to quiz performance">
+                        <i className="fas fa-info-circle"></i>
+                      </span>
+                    </label>
+                    <div className="input-wrapper">
+                      <input 
+                        type="number" 
+                        id="adaptationFactor"
+                        min="0.1" 
+                        max="1" 
+                        step="0.1" 
+                        value={adaptiveParams.alpha} 
+                        onChange={(e) => setAdaptiveParams((p) => ({ ...p, alpha: Number(e.target.value) }))}
+                        className="mcq-input-enhanced"
+                      />
+                      <span className="input-suffix">α</span>
+                    </div>
+                    <div className="param-description">
+                      <small>Higher values make the plan respond more to quiz results (0.1-1.0)</small>
+                    </div>
+                  </div>
 
-                  <div className="advanced-params">
-                    <h5><i className="fas fa-cog me-2"></i>Advanced Settings</h5>
-                    
-                    <div className="params-grid-enhanced">
-                      <div className="param-group-enhanced">
-                        <label htmlFor="adaptationFactor">
-                          <i className="fas fa-balance-scale me-1"></i>Adaptation Factor (α)
-                          <span className="form-tooltip" title="How aggressively to adapt based on performance">
-                            <i className="fas fa-info-circle"></i>
-                          </span>
-                        </label>
-                        <div className="input-wrapper">
-                          <input 
-                            type="number" 
-                            id="adaptationFactor"
-                            min="0.1" 
-                            max="1" 
-                            step="0.1" 
-                            value={adaptiveParams.alpha} 
-                            onChange={(e) => setAdaptiveParams((p) => ({ ...p, alpha: Number(e.target.value) }))}
-                            className="mcq-input-enhanced"
-                          />
-                          <span className="input-suffix">α</span>
-                        </div>
-                        <div className="param-description">
-                          <small>Higher = more aggressive adaptation (0.1-1.0)</small>
-                        </div>
-                      </div>
+                  <div className="param-group-enhanced">
+                    <label htmlFor="maxIncrease">
+                      <i className="fas fa-arrow-up me-1"></i>Max Increase
+                      <span className="form-tooltip" title="Maximum extra time added for weaker lectures">
+                        <i className="fas fa-info-circle"></i>
+                      </span>
+                    </label>
+                    <div className="input-wrapper">
+                      <input 
+                        type="number" 
+                        id="maxIncrease"
+                        min="10" 
+                        max="100" 
+                        step="5" 
+                        value={adaptiveParams.max_increase} 
+                        onChange={(e) => setAdaptiveParams((p) => ({ ...p, max_increase: Number(e.target.value) }))}
+                        className="mcq-input-enhanced"
+                      />
+                      <span className="input-suffix">%</span>
+                    </div>
+                    <div className="param-description">
+                      <small>Maximum percentage increase per lecture</small>
+                    </div>
+                  </div>
 
-                      <div className="param-group-enhanced">
-                        <label htmlFor="maxIncrease">
-                          <i className="fas fa-arrow-up me-1"></i>Max Increase
-                          <span className="form-tooltip" title="Maximum percentage increase per lecture">
-                            <i className="fas fa-info-circle"></i>
-                          </span>
-                        </label>
-                        <div className="input-wrapper">
-                          <input 
-                            type="number" 
-                            id="maxIncrease"
-                            min="10" 
-                            max="100" 
-                            step="5" 
-                            value={adaptiveParams.max_increase} 
-                            onChange={(e) => setAdaptiveParams((p) => ({ ...p, max_increase: Number(e.target.value) }))}
-                            className="mcq-input-enhanced"
-                          />
-                          <span className="input-suffix">%</span>
-                        </div>
-                        <div className="param-description">
-                          <small>Per lecture maximum increase</small>
-                        </div>
-                      </div>
-
-                      <div className="param-group-enhanced">
-                        <label htmlFor="maxDecrease">
-                          <i className="fas fa-arrow-down me-1"></i>Max Decrease
-                          <span className="form-tooltip" title="Maximum percentage decrease per lecture">
-                            <i className="fas fa-info-circle"></i>
-                          </span>
-                        </label>
-                        <div className="input-wrapper">
-                          <input 
-                            type="number" 
-                            id="maxDecrease"
-                            min="5" 
-                            max="50" 
-                            step="5" 
-                            value={adaptiveParams.max_decrease} 
-                            onChange={(e) => setAdaptiveParams((p) => ({ ...p, max_decrease: Number(e.target.value) }))}
-                            className="mcq-input-enhanced"
-                          />
-                          <span className="input-suffix">%</span>
-                        </div>
-                        <div className="param-description">
-                          <small>Per lecture maximum decrease</small>
-                        </div>
-                      </div>
+                  <div className="param-group-enhanced">
+                    <label htmlFor="maxDecrease">
+                      <i className="fas fa-arrow-down me-1"></i>Max Decrease
+                      <span className="form-tooltip" title="Maximum reduction for stronger lectures">
+                        <i className="fas fa-info-circle"></i>
+                      </span>
+                    </label>
+                    <div className="input-wrapper">
+                      <input 
+                        type="number" 
+                        id="maxDecrease"
+                        min="5" 
+                        max="50" 
+                        step="5" 
+                        value={adaptiveParams.max_decrease} 
+                        onChange={(e) => setAdaptiveParams((p) => ({ ...p, max_decrease: Number(e.target.value) }))}
+                        className="mcq-input-enhanced"
+                      />
+                      <span className="input-suffix">%</span>
+                    </div>
+                    <div className="param-description">
+                      <small>Maximum percentage decrease per lecture</small>
                     </div>
                   </div>
                 </div>
