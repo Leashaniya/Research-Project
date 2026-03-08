@@ -127,6 +127,58 @@ h1 {
   display: none;
 }
 
+.ProcessedFilesSection {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  margin-bottom: 2rem;
+}
+
+.ProcessedFilesSection h3 {
+  margin: 0 0 1.25rem 0;
+  color: #2a5a94;
+  font-size: 1.25rem;
+}
+
+.ProcessedFilesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.ProcessedFilesCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.ProcessedFilesCard h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  color: #1e293b;
+}
+
+.ProcessedFilesEmpty {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.ProcessedFilesList {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #1e293b;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.ProcessedFilesList li {
+  margin-bottom: 0.25rem;
+}
+
 .StatusSection {
   background: white;
   border-radius: 1rem;

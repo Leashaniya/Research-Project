@@ -15,6 +15,7 @@ function ModelPaperPage() {
   const [shortNotes, setShortNotes] = useState(null);
   const [loadingNotes, setLoadingNotes] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [files, setFiles] = useState({ past_papers: [], lecture_slides: [] });
 
   const showNotification = (message) => {
     setNotification(message);
@@ -37,9 +38,25 @@ function ModelPaperPage() {
     }
   };
 
+  const fetchFiles = async () => {
+    try {
+      const resp = await fetch(`${API_BASE}/files`);
+      if (resp.ok) {
+        const data = await resp.json();
+        setFiles({
+          past_papers: data.past_papers || [],
+          lecture_slides: data.lecture_slides || [],
+        });
+      }
+    } catch (err) {
+      // Ignore if files endpoint fails
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       checkLatestPaper();
+      fetchFiles();
     }, 100);
     return () => clearTimeout(timer);
   }, []);
@@ -204,6 +221,36 @@ function ModelPaperPage() {
           <button className="Btn" onClick={generatePaper} disabled={processing}>
             {processing ? "Generating..." : "Generate Paper"}
           </button>
+        </div>
+      </div>
+
+      <div className="ProcessedFilesSection">
+        <h3>Processed Files</h3>
+        <div className="ProcessedFilesGrid">
+          <div className="ProcessedFilesCard">
+            <h4>📄 Past Papers</h4>
+            {files.past_papers.length === 0 ? (
+              <p className="ProcessedFilesEmpty">No past papers uploaded yet.</p>
+            ) : (
+              <ul className="ProcessedFilesList">
+                {files.past_papers.map((f) => (
+                  <li key={f}>{f}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div className="ProcessedFilesCard">
+            <h4>📚 Lecture Slides</h4>
+            {files.lecture_slides.length === 0 ? (
+              <p className="ProcessedFilesEmpty">No lecture slides uploaded yet.</p>
+            ) : (
+              <ul className="ProcessedFilesList">
+                {files.lecture_slides.map((f) => (
+                  <li key={f}>{f}</li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
 
