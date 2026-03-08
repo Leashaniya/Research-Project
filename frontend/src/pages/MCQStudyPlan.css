@@ -43,6 +43,22 @@
   color: white;
 }
 
+/* Main page title header - no blue background, aligned with other components */
+.mcq-header-title {
+  background: var(--mcq-surface);
+  color: var(--mcq-text-primary);
+  border: 1px solid var(--mcq-border);
+}
+
+.mcq-header-title h2 {
+  color: var(--mcq-primary);
+}
+
+.mcq-header-title p {
+  color: var(--mcq-text-secondary);
+  opacity: 1;
+}
+
 .mcq-header-success { background: linear-gradient(135deg, var(--mcq-success) 0%, #059669 100%); color: white; }
 .mcq-header-warning { background: linear-gradient(135deg, var(--mcq-warning) 0%, #d97706 100%); color: white; }
 .mcq-header-info { background: linear-gradient(135deg, var(--mcq-info) 0%, #0c4a6e 100%); color: white; }

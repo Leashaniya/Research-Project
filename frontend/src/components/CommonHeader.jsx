@@ -1,46 +1,13 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './CommonHeader.css';
 
-const AUTH_API_URL = import.meta.env.VITE_API_URL || '/guidance';
-
 export default function CommonHeader({ onUserChange, onLogout, hideGoogleSignIn = false }) {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const response = await fetch(`${AUTH_API_URL}/auth/me`, { credentials: 'include' });
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-          onUserChange?.(userData);
-        } else {
-          onUserChange?.(null);
-        }
-      } catch (error) {
-        // Auth service may not be running (e.g. when using MCQ-only) - fail silently
-        onUserChange?.(null);
-      }
-    };
-    checkUser();
-  }, [onUserChange]);
-
-  const handleLogin = () => {
-    window.location.href = `${AUTH_API_URL}/auth/login`;
-  };
+  const { user, login, logout } = useAuth();
 
   const handleLogout = async () => {
-    try {
-      await fetch(`${AUTH_API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
-      setUser(null);
-      onUserChange?.(null);
-      onLogout?.();
-      // Redirect so ProtectedRoute remounts and shows sign-in gate; services become hidden
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
+    onLogout?.();
+    await logout();
   };
 
   return (
@@ -68,7 +35,7 @@ export default function CommonHeader({ onUserChange, onLogout, hideGoogleSignIn 
             </>
           ) : (
             !hideGoogleSignIn && (
-              <button type="button" className="common-header-login" onClick={handleLogin}>
+              <button type="button" className="common-header-login" onClick={login}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>

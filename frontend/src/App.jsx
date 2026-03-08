@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardHome from './pages/DashboardHome';
 import GuidancePage from './pages/GuidancePage';
@@ -10,6 +11,7 @@ import './App.css';
 function App() {
   return (
     <Router>
+      <AuthProvider>
       <Routes>
         {/* All services require Google sign-in before access */}
         <Route path="/" element={<ProtectedRoute />}>
@@ -20,6 +22,7 @@ function App() {
           <Route path="mcq-study-plan" element={<MCQStudyPlan />} />
         </Route>
       </Routes>
+      </AuthProvider>
     </Router>
   );
 }

@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './ProtectedRoute.css';
-
-const API_URL = import.meta.env.VITE_API_URL || '/guidance';
 
 /**
  * Protects all service routes: user must be signed in with Google before accessing
@@ -10,34 +8,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/guidance';
  * First-page design: hero-style welcome, distinct from dashboard cards.
  */
 export default function ProtectedRoute() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    const checkAuth = async () => {
-      try {
-        const response = await fetch(`${API_URL}/auth/me`, { credentials: 'include' });
-        if (cancelled) return;
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        } else {
-          setUser(null);
-        }
-      } catch {
-        if (!cancelled) setUser(null);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    checkAuth();
-    return () => { cancelled = true; };
-  }, []);
-
-  const handleSignIn = () => {
-    window.location.href = `${API_URL}/auth/login`;
-  };
+  const { user, loading, login } = useAuth();
 
   if (loading) {
     return (
@@ -72,7 +43,7 @@ export default function ProtectedRoute() {
           <p className="protected-route-tagline">
             Your learning companion for guidance, summaries, model papers and more. Sign in to get started.
           </p>
-          <button type="button" className="protected-route-btn-login" onClick={handleSignIn}>
+          <button type="button" className="protected-route-btn-login" onClick={login}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>

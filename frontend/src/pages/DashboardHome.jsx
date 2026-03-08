@@ -1,43 +1,11 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './DashboardHome.css';
 import './DashboardHomeMCQ.css';
 
-const API_URL = import.meta.env.VITE_API_URL || '/guidance';
-
 export default function DashboardHome() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const response = await fetch(`${API_URL}/auth/me`, { credentials: 'include' });
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error('Error checking user status:', error);
-      }
-    };
-    checkUser();
-  }, []);
-
-  const handleGoogleLogin = () => {
-    window.location.href = `${API_URL}/auth/login`;
-  };
-
-  const handleLogout = async () => {
-    try {
-      await fetch(`${API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
-      setUser(null);
-      // Redirect so ProtectedRoute remounts and shows sign-in gate; services become hidden
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
+  const { user, logout } = useAuth();
 
   return (
     <div className="dashboard-page">
@@ -62,15 +30,11 @@ export default function DashboardHome() {
                   Signed in as <strong>{user.name || user.email || 'User'}</strong>
                 </span>
               </div>
-              <button type="button" className="btn-dashboard-logout" onClick={handleLogout}>
+              <button type="button" className="btn-dashboard-logout" onClick={logout}>
                 Logout
               </button>
             </div>
-          ) : (
-            <button type="button" className="btn-google-login" onClick={handleGoogleLogin}>
-              Sign in with Google
-            </button>
-          )}
+          ) : null}
         </header>
 
         <div className="dashboard-cards">
@@ -116,8 +80,12 @@ export default function DashboardHome() {
             className="dashboard-card"
             onClick={() => navigate('/mcq-study-plan')}
           >
-            <div className="card-icon bg-gradient-mcq">
-              🎯
+            <div className="card-icon">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="12" cy="12" r="2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
             <h2 className="card-title">MCQ Study Plan</h2>
             <p className="card-description">
@@ -144,8 +112,7 @@ export default function DashboardHome() {
             </div>
             <h2 className="card-title">Essay Support</h2>
             <p className="card-description">
-              Practice with AI-powered adaptive questions extracted from your PDFs.
-              Get instant feedback and track your progress with reinforcement learning.
+            Practice with AI-powered adaptive questions. Get instant feedback and track your progress.
             </p>
             <button type="button" className="card-button">Enter Essay Support</button>
           </div>
