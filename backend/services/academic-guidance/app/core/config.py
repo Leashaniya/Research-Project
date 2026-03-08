@@ -1,5 +1,11 @@
 import os
+from pathlib import Path
 from typing import Optional
+
+# Single output dir for TTS WAV files (used by tts_tool and main.py static mount)
+AUDIO_OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "outputs" / "audio"
+AUDIO_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
 
 class Settings:
     # Application Configuration

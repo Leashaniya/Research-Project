@@ -1527,7 +1527,13 @@ function GuidancePage() {
                           <strong>Listen to the Audio of the summarization: </strong>
                           {summaryAudio ? (
                             <div style={{ marginTop: '8px' }}>
-                              <audio controls src={summaryAudio} style={{ width: '100%' }}>
+                              <audio
+                                key={summaryAudio}
+                                controls
+                                src={summaryAudio}
+                                preload="auto"
+                                style={{ width: '100%' }}
+                              >
                                 Your browser does not support the audio element.
                               </audio>
                             </div>

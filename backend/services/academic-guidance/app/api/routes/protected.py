@@ -1513,16 +1513,33 @@ async def get_summary_audio(
         logger.warning(f"GridFS get failed for summary {summary_id}: {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Audio not found")
 
+    file_length = getattr(grid_out, "length", None)
+    if file_length is None and hasattr(grid_out, "_file"):
+        file_length = grid_out._file.get("length")
+
     def stream():
+        chunk_size = 64 * 1024  # 64KB so first chunk arrives quickly for playback start
         try:
-            yield grid_out.read()
+            while True:
+                chunk = grid_out.read(chunk_size)
+                if not chunk:
+                    break
+                yield chunk
         finally:
             grid_out.close()
+
+    headers = {
+        "Content-Disposition": "inline; filename=summary_audio.wav",
+        "Cache-Control": "private, max-age=300",
+    }
+    if file_length is not None:
+        headers["Content-Length"] = str(file_length)
+        headers["Accept-Ranges"] = "bytes"
 
     return StreamingResponse(
         stream(),
         media_type="audio/wav",
-        headers={"Content-Disposition": "inline; filename=summary_audio.wav"},
+        headers=headers,
     )
 
 

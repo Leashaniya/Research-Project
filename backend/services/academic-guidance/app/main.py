@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.middleware.sessions import SessionMiddleware
-from app.core.config import settings
+from app.core.config import settings, AUDIO_OUTPUT_DIR
 from app.api.routes import auth, er, public, protected, summaries
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
@@ -53,12 +53,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Ensure audio directory exists
-AUDIO_DIR = Path("outputs/audio")
-AUDIO_DIR.mkdir(parents=True, exist_ok=True)
-
-#Serve audio files
-app.mount("/audio", StaticFiles(directory=str(AUDIO_DIR)), name="audio")
+# Serve TTS audio files from the same dir used by tts_tool
+app.mount("/audio", StaticFiles(directory=str(AUDIO_OUTPUT_DIR)), name="audio")
 
 # Add session middleware for OAuth (state is stored in session for CSRF check on callback)
 app.add_middleware(
