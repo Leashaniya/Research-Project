@@ -1,5 +1,11 @@
 import os
+from pathlib import Path
 from typing import Optional
+
+# Single output dir for TTS WAV files (used by tts_tool and main.py static mount)
+AUDIO_OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "outputs" / "audio"
+AUDIO_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
 
 class Settings:
     # Application Configuration
@@ -12,6 +18,7 @@ class Settings:
     SECRET_KEY: str = os.getenv("SECRET_KEY", "")
     
     # OAuth URLs
+    # REDIRECT_URI: must be the exact callback URL (same origin as login). If unset, built from request (use when behind a proxy).
     REDIRECT_URI: str = os.getenv("REDIRECT_URI", "")
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "")
     
@@ -28,7 +35,8 @@ class Settings:
     # Image Explanation Configuration
     ENABLE_IMAGE_EXPLANATIONS: bool = os.getenv("ENABLE_IMAGE_EXPLANATIONS", "true").lower() == "true"
 
-    # TTS (Piper) – optional; set in Dockerfile when Piper is installed, or in .env for local
+    # TTS (Piper) – required for summarization audio. If unset, summaries have no audio.
+    # Example: PIPER_EXE=/path/to/piper, PIPER_MODEL=/path/to/model.onnx
     PIPER_EXE: str = os.getenv("PIPER_EXE", "")
     PIPER_MODEL: str = os.getenv("PIPER_MODEL", "")
 

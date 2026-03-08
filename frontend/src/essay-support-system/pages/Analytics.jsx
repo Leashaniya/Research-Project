@@ -3,15 +3,17 @@ import { LuChartBar, LuTrendingUp } from 'react-icons/lu'
 import { useSession } from '../context/SessionContext'
 import api from '../api/api'
 import LoadingOverlay from '../components/LoadingOverlay'
+import DifficultyCountVisualization from '../components/DifficultyCountVisualization'
+import SessionProgressComparison from '../components/SessionProgressComparison'
 
-// Helper function to convert reward numbers to text messages
+// Helper function to convert reward numbers to simple evaluation terms
 const getRewardMessage = (reward) => {
-  if (reward > 10) return 'Excellent Progress'
-  if (reward > 5) return 'Great Job'
+  if (reward > 10) return 'Excellent Work'
+  if (reward > 5) return 'Very Good Attempt'
   if (reward > 0) return 'Good Attempt'
-  if (reward === 0) return 'Keep Practicing'
+  if (reward === 0) return 'Satisfactory Attempt'
   if (reward > -5) return 'Needs Improvement'
-  return 'Review Required'
+  return 'Poor Attempt'
 }
 
 // Adaptive Difficulty Timeline Chart Component
@@ -20,8 +22,8 @@ const DifficultyTimeline = ({ data }) => {
     return (
       <div className="empty-state">
         <div className="empty-icon">📊</div>
-        <h3>No Session Data Yet</h3>
-        <p>Complete some practice questions to see your difficulty timeline.</p>
+        <h3>Awaiting Practice Session Data</h3>
+        <p>Engage in practice exercises to generate your adaptive learning analytics.</p>
       </div>
     )
   }
@@ -47,7 +49,7 @@ const DifficultyTimeline = ({ data }) => {
 
   return (
     <div className="chart-container">
-      <h3 className="chart-title">Adaptive Difficulty Timeline</h3>
+      <h3 className="chart-title">Adaptive Learning Progression</h3>
       <svg width={width} height={height} className="difficulty-chart">
         {/* Grid lines */}
         {[1, 2, 3].map((level, i) => (
@@ -64,9 +66,9 @@ const DifficultyTimeline = ({ data }) => {
         ))}
         
         {/* Difficulty labels */}
-        <text x={padding - 15} y={padding + chartHeight - (1 * yScale) + 5} textAnchor="end" fill="#6b7280" fontSize="14" fontWeight="500">Easy</text>
-        <text x={padding - 15} y={padding + chartHeight - (2 * yScale) + 5} textAnchor="end" fill="#6b7280" fontSize="14" fontWeight="500">Medium</text>
-        <text x={padding - 15} y={padding + chartHeight - (3 * yScale) + 5} textAnchor="end" fill="#6b7280" fontSize="14" fontWeight="500">Hard</text>
+        <text x={padding - 20} y={padding + chartHeight - (1 * yScale) + 6} textAnchor="end" fill="#374151" fontSize="15" fontWeight="600">Easy</text>
+        <text x={padding - 20} y={padding + chartHeight - (2 * yScale) + 6} textAnchor="end" fill="#374151" fontSize="15" fontWeight="600">Medium</text>
+        <text x={padding - 20} y={padding + chartHeight - (3 * yScale) + 6} textAnchor="end" fill="#374151" fontSize="15" fontWeight="600">Hard</text>
         
         {/* Axes */}
         <line x1={padding} y1={padding} x2={padding} y2={height - padding} stroke="#374151" strokeWidth="2"/>
@@ -76,7 +78,7 @@ const DifficultyTimeline = ({ data }) => {
         <path
           d={pathData}
           fill="none"
-          stroke="#8b5cf6"
+          stroke="#3b82f6"
           strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -89,7 +91,7 @@ const DifficultyTimeline = ({ data }) => {
               cx={point.x}
               cy={point.y}
               r="8"
-              fill="#8b5cf6"
+              fill="#3b82f6"
               stroke="white"
               strokeWidth="3"
             />
@@ -101,17 +103,7 @@ const DifficultyTimeline = ({ data }) => {
               fontSize="14"
               fontWeight="600"
             >
-              Q{i + 1}
-            </text>
-            {/* Score label */}
-            <text
-              x={point.x}
-              y={point.y - 15}
-              textAnchor="middle"
-              fill="#6b7280"
-              fontSize="12"
-            >
-              {point.score}%
+              Exercise {i + 1}
             </text>
           </g>
         ))}
@@ -161,122 +153,61 @@ export default function Analytics() {
     loadData()
   }, [])
 
-  if (loading) return <LoadingOverlay message="Loading analytics…" />
+  if (loading) return <LoadingOverlay message="Initializing performance analytics…" />
 
   return (
     <div className="analytics-page">
       <div className="page-header">
         <h1>
-          <LuChartBar size={28} /> Analytics Dashboard
+          <LuChartBar size={28} /> Performance Analytics Dashboard
         </h1>
       </div>
 
       {error && (
         <div className="alert alert-error">
           <p>{error}</p>
-          <button onClick={loadData}>Retry</button>
+          <button onClick={loadData}>Reattempt Data Retrieval</button>
         </div>
       )}
 
-      {/* Session Stats Overview */}
+      {/* Performance Metrics Overview */}
       <div className="analytics-section fade-in">
         <div className="stats-grid">
           <StatsCard
             title="Total Attempts"
             value={session.attempts}
-            subtitle="Questions answered"
+            subtitle="Completed exercises"
             color="primary"
           />
           <StatsCard
-            title="Average Score"
-            value={`${session.averageScore}%`}
-            subtitle="Overall performance"
-            color={session.averageScore >= 70 ? "success" : session.averageScore >= 50 ? "warning" : "danger"}
-          />
-          <StatsCard
-            title="Current Difficulty"
+            title="Current Mastery Level"
             value={session.difficulty.charAt(0).toUpperCase() + session.difficulty.slice(1)}
-            subtitle="Adaptive level"
+            subtitle="Adaptive learning progression"
             color="primary"
           />
         </div>
       </div>
 
-      {/* Difficulty Timeline Chart */}
+      {/* Learning Progression Visualization */}
       <div className="analytics-section fade-in-up">
         <div className="card interactive">
           <DifficultyTimeline data={session.scoreHistory} />
         </div>
       </div>
 
-      {/* Recent Attempts Table */}
-      {session.scoreHistory.length > 0 && (
-        <div className="analytics-section fade-in-up">
-          <h3>Recent Attempts</h3>
-          <div className="card interactive">
-            <div style={{ overflowX: 'auto' }}>
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Attempt</th>
-                    <th>Difficulty</th>
-                    <th>Score</th>
-                    <th>Reward</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {session.scoreHistory
-                    .slice()
-                    .reverse()
-                    .slice(0, 10)
-                    .map((entry, i) => (
-                      <tr key={i}>
-                        <td style={{ fontWeight: 600 }}>#{entry.attempt}</td>
-                        <td>
-                          <span className={`badge badge-${entry.difficulty}`}>
-                            {entry.difficulty.charAt(0).toUpperCase() + entry.difficulty.slice(1)}
-                          </span>
-                        </td>
-                        <td>
-                          <span
-                            style={{
-                              fontWeight: 700,
-                              color:
-                                entry.score >= 80
-                                  ? 'var(--success)'
-                                  : entry.score >= 50
-                                    ? 'var(--warning)'
-                                    : 'var(--danger)',
-                            }}
-                          >
-                            {entry.score}%
-                          </span>
-                        </td>
-                        <td>
-                          <span
-                            style={{
-                              fontWeight: 600,
-                              color:
-                                entry.reward > 5
-                                  ? 'var(--success)'
-                                  : entry.reward > 0
-                                    ? 'var(--primary)'
-                                    : entry.reward === 0
-                                      ? 'var(--warning)'
-                                      : 'var(--danger)',
-                            }}
-                          >
-                            {getRewardMessage(entry.reward)}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+      {/* Session Progress Comparison */}
+      <div className="analytics-section fade-in-up">
+        <div className="card interactive">
+          <SessionProgressComparison session={session} />
         </div>
-      )}
+      </div>
+
+      {/* Question Distribution Analysis */}
+      <div className="analytics-section fade-in-up">
+        <div className="card interactive">
+          <DifficultyCountVisualization session={session} />
+        </div>
+      </div>
 
       <style>{`
         .analytics-page {

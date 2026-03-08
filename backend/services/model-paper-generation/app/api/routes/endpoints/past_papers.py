@@ -1,13 +1,23 @@
-from fastapi import APIRouter, UploadFile
+from fastapi import APIRouter, UploadFile, HTTPException
 import os
 from app.core.paths import PAST_PAPERS_DIR
 
 router = APIRouter()
 
+ALLOWED_EXTENSIONS = (".pdf", ".PDF")
+
+def _is_pdf(filename: str) -> bool:
+    return filename and any(filename.endswith(ext) for ext in ALLOWED_EXTENSIONS)
+
 @router.post("/upload")
 async def upload_past_paper(file: UploadFile):
-    os.makedirs(PAST_PAPERS_DIR, exist_ok=True)
+    if not file.filename or not _is_pdf(file.filename):
+        raise HTTPException(
+            status_code=400,
+            detail="Only PDF format is allowed for past papers. Please upload a .pdf file."
+        )
 
+    os.makedirs(PAST_PAPERS_DIR, exist_ok=True)
     saved_path = os.path.join(str(PAST_PAPERS_DIR), file.filename)
     with open(saved_path, "wb") as f:
         f.write(await file.read())

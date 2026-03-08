@@ -22,8 +22,10 @@ async def generate_paper():
     """Runs the COMPLETE pipeline: Extraction -> Blueprinting -> AI Generation."""
     res = await pipeline_service.run_full_pipeline()
     if res["status"] == "error":
-        logger.error("generate-paper failed: %s (steps so far: %s)", res.get("message"), res.get("steps", []))
-        raise HTTPException(status_code=500, detail=res["message"])
+        msg = res.get("message") or "Pipeline failed"
+        detail = str(msg) if msg else "Pipeline failed"
+        logger.error("generate-paper failed: %s (steps so far: %s)", detail, res.get("steps", []), exc_info=True)
+        raise HTTPException(status_code=500, detail=detail)
     return res
 
 @router.get("/paper-json")

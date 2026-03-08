@@ -5,26 +5,17 @@ import {
   LuLightbulb,
   LuBookOpen,
 } from 'react-icons/lu';
-import { getRewardLabel, capitalize } from '../utils/helpers';
+import { capitalize } from '../utils/helpers';
 
 export default function FeedbackPanel({ feedback, onNext }) {
   if (!feedback) return null;
 
-  const reward = getRewardLabel(feedback.reward ?? 0);
   const fb = feedback.feedback || {};
   const recs = feedback.study_recommendations || [];
-  const behaviour = feedback.behaviour || {};
   const nextDiff = feedback.next_difficulty;
 
   return (
     <div className="feedback-panel card">
-      <div className="fb-metrics">
-        <div className="fb-metric">
-          <span className="fb-metric-val" style={{ color: reward.color }}>{reward.text}</span>
-          <span className="fb-metric-lbl">Outcome</span>
-        </div>
-      </div>
-
       {/* Feedback sections */}
       <div className="fb-sections">
         {fb.strengths && (
@@ -73,16 +64,6 @@ export default function FeedbackPanel({ feedback, onNext }) {
 
       <style>{`
         .feedback-panel { margin-top: 1.25rem; }
-
-        .fb-metrics {
-          display: flex;
-          gap: 1.5rem;
-          flex-wrap: wrap;
-          margin-bottom: 1.25rem;
-        }
-        .fb-metric { display: flex; flex-direction: column; align-items: flex-start; }
-        .fb-metric-val { font-size: 1.1rem; font-weight: 700; }
-        .fb-metric-lbl { font-size: 0.7rem; color: var(--text-muted); }
 
         .fb-sections {
           display: flex;

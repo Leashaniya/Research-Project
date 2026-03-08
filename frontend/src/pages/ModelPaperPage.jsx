@@ -17,6 +17,11 @@ function ModelPaperPage() {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [shortNotes, setShortNotes] = useState(null);
   const [loadingNotes, setLoadingNotes] = useState(false);
+  const [notification, setNotification] = useState(null);
+
+  const showNotification = (message) => {
+    setNotification(message);
+  };
 
   const addLog = (msg) => {
     setLogs(prev => [...prev.slice(-50), `[${new Date().toLocaleTimeString()}] ${msg}`]);
@@ -117,6 +122,14 @@ function ModelPaperPage() {
   }, []);
 
   const handleUpload = async (file, type) => {
+    if (!file) return;
+    const name = (file.name || "").toLowerCase();
+    if (!name.endsWith(".pdf")) {
+      addLog(`Error: Only PDF format is allowed. Rejected: ${file.name}`);
+      showNotification("Only PDF format is acceptable. Please select a .pdf file.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
 
@@ -129,6 +142,11 @@ function ModelPaperPage() {
         body: formData
       });
       const data = await resp.json();
+      if (!resp.ok) {
+        addLog(`Error: ${data.detail || "Upload failed"}`);
+        showNotification(data.detail || "Upload failed. Only PDF format is acceptable.");
+        return;
+      }
       addLog(`Success: ${data.message}`);
       fetchFiles(); // Refresh list after upload
     } catch (err) {
@@ -171,6 +189,18 @@ function ModelPaperPage() {
       setStatus("Timed out or Connection Lost. Check backend console.");
       // Check if a checkpoint exists and we can resume later
       addLog("Retrying may resume from the last saved question.");
+      // Try to load the latest paper from disk anyway (it may exist from a prior run)
+      try {
+        const fallbackResp = await fetch(`${API_BASE}/model-paper/paper-json`);
+        if (fallbackResp.ok) {
+          const fallbackData = await fallbackResp.json();
+          setPaper(fallbackData);
+          addLog("Loaded latest paper from disk.");
+          setStatus("Paper loaded (from disk)");
+        }
+      } catch (_) {
+        // Ignore fallback errors
+      }
     } finally {
       setProcessing(false);
     }
@@ -200,9 +230,23 @@ function ModelPaperPage() {
     }
   };
 
+  useEffect(() => {
+    if (!notification) return;
+    const t = setTimeout(() => setNotification(null), 5000);
+    return () => clearTimeout(t);
+  }, [notification]);
+
   return (
     <>
       <CommonHeader />
+      {notification && (
+        <div className="NotificationOverlay" onClick={() => setNotification(null)}>
+          <div className="NotificationBox" onClick={(e) => e.stopPropagation()}>
+            <p className="NotificationMessage">{notification}</p>
+            <button type="button" className="Btn NotificationBtn" onClick={() => setNotification(null)}>OK</button>
+          </div>
+        </div>
+      )}
       <div className="Dashboard">
         <header>
           <h1>Agentic AI Paper Generator</h1>
@@ -216,7 +260,7 @@ function ModelPaperPage() {
           <p>Upload PDF past papers to establish the exam style and structure.</p>
           <label className="Btn">
             Upload PDF
-            <input type="file" className="UploadInput" onChange={(e) => handleUpload(e.target.files[0], "past")} />
+            <input type="file" className="UploadInput" accept=".pdf,application/pdf" onChange={(e) => handleUpload(e.target.files[0], "past")} />
           </label>
         </div>
 
@@ -226,7 +270,7 @@ function ModelPaperPage() {
           <p>Upload slides to provide context for the local researcher agent.</p>
           <label className="Btn">
             Upload PDF
-            <input type="file" className="UploadInput" onChange={(e) => handleUpload(e.target.files[0], "slides")} />
+            <input type="file" className="UploadInput" accept=".pdf,application/pdf" onChange={(e) => handleUpload(e.target.files[0], "slides")} />
           </label>
         </div>
 

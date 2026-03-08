@@ -43,9 +43,14 @@ async def process_uploaded_files() -> Dict[str, Any]:
         await asyncio.to_thread(analyze_templates)
         
         steps.append("Syncing templates to brain (database)...")
-        from scripts.migrate_data import main as migrate_main
-        await migrate_main() # migrate_main is already async
-        steps.append("Exam structure and templates generated & synced.")
+        try:
+            from scripts.migrate_data import main as migrate_main
+            await migrate_main() # migrate_main is already async
+            steps.append("Exam structure and templates generated & synced.")
+        except Exception as mig_err:
+            logger.warning("MongoDB migration failed (non-fatal): %s", mig_err)
+            steps.append(f"⚠️ Database sync skipped (non-fatal): {mig_err}")
+            steps.append("Continuing with local artifacts...")
 
         return {"status": "success", "steps": steps}
     except Exception as e:

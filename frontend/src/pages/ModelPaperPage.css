@@ -6,7 +6,7 @@
 body {
   margin: 0;
   padding: 0;
-  background: #f8fafc;
+  background: linear-gradient(160deg, #f0f9ff 0%, #e0f2fe 45%, #f8fafc 100%);
   color: #1e293b;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
@@ -198,4 +198,43 @@ h1 {
   overflow-wrap: break-word;
   line-height: 1.6;
   color: #000;
+}
+
+/* In-page notification (replaces browser alert – no "localhost says") */
+.NotificationOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: notificationFadeIn 0.2s ease-out;
+}
+
+@keyframes notificationFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.NotificationBox {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e2e8f0;
+}
+
+.NotificationMessage {
+  margin: 0 0 1.25rem 0;
+  color: #1e293b;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.NotificationBtn {
+  width: 100%;
+  padding: 0.65rem 1.25rem;
 }

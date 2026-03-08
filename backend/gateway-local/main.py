@@ -31,6 +31,10 @@ app.add_middleware(
 # Headers not forwarded (set per-request)
 FORWARD_SKIP_HEADERS = {"host", "connection", "content-length"}
 
+# Paper generation can take 15–30+ min (preprocessing + AI). Use longer timeout for /papers/.
+DEFAULT_PROXY_TIMEOUT = 300.0
+PAPERS_PROXY_TIMEOUT = float(os.getenv("PAPERS_PROXY_TIMEOUT", "1800"))  # 30 min
+
 
 @app.get("/health")
 def health():
@@ -54,7 +58,7 @@ async def proxy_guidance(request: Request, path: str):
 
 @app.api_route("/papers/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 async def proxy_papers(request: Request, path: str):
-    return await _proxy(request, PAPERS_TARGET, "papers", path)
+    return await _proxy(request, PAPERS_TARGET, "papers", path, timeout=PAPERS_PROXY_TIMEOUT)
 
 
 @app.api_route("/essay/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
@@ -67,8 +71,10 @@ async def proxy_mcq(request: Request, path: str):
     return await _proxy(request, MCQ_TARGET, "mcq", path)
 
 
-async def _proxy(request: Request, target_base: str, prefix: str, path: str):
+async def _proxy(request: Request, target_base: str, prefix: str, path: str, timeout: float = None):
     """Forward request to target service and return response."""
+    if timeout is None:
+        timeout = DEFAULT_PROXY_TIMEOUT
     url = f"{target_base.rstrip('/')}/{path}"
     if request.url.query:
         url = f"{url}?{request.url.query}"
@@ -88,7 +94,7 @@ async def _proxy(request: Request, target_base: str, prefix: str, path: str):
     except Exception:
         body = b""
 
-    async with httpx.AsyncClient(timeout=300.0) as client:
+    async with httpx.AsyncClient(timeout=timeout) as client:
         try:
             resp = await client.request(
                 request.method,
@@ -100,6 +106,11 @@ async def _proxy(request: Request, target_base: str, prefix: str, path: str):
             return JSONResponse(
                 status_code=502,
                 content={"detail": f"Backend unreachable: {target_base}", "error": str(e)},
+            )
+        except httpx.TimeoutException as e:
+            return JSONResponse(
+                status_code=504,
+                content={"detail": "Paper generation timed out. The pipeline can take 15–30+ minutes. Try again or run it from the backend terminal (run_full_pipeline.py).", "error": str(e)},
             )
         except Exception as e:
             return JSONResponse(status_code=502, content={"detail": str(e)})

@@ -17,6 +17,18 @@ class PDFService:
         self.pdf = None
     
     @staticmethod
+    def _strip_duplicate_label_from_text(text: str, label: str) -> str:
+        """If text starts with 'label) ' (e.g. 'b) '), strip it to avoid 'b)b)' in PDF."""
+        if not text or not label:
+            return text
+        t = text.strip()
+        # Match "a) ", "b) ", "c) " etc. at start (label can be single letter or i, ii, iii)
+        prefix = f"{label}) "
+        if t.lower().startswith(prefix.lower()):
+            return t[len(prefix):].strip()
+        return text
+
+    @staticmethod
     def _sanitize_text(text: str) -> str:
         """Remove or replace characters that FPDF cannot handle."""
         # Replace problematic characters
@@ -45,6 +57,18 @@ class PDFService:
         left_margin = pdf.l_margin
         right_margin = pdf.r_margin
         return 210 - left_margin - right_margin
+
+    @staticmethod
+    def _get_available_height(pdf: FPDF, bottom_margin_mm: float = 20) -> float:
+        """Approximate available height from current Y to bottom of page (A4 height 297mm)."""
+        return 297 - pdf.get_y() - bottom_margin_mm
+
+    @staticmethod
+    def _ensure_height_then_ln(pdf: FPDF, need_mm: float = 45) -> None:
+        """If remaining height is less than need_mm, add a new page."""
+        if PDFService._get_available_height(pdf) < need_mm:
+            pdf.add_page()
+        pdf.ln(2)
     
     def generate_pdf(self, paper_data: Dict[str, Any], output_path) -> bool:
         """
@@ -204,6 +228,49 @@ class PDFService:
         
         pdf.ln(5)
     
+    def _render_subquestion_content(
+        self, pdf: FPDF, sq: Dict[str, Any], label: str, text: str, marks: int, available_width: float
+    ) -> None:
+        """
+        Render a single subquestion line or code+question. For Q3(b)-style content with ``` code blocks,
+        render code in monospace first, then the question on the next line.
+        """
+        # Check for markdown-style code block (```...```)
+        if "```" in text:
+            parts = text.split("```")
+            # parts[0] = intro (e.g. "Code Segment: "), parts[1] = code, parts[2] = question text
+            pdf.set_font("helvetica", "", 10)
+            intro = parts[0].strip()  # e.g. "Code Segment:"
+            if intro:
+                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {intro}"), align='L')
+                pdf.ln(2)
+            # Code in monospace, line by line for proper alignment
+            if len(parts) >= 2:
+                code_block = parts[1].strip()
+                if code_block.startswith("sql "):
+                    code_block = code_block[4:].strip()
+                pdf.set_font("courier", "", 9)
+                for line in code_block.split("\n"):
+                    line = line.strip()
+                    if line:
+                        pdf.multi_cell(available_width, 5, PDFService._sanitize_text(line), align='L')
+                pdf.ln(2)
+            # Question on the next line (normal font)
+            if len(parts) >= 3:
+                question_text = parts[2].strip()
+                pdf.set_font("helvetica", "", 10)
+                if marks:
+                    pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{question_text} ({marks} marks)"), align='L')
+                else:
+                    pdf.multi_cell(available_width, 6, PDFService._sanitize_text(question_text), align='L')
+            return
+        # No code block: render as single line
+        pdf.set_font("helvetica", "", 10)
+        if marks:
+            pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text} ({marks} marks)"), align='L')
+        else:
+            pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text}"), align='L')
+
     def _add_subquestion_to_pdf(self, pdf: FPDF, sq: Dict[str, Any], parent_q: Dict[str, Any]):
         """
         Add a subquestion to the PDF, handling nested subquestions.
@@ -217,7 +284,9 @@ class PDFService:
         - Nested subquestions: "   i. Nested text (marks)" (indented, regular font)
         """
         label = sq.get("label", "")
-        text = sq.get("text", "")
+        text = str(sq.get("text") or "").strip()
+        # Avoid duplicate labels: if text already starts with "b) " etc., strip it so we don't get "b)b)"
+        text = PDFService._strip_duplicate_label_from_text(text, label)
         marks = sq.get("marks", 0)
         
         # Handle nested subquestions (e.g., Q4: "a) Write SQL Queries..." with nested i, ii, iii)
@@ -235,40 +304,30 @@ class PDFService:
                 pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text} ({marks} marks)"), align='L')
             else:
                 pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text}"), align='L')
-            pdf.ln(2)
+            PDFService._ensure_height_then_ln(pdf, need_mm=45)
             
             # Nested subquestions (indented, regular font, e.g., "   i. Find...", "   ii. Find...")
             pdf.set_font("helvetica", "", 10)
             for nested_sq in nested_subquestions:
+                if PDFService._get_available_height(pdf) < 25:
+                    pdf.add_page()
                 nested_label = nested_sq.get("label", "")
-                nested_text = nested_sq.get("text", "")
+                nested_text = str(nested_sq.get("text") or "").strip()
                 nested_marks = nested_sq.get("marks", 0)
 
-                # CRITICAL: Remove any existing label prefix from nested_text to prevent duplicates (e.g., "i. i. ")
-                import re
-                # Remove label prefixes (i., ii., iii., iv., v.) at the start of text
-                clean_nested_text = nested_text
-                while True:
-                    old_text = clean_nested_text
-                    # Remove label prefixes (with period or space) - remove ALL occurrences
-                    clean_nested_text = re.sub(r'^(i{1,3}|iv|v)[\.\s]+\s*', '', clean_nested_text, flags=re.IGNORECASE).strip()
-                    if clean_nested_text == old_text:
-                        break  # No more labels to remove
+                # Remove label prefix from nested_text to prevent "i. i. " (e.g. "i. ", "ii. ")
+                clean_nested_text = re.sub(r'^(i{1,3}|iv|v)[\.\s]+\s*', '', nested_text, flags=re.IGNORECASE).strip()
+                if not clean_nested_text:
+                    clean_nested_text = nested_text
 
-                # Format: "   i. Text (marks)" - indented with 3 spaces to show hierarchy
-                # Use multi_cell with calculated width for text wrapping to prevent truncation
+                # Format: "   i. Text (marks)" - indented, full width, left-aligned
                 if nested_marks:
                     pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"   {nested_label}. {clean_nested_text} ({nested_marks} marks)"), align='L')
                 else:
                     pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"   {nested_label}. {clean_nested_text}"), align='L')
         else:
-            # Regular subquestion (no nesting)
-            pdf.set_font("helvetica", "", 10)
-            # Use multi_cell with calculated width for text wrapping to prevent truncation
-            if marks:
-                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text} ({marks} marks)"), align='L')
-            else:
-                pdf.multi_cell(available_width, 6, PDFService._sanitize_text(f"{label}) {text}"), align='L')
+            # Regular subquestion (no nesting) — may contain code block (e.g. Q3 b)
+            self._render_subquestion_content(pdf, sq, label, text, marks, available_width)
         
         pdf.ln(2)
         

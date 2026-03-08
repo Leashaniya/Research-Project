@@ -228,8 +228,10 @@ Extract:
 
         CRITICAL REQUIREMENTS:
         - MINIMUM 4 distinct entities must be included (at least 4 entities)
-        - ⚠️ ALL entities MUST be connected through relationships - NO standalone entities
+        - ⚠️ The diagram MUST be ONE single interconnected whole - NO standalone entities, NO separate clusters
+        - ⚠️ EVERY entity MUST participate in at least one relationship (or ISA hierarchy) so that the entire diagram is connected
         - ⚠️ If an entity like "Instructor" or "Department" exists, it MUST be connected to at least one other entity via a relationship
+        - ⚠️ There must be exactly one connected component: all entities linked through relationships/ISA - never a floating entity or a separate group
         - {"⚠️ AGGREGATION IS REQUIRED. You MUST include at least one aggregation and include it in the 'aggregations' array." if requires_aggregation else ""}
         - ⚠️ ISA hierarchies MUST be subtype/supertype only (e.g., Student → GraduateStudent, NOT Student → Course)
         - ⚠️ For every ISA hierarchy returned, the "subtypes" array MUST contain at least TWO subtype objects. Never create an ISA hierarchy with only one subtype.
@@ -1199,6 +1201,85 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
 
         return updated_description
     
+    @staticmethod
+    def _ensure_interconnected_diagram(
+        entities: List[Dict],
+        relationships: List[Dict],
+        isa_hierarchies: List[Dict],
+        weak_entities: List[Dict],
+        aggregations: List[Dict],
+    ) -> None:
+        """
+        Ensure the EER/ER diagram is always ONE interconnected whole: no standalone entities,
+        no separate clusters. Mutates relationships in place.
+        """
+        def _norm(name: str) -> str:
+            return (name or "").strip()
+
+        entity_names = {_norm(e.get("name")) for e in entities if e.get("name")}
+        if not entity_names:
+            return
+
+        # Build adjacency from relationships, ISA, weak, aggregations
+        adj: Dict[str, set] = {n: set() for n in entity_names}
+        def add_edge(a: str, b: str) -> None:
+            a, b = _norm(a), _norm(b)
+            if a and b and a in adj and b in adj:
+                adj[a].add(b)
+                adj[b].add(a)
+
+        for r in relationships:
+            add_edge(r.get("entity1"), r.get("entity2"))
+        for isa in isa_hierarchies or []:
+            sup = _norm(isa.get("supertype"))
+            for sub in isa.get("subtypes") or []:
+                sub_name = _norm(sub.get("name") if isinstance(sub, dict) else str(sub))
+                add_edge(sup, sub_name)
+        for w in weak_entities or []:
+            add_edge(w.get("name"), w.get("owner"))
+        for agg in aggregations or []:
+            ext = agg.get("external_entity")
+            for e in agg.get("entities") or []:
+                add_edge(ext, e)
+
+        # Find connected components (BFS)
+        visited = set()
+        components: List[List[str]] = []
+        for start in entity_names:
+            if start in visited:
+                continue
+            comp = []
+            stack = [start]
+            while stack:
+                n = stack.pop()
+                if n in visited:
+                    continue
+                visited.add(n)
+                comp.append(n)
+                for neighbor in adj.get(n) or []:
+                    if neighbor not in visited:
+                        stack.append(neighbor)
+            if comp:
+                components.append(comp)
+
+        # If one component, nothing to do (already interconnected)
+        if len(components) <= 1:
+            return
+
+        # Link components so the diagram is one whole: add one relationship between consecutive components
+        for i in range(len(components) - 1):
+            a = components[i][0]
+            b = components[i + 1][0]
+            if a and b:
+                relationships.append({
+                    "name": "RelatedTo",
+                    "entity1": a,
+                    "entity2": b,
+                    "cardinality": "one-to-many",
+                    "min1": 0, "max1": "N", "min2": 1, "max2": 1,
+                    "descriptive_attributes": [],
+                })
+
     def generate_graphviz_code(self, parsed_data: Dict[str, Any], diagram_type: str = "EER") -> str:
         """
         Generate Graphviz DOT code from parsed ER/EER components.
@@ -1216,6 +1297,9 @@ DO NOT omit participation constraints. They are REQUIRED for every relationship.
         aggregations = parsed_data.get("aggregations", []) or []
         isa_hierarchies = parsed_data.get("isa_hierarchies", [])
         weak_entities = parsed_data.get("weak_entities", [])
+        
+        # Ensure EER/ER diagram is always ONE interconnected whole - no standalone entities or separate clusters
+        _ensure_interconnected_diagram(entities, relationships, isa_hierarchies, weak_entities, aggregations)
         
         lines = []
         lines.append("digraph ER_Diagram {")

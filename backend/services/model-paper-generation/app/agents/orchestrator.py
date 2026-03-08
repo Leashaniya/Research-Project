@@ -31,26 +31,26 @@ def _normalize_paper_for_presentation(paper: Dict[str, Any]) -> Dict[str, Any]:
     for q in questions:
         subqs = q.get("subquestions") or []
 
-        # Fix Q3(b) JDBC code segment formatting so the Java code appears
-        # properly indented on separate lines instead of a single long line.
-        for sq in subqs:
-            text = sq.get("text") or ""
-            if (
-                "Code Segment:" in text
-                and "SELECT * FROM employees WHERE department = ?" in text
-                and "PreparedStatement pstmt = connection.prepareStatement(sql);" in text
-            ):
-                sq["text"] = (
-                    "Code Segment:\n"
-                    "```java\n"
-                    'String sql = "SELECT * FROM employees WHERE department = ?";\n'
-                    "PreparedStatement pstmt = connection.prepareStatement(sql);\n"
-                    'pstmt.setString(1, \"IT\");\n'
-                    "ResultSet rs = pstmt.executeQuery();\n"
-                    "```\n\n"
-                    "Which type of JDBC statement is used in the code segment shown above?\n"
-                    "Briefly explain when this type of statement will be used."
-                )
+        # Q3 part (b) must ALWAYS be a JDBC question: Java code segment + "Which type of JDBC statement..."
+        # Enforce this regardless of what the writer produced (e.g. SQL DDL).
+        if q.get("question_no") == "Q3":
+            for sq in subqs:
+                if sq.get("label") == "b":
+                    # Match past paper wording (2024/2023 blueprint): JDBC API, "result sets", "code segment"
+                    # Use "shown above" because we render the code block above the question in the PDF.
+                    sq["text"] = (
+                        "Code Segment:\n"
+                        "```java\n"
+                        'String sql = "SELECT * FROM employees WHERE department = ?";\n'
+                        "PreparedStatement pstmt = connection.prepareStatement(sql);\n"
+                        'pstmt.setString(1, "IT");\n'
+                        "ResultSet rs = pstmt.executeQuery();\n"
+                        "```\n\n"
+                        "There are several different statements in the JDBC API to retrieve result sets "
+                        "based on different requirements. Which type of statements is used in the code segment "
+                        "shown above? Briefly explain when this type of statement will be used."
+                    )
+                    break
 
         # For Q4(a), keep the parent text as a generic instruction and avoid
         # repeating the text of subparts such as (i) which are listed below.
