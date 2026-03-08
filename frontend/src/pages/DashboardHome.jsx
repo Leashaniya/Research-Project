@@ -32,6 +32,8 @@ export default function DashboardHome() {
     try {
       await fetch(`${API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
       setUser(null);
+      // Redirect so ProtectedRoute remounts and shows sign-in gate; services become hidden
+      window.location.href = '/';
     } catch (error) {
       console.error('Error logging out:', error);
     }
