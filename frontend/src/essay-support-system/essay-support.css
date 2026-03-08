@@ -1,20 +1,12 @@
 /*
  * essay-support.css
  * Enhanced professional styling for the Essay Support System subsystem.
- * Maintains blue color theme with modern, polished UI elements.
+ * Maintains blue color theme with modern, polished UI elements matching Academic Assistance Dashboard.
  */
 
 /* ── Enhanced theme variables ── */
 .essay-support-root {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  /* Enhanced blue theme with professional touches */
-=======
-  /* Professional blue theme */
->>>>>>> e360af11 (Updated project files)
-=======
-  /* Dark blue theme matching the sample image */
->>>>>>> fb81cdee (Updated analytics page)
+  /* Professional blue theme matching Academic Assistance Dashboard */
   --primary-50:  #eff6ff;
   --primary-100: #dbeafe;
   --primary-200: #bfdbfe;
@@ -33,18 +25,10 @@
 
   --bg:          #f8fafc;
   --bg-card:     #ffffff;
-<<<<<<< HEAD
-<<<<<<< HEAD
   --bg-card-alt: #f1f5f9;
-=======
-  --bg-card-alt: #f8fafc;
->>>>>>> e360af11 (Updated project files)
-=======
-  --bg-card-alt: #f1f5f9;
->>>>>>> fb81cdee (Updated analytics page)
   --bg-sidebar:  #1e293b;
-  --text:        #1e293b;
-  --text-muted:  #64748b;
+  --text:        #0f172a;
+  --text-muted:  #334155;
   --border:      #e2e8f0;
   --border-light: #f1f5f9;
 
@@ -55,21 +39,6 @@
   --success-light: rgba(16, 185, 129, 0.08);
 
   --sidebar-w: 280px;
-<<<<<<< HEAD
-  --radius:    16px;
-  --radius-sm: 12px;
-  --radius-lg: 20px;
-  --radius-full: 999px;
-<<<<<<< HEAD
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
-  --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-=======
   --radius:    14px;
   --radius-sm: 8px;
   --radius-lg: 20px;
@@ -82,13 +51,6 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
->>>>>>> e360af11 (Updated project files)
-=======
-  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.08);
-  --transition: all 0.2s ease;
-
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
->>>>>>> fb81cdee (Updated analytics page)
   color-scheme: light;
 
   /* Full viewport container */
@@ -132,15 +94,7 @@
 .essay-support-root .app-layout {
   display: flex;
   min-height: 100vh;
-<<<<<<< HEAD
-<<<<<<< HEAD
   background: var(--bg);
-=======
-  background: transparent;
->>>>>>> e360af11 (Updated project files)
-=======
-  background: var(--bg);
->>>>>>> fb81cdee (Updated analytics page)
   color: var(--text);
 }
 
@@ -148,53 +102,220 @@
   position: relative;
   flex: 1;
   margin-left: var(--sidebar-w);
-  padding: 2.5rem 2.5rem 3rem;
-<<<<<<< HEAD
-<<<<<<< HEAD
-  max-width: 1280px;
-=======
+  padding: 3rem 3rem 4rem;
   max-width: 1400px;
->>>>>>> e360af11 (Updated project files)
-=======
-  max-width: 1280px;
->>>>>>> fb81cdee (Updated analytics page)
   background: transparent;
   min-height: 100vh;
   color: var(--text);
 }
 
-<<<<<<< HEAD
-/* ── Enhanced Utility Classes ── */
-=======
-/* ── Enhanced Card Design ── */
->>>>>>> fb81cdee (Updated analytics page)
+/* ── Enhanced Sidebar Styling ── */
+
+.essay-support-root .sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: linear-gradient(180deg, #1e3a8a 0%, #1e293b 100%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-xl);
+}
+
+.essay-support-root .sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+}
+
+.essay-support-root .sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.essay-support-root .sidebar-title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #ffffff;
+  letter-spacing: 0.025em;
+}
+
+.essay-support-root .sidebar-nav {
+  flex: 1;
+  padding: 1.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.essay-support-root .sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: var(--transition);
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.essay-support-root .sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+.essay-support-root .sidebar-link.active {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(96, 165, 250, 0.15));
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  transform: translateX(2px);
+}
+
+.essay-support-root .sidebar-link svg {
+  color: inherit;
+  min-width: 20px;
+}
+
+.essay-support-root .sidebar-footer {
+  padding: 1.5rem 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+.essay-support-root .sidebar-back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.essay-support-root .sidebar-back-link:hover {
+  color: #ffffff;
+  transform: translateX(2px);
+}
+
+.essay-support-root .sidebar-footer p {
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  font-weight: 500;
+}
+
+/* ── Enhanced Mobile Navigation ── */
+
+.essay-support-root .mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(180deg, #1e3a8a 0%, #1e293b 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.5rem 0;
+  z-index: 100;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.essay-support-root .mobile-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-size: 0.7rem;
+  font-weight: 500;
+  transition: var(--transition);
+  flex: 1;
+}
+
+.essay-support-root .mobile-link:hover {
+  color: #ffffff;
+}
+
+.essay-support-root .mobile-link.active {
+  color: #ffffff;
+}
+
+.essay-support-root .mobile-link svg {
+  width: 20px;
+  height: 20px;
+  color: inherit;
+}
+
+@media (max-width: 768px) {
+  .essay-support-root .sidebar { display: none; }
+  .essay-support-root .mobile-nav { 
+    display: flex; 
+    justify-content: space-around;
+  }
+  .essay-support-root .app-content {
+    margin-left: 0 !important;
+    padding-bottom: 5rem !important;
+  }
+}
 
 .essay-support-root .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-<<<<<<< HEAD
-<<<<<<< HEAD
-  border-radius: var(--radius);
-  padding: 2rem;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-}
-.essay-support-root .card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-=======
   border-radius: var(--radius-lg);
-  padding: 2rem;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-=======
-  border-radius: var(--radius-lg);
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
->>>>>>> fb81cdee (Updated analytics page)
+  padding: 3rem;
+  box-shadow: 0 10px 40px rgba(30, 64, 175, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.essay-support-root .card h3 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 1.25rem 0;
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+}
+
+.essay-support-root .card p {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 0;
+  font-weight: 500;
 }
 
 .essay-support-root .card::before {
@@ -204,35 +325,20 @@
   left: 0;
   right: 0;
   height: 4px;
-<<<<<<< HEAD
-  background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
-  opacity: 0;
-  transition: var(--transition);
-}
-
-.essay-support-root .card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-.essay-support-root .card:hover::before {
-  opacity: 1;
->>>>>>> e360af11 (Updated project files)
-=======
   background: linear-gradient(90deg, var(--primary-600) 0%, var(--primary-400) 100%);
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
 
 .essay-support-root .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(30, 64, 175, 0.12);
-  border-color: var(--primary-200);
+  transform: translateY(-12px);
+  box-shadow: 0 25px 80px rgba(30, 64, 175, 0.18);
+  border-color: var(--primary-300);
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .essay-support-root .card:hover::before {
   transform: scaleX(1);
->>>>>>> fb81cdee (Updated analytics page)
 }
 
 .essay-support-root .card-alt {
@@ -245,52 +351,1409 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: 700;
 }
 
-/* ── Enhanced Button Design ── */
+.essay-support-root .feature-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+/* Enhanced feature icon colors */
+.essay-support-root .feature-card:nth-child(1) .feature-icon {
+  background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+  color: var(--primary-600);
+  border-color: var(--primary-200);
+}
+
+.essay-support-root .feature-card:nth-child(2) .feature-icon {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+  color: var(--success);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.essay-support-root .feature-card:nth-child(3) .feature-icon {
+  background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+  color: var(--secondary);
+  border-color: var(--primary-200);
+}
+
+/* ── Enhanced Responsive Design ── */
+
+@media (max-width: 768px) {
+  .essay-support-root .hero { 
+    padding: 56px 20px 48px; 
+  }
+  .essay-support-root .hero h1 { 
+    font-size: 2.2rem; 
+  }
+  .essay-support-root .features-grid { 
+    grid-template-columns: 1fr; 
+    gap: 1.5rem;
+  }
+  .essay-support-root .section-title {
+    font-size: 1.4rem;
+    margin-bottom: 2rem;
+  }
+}
+
+/* ── Completely Redesigned Practice Page ── */
+
+.essay-support-root .practice-page {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
+  position: relative;
+}
+
+.essay-support-root .practice-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(37, 99, 235, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 60%, rgba(96, 165, 250, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Ultra Premium Page Header ── */
+
+.essay-support-root .practice-page .page-header {
+  background: linear-gradient(135deg, 
+    #1e3a8a 0%, 
+    #1e40af 25%, 
+    #2563eb 50%, 
+    #3b82f6 75%, 
+    #60a5fa 100%);
+  border: none;
+  border-radius: 24px;
+  padding: 4rem 3rem;
+  margin: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: 
+    0 32px 120px rgba(30, 64, 175, 0.25),
+    0 16px 60px rgba(30, 64, 175, 0.15),
+    0 8px 30px rgba(30, 64, 175, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(40px);
+  z-index: 10;
+}
+
+.essay-support-root .practice-page .page-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    conic-gradient(from 0deg at 50% 50%, 
+      transparent 0deg, 
+      rgba(255, 255, 255, 0.1) 60deg, 
+      transparent 120deg,
+      rgba(255, 255, 255, 0.05) 180deg,
+      transparent 240deg,
+      rgba(255, 255, 255, 0.1) 300deg,
+      transparent 360deg);
+  animation: rotate 20s linear infinite;
+  opacity: 0.3;
+}
+
+.essay-support-root .practice-page .page-header::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    transparent 100%);
+  border-radius: 22px;
+  pointer-events: none;
+}
+
+@keyframes rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.essay-support-root .practice-page .page-header h1 {
+  font-size: 3.5rem;
+  font-weight: 950;
+  color: #ffffff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  position: relative;
+  z-index: 3;
+  text-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.essay-support-root .practice-page .page-header h1 .header-title {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.essay-support-root .practice-page .page-header h1 .lu-brain {
+  background: linear-gradient(135deg, 
+    #ffffff 0%, 
+    #f0f9ff 25%, 
+    #e0f2fe 50%, 
+    #bae6fd 75%, 
+    #7dd3fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 8px 24px rgba(59, 130, 246, 0.5));
+  animation: glow 3s ease-in-out infinite alternate;
+  position: relative;
+}
+
+.essay-support-root .practice-page .page-header h1 .lu-brain::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+  animation: pulse 2s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes glow {
+  0% { 
+    filter: drop-shadow(0 8px 24px rgba(59, 130, 246, 0.5)) brightness(1);
+  }
+  100% { 
+    filter: drop-shadow(0 12px 32px rgba(59, 130, 246, 0.7)) brightness(1.2);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+}
+
+.essay-support-root .practice-page .page-header .btn-outline {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.2) 0%, 
+    rgba(255, 255, 255, 0.05) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+  padding: 1.25rem 2.5rem;
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: 1rem;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(30px);
+  position: relative;
+  z-index: 3;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.essay-support-root .practice-page .page-header .btn-outline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.3) 50%, 
+    transparent 100%);
+  transition: left 0.8s ease;
+}
+
+.essay-support-root .practice-page .page-header .btn-outline::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    transparent 100%);
+  border-radius: 14px;
+  pointer-events: none;
+}
+
+.essay-support-root .practice-page .page-header .btn-outline:hover::before {
+  left: 100%;
+}
+
+.essay-support-root .practice-page .page-header .btn-outline:hover {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.3) 0%, 
+    rgba(255, 255, 255, 0.15) 100%);
+  border-color: rgba(255, 255, 255, 0.7);
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.25),
+    0 8px 30px rgba(59, 130, 246, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* ── Premium Difficulty Selection Section ── */
+
+.essay-support-root .practice-page .difficulty-selector {
+  text-align: center;
+  margin: 5rem 2rem;
+  position: relative;
+  z-index: 5;
+}
+
+.essay-support-root .practice-page .difficulty-selector::before {
+  content: '';
+  position: absolute;
+  top: -3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--primary-400) 20%, 
+    var(--primary-500) 50%, 
+    var(--primary-400) 80%, 
+    transparent 100%);
+  border-radius: 1px;
+}
+
+.essay-support-root .practice-page .difficulty-selector h2 {
+  font-size: 3rem;
+  font-weight: 950;
+  color: var(--text);
+  margin-bottom: 2rem;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(135deg, var(--text) 0%, var(--primary-700) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.essay-support-root .practice-page .difficulty-selector h2::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 6px;
+  background: linear-gradient(90deg, var(--primary-600), var(--primary-400), var(--primary-600));
+  border-radius: 3px;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.essay-support-root .practice-page .difficulty-selector p {
+  font-size: 1.4rem;
+  color: var(--text-muted);
+  margin-bottom: 4rem;
+  line-height: 1.7;
+  font-weight: 600;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.essay-support-root .practice-page .difficulty-selector p::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--primary-300) 50%, 
+    transparent 100%);
+  border-radius: 1.5px;
+}
+
+/* ── Ultra Premium Stats Cards ── */
+
+.essay-support-root .stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2.5rem;
+  margin: 4rem 2rem;
+  position: relative;
+  z-index: 5;
+}
+
+.essay-support-root .stat-card {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(248, 250, 252, 0.8) 100%);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  box-shadow: 
+    0 20px 80px rgba(30, 64, 175, 0.12),
+    0 10px 40px rgba(30, 64, 175, 0.08),
+    0 4px 20px rgba(30, 64, 175, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+
+.essay-support-root .stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-600), var(--primary-400), var(--primary-600));
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+  transform-origin: left;
+}
+
+.essay-support-root .stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.02) 0%, 
+    transparent 100%);
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.essay-support-root .stat-card:hover {
+  transform: translateY(-12px) scale(1.03);
+  box-shadow: 
+    0 32px 120px rgba(30, 64, 175, 0.2),
+    0 16px 60px rgba(30, 64, 175, 0.15),
+    0 8px 30px rgba(30, 64, 175, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.essay-support-root .stat-card:hover::before {
+  transform: scaleX(1);
+}
+
+.essay-support-root .stat-card:hover::after {
+  opacity: 1;
+}
+
+.essay-support-root .stat-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.essay-support-root .stat-value {
+  font-size: 2.8rem;
+  font-weight: 950;
+  color: var(--text);
+  line-height: 1;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 4px 16px rgba(30, 64, 175, 0.15);
+  background: linear-gradient(135deg, var(--text) 0%, var(--primary-700) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Ultra Responsive Design ── */
+
+@media (max-width: 1024px) {
+  .essay-support-root .practice-page .page-header h1 {
+    font-size: 3rem;
+  }
+  
+  .essay-support-root .practice-page .difficulty-selector h2 {
+    font-size: 2.5rem;
+  }
+  
+  .essay-support-root .practice-page .difficulty-selector p {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .essay-support-root .practice-page .page-header {
+    padding: 3rem 2rem;
+    margin: 1rem;
+    margin-bottom: 2rem;
+    border-radius: 20px;
+  }
+  
+  .essay-support-root .practice-page .page-header h1 {
+    font-size: 2.5rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 2.5rem;
+  }
+  
+  .essay-support-root .practice-page .page-header h1 .header-title {
+    gap: 1.5rem;
+  }
+  
+  .essay-support-root .practice-page .page-header .btn-outline {
+    padding: 1rem 2rem;
+    font-size: 0.9rem;
+  }
+  
+  .essay-support-root .practice-page .difficulty-selector {
+    margin: 3rem 1rem;
+  }
+  
+  .essay-support-root .practice-page .difficulty-selector h2 {
+    font-size: 2.2rem;
+  }
+  
+  .essay-support-root .practice-page .difficulty-selector p {
+    font-size: 1.2rem;
+    margin-bottom: 3rem;
+  }
+  
+  .essay-support-root .stats-cards {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin: 3rem 1rem;
+  }
+  
+  .essay-support-root .stat-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .essay-support-root .stat-value {
+    font-size: 2.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .essay-support-root .practice-page .page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .essay-support-root .practice-page .page-header .btn-outline {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .essay-support-root .practice-page .difficulty-selector h2 {
+    font-size: 1.8rem;
+  }
+  
+  .essay-support-root .practice-page .difficulty-selector p {
+    font-size: 1.1rem;
+  }
+  
+  .essay-support-root .stat-value {
+    font-size: 2rem;
+  }
+}
+
+/* ── Ultra Premium Analytics Dashboard ── */
+
+.essay-support-root .analytics-page {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
+  position: relative;
+  padding: 2rem;
+}
+
+.essay-support-root .analytics-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 85% 85%, rgba(37, 99, 235, 0.04) 0%, transparent 50%),
+    radial-gradient(circle at 45% 55%, rgba(96, 165, 250, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Premium Analytics Header ── */
+
+.essay-support-root .analytics-page .page-header {
+  background: linear-gradient(135deg, 
+    #1e3a8a 0%, 
+    #1e40af 25%, 
+    #2563eb 50%, 
+    #3b82f6 75%, 
+    #60a5fa 100%);
+  border: none;
+  border-radius: 24px;
+  padding: 3rem 2.5rem;
+  margin: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: 
+    0 32px 120px rgba(30, 64, 175, 0.25),
+    0 16px 60px rgba(30, 64, 175, 0.15),
+    0 8px 30px rgba(30, 64, 175, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(40px);
+  z-index: 10;
+}
+
+.essay-support-root .analytics-page .page-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    conic-gradient(from 0deg at 50% 50%, 
+      transparent 0deg, 
+      rgba(255, 255, 255, 0.1) 60deg, 
+      transparent 120deg,
+      rgba(255, 255, 255, 0.05) 180deg,
+      transparent 240deg,
+      rgba(255, 255, 255, 0.1) 300deg,
+      transparent 360deg);
+  animation: rotate 20s linear infinite;
+  opacity: 0.3;
+}
+
+.essay-support-root .analytics-page .page-header::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    transparent 100%);
+  border-radius: 22px;
+  pointer-events: none;
+}
+
+.essay-support-root .analytics-page .page-header h1 {
+  font-size: 3rem;
+  font-weight: 950;
+  color: #ffffff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  position: relative;
+  z-index: 3;
+  text-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Premium Analytics Sections ── */
+
+.essay-support-root .analytics-section {
+  margin: 3rem 2rem;
+  position: relative;
+  z-index: 5;
+}
+
+.essay-support-root .analytics-section h3 {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 2rem;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  background: linear-gradient(135deg, var(--text) 0%, var(--primary-700) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Ultra Premium Stats Grid ── */
+
+.essay-support-root .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.essay-support-root .stats-card {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.95) 0%, 
+    rgba(248, 250, 252, 0.9) 100%);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  box-shadow: 
+    0 20px 80px rgba(30, 64, 175, 0.12),
+    0 10px 40px rgba(30, 64, 175, 0.08),
+    0 4px 20px rgba(30, 64, 175, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  aspect-ratio: 2.2/1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.essay-support-root .stats-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-600), var(--primary-400), var(--primary-600));
+  transform: scaleX(0);
+  transition: transform 0.4s ease;
+  transform-origin: left;
+}
+
+.essay-support-root .stats-card-success::before {
+  background: linear-gradient(90deg, var(--success), #22c55e, var(--success));
+}
+
+.essay-support-root .stats-card-warning::before {
+  background: linear-gradient(90deg, var(--warning), #f59e0b, var(--warning));
+}
+
+.essay-support-root .stats-card-danger::before {
+  background: linear-gradient(90deg, var(--danger), #ef4444, var(--danger));
+}
+
+.essay-support-root .stats-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.02) 0%, 
+    transparent 100%);
+  border-radius: 24px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.essay-support-root .stats-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 24px 80px rgba(30, 64, 175, 0.18),
+    0 12px 40px rgba(30, 64, 175, 0.12),
+    0 6px 20px rgba(30, 64, 175, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.essay-support-root .stats-card:hover::before {
+  transform: scaleX(1);
+}
+
+.essay-support-root .stats-card:hover::after {
+  opacity: 1;
+}
+
+.essay-support-root .stats-card-content h3 {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+  font-weight: 800;
+  position: relative;
+  z-index: 2;
+}
+
+.essay-support-root .stats-card-value {
+  font-size: 2.5rem;
+  font-weight: 950;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 2;
+  text-shadow: 0 4px 16px rgba(30, 64, 175, 0.15);
+  background: linear-gradient(135deg, var(--text) 0%, var(--primary-700) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.essay-support-root .stats-card p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+  font-weight: 600;
+  position: relative;
+  z-index: 2;
+}
+
+.essay-support-root .trend {
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  color: var(--text);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.essay-support-root .trend.positive {
+  color: var(--success);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.essay-support-root .trend.negative {
+  color: var(--danger);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.essay-support-root .trend.neutral {
+  color: var(--text-muted);
+  background: linear-gradient(135deg, rgba(107, 114, 128, 0.1), rgba(107, 114, 128, 0.05));
+  border: 1px solid rgba(107, 114, 128, 0.2);
+}
+
+/* ── Premium Chart Container ── */
+
+.essay-support-root .chart-container {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.95) 0%, 
+    rgba(248, 250, 252, 0.9) 100%);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 24px;
+  padding: 3rem 2rem;
+  box-shadow: 
+    0 20px 80px rgba(30, 64, 175, 0.12),
+    0 10px 40px rgba(30, 64, 175, 0.08),
+    0 4px 20px rgba(30, 64, 175, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+}
+
+.essay-support-root .chart-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-600), var(--primary-400), var(--primary-600));
+  transform: scaleX(1);
+}
+
+.essay-support-root .chart-title {
+  text-align: center;
+  margin-bottom: 3rem;
+  color: var(--text);
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--text) 0%, var(--primary-700) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.essay-support-root .difficulty-chart {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* ── Premium Data Table ── */
+
+.essay-support-root .data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.95) 0%, 
+    rgba(248, 250, 252, 0.9) 100%);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 
+    0 10px 40px rgba(30, 64, 175, 0.08),
+    0 4px 20px rgba(30, 64, 175, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.essay-support-root .data-table thead {
+  background: transparent;
+}
+
+.essay-support-root .data-table th {
+  padding: 1.5rem 1rem;
+  text-align: left;
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 2px solid var(--primary-600);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.essay-support-root .data-table td {
+  padding: 1.25rem 1rem;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.essay-support-root .data-table tbody tr {
+  transition: all 0.3s ease;
+}
+
+.essay-support-root .data-table tbody tr:hover {
+  background: linear-gradient(135deg, 
+    rgba(59, 130, 246, 0.05) 0%, 
+    rgba(59, 130, 246, 0.02) 100%);
+  transform: scale(1.01);
+}
+
+.essay-support-root .data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Premium Badges ── */
+
+.essay-support-root .badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.essay-support-root .badge-easy {
+  background: linear-gradient(135deg, var(--success), #22c55e);
+  color: white;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.essay-support-root .badge-medium {
+  background: linear-gradient(135deg, var(--warning), #f59e0b);
+  color: white;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.essay-support-root .badge-hard {
+  background: linear-gradient(135deg, var(--danger), #ef4444);
+  color: white;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* ── Premium Empty State ── */
+
+.essay-support-root .empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.95) 0%, 
+    rgba(248, 250, 252, 0.9) 100%);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 24px;
+  box-shadow: 
+    0 20px 80px rgba(30, 64, 175, 0.12),
+    0 10px 40px rgba(30, 64, 175, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.essay-support-root .empty-icon {
+  font-size: 4rem;
+  margin-bottom: 2rem;
+  filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.2));
+}
+
+.essay-support-root .empty-state h3 {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, var(--text) 0%, var(--primary-700) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.essay-support-root .empty-state p {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── Premium Alert ── */
+
+.essay-support-root .alert {
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(20px);
+}
+
+.essay-support-root .alert-error {
+  background: linear-gradient(135deg, 
+    rgba(239, 68, 68, 0.1) 0%, 
+    rgba(239, 68, 68, 0.05) 100%);
+  border: 2px solid rgba(239, 68, 68, 0.3);
+  color: var(--danger);
+  box-shadow: 
+    0 10px 40px rgba(239, 68, 68, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.essay-support-root .alert button {
+  background: linear-gradient(135deg, var(--danger), #dc2626);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.essay-support-root .alert button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* ── Analytics Responsive Design ── */
+
+@media (max-width: 1024px) {
+  .essay-support-root .analytics-page .page-header h1 {
+    font-size: 2.5rem;
+  }
+  
+  .essay-support-root .analytics-section h3 {
+    font-size: 1.8rem;
+  }
+  
+  .essay-support-root .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .essay-support-root .analytics-page {
+    padding: 1rem;
+  }
+  
+  .essay-support-root .analytics-page .page-header {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+    margin-bottom: 2rem;
+    border-radius: 20px;
+  }
+  
+  .essay-support-root .analytics-page .page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .essay-support-root .analytics-section {
+    margin: 2rem 1rem;
+  }
+  
+  .essay-support-root .analytics-section h3 {
+    font-size: 1.5rem;
+  }
+  
+  .essay-support-root .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .essay-support-root .stats-card {
+    padding: 1.5rem 2rem;
+  }
+  
+  .essay-support-root .stats-card-value {
+    font-size: 2rem;
+  }
+  
+  .essay-support-root .chart-container {
+    padding: 2rem 1rem;
+  }
+  
+  .essay-support-root .chart-title {
+    font-size: 1.5rem;
+  }
+  
+  .essay-support-root .data-table {
+    font-size: 0.9rem;
+  }
+  
+  .essay-support-root .data-table th,
+  .essay-support-root .data-table td {
+    padding: 1rem 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .essay-support-root .analytics-page .page-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .essay-support-root .analytics-section h3 {
+    font-size: 1.3rem;
+  }
+  
+  .essay-support-root .stats-card-value {
+    font-size: 1.8rem;
+  }
+  
+  .essay-support-root .chart-title {
+    font-size: 1.3rem;
+  }
+  
+  .essay-support-root .empty-state {
+    padding: 3rem 1rem;
+  }
+  
+  .essay-support-root .empty-icon {
+    font-size: 3rem;
+  }
+  
+  .essay-support-root .empty-state h3 {
+    font-size: 1.5rem;
+  }
+}
+
+/* ── Enhanced Change Difficulty Button ── */
+
+.essay-support-root .btn-text-link {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+  color: white !important;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 4px 12px rgba(59, 130, 246, 0.3),
+    0 2px 6px rgba(59, 130, 246, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: relative;
+  overflow: hidden;
+}
+
+.essay-support-root .btn-text-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.essay-support-root .btn-text-link:hover {
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 20px rgba(59, 130, 246, 0.4),
+    0 4px 10px rgba(59, 130, 246, 0.3);
+}
+
+.essay-support-root .btn-text-link:hover::before {
+  left: 100%;
+}
+
+.essay-support-root .btn-text-link:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 2px 8px rgba(59, 130, 246, 0.3),
+    0 1px 4px rgba(59, 130, 246, 0.2);
+}
+
+/* ── Enhanced Home Page Styling ── */
+
+.essay-support-root .home-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 8px 0 72px;
+}
+
+/* ── Enhanced Hero Section ── */
+
+.essay-support-root .hero {
+  position: relative;
+  text-align: center;
+  padding: 100px 32px 80px;
+  background: linear-gradient(135deg, var(--primary-900) 0%, var(--primary-800) 50%, var(--primary-700) 100%);
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  margin-bottom: 4rem;
+}
+
+.essay-support-root .hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(50% 50% at 80% 20%, rgba(59, 130, 246, 0.15), transparent 55%);
+  opacity: 1;
+}
+
+.essay-support-root .hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.essay-support-root .hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 24px;
+}
+
+.essay-support-root .hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 18px;
+  color: #ffffff;
+}
+
+.essay-support-root .hero-highlight {
+  background: linear-gradient(135deg, #ffffff, #e0e7ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+}
+
+.essay-support-root .hero-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+/* ── Enhanced Features Section ── */
+
+.essay-support-root .features-section {
+  padding: 36px 0 0;
+}
+
+.essay-support-root .section-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 26px;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.essay-support-root .features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.essay-support-root .feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 26px 22px;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.essay-support-root .feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-600), var(--primary-400));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.essay-support-root .feature-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--primary-300);
+  box-shadow: 0 20px 60px rgba(30, 64, 175, 0.15);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.essay-support-root .feature-card:hover::before {
+  transform: scaleX(1);
+}
+
+.essay-support-root .feature-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  background: var(--primary-50);
+  border: 1px solid var(--primary-200);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.1);
+  transition: all 0.3s ease;
+}
+
+.essay-support-root .feature-card:hover .feature-icon {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(30, 64, 175, 0.2);
+}
+
+.essay-support-root .feature-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+/* Enhanced feature icon colors */
+.essay-support-root .feature-card:nth-child(1) .feature-icon {
+  background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+  color: var(--primary-600);
+  border-color: var(--primary-200);
+}
+
+.essay-support-root .feature-card:nth-child(2) .feature-icon {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+  color: var(--success);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.essay-support-root .feature-card:nth-child(3) .feature-icon {
+  background: linear-gradient(135deg, var(--primary-50), var(--primary-100));
+  color: var(--secondary);
+  border-color: var(--primary-200);
+}
+
+/* ── Enhanced Responsive Design ── */
+
+@media (max-width: 768px) {
+  .essay-support-root .hero { 
+    padding: 56px 20px 48px; 
+  }
+  .essay-support-root .hero h1 { 
+    font-size: 2.2rem; 
+  }
+  .essay-support-root .features-grid { 
+    grid-template-columns: 1fr; 
+    gap: 1.5rem;
+  }
+  .essay-support-root .section-title {
+    font-size: 1.4rem;
+    margin-bottom: 2rem;
+  }
+}
+
+/* ── Enhanced Card Design ── */
 
 .essay-support-root .btn {
   display: inline-flex;
   align-items: center;
-<<<<<<< HEAD
-<<<<<<< HEAD
-  gap: 0.75rem;
-  padding: 0.875rem 1.75rem;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  font-size: 0.925rem;
-  transition: var(--transition);
-  position: relative;
-  overflow: hidden;
-  letter-spacing: 0.025em;
-  text-transform: none;
-  font-family: inherit;
-=======
-=======
->>>>>>> fb81cdee (Updated analytics page)
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  gap: 0.75rem;
+  padding: 1rem 2.5rem;
   border: none;
-  border-radius: 50px;
+  border-radius: var(--radius-lg);
   font-weight: 600;
-  font-size: 0.9rem;
-<<<<<<< HEAD
-  transition: var(--transition);
+  font-size: 1rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
   overflow: hidden;
   text-decoration: none;
   white-space: nowrap;
->>>>>>> e360af11 (Updated project files)
-=======
-  transition: all 0.3s ease;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
->>>>>>> fb81cdee (Updated analytics page)
+  letter-spacing: 0.025em;
+  box-shadow: 0 6px 20px rgba(30, 64, 175, 0.18);
 }
 
 .essay-support-root .btn::before {
@@ -301,11 +1764,7 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-<<<<<<< HEAD
-  transition: left 0.5s;
-=======
   transition: left 0.5s ease;
->>>>>>> fb81cdee (Updated analytics page)
 }
 
 .essay-support-root .btn:hover::before {
@@ -313,19 +1772,14 @@
 }
 
 .essay-support-root .btn-primary {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  background: linear-gradient(135deg, var(--primary-800), var(--primary-700));
-  color: #fff;
-  box-shadow: var(--shadow-md);
-  position: relative;
-  overflow: hidden;
-=======
   background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
   color: #fff;
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
->>>>>>> fb81cdee (Updated analytics page)
+  border: 1px solid var(--primary-700);
+  box-shadow: 0 4px 16px rgba(30, 64, 175, 0.25);
+  position: relative;
+  overflow: hidden;
 }
+
 .essay-support-root .btn-primary::after {
   content: '';
   position: absolute;
@@ -333,95 +1787,40 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent);
   opacity: 0;
-  transition: opacity 0.3s;
-=======
-  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
-  color: #fff;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--primary-700);
->>>>>>> e360af11 (Updated project files)
+  transition: opacity 0.3s ease;
 }
 
 .essay-support-root .btn-primary:hover {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  background: linear-gradient(135deg, var(--primary-700), var(--primary-600));
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(30, 64, 175, 0.4);
 }
+
 .essay-support-root .btn-primary:hover::after {
   opacity: 1;
 }
+
 .essay-support-root .btn-primary:active {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-=======
-  background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-1px);
->>>>>>> e360af11 (Updated project files)
-=======
-  background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(30, 64, 175, 0.3);
->>>>>>> fb81cdee (Updated analytics page)
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
 }
 
 .essay-support-root .btn-secondary {
-  background: var(--bg-card);
-<<<<<<< HEAD
-  color: var(--text);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-<<<<<<< HEAD
-  position: relative;
-  overflow: hidden;
-=======
+  background: rgba(255, 255, 255, 0.95);
   color: var(--primary-700);
-  border: 2px solid var(--primary-200);
-  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.1);
->>>>>>> fb81cdee (Updated analytics page)
-}
-.essay-support-root .btn-secondary::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--primary-50), transparent);
-  opacity: 0;
-  transition: opacity 0.3s;
-=======
->>>>>>> e360af11 (Updated project files)
+  border: 2px solid var(--primary-300);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.12);
+  backdrop-filter: blur(10px);
 }
 
 .essay-support-root .btn-secondary:hover {
-<<<<<<< HEAD
-<<<<<<< HEAD
   border-color: var(--primary-500);
-  color: var(--primary-600);
+  background: var(--primary-50);
+  color: var(--primary-800);
   transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
-}
-.essay-support-root .btn-secondary:hover::after {
-  opacity: 1;
-=======
-  border-color: var(--primary-300);
-  background: var(--primary-50);
-  color: var(--primary-700);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
->>>>>>> e360af11 (Updated project files)
-=======
-  border-color: var(--primary-400);
-  background: var(--primary-50);
-  color: var(--primary-700);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
->>>>>>> fb81cdee (Updated analytics page)
+  box-shadow: 0 10px 30px rgba(30, 64, 175, 0.25);
 }
 
 .essay-support-root .btn-danger {
@@ -481,38 +1880,22 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2.5rem;
-  padding-bottom: 1.5rem;
-<<<<<<< HEAD
-<<<<<<< HEAD
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
   border-bottom: 1px solid var(--border);
-=======
-  border-bottom: 1px solid var(--border-light);
->>>>>>> e360af11 (Updated project files)
-=======
-  border-bottom: 1px solid var(--border);
->>>>>>> fb81cdee (Updated analytics page)
 }
 
 .essay-support-root .page-header h1 {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-<<<<<<< HEAD
-  font-size: 2rem;
+  gap: 1rem;
+  font-size: 2.5rem;
   font-weight: 800;
-<<<<<<< HEAD
-  letter-spacing: -0.02em;
-=======
   color: var(--text);
->>>>>>> e360af11 (Updated project files)
-=======
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: var(--primary-800);
->>>>>>> fb81cdee (Updated analytics page)
   margin: 0;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 
 .essay-support-root .page-header h1 span {
@@ -524,23 +1907,16 @@
 
 .essay-support-root .page-header p {
   color: var(--text-muted);
-  margin-top: 0.5rem;
-<<<<<<< HEAD
-  font-size: 1rem;
-<<<<<<< HEAD
-=======
-  line-height: 1.5;
->>>>>>> e360af11 (Updated project files)
-=======
-  font-size: 1.1rem;
+  margin-top: 0.75rem;
+  font-size: 1.2rem;
   line-height: 1.6;
->>>>>>> fb81cdee (Updated analytics page)
+  font-weight: 500;
 }
 
 /* ── Enhanced Grid helpers ── */
-.essay-support-root .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
-.essay-support-root .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-.essay-support-root .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; }
+.essay-support-root .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+.essay-support-root .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+.essay-support-root .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
 
 /* ── Enhanced Responsive ── */
 @media (max-width: 1024px) {
@@ -569,64 +1945,18 @@
 /* ── Enhanced Button variants ── */
 
 .essay-support-root .btn-outline {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--primary-800);
-  border: 2px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
-}
-.essay-support-root .btn-outline::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, var(--primary-100), transparent);
-  transition: left 0.6s;
-=======
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--primary-700);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(10px);
->>>>>>> e360af11 (Updated project files)
-=======
   background: rgba(255, 255, 255, 0.9);
   color: var(--primary-800);
   border: 1px solid var(--border);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
->>>>>>> fb81cdee (Updated analytics page)
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(10px);
 }
 
 .essay-support-root .btn-outline:hover {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  border-color: var(--primary-400);
-  background: var(--primary-50);
-  color: var(--primary-800);
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-lg);
-}
-.essay-support-root .btn-outline:hover::before {
-  left: 100%;
-=======
-  border-color: var(--primary-300);
-  background: var(--primary-50);
-  color: var(--primary-800);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
->>>>>>> e360af11 (Updated project files)
-=======
   border-color: var(--primary-300);
   background: var(--primary-50);
   color: var(--primary-800);
   box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
->>>>>>> fb81cdee (Updated analytics page)
 }
 
 /* ── Enhanced Alerts ── */
@@ -696,10 +2026,11 @@
 
 .essay-support-root .empty-state p {
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: 1rem;
   line-height: 1.6;
   max-width: 400px;
   margin: 0 auto;
+  font-weight: 500;
 }
 
 /* ── Enhanced Card sub-sections ── */
