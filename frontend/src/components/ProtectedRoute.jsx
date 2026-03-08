@@ -7,6 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/guidance';
 /**
  * Protects all service routes: user must be signed in with Google before accessing
  * the dashboard, CA guidance, model paper, essay support, or MCQ study plan.
+ * First-page design: hero-style welcome, distinct from dashboard cards.
  */
 export default function ProtectedRoute() {
   const [user, setUser] = useState(null);
@@ -41,6 +42,7 @@ export default function ProtectedRoute() {
   if (loading) {
     return (
       <div className="protected-route-loading">
+        <div className="protected-route-loading-bg" aria-hidden="true" />
         <div className="protected-route-spinner" aria-hidden="true" />
         <p>Checking sign-in…</p>
       </div>
@@ -50,9 +52,26 @@ export default function ProtectedRoute() {
   if (!user) {
     return (
       <div className="protected-route-gate">
-        <div className="protected-route-gate-card">
-          <h1>Sign in required</h1>
-          <p>You must sign in with Google to access the Academic Assistance services.</p>
+        <div className="protected-route-bg" aria-hidden="true">
+          <span className="protected-route-blob protected-route-blob-1" />
+          <span className="protected-route-blob protected-route-blob-2" />
+          <span className="protected-route-blob protected-route-blob-3" />
+          <span className="protected-route-blob protected-route-blob-4" />
+        </div>
+        <div className="protected-route-wave" aria-hidden="true">
+          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+            <path d="M0 120L48 105C96 90 192 60 288 45C384 30 480 30 576 37.5C672 45 768 60 864 67.5C960 75 1056 75 1152 67.5C1248 60 1344 45 1392 37.5L1440 30V120H1392C1344 120 1248 120 1152 120C1056 120 960 120 864 120C768 120 672 120 576 120C480 120 384 120 288 120C192 120 96 120 48 120H0Z" fill="currentColor"/>
+          </svg>
+        </div>
+
+        <main className="protected-route-content">
+          <div className="protected-route-badge">Welcome</div>
+          <h1 className="protected-route-title">
+            Academic Assistance
+          </h1>
+          <p className="protected-route-tagline">
+            Your learning companion for guidance, summaries, model papers and more. Sign in to get started.
+          </p>
           <button type="button" className="protected-route-btn-login" onClick={handleSignIn}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -62,7 +81,7 @@ export default function ProtectedRoute() {
             </svg>
             Sign in with Google
           </button>
-        </div>
+        </main>
       </div>
     );
   }
