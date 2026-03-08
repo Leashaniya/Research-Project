@@ -36,6 +36,8 @@ export default function CommonHeader({ onUserChange, onLogout }) {
       setUser(null);
       onUserChange?.(null);
       onLogout?.();
+      // Redirect so ProtectedRoute remounts and shows sign-in gate; services become hidden
+      window.location.href = '/';
     } catch (error) {
       console.error('Error logging out:', error);
     }

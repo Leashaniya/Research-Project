@@ -4,10 +4,9 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-from app.core.config import settings
+from app.core.config import settings, AUDIO_OUTPUT_DIR
 
-OUTPUT_DIR = Path("outputs/audio")
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_DIR = AUDIO_OUTPUT_DIR
 
 
 def _strip_markdown_for_tts(text: str) -> str:

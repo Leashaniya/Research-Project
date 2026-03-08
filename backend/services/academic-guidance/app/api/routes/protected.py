@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from app.core.dependencies import get_current_user
 from app.core.config import settings
@@ -32,6 +33,17 @@ from app.ca_guidance.tools.rag_tool import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _effective_audio_url(summary_doc: dict) -> Optional[str]:
+    """Return audio URL for a summary: prefer GridFS endpoint when audio is stored there."""
+    if not summary_doc:
+        return None
+    # If we have audio in GridFS, use the stream endpoint (works even if static file is missing)
+    if summary_doc.get("audio_file_id"):
+        return f"/protected/summaries/{summary_doc['_id']}/audio"
+    return summary_doc.get("audio_url")
+
 
 def extract_and_replace_images(
     content: str, 
@@ -536,7 +548,7 @@ async def summarize_topic(
                     "summary": existing_content,
                     "images": existing_summary.get("images", []),
                     "topic": topic,
-                    "audio_url": existing_summary.get("audio_url"),
+                    "audio_url": _effective_audio_url(existing_summary),
                     "summary_id": existing_summary["_id"],
                     "summary_type": existing_summary["summary_type"],
                     "created_at": existing_summary.get("created_at").isoformat() if existing_summary.get("created_at") else None,
@@ -660,6 +672,7 @@ async def summarize_topic(
         logger.info("=== Summarization completed ===")
 
         # Persist audio blob + duration metadata (optional)
+        from bson.objectid import ObjectId
         audio_duration_seconds = None
         if audio_path and audio_url and summary_id:
             attach = service.attach_audio_to_summary(
@@ -670,16 +683,23 @@ async def summarize_topic(
                 user_email=user.email,
             )
             audio_duration_seconds = attach.get("audio_duration_seconds")
+            # Prefer GridFS URL so audio works even if static file is missing
+            if attach.get("audio_file_id"):
+                audio_url = f"/protected/summaries/{summary_id}/audio"
+                service.summaries_collection.update_one(
+                    {"_id": ObjectId(summary_id)},
+                    {"$set": {"audio_url": audio_url}},
+                )
 
         # Get the stored summary to get created_at (+ possibly duration)
-        from bson.objectid import ObjectId
         stored_summary = service.summaries_collection.find_one({"_id": ObjectId(summary_id)})
-        
+        effective_audio_url = _effective_audio_url(stored_summary) if stored_summary else audio_url
+
         return {
             "summary": final_content,
             "images": image_paths,
             "topic": topic,
-            "audio_url": audio_url,
+            "audio_url": effective_audio_url,
             "summary_id": summary_id,
             "summary_type": "base",
             "created_at": stored_summary.get("created_at").isoformat() if stored_summary and stored_summary.get("created_at") else None,
@@ -1306,7 +1326,7 @@ async def reinforce_summary(
                     "summary": existing_reinforced["summary_text"],
                     "images": existing_reinforced.get("images", []),
                     "topic": request.topic,
-                    "audio_url": existing_reinforced.get("audio_url"),
+                    "audio_url": _effective_audio_url(existing_reinforced),
                     "summary_id": existing_reinforced["_id"],
                     "summary_type": "reinforced",
                     "created_at": existing_reinforced.get("created_at").isoformat() if existing_reinforced.get("created_at") else None,
@@ -1421,17 +1441,24 @@ async def reinforce_summary(
                 session_id=request.session_id,
             )
             audio_duration_seconds = attach.get("audio_duration_seconds")
+            if attach.get("audio_file_id"):
+                audio_url = f"/protected/summaries/{reinforced_summary_id}/audio"
+                service.summaries_collection.update_one(
+                    {"_id": ObjectId(reinforced_summary_id)},
+                    {"$set": {"audio_url": audio_url}},
+                )
         
         logger.info(f"Reinforced summary generated and stored (id: {reinforced_summary_id})")
         
         # Get the stored reinforced summary to get created_at
         stored_reinforced = service.summaries_collection.find_one({"_id": ObjectId(reinforced_summary_id)})
+        effective_audio_url = _effective_audio_url(stored_reinforced) if stored_reinforced else audio_url
         
         return {
             "summary": reinforced_text,
             "images": images,
             "topic": request.topic,
-            "audio_url": audio_url,
+            "audio_url": effective_audio_url,
             "summary_id": reinforced_summary_id,
             "summary_type": "reinforced",
             "base_summary_id": request.summary_id,
@@ -1449,6 +1476,71 @@ async def reinforce_summary(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate reinforced summary: {e}"
         )
+
+
+@router.get("/summaries/{summary_id}/audio")
+async def get_summary_audio(
+    summary_id: str,
+    user: UserInfo = Depends(get_current_user),
+):
+    """
+    Stream summary audio from GridFS (WAV). Use this URL when summary has audio stored.
+    """
+    from bson.objectid import ObjectId
+    from app.services.summary_reinforcement_service import SummaryReinforcementService
+
+    try:
+        oid = ObjectId(summary_id)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid summary_id")
+
+    service = SummaryReinforcementService()
+    doc = service.summaries_collection.find_one({"_id": oid})
+    if not doc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Summary not found")
+
+    # Optional: restrict to same user (or allow if no user_email on doc)
+    if doc.get("user_email") and doc.get("user_email") != user.email:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Summary not found")
+
+    audio_file_id = doc.get("audio_file_id")
+    if not audio_file_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No audio available for this summary")
+
+    try:
+        grid_out = service.audio_fs.get(ObjectId(audio_file_id) if isinstance(audio_file_id, str) else audio_file_id)
+    except Exception as e:
+        logger.warning(f"GridFS get failed for summary {summary_id}: {e}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Audio not found")
+
+    file_length = getattr(grid_out, "length", None)
+    if file_length is None and hasattr(grid_out, "_file"):
+        file_length = grid_out._file.get("length")
+
+    def stream():
+        chunk_size = 64 * 1024  # 64KB so first chunk arrives quickly for playback start
+        try:
+            while True:
+                chunk = grid_out.read(chunk_size)
+                if not chunk:
+                    break
+                yield chunk
+        finally:
+            grid_out.close()
+
+    headers = {
+        "Content-Disposition": "inline; filename=summary_audio.wav",
+        "Cache-Control": "private, max-age=300",
+    }
+    if file_length is not None:
+        headers["Content-Length"] = str(file_length)
+        headers["Accept-Ranges"] = "bytes"
+
+    return StreamingResponse(
+        stream(),
+        media_type="audio/wav",
+        headers=headers,
+    )
 
 
 @router.get("/summaries/topic/{topic}")
@@ -1470,11 +1562,18 @@ async def get_summaries_for_topic(
         service = SummaryReinforcementService()
         summaries = service.get_all_summaries_for_topic(topic, user_email=user.email)
         
-        # Format response
+        # Ensure audio_url is set from GridFS when we have audio_file_id
+        base = summaries.get("base")
+        reinforced = summaries.get("reinforced")
+        if base:
+            base["audio_url"] = _effective_audio_url(base)
+        if reinforced:
+            reinforced["audio_url"] = _effective_audio_url(reinforced)
+
         result = {
             "topic": topic,
-            "base": summaries["base"],
-            "reinforced": summaries["reinforced"]
+            "base": base,
+            "reinforced": reinforced
         }
         
         logger.info(f"Retrieved summaries for topic '{topic}'")
