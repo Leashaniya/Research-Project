@@ -10,9 +10,6 @@ function ModelPaperPage() {
   const [processing, setProcessing] = useState(false);
   const [paper, setPaper] = useState(null);
   const [status, setStatus] = useState("Idle");
-  const [files, setFiles] = useState({ past_papers: [], lecture_slides: [] });
-  const [showFiles, setShowFiles] = useState(false);
-  const [loadingFiles, setLoadingFiles] = useState(false);
   const [showNotesModal, setShowNotesModal] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [shortNotes, setShortNotes] = useState(null);
@@ -25,78 +22,6 @@ function ModelPaperPage() {
 
   const addLog = (msg) => {
     setLogs(prev => [...prev.slice(-50), `[${new Date().toLocaleTimeString()}] ${msg}`]);
-  };
-
-  const fetchFiles = async (showErrors = true) => {
-    setLoadingFiles(true);
-    try {
-      console.log('Fetching files from:', `${API_BASE}/files`);
-      const resp = await fetch(`${API_BASE}/files`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
-        mode: 'cors',
-      });
-      console.log('Response status:', resp.status, resp.statusText);
-      
-      if (!resp.ok) {
-        throw new Error(`HTTP error! status: ${resp.status}`);
-      }
-      const data = await resp.json();
-      console.log('Files API response:', data);
-      
-      // Ensure we have the expected structure
-      if (data && typeof data === 'object') {
-        const pastPapers = Array.isArray(data.past_papers) ? data.past_papers : [];
-        const lectureSlides = Array.isArray(data.lecture_slides) ? data.lecture_slides : [];
-        
-        setFiles({
-          past_papers: pastPapers,
-          lecture_slides: lectureSlides
-        });
-        
-        console.log('Files state updated:', {
-          past_papers: pastPapers,
-          lecture_slides: lectureSlides
-        });
-        
-        if (pastPapers.length > 0 || lectureSlides.length > 0) {
-          if (showErrors) {
-            addLog(`Found ${pastPapers.length} past papers and ${lectureSlides.length} lecture slides`);
-          }
-        }
-      } else {
-        console.error('Unexpected data format:', data);
-        setFiles({ past_papers: [], lecture_slides: [] });
-        if (showErrors) {
-          addLog('Error: Unexpected response format from server');
-        }
-      }
-    } catch (err) {
-      // Only log error if showErrors is true (user-initiated) or if it's not a network error
-      const isNetworkError = err.message.includes('Failed to fetch') || 
-                            err.message.includes('NetworkError') ||
-                            err.message.includes('Network request failed') ||
-                            err.name === 'TypeError';
-      
-      if (showErrors) {
-        if (isNetworkError) {
-          // Show user-friendly message only when user explicitly requests files
-          addLog(`Cannot connect to backend server. Error: ${err.message}`);
-          console.error('Backend server not reachable. Full error:', err);
-          console.error('Trying to connect to:', `${API_BASE}/files`);
-        } else {
-          addLog(`Error fetching files: ${err.message}`);
-          console.error('Fetch error details:', err);
-        }
-      } else {
-        // Silent failure on initial load - just log to console
-        console.warn('Initial file fetch failed (backend may be starting):', err.message);
-      }
-    } finally {
-      setLoadingFiles(false);
-    }
   };
 
   const checkLatestPaper = async () => {
@@ -113,9 +38,7 @@ function ModelPaperPage() {
   };
 
   useEffect(() => {
-    // Silently fetch files on initial load (don't show errors to user)
     const timer = setTimeout(() => {
-      fetchFiles(false);
       checkLatestPaper();
     }, 100);
     return () => clearTimeout(timer);
@@ -283,54 +206,6 @@ function ModelPaperPage() {
           </button>
         </div>
       </div>
-
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <button 
-          className="Btn" 
-          onClick={() => { 
-            if (!showFiles) {
-              fetchFiles(true); // true = show errors in logs
-            }
-            setShowFiles(!showFiles); 
-          }} 
-          style={{ background: '#475569' }}
-          disabled={loadingFiles}
-        >
-          {loadingFiles ? "Loading..." : showFiles ? "Hide Processed Files" : "View Processed Files"}
-        </button>
-      </div>
-
-      {showFiles && (
-        <div className="Card" style={{ maxWidth: '800px', margin: '0 auto 2rem auto', textAlign: 'left' }}>
-          <h3>Processed Files</h3>
-          {loadingFiles ? (
-            <p style={{ color: '#000', textAlign: 'center' }}>Loading files...</p>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div>
-                <h4 style={{ color: '#2a5a94' }}>Past Papers ({files.past_papers.length})</h4>
-                <ul style={{ fontSize: '0.9rem', color: '#000', listStyle: 'none', padding: 0 }}>
-                  {files.past_papers.length > 0 ? (
-                    files.past_papers.map((f, i) => <li key={i} style={{ marginBottom: '0.5rem' }}>• {f}</li>)
-                  ) : (
-                    <li style={{ fontStyle: 'italic' }}>No papers found.</li>
-                  )}
-                </ul>
-              </div>
-              <div>
-                <h4 style={{ color: '#2a5a94' }}>Lecture Slides ({files.lecture_slides.length})</h4>
-                <ul style={{ fontSize: '0.9rem', color: '#000', listStyle: 'none', padding: 0 }}>
-                  {files.lecture_slides.length > 0 ? (
-                    files.lecture_slides.map((f, i) => <li key={i} style={{ marginBottom: '0.5rem' }}>• {f}</li>)
-                  ) : (
-                    <li style={{ fontStyle: 'italic' }}>No slides found.</li>
-                  )}
-                </ul>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       <div className="StatusSection">
         <h3>System Status: <span style={{ color: '#2a5a94' }}>{status}</span></h3>

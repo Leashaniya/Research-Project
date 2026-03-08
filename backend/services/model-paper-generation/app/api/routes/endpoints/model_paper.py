@@ -40,19 +40,23 @@ async def get_paper_json():
 
 @router.get("/download-pdf")
 async def download_pdf():
-    """Download the latest generated PDF paper."""
+    """Download the latest generated PDF paper. Always regenerates from JSON so the PDF matches the preview."""
+    import json
+    from app.services.pdf_service import PDFService
+
+    json_path = os.path.join(str(OUTPUTS_DIR), "model_papers", "agentic_model_paper.json")
     path = os.path.join(str(OUTPUTS_DIR), "model_papers", "agentic_model_paper.pdf")
-    if not os.path.exists(path):
-        # Try to rebuild it if JSON exists
-        json_path = path.replace(".pdf", ".json")
-        if os.path.exists(json_path):
-            from app.services.pdf_service import PDFService
-            import json
-            with open(json_path, "r", encoding="utf-8") as f:
-                 PDFService.generate_pdf(json.load(f), path)
-        else:
-            raise HTTPException(status_code=404, detail="PDF not found. Please generate the paper first.")
-    
+
+    if not os.path.exists(json_path):
+        raise HTTPException(status_code=404, detail="Paper not found. Please generate the paper first.")
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        paper_data = json.load(f)
+
+    pdf_service = PDFService()
+    if not pdf_service.generate_pdf(paper_data, path):
+        raise HTTPException(status_code=500, detail="Failed to generate PDF.")
+
     return FileResponse(path, filename="Model_Paper.pdf", media_type="application/pdf")
 
 @router.get("/diagram-image")

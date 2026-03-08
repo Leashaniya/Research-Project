@@ -247,13 +247,27 @@ class PDFService:
             # Code in monospace, line by line for proper alignment
             if len(parts) >= 2:
                 code_block = parts[1].strip()
-                if code_block.startswith("sql "):
-                    code_block = code_block[4:].strip()
+                # Drop leading language tag line like "sql" / "java" / "python"
+                code_lines = code_block.split("\n")
+                if code_lines and code_lines[0].strip().lower() in {
+                    "sql",
+                    "java",
+                    "python",
+                    "js",
+                    "javascript",
+                    "ts",
+                    "typescript",
+                }:
+                    code_lines = code_lines[1:]
+                # Backward compatibility: handle legacy "sql " prefix style
+                if code_lines and code_lines[0].strip().lower().startswith("sql "):
+                    code_lines[0] = code_lines[0].strip()[4:].strip()
                 pdf.set_font("courier", "", 9)
-                for line in code_block.split("\n"):
-                    line = line.strip()
-                    if line:
+                for line in code_lines:
+                    if line.strip():
                         pdf.multi_cell(available_width, 5, PDFService._sanitize_text(line), align='L')
+                    else:
+                        pdf.ln(3)  # preserve blank lines inside code blocks
                 pdf.ln(2)
             # Question on the next line (normal font)
             if len(parts) >= 3:
@@ -287,6 +301,9 @@ class PDFService:
         text = str(sq.get("text") or "").strip()
         # Avoid duplicate labels: if text already starts with "b) " etc., strip it so we don't get "b)b)"
         text = PDFService._strip_duplicate_label_from_text(text, label)
+        # Be defensive against malformed inputs like ") Some text" which would render "c) ) Some text"
+        if text.startswith(") "):
+            text = text[2:].lstrip()
         marks = sq.get("marks", 0)
         
         # Handle nested subquestions (e.g., Q4: "a) Write SQL Queries..." with nested i, ii, iii)
@@ -309,8 +326,9 @@ class PDFService:
             # Nested subquestions (indented, regular font, e.g., "   i. Find...", "   ii. Find...")
             pdf.set_font("helvetica", "", 10)
             for nested_sq in nested_subquestions:
-                if PDFService._get_available_height(pdf) < 25:
+                if PDFService._get_available_height(pdf) < 30:
                     pdf.add_page()
+                available_width = PDFService._get_available_width(pdf)
                 nested_label = nested_sq.get("label", "")
                 nested_text = str(nested_sq.get("text") or "").strip()
                 nested_marks = nested_sq.get("marks", 0)
