@@ -17,6 +17,70 @@ function ModelPaperPage() {
   const [notification, setNotification] = useState(null);
   const [files, setFiles] = useState({ past_papers: [], lecture_slides: [] });
 
+  // User-configurable generation parameters
+  const [numSlots, setNumSlots] = useState(4); // stepper: 1–8
+  const [semesterBias, setSemesterBias] = useState('both'); // 'both' | 'sem1' | 'sem2'
+
+  const parsePastPaper = (file) => {
+    const name = String(file || "");
+    const match = name.match(/(20\d{2})/);
+    const year = match ? Number(match[1]) : null;
+    const isSem2 = /\bII\b/i.test(name) || /sem\s*ii/i.test(name) || /semester\s*ii/i.test(name);
+    const sem = isSem2 ? "sem2" : "sem1";
+    return { year, sem, file: name };
+  };
+
+  const computeSelectedPapers = () => {
+    const parsed = (files.past_papers || [])
+      .map(parsePastPaper)
+      .filter((p) => p.year !== null);
+
+    // Group by year to know if a year has both sems or only one.
+    const byYear = parsed.reduce((acc, p) => {
+      acc[p.year] = acc[p.year] || { sem1: [], sem2: [] };
+      acc[p.year][p.sem].push(p);
+      return acc;
+    }, {});
+
+    const years = Object.keys(byYear).map((y) => Number(y)).sort((a, b) => a - b);
+
+    const selected = [];
+
+    for (const year of years) {
+      const g = byYear[year];
+      const hasSem1 = (g.sem1 || []).length > 0;
+      const hasSem2 = (g.sem2 || []).length > 0;
+
+      // If only one semester exists for that year, always include it.
+      if (hasSem1 && !hasSem2) {
+        selected.push(...g.sem1);
+        continue;
+      }
+      if (hasSem2 && !hasSem1) {
+        selected.push(...g.sem2);
+        continue;
+      }
+
+      // If both exist, apply semesterBias.
+      if (semesterBias === "both") {
+        selected.push(...g.sem1, ...g.sem2);
+      } else if (semesterBias === "sem1") {
+        selected.push(...g.sem1);
+      } else if (semesterBias === "sem2") {
+        selected.push(...g.sem2);
+      }
+    }
+
+    // Stable order: year asc, sem1 before sem2, then filename asc
+    selected.sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      if (a.sem !== b.sem) return a.sem === "sem1" ? -1 : 1;
+      return a.file.localeCompare(b.file);
+    });
+
+    return selected;
+  };
+
   const showNotification = (message) => {
     setNotification(message);
   };
@@ -98,10 +162,23 @@ function ModelPaperPage() {
     setProcessing(true);
     setStatus("Running End-to-End Pipeline...");
     addLog("Analyzing documents and deploying AI Agents...");
+
+    const selectedPapers = computeSelectedPapers().map(({ year, sem, file }) => ({ year, sem, file }));
+
+    const payload = {
+      num_slots: numSlots,
+      selected_papers: selectedPapers,
+      semester_bias: semesterBias,
+    };
+
     try {
       const resp = await fetch(`${API_BASE}/model-paper/generate-paper`, {
         method: "POST",
-        headers: { 'Cache-Control': 'no-cache' }
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
 
       if (!resp.ok) {
@@ -193,39 +270,142 @@ function ModelPaperPage() {
           <p>Pro-Level Exam Question Generation with Self-Correcting Agents</p>
         </header>
 
-        <div className="ActionGrid">
-        <div className="Card">
-          <div className="IconBox">📄</div>
-          <h3>Past Papers</h3>
-          <p>Upload PDF past papers to establish the exam style and structure.</p>
-          <label className="Btn">
-            Upload PDF
-            <input type="file" className="UploadInput" accept=".pdf,application/pdf" onChange={(e) => handleUpload(e.target.files[0], "past")} />
-          </label>
+        <div className="ActionGrid UploadGrid">
+          <div className="Card CardCompact">
+            <div className="IconBox">📄</div>
+            <h3>Past Papers</h3>
+            <p>Upload PDF past papers to establish the exam style and structure.</p>
+            <label className="Btn">
+              Upload PDF
+              <input type="file" className="UploadInput" accept=".pdf,application/pdf" onChange={(e) => handleUpload(e.target.files[0], "past")} />
+            </label>
+          </div>
+
+          <div className="Card CardCompact">
+            <div className="IconBox">📚</div>
+            <h3>Lecture Slides</h3>
+            <p>Upload slides to provide context for the local researcher agent.</p>
+            <label className="Btn">
+              Upload PDF
+              <input type="file" className="UploadInput" accept=".pdf,application/pdf" onChange={(e) => handleUpload(e.target.files[0], "slides")} />
+            </label>
+          </div>
         </div>
 
-        <div className="Card">
-          <div className="IconBox">📚</div>
-          <h3>Lecture Slides</h3>
-          <p>Upload slides to provide context for the local researcher agent.</p>
-          <label className="Btn">
-            Upload PDF
-            <input type="file" className="UploadInput" accept=".pdf,application/pdf" onChange={(e) => handleUpload(e.target.files[0], "slides")} />
-          </label>
+        <div className="FullWidthSection">
+          <div className="Card CardFocus">
+            <div className="IconBox">⚙️</div>
+            <h3>Generation Settings</h3>
+            <p>Customize how the model paper is structured and sourced.</p>
+
+            <div className="SettingsGroup">
+              <div className="SettingsRow">
+                <div className="SettingsRowTitle">Number of main questions</div>
+                <div className="Stepper">
+                  <button
+                    type="button"
+                    className="StepperBtn"
+                    onClick={() => setNumSlots((n) => Math.max(1, n - 1))}
+                    disabled={processing || numSlots <= 1}
+                    aria-label="Decrease number of questions"
+                  >
+                    −
+                  </button>
+                  <div className="StepperValue">
+                    <div className="StepperNumber">{numSlots}</div>
+                    <div className="StepperHint">Q1 – Q{numSlots}</div>
+                  </div>
+                  <button
+                    type="button"
+                    className="StepperBtn"
+                    onClick={() => setNumSlots((n) => Math.min(8, n + 1))}
+                    disabled={processing || numSlots >= 8}
+                    aria-label="Increase number of questions"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div className="SettingsRow">
+                <div className="SettingsHint" style={{ marginTop: 0 }}>
+                  Selection is automatic from uploaded past papers. Use “Semester style” to bias years where both semesters exist.
+                </div>
+              </div>
+
+              <div className="SettingsRow">
+                <div className="SettingsRowTitle">Semester style</div>
+                <div className="PillRow" role="tablist" aria-label="Semester style">
+                  <button
+                    type="button"
+                    className={`Pill ${semesterBias === 'both' ? 'PillOn' : ''}`}
+                    onClick={() => setSemesterBias('both')}
+                    disabled={processing}
+                  >
+                    Both semesters
+                  </button>
+                  <button
+                    type="button"
+                    className={`Pill ${semesterBias === 'sem1' ? 'PillOn' : ''}`}
+                    onClick={() => setSemesterBias('sem1')}
+                    disabled={processing}
+                  >
+                    Semester I only
+                  </button>
+                  <button
+                    type="button"
+                    className={`Pill ${semesterBias === 'sem2' ? 'PillOn' : ''}`}
+                    onClick={() => setSemesterBias('sem2')}
+                    disabled={processing}
+                  >
+                    Semester II only
+                  </button>
+                </div>
+                <div className="SettingsHint">
+                  Years with only one semester available are always included regardless of this setting
+                </div>
+              </div>
+
+              {(() => {
+                const selected = computeSelectedPapers();
+                const total = selected.length;
+                const semStyle =
+                  semesterBias === "both" ? "Sem I + II" : semesterBias === "sem1" ? "Sem I only" : "Sem II only";
+
+                return (
+                  <div className="StatsRow" aria-label="Selection summary">
+                    <div className="StatChip">
+                      <div className="StatLabel">Papers</div>
+                      <div className="StatValue">{total}</div>
+                    </div>
+                    <div className="StatChip">
+                      <div className="StatLabel">Questions</div>
+                      <div className="StatValue">{numSlots}</div>
+                    </div>
+                    <div className="StatChip">
+                      <div className="StatLabel">Semester style</div>
+                      <div className="StatValue">{semStyle}</div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
         </div>
 
-        <div className="Card">
-          <div className="IconBox">🤖</div>
-          <h3>AI Generation</h3>
-          <p>Extract knowledge from all new uploads and generate the final paper.</p>
-          <button className="Btn" onClick={generatePaper} disabled={processing}>
-            {processing ? "Generating..." : "Generate Paper"}
-          </button>
+        <div className="GenerationCardWrap">
+          <div className="Card">
+            <div className="IconBox">🤖</div>
+            <h3>AI Generation</h3>
+            <p>Extract knowledge from all new uploads and generate the final paper.</p>
+            <button className="Btn" onClick={generatePaper} disabled={processing}>
+              {processing ? "Generating..." : "Generate Paper"}
+            </button>
+          </div>
         </div>
-      </div>
 
       <div className="ProcessedFilesSection">
-        <h3>Processed Files</h3>
+        <h3>Existing Files</h3>
         <div className="ProcessedFilesGrid">
           <div className="ProcessedFilesCard">
             <h4>📄 Past Papers</h4>

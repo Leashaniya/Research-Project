@@ -57,12 +57,16 @@ async def process_uploaded_files() -> Dict[str, Any]:
         logger.exception("process_uploaded_files failed: %s", e)
         return {"status": "error", "message": str(e), "steps": steps}
 
-async def run_agentic_generation() -> Dict[str, Any]:
+async def run_agentic_generation(options: Dict[str, Any] | None = None) -> Dict[str, Any]:
     """Runs the AI agents to generate the final model paper."""
     steps: List[str] = []
     try:
         steps.append("Waking up AI agents...")
         from app.agents.orchestrator import main as agentic_main
+
+        # TODO: in future, thread user-specified options into the agentic pipeline.
+        _ = options or {}
+
         paper = await agentic_main()
         steps.append("Agentic generation complete.")
         
@@ -71,10 +75,10 @@ async def run_agentic_generation() -> Dict[str, Any]:
         logger.exception("run_agentic_generation failed: %s", e)
         return {"status": "error", "message": str(e), "steps": steps}
 
-async def run_full_pipeline() -> Dict[str, Any]:
+async def run_full_pipeline(options: Dict[str, Any] | None = None) -> Dict[str, Any]:
     """Legacy endpoint for total automation."""
     res1 = await process_uploaded_files()
     if res1["status"] == "error": return res1
-    res2 = await run_agentic_generation()
+    res2 = await run_agentic_generation(options=options)
     res2["steps"] = res1["steps"] + res2["steps"]
     return res2

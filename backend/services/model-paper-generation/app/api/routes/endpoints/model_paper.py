@@ -1,12 +1,25 @@
 import logging
+from typing import Optional, Literal
+
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
+
 from app.services import pipeline_service
 from app.core.paths import OUTPUTS_DIR
 import os
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+class GeneratePaperRequest(BaseModel):
+  """User-configurable parameters for model paper generation."""
+  num_slots: Optional[int] = None
+  coverage_strategy: Optional[Literal["trend", "max_variety", "focus_selected"]] = None
+  last_n_years: Optional[int] = None
+  knowledge_weighting: Optional[Literal["past_papers", "balanced", "lecture_slides"]] = None
+  num_versions: Optional[int] = None
 
 @router.post("/process-files")
 async def process_files():
@@ -18,9 +31,10 @@ async def process_files():
     return res
 
 @router.post("/generate-paper")
-async def generate_paper():
+async def generate_paper(params: GeneratePaperRequest | None = None):
     """Runs the COMPLETE pipeline: Extraction -> Blueprinting -> AI Generation."""
-    res = await pipeline_service.run_full_pipeline()
+    options = params.dict(exclude_none=True) if params else None
+    res = await pipeline_service.run_full_pipeline(options=options)
     if res["status"] == "error":
         msg = res.get("message") or "Pipeline failed"
         detail = str(msg) if msg else "Pipeline failed"

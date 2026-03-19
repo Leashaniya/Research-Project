@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-09 00:07:49",
+  "generated_at": "2026-03-19 13:20:19",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
   "num_questions": 4,
@@ -25,7 +25,7 @@
     {
       "question_no": "Q1",
       "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university maintains a database to manage its academic programs, departments, and students. The university has several departments including Computer Science, Mathematics, and Physics. Each department offers multiple courses, and each course has attributes such as CourseID, CourseName, and Credits. Students can enroll in courses, and each enrollment captures relevant details such as EnrollmentDate and Grade. The university also has an ISA relationship where The Student entity has attributes such as StudentID, Name, Email. has two subtypes: UndergraduateStudent, with attributes like YearOfStudy and Major, and GraduateStudent, with attributes like ThesisTitle and Advisor. Each student can have multiple contact numbers, forming a multivalued attribute",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university manages various entities including Departments, Courses, and Students. Each Department has a unique DepartmentID, Name, and Location. Departments offer various Courses, which have attributes CourseID, Title, and Credits. Students, identified by StudentID, Name, and an Address (which is a composite attribute including Street, City, and ZipCode), enroll in these Courses. Courses may have many Students enrolled, and Students can enroll in multiple Courses. Additionally, there is a specialization where Students can be classified as Undergraduate or Graduate, with Graduate Students having specific attributes such as ThesisTitle and AdvisorName. This university system needs to be modeled accurately",
       "subquestions": [
         {
           "label": "a",
@@ -41,8 +41,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69adc19110d508a8cf48175e",
-      "original_semantic_description": "A university maintains a database to manage its academic programs, departments, and students. The university has several departments including Computer Science, Mathematics, and Physics. Each department offers multiple courses, and each course has attributes such as CourseID, CourseName, and Credits. Students can enroll in courses, and each enrollment captures relevant details such as EnrollmentDate and Grade. The university also has an ISA relationship where The Student entity has attributes such as StudentID, Name, Email. has two subtypes: UndergraduateStudent, with attributes like YearOfStudy and Major, and GraduateStudent, with attributes like ThesisTitle and Advisor. Each student can have multiple contact numbers, forming a multivalued attribute.",
+      "template_id": "69bbaa2164b7282bed7995c5",
+      "original_semantic_description": "A university manages various entities including Departments, Courses, and Students. Each Department has a unique DepartmentID, Name, and Location. Departments offer various Courses, which have attributes CourseID, Title, and Credits. Students, identified by StudentID, Name, and an Address (which is a composite attribute including Street, City, and ZipCode), enroll in these Courses. Courses may have many Students enrolled, and Students can enroll in multiple Courses. Additionally, there is a specialization where Students can be classified as Undergraduate or Graduate, with Graduate Students having specific attributes such as ThesisTitle and AdvisorName. This university system needs to be modeled accurately.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -53,7 +53,7 @@
     {
       "question_no": "Q2",
       "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, CD->E, A->B, D->E}}",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, CD->E, E->A, A->B}}",
       "subquestions": [
         {
           "label": "a",
@@ -74,7 +74,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69adc19110d508a8cf48175f",
+      "template_id": "69bbaa2164b7282bed7995c6",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -84,7 +84,7 @@
     {
       "question_no": "Q3",
       "marks": 25,
-      "text": "A university is developing a database to manage its course enrollments, student records, and faculty details. The courses have a unique identifier, title, and credits. Each student has a unique ID, name, age, and major, while faculty members have an ID, name, and department. The database should also enforce that each student can enroll in multiple courses and each course can have many students enrolled. Integrity constraints need to be specified to ensure the database remains consistent.",
+      "text": "A retail company is developing a database system to manage its inventory and sales records. The database schema includes several tables such as Products(product_id: integer, name: string, price: real), Orders(order_id: integer, order_date: date, customer_id: integer), and Sales(sale_id: integer, product_id: integer, quantity: integer, total_amount: real). Each table has specific integrity constraints to ensure data validity and consistency. As part of this system, you are tasked with formulating queries and defining structures to support various data management operations.",
       "subquestions": [
         {
           "label": "a",
@@ -98,17 +98,17 @@
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for transferring data between tables and servers.",
+          "text": "Considering the need to transfer inventory data to a new database environment, briefly explain the options available for transferring data between two tables within the same database.",
           "marks": 2
         },
         {
           "label": "d",
-          "text": "Briefly explain how integrity constraints can be implemented in SQL Server.",
+          "text": "Define a scenario where a trigger might be necessary in managing updates to the Orders table. Briefly explain what actions the trigger should perform.",
           "marks": 3
         },
         {
           "label": "e",
-          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
+          "text": "A separate team within the company is responsible for ensuring the security of the database. They utilize roles to manage permissions for different users. Identify the importance of role-based access control in this scenario. Michael is a data entry operator responsible for inputting data into the system.. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance.. Emily is a junior database administrator managing specific databases within the system.. Nathan is a database developer responsible for designing and implementing database schemas..",
           "marks": null,
           "subquestions": [
             {
@@ -124,7 +124,7 @@
             {
               "label": "iii",
               "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the operational database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -134,7 +134,7 @@
             {
               "label": "v",
               "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the operational databases."
             }
           ]
         }
@@ -142,7 +142,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69adc19110d508a8cf481760",
+      "template_id": "69bbaa2164b7282bed7995c7",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -152,7 +152,7 @@
     {
       "question_no": "Q4",
       "marks": 40,
-      "text": "Consider the following schema of a database designed for a university: Student (studentId: int, name: varchar(100), email: varchar(50), enrollmentDate: date) Course (courseId: int, title: varchar(100), credits: int, department: varchar(50)) Enrollment (enrollmentId: int, studentId: int, courseId: int, enrollmentDate: date, status: varchar(20)) The 'Student' table stores information about students enrolled at the university, including unique student ID, name, email, and enrollment date. The 'Course' table contains information on courses offered by the university, including unique course ID, title, credits awarded, and the associated department. The 'Enrollment' table tracks the enrollment of students in courses, including unique enrollment ID, student ID, course ID, enrollment date, and status of the enrollment. The 'Enrollment' table manages student course enrollments, recording which students are enrolled in which courses and when. Fee (feeId: int, studentId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
+      "text": "Consider the following schema of a database designed for a University: Student (studentId: int, name: varchar(100), email: varchar(50), major: varchar(50)) Course (courseId: int, courseName: varchar(100), credits: int, department: varchar(50)) Enrollment (enrollmentId: int, studentId: int, courseId: int, grade: varchar(2)) The 'Student' table stores information about students, including a unique identifier, their name, email, and major of study. The 'Course' table contains details about courses offered at the university, including their unique ID, name, credit value, and associated department. The 'Enrollment' table keeps track of which students are enrolled in which courses, along with their respective grades. The 'Enrollment' table manages student course enrollments, recording which students are enrolled in which courses and when. Fee (feeId: int, studentId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
       "subquestions": [
         {
           "label": "a",
@@ -162,7 +162,7 @@
             {
               "label": "i",
               "marks": 4,
-              "text": "Find the name and email of students who are enrolled in a course titled 'Database Systems'."
+              "text": "Find the name of students who are linked to course records where courseName is 'Database Systems'."
             },
             {
               "label": "ii",
@@ -172,7 +172,7 @@
             {
               "label": "iii",
               "marks": 7,
-              "text": "Find the title and name from Course, Student, and Enrollment where Enrollment.enrollmentId is not null."
+              "text": "Find the courseName and name from Course, Student, and Enrollment where Enrollment.enrollmentId is not null."
             }
           ]
         },
@@ -190,7 +190,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69adc19110d508a8cf481761",
+      "template_id": "69bbaa2164b7282bed7995c8",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
