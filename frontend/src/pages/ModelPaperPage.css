@@ -392,6 +392,76 @@ h1 {
   color: #64748b;
 }
 
+.PaperPickerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.PaperPickerActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.MiniBtn {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.65rem;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 0.82rem;
+  transition: all 0.15s ease;
+}
+
+.MiniBtn:hover {
+  border-color: rgba(42, 90, 148, 0.6);
+  box-shadow: 0 6px 14px rgba(42, 90, 148, 0.12);
+}
+
+.MiniBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.PaperList {
+  margin-top: 0.75rem;
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  max-height: 210px;
+  overflow: auto;
+}
+
+.PaperRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.25rem;
+  border-bottom: 1px dashed rgba(148, 163, 184, 0.35);
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+.PaperRow:last-child {
+  border-bottom: none;
+}
+
+.PaperName {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .StatsRow {
   display: flex;
   gap: 0.75rem;

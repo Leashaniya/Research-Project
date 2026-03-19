@@ -1,201 +1,42 @@
 {
-  "generated_at": "2026-03-19 13:20:19",
+  "generated_at": "2026-03-19 14:22:21",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
-  "num_questions": 4,
+  "num_questions": 1,
   "topic_distribution": {
     "Q1": {
       "topic": "ER_EER_MODELING",
-      "marks": 20
-    },
-    "Q2": {
-      "topic": "NORMALIZATION_FD_KEYS",
-      "marks": 15
-    },
-    "Q3": {
-      "topic": "SQL_DDL_DML",
-      "marks": 25
-    },
-    "Q4": {
-      "topic": "SQL_DDL_DML",
-      "marks": 40
+      "marks": 100
     }
   },
   "questions": [
     {
       "question_no": "Q1",
-      "marks": 20,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university manages various entities including Departments, Courses, and Students. Each Department has a unique DepartmentID, Name, and Location. Departments offer various Courses, which have attributes CourseID, Title, and Credits. Students, identified by StudentID, Name, and an Address (which is a composite attribute including Street, City, and ZipCode), enroll in these Courses. Courses may have many Students enrolled, and Students can enroll in multiple Courses. Additionally, there is a specialization where Students can be classified as Undergraduate or Graduate, with Graduate Students having specific attributes such as ThesisTitle and AdvisorName. This university system needs to be modeled accurately",
+      "marks": 100,
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nIn a university database system, there are four main entities: Student, Course, Department, and Enrollment. The Student entity has attributes: StudentID, Name (with FirstName, LastName as composite attributes), and ContactNumbers (multivalued attribute). The Course entity has attributes such as CourseID, Title, Credits. contains CourseID, Title, and Credits. The Department entity includes DepartmentID, Name, and Location. The Enrollment entity has attributes such as EnrollmentID, Name, Description. has EnrollmentID, EnrollmentDate, and Status, representing the many-to-many relationship between Student and Course. The Department offers Courses, while Students enroll in these Courses through the Enrollment entity. Furthermore, the Student entity is specialized into two subtypes: GraduateStudent (with additional attributes of ThesisTitle and AdvisorName) and UndergraduateStudent (having YearOfStudy and Major)",
       "subquestions": [
         {
           "label": "a",
           "text": "Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulting relations clearly.",
-          "marks": 17
+          "marks": 85
         },
         {
           "label": "b",
           "text": "What is the best option for mapping the ISA hierarchies in the diagram? Justify your answer.",
-          "marks": 3
+          "marks": 15
         }
       ],
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69bbaa2164b7282bed7995c5",
-      "original_semantic_description": "A university manages various entities including Departments, Courses, and Students. Each Department has a unique DepartmentID, Name, and Location. Departments offer various Courses, which have attributes CourseID, Title, and Credits. Students, identified by StudentID, Name, and an Address (which is a composite attribute including Street, City, and ZipCode), enroll in these Courses. Courses may have many Students enrolled, and Students can enroll in multiple Courses. Additionally, there is a specialization where Students can be classified as Undergraduate or Graduate, with Graduate Students having specific attributes such as ThesisTitle and AdvisorName. This university system needs to be modeled accurately.",
+      "template_id": "69bbb8e95decdfc12fa85ecf",
+      "original_semantic_description": "In a university database system, there are four main entities: Student, Course, Department, and Enrollment. The Student entity has attributes: StudentID, Name (with FirstName, LastName as composite attributes), and ContactNumbers (multivalued attribute). The Course entity has attributes such as CourseID, Title, Credits. contains CourseID, Title, and Credits. The Department entity includes DepartmentID, Name, and Location. The Enrollment entity has attributes such as EnrollmentID, Name, Description. has EnrollmentID, EnrollmentDate, and Status, representing the many-to-many relationship between Student and Course. The Department offers Courses, while Students enroll in these Courses through the Enrollment entity. Furthermore, the Student entity is specialized into two subtypes: GraduateStudent (with additional attributes of ThesisTitle and AdvisorName) and UndergraduateStudent (having YearOfStudy and Major).",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
       "diagram_source": "semantic_description",
       "topic_label": "ER_EER_MODELING"
-    },
-    {
-      "question_no": "Q2",
-      "marks": 15,
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, CD->E, E->A, A->B}}",
-      "subquestions": [
-        {
-          "label": "a",
-          "text": "Find all the keys in relation R using the attribute closure method.",
-          "marks": 4
-        },
-        {
-          "label": "b",
-          "text": "Is R in 3NF? Give reasons for your conclusion.",
-          "marks": 3
-        },
-        {
-          "label": "c",
-          "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
-          "marks": 8
-        }
-      ],
-      "pattern_label": "NORMALIZATION_FD_KEYS",
-      "main_topic": "NORMALIZATION_FD_KEYS",
-      "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69bbaa2164b7282bed7995c6",
-      "diagram_image_path": null,
-      "diagram_generated": false,
-      "diagram_type": null,
-      "needs_diagram": false,
-      "topic_label": "NORMALIZATION_FD_KEYS"
-    },
-    {
-      "question_no": "Q3",
-      "marks": 25,
-      "text": "A retail company is developing a database system to manage its inventory and sales records. The database schema includes several tables such as Products(product_id: integer, name: string, price: real), Orders(order_id: integer, order_date: date, customer_id: integer), and Sales(sale_id: integer, product_id: integer, quantity: integer, total_amount: real). Each table has specific integrity constraints to ensure data validity and consistency. As part of this system, you are tasked with formulating queries and defining structures to support various data management operations.",
-      "subquestions": [
-        {
-          "label": "a",
-          "text": "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
-          "marks": 2
-        },
-        {
-          "label": "b",
-          "text": "Code Segment:\n```java\nString sql = \"SELECT * FROM employees WHERE department = ?\";\nPreparedStatement pstmt = connection.prepareStatement(sql);\npstmt.setString(1, \"IT\");\nResultSet rs = pstmt.executeQuery();\n```\n\nThere are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
-          "marks": 2
-        },
-        {
-          "label": "c",
-          "text": "Considering the need to transfer inventory data to a new database environment, briefly explain the options available for transferring data between two tables within the same database.",
-          "marks": 2
-        },
-        {
-          "label": "d",
-          "text": "Define a scenario where a trigger might be necessary in managing updates to the Orders table. Briefly explain what actions the trigger should perform.",
-          "marks": 3
-        },
-        {
-          "label": "e",
-          "text": "A separate team within the company is responsible for ensuring the security of the database. They utilize roles to manage permissions for different users. Identify the importance of role-based access control in this scenario. Michael is a data entry operator responsible for inputting data into the system.. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance.. Emily is a junior database administrator managing specific databases within the system.. Nathan is a database developer responsible for designing and implementing database schemas..",
-          "marks": null,
-          "subquestions": [
-            {
-              "label": "i",
-              "marks": 2,
-              "text": "i. Write a T-SQL statement to create a login to Sarah with windows authentication."
-            },
-            {
-              "label": "ii",
-              "marks": 3,
-              "text": "ii. Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role."
-            },
-            {
-              "label": "iii",
-              "marks": 5,
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the operational database using a user-defined server role."
-            },
-            {
-              "label": "iv",
-              "marks": 3,
-              "text": "iv. Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases."
-            },
-            {
-              "label": "v",
-              "marks": 3,
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the operational databases."
-            }
-          ]
-        }
-      ],
-      "pattern_label": "SQL_DDL_DML",
-      "main_topic": "SQL_DDL_DML",
-      "intent": "SQL_DDL_DML",
-      "template_id": "69bbaa2164b7282bed7995c7",
-      "diagram_image_path": null,
-      "diagram_generated": false,
-      "diagram_type": null,
-      "needs_diagram": false,
-      "topic_label": "SQL_DDL_DML"
-    },
-    {
-      "question_no": "Q4",
-      "marks": 40,
-      "text": "Consider the following schema of a database designed for a University: Student (studentId: int, name: varchar(100), email: varchar(50), major: varchar(50)) Course (courseId: int, courseName: varchar(100), credits: int, department: varchar(50)) Enrollment (enrollmentId: int, studentId: int, courseId: int, grade: varchar(2)) The 'Student' table stores information about students, including a unique identifier, their name, email, and major of study. The 'Course' table contains details about courses offered at the university, including their unique ID, name, credit value, and associated department. The 'Enrollment' table keeps track of which students are enrolled in which courses, along with their respective grades. The 'Enrollment' table manages student course enrollments, recording which students are enrolled in which courses and when. Fee (feeId: int, studentId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
-      "subquestions": [
-        {
-          "label": "a",
-          "text": "Write SQL Queries to perform the following:",
-          "marks": null,
-          "subquestions": [
-            {
-              "label": "i",
-              "marks": 4,
-              "text": "Find the name of students who are linked to course records where courseName is 'Database Systems'."
-            },
-            {
-              "label": "ii",
-              "marks": 6,
-              "text": "Find the student with the highest aggregate value using GROUP BY on related enrollment records."
-            },
-            {
-              "label": "iii",
-              "marks": 7,
-              "text": "Find the courseName and name from Course, Student, and Enrollment where Enrollment.enrollmentId is not null."
-            }
-          ]
-        },
-        {
-          "label": "b",
-          "marks": 11,
-          "text": "b) Create a function to calculate the total fee amount for a given student. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
-        },
-        {
-          "label": "c",
-          "marks": 12,
-          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each student. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by student. The student pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
-        }
-      ],
-      "pattern_label": "SQL_DDL_DML",
-      "main_topic": "SQL_DDL_DML",
-      "intent": "SQL_DDL_DML",
-      "template_id": "69bbaa2164b7282bed7995c8",
-      "diagram_image_path": null,
-      "diagram_generated": false,
-      "diagram_type": null,
-      "needs_diagram": false,
-      "topic_label": "SQL_DDL_DML"
     }
   ]
 }

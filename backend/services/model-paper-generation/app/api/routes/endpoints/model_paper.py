@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
@@ -16,6 +16,8 @@ router = APIRouter()
 class GeneratePaperRequest(BaseModel):
   """User-configurable parameters for model paper generation."""
   num_slots: Optional[int] = None
+  selected_papers: Optional[List[dict]] = None
+  semester_bias: Optional[Literal["both", "sem1", "sem2"]] = None
   coverage_strategy: Optional[Literal["trend", "max_variety", "focus_selected"]] = None
   last_n_years: Optional[int] = None
   knowledge_weighting: Optional[Literal["past_papers", "balanced", "lecture_slides"]] = None

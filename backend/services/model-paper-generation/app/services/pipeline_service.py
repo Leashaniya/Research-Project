@@ -63,11 +63,7 @@ async def run_agentic_generation(options: Dict[str, Any] | None = None) -> Dict[
     try:
         steps.append("Waking up AI agents...")
         from app.agents.orchestrator import main as agentic_main
-
-        # TODO: in future, thread user-specified options into the agentic pipeline.
-        _ = options or {}
-
-        paper = await agentic_main()
+        paper = await agentic_main(options=options or {})
         steps.append("Agentic generation complete.")
         
         return {"status": "success", "steps": steps, "paper": paper}

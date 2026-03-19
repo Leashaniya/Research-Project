@@ -20,6 +20,7 @@ function ModelPaperPage() {
   // User-configurable generation parameters
   const [numSlots, setNumSlots] = useState(4); // stepper: 1–8
   const [semesterBias, setSemesterBias] = useState('both'); // 'both' | 'sem1' | 'sem2'
+  const [paperFileSelection, setPaperFileSelection] = useState({}); // { [filename]: boolean } (default true)
 
   const parsePastPaper = (file) => {
     const name = String(file || "");
@@ -32,6 +33,7 @@ function ModelPaperPage() {
 
   const computeSelectedPapers = () => {
     const parsed = (files.past_papers || [])
+      .filter((f) => paperFileSelection[String(f)] !== false)
       .map(parsePastPaper)
       .filter((p) => p.year !== null);
 
@@ -124,6 +126,23 @@ function ModelPaperPage() {
     }, 100);
     return () => clearTimeout(timer);
   }, []);
+
+  // Keep selection synced with uploads: new files default to selected.
+  useEffect(() => {
+    const list = files.past_papers || [];
+    setPaperFileSelection((prev) => {
+      const next = { ...prev };
+      for (const f of list) {
+        const key = String(f);
+        if (next[key] === undefined) next[key] = true;
+      }
+      // Remove stale keys
+      for (const k of Object.keys(next)) {
+        if (!list.includes(k)) delete next[k];
+      }
+      return next;
+    });
+  }, [files.past_papers]);
 
   const handleUpload = async (file, type) => {
     if (!file) return;
@@ -328,9 +347,66 @@ function ModelPaperPage() {
               </div>
 
               <div className="SettingsRow">
-                <div className="SettingsHint" style={{ marginTop: 0 }}>
-                  Selection is automatic from uploaded past papers. Use “Semester style” to bias years where both semesters exist.
+                <div className="SettingsRowTitle">Past papers to consider</div>
+                <div className="PaperPickerHeader">
+                  <div className="SettingsHint" style={{ marginTop: 0 }}>
+                    Uploaded past papers appear here automatically. New uploads are selected by default.
+                  </div>
+                  <div className="PaperPickerActions">
+                    <button
+                      type="button"
+                      className="MiniBtn"
+                      disabled={processing || (files.past_papers || []).length === 0}
+                      onClick={() => {
+                        const list = files.past_papers || [];
+                        const next = {};
+                        list.forEach((f) => { next[String(f)] = true; });
+                        setPaperFileSelection(next);
+                      }}
+                    >
+                      Select all
+                    </button>
+                    <button
+                      type="button"
+                      className="MiniBtn"
+                      disabled={processing || (files.past_papers || []).length === 0}
+                      onClick={() => {
+                        const list = files.past_papers || [];
+                        const next = {};
+                        list.forEach((f) => { next[String(f)] = false; });
+                        setPaperFileSelection(next);
+                      }}
+                    >
+                      Clear
+                    </button>
+                  </div>
                 </div>
+
+                {(files.past_papers || []).length === 0 ? (
+                  <div className="SettingsHint" style={{ marginTop: 0.5 }}>
+                    No past papers uploaded yet.
+                  </div>
+                ) : (
+                  <div className="PaperList" role="list" aria-label="Past papers list">
+                    {(files.past_papers || []).map((f) => {
+                      const key = String(f);
+                      const checked = paperFileSelection[key] !== false;
+                      return (
+                        <label key={key} className="PaperRow" role="listitem">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            disabled={processing}
+                            onChange={() =>
+                              setPaperFileSelection((prev) => ({ ...prev, [key]: !(prev[key] !== false) }))
+                            }
+                          />
+                          <span className="PaperName">{key}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               <div className="SettingsRow">
