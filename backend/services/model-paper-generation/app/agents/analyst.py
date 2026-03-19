@@ -13,6 +13,7 @@ class BlueprintAnalyst(BaseAgent):
     def __init__(self, config=None):
         super().__init__(name="Blueprint Analyst", config=config)
         self.blueprint_path = ARTIFACTS_DIR / "exam_blueprint_template.json"
+        self.num_slots = int((config or {}).get("num_slots") or 4)
 
     async def run(self, input_data: dict = None) -> dict:
         """
@@ -58,9 +59,9 @@ class BlueprintAnalyst(BaseAgent):
         """
         slots = blueprint.get("question_slots", [])
         
-        # ENFORCE: Exactly 4 slots required
-        if len(slots) != settings.MIN_SLOTS:
-            self.log(f"[WARN] Blueprint has {len(slots)} slots, but exactly {settings.MIN_SLOTS} are required. Using default blueprint.")
+        # ENFORCE: Blueprint must have at least 1 slot; we will trim/pad to requested num_slots.
+        if len(slots) < 1:
+            self.log(f"[WARN] Blueprint has {len(slots)} slots. Using default blueprint.")
             return self._default_blueprint()
         
         # Calculate total marks from valid slots and blueprint total (if available)
@@ -123,13 +124,9 @@ class BlueprintAnalyst(BaseAgent):
             
             repaired_slots.append(slot)
         
-        # ------------------------------
-        # HARD CONSTRAINT: EXACT QUESTION COUNT (Q1–Q4 only)
-        # ------------------------------
-        # Single source of truth: settings.MODEL_PAPER_QUESTION_COUNT (hard-coded to 4).
-        target_count = int(getattr(settings, "MODEL_PAPER_QUESTION_COUNT", 4))
+        target_count = max(1, int(self.num_slots or 4))
 
-        # Force deterministic Q1..Q4 identifiers and ignore any extra slots.
+        # Force deterministic Q1..Q{N} identifiers and ignore any extra slots.
         trimmed = repaired_slots[:target_count]
 
         # If blueprint had fewer than required slots, pad with generic slots.
@@ -145,7 +142,7 @@ class BlueprintAnalyst(BaseAgent):
                     "type": "conceptual",
                 })
 
-        # Re-number slots sequentially Q1..Q4 (identifier only; does not decide topic).
+        # Re-number slots sequentially Q1..Q{N} (identifier only; does not decide topic).
         for idx, slot in enumerate(trimmed):
             slot["question_no"] = f"Q{idx + 1}"
             slot["slot_id"] = f"Q{idx + 1}"
@@ -225,8 +222,8 @@ class BlueprintAnalyst(BaseAgent):
             except Exception:
                 pass
         
-        # ENFORCE: Always exactly 4 slots (Q1-Q4)
-        num_slots = 4
+        # Use requested slot count (default 4)
+        num_slots = max(1, int(self.num_slots or 4))
         
         # Determine marks per slot (NOT based on question number)
         if canonical_total_marks and canonical_total_marks > 0:

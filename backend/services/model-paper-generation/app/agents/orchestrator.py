@@ -5,7 +5,7 @@ from collections import Counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 from app.agents import BlueprintAnalyst, ContentResearcher, QuestionWriter, QualityCritic
 from app.services.pdf_service import PDFService
-from app.core.paths import OUTPUTS_DIR, ARTIFACTS_DIR
+from app.core.paths import OUTPUTS_DIR, ARTIFACTS_DIR, DATA_DIR
 from app.core.config import settings
 
 # Config
@@ -248,8 +248,13 @@ class AgentOrchestrator:
     - Critic (Reviewer)
     """
 
-    def __init__(self):
-        self.analyst = BlueprintAnalyst()
+    def __init__(self, options: Optional[dict] = None):
+        self.options = options or {}
+        self.num_slots = int(self.options.get("num_slots") or 4)
+        self.selected_papers = self.options.get("selected_papers") or []
+        self.semester_bias = self.options.get("semester_bias") or "both"
+
+        self.analyst = BlueprintAnalyst(config={"num_slots": self.num_slots})
         self.researcher = ContentResearcher()
         self.writer = QuestionWriter()
         self.critic = QualityCritic()
@@ -1791,6 +1796,82 @@ class AgentOrchestrator:
             print(f"⚠️ Failed to read trend_summary.json: {e}")
             return {}
 
+    async def _load_trend_for_request(self) -> dict:
+        """
+        If the request provided selected_papers, recompute a trend summary using ONLY those papers
+        (from cached blueprint outputs). Otherwise fall back to the precomputed trend_summary.json.
+        """
+        if not self.selected_papers:
+            return self._load_trend_summary() or {}
+
+        try:
+            from scripts.structure_topics_template import compute_topic_frequencies
+        except Exception as e:
+            print(f"⚠️ Unable to import compute_topic_frequencies: {e}. Falling back to trend_summary.json.")
+            return self._load_trend_summary() or {}
+
+        # Load cached blueprint questions for each selected paper stem.
+        base_dir = DATA_DIR / "text_extraction_hybrid"
+        papers = []
+        used_stems = []
+        for item in self.selected_papers:
+            fname = (item or {}).get("file") or ""
+            stem = str(fname).replace(".pdf", "").replace(".PDF", "").strip()
+            if not stem:
+                continue
+            fp_sub = base_dir / stem / "blueprint_with_subquestions.json"
+            fp_main = base_dir / stem / "blueprint.json"
+            fp = fp_sub if fp_sub.exists() else fp_main if fp_main.exists() else None
+            if not fp:
+                continue
+            try:
+                data = json.loads(fp.read_text(encoding="utf-8"))
+                # blueprints are stored as list of questions
+                questions = data if isinstance(data, list) else (data.get("questions") or [])
+                papers.append({"pdf_stem": stem, "questions": questions})
+                used_stems.append(stem)
+            except Exception:
+                continue
+
+        trend = compute_topic_frequencies(papers)
+        trend["recent_papers_used"] = used_stems
+        trend["num_recent_papers_for_trends"] = len(used_stems)
+        return trend
+
+    def _pick_topics_for_slots(self, trend: dict, num_slots: int) -> List[str]:
+        """
+        Deterministically pick topics for each slot based on topic frequencies.
+        Returns a list of length num_slots (may include None entries if insufficient data).
+        """
+        freqs = (trend or {}).get("topic_frequencies") or {}
+        if not isinstance(freqs, dict) or len(freqs) == 0:
+            return ["GENERAL_THEORY"] * max(1, int(num_slots or 1))
+
+        # Sort by frequency desc, then name asc for deterministic order
+        items = sorted(freqs.items(), key=lambda kv: (-int(kv[1] or 0), str(kv[0] or "")))
+        topics = [name for name, _ in items if name]
+
+        # Ensure top_topic appears first
+        top = (trend or {}).get("top_topic")
+        if top and top in topics:
+            topics.remove(top)
+            topics.insert(0, top)
+
+        picked = []
+        used = set()
+        for t in topics:
+            if len(picked) >= num_slots:
+                break
+            if t in used:
+                continue
+            picked.append(t)
+            used.add(t)
+
+        # If more slots than unique topics, fill remaining with GENERAL_THEORY
+        while len(picked) < num_slots:
+            picked.append("GENERAL_THEORY")
+        return picked
+
     async def _count_templates_for_topic(self, marks: int, pattern_label: str) -> int:
         """
         Count MongoDB templates matching a topic and approximate marks.
@@ -1826,7 +1907,7 @@ class AgentOrchestrator:
         Uses existing Researcher/Writer/Critic (no new agents).
         """
         # Structural repairs are deterministic
-        expected_q_count = int(getattr(settings, "MODEL_PAPER_QUESTION_COUNT", 4))
+        expected_q_count = max(1, int(self.num_slots or 4))
         questions = paper_json.get("questions") or []
 
         # Trim if too many (shouldn't happen, but safe)
@@ -2029,21 +2110,30 @@ class AgentOrchestrator:
         if not slots:
             raise ValueError("No question slots found in blueprint")
 
-        # HARD CONSTRAINT: Model paper ALWAYS has exactly 4 questions.
-        target_q_count = int(getattr(settings, "MODEL_PAPER_QUESTION_COUNT", 4))
+        # Apply request-driven question count (defaults to 4)
+        target_q_count = max(1, int(self.num_slots or 4))
         if len(slots) > target_q_count:
-            print(f"🧱 Hard constraint: trimming blueprint slots {len(slots)} → {target_q_count}")
-        slots = slots[:target_q_count]
+            print(f"🧱 Applying num_slots: trimming blueprint slots {len(slots)} → {target_q_count}")
+            slots = slots[:target_q_count]
+        elif len(slots) < target_q_count:
+            # Pad extra slots for Q5+ using generic slot structure (template selection will handle it)
+            missing = target_q_count - len(slots)
+            print(f"🧱 Applying num_slots: padding blueprint slots {len(slots)} → {target_q_count} (+{missing})")
+            default_marks = int(getattr(settings, "DEFAULT_SLOT_MARKS", 25))
+            for i in range(len(slots), target_q_count):
+                slots.append({
+                    "question_no": f"Q{i+1}",
+                    "slot_id": f"Q{i+1}",
+                    "target_marks": default_marks,
+                    "topics": ["General"],
+                    "type": "conceptual",
+                })
 
-        # Load trends (computed ONLY from latest 6 papers in preprocessing)
-        trend = self._load_trend_summary()
-        if trend is None:
-            trend = {}
-        top_topic = trend.get("top_topic") or "GENERAL_THEORY"
-        recent_used = trend.get("recent_papers_used") or []
-        if recent_used is None:
-            recent_used = []
-        print(f"📈 Trend summary: top_topic={top_topic} recent_papers={len(recent_used)}")
+        # Load trends, but if user selected specific papers use those to compute frequencies
+        trend = await self._load_trend_for_request()
+        top_topic = (trend or {}).get("top_topic") or "GENERAL_THEORY"
+        recent_used = (trend or {}).get("recent_papers_used") or []
+        print(f"📈 Trend summary: top_topic={top_topic} papers_used={len(recent_used)}")
 
         # Plan top-topic enforcement BEFORE generation
         slot_previews = await self._preview_slot_intents(slots)
@@ -2091,12 +2181,9 @@ class AgentOrchestrator:
         used_intents = set() # Track used pattern_label/intent to avoid duplicates
         used_template_ids = set() # Track used template _id to never reuse exact same template
         
-        # ENFORCE: Only process exactly 4 slots (Q1-Q4)
-        if len(slots) > 4:
-            print(f"⚠️  WARNING: Blueprint has {len(slots)} slots, limiting to 4 (Q1-Q4)")
-            slots = slots[:4]  # Hard limit to 4 questions
-        elif len(slots) < 4:
-            print(f"⚠️  WARNING: Blueprint has only {len(slots)} slots, expected 4")
+        # ENFORCE: Only process exactly target_q_count slots
+        if len(slots) > target_q_count:
+            slots = slots[:target_q_count]
         
         # Pre-populate based on checkpoint
         for q in final_questions:
@@ -2112,7 +2199,14 @@ class AgentOrchestrator:
             # Scenario tracking might be trickier from saved text, but we can try simple extraction
             # Or just rely on fresh generation for the rest
         
-        # 2. LOOP through slots
+        # Choose desired topics for each slot using frequencies (deterministic)
+        desired_topics = self._pick_topics_for_slots(trend or {}, target_q_count)
+        for i, slot in enumerate(slots):
+            if slot.get("forced_pattern_label"):
+                continue
+            if i < len(desired_topics) and desired_topics[i]:
+                slot["forced_pattern_label"] = desired_topics[i]
+
         # 2. LOOP through slots
         for slot in slots:
             q_no = slot.get("question_no") or slot.get("slot_id") or f"Q{slot.get('position', '?')}"
@@ -5752,7 +5846,7 @@ Note: The diagram uses (min, max) cardinality notation where:
         }
 
         # STRICT VALIDATOR → REPAIR LOOP (max 3)
-        expected_q_count = int(getattr(settings, "MODEL_PAPER_QUESTION_COUNT", 4))
+        expected_q_count = max(1, int(self.num_slots or 4))
         for attempt in range(MAX_PAPER_REPAIR_RETRIES + 1):
             errors = validate_model_paper(paper, top_topic=top_topic, expected_q_count=expected_q_count)
             if not errors:
@@ -5778,7 +5872,7 @@ Note: The diagram uses (min, max) cardinality notation where:
         max_occurrences = max(topic_counts.values()) if topic_counts else 0
         
         print(f"✅ Sanity: questions={len(paper.get('questions', []))} unique_topics={len(set(final_topics_filtered))} max_occurrences={max_occurrences} top_topic_included={top_topic in set(final_topics_filtered)}")
-        assert len(paper.get("questions", [])) == expected_q_count, "Sanity check failed: not exactly 4 questions"
+        assert len(paper.get("questions", [])) == expected_q_count, "Sanity check failed: question count mismatch"
         assert max_occurrences <= 2, f"Sanity check failed: topic appears more than twice. Topic counts: {dict(topic_counts)}"
         # Only assert top_topic if not optional (when all questions have canonical templates)
         if not top_topic_optional:
@@ -5818,6 +5912,6 @@ Note: The diagram uses (min, max) cardinality notation where:
         return paper
 
 # Entry point for pipeline_service
-async def main():
-    orchestrator = AgentOrchestrator()
+async def main(options: Optional[dict] = None):
+    orchestrator = AgentOrchestrator(options=options)
     return await orchestrator.run_pipeline()
