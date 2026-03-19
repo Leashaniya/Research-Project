@@ -1,42 +1,201 @@
 {
-  "generated_at": "2026-03-19 14:22:21",
+  "generated_at": "2026-03-20 01:57:24",
   "mode": "AGENTIC_V1",
   "total_marks": 100,
-  "num_questions": 1,
+  "num_questions": 4,
   "topic_distribution": {
     "Q1": {
       "topic": "ER_EER_MODELING",
-      "marks": 100
+      "marks": 20
+    },
+    "Q2": {
+      "topic": "NORMALIZATION_FD_KEYS",
+      "marks": 15
+    },
+    "Q3": {
+      "topic": "SQL_DDL_DML",
+      "marks": 25
+    },
+    "Q4": {
+      "topic": "SQL_DDL_DML",
+      "marks": 40
     }
   },
   "questions": [
     {
       "question_no": "Q1",
-      "marks": 100,
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nIn a university database system, there are four main entities: Student, Course, Department, and Enrollment. The Student entity has attributes: StudentID, Name (with FirstName, LastName as composite attributes), and ContactNumbers (multivalued attribute). The Course entity has attributes such as CourseID, Title, Credits. contains CourseID, Title, and Credits. The Department entity includes DepartmentID, Name, and Location. The Enrollment entity has attributes such as EnrollmentID, Name, Description. has EnrollmentID, EnrollmentDate, and Status, representing the many-to-many relationship between Student and Course. The Department offers Courses, while Students enroll in these Courses through the Enrollment entity. Furthermore, the Student entity is specialized into two subtypes: GraduateStudent (with additional attributes of ThesisTitle and AdvisorName) and UndergraduateStudent (having YearOfStudy and Major)",
+      "marks": 20,
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nIn a university management system, there are several entities that play crucial roles. The entity 'Department' has attributes: DepartmentID, DepartmentName, and Location. The entity 'Course' includes attributes: CourseID, CourseName, and Credits. The 'Student' entity has attributes: StudentID, Name, and EmailAddresses. Additionally, 'Enrollment' represents a relationship between Student and Course, tracking attributes like EnrollmentDate and Grade. The Department offers various Courses, and Students enroll in these Courses, creating a multi-level relationship hierarchy where Departments oversee Course offerings",
       "subquestions": [
         {
           "label": "a",
           "text": "Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulting relations clearly.",
-          "marks": 85
+          "marks": 17
         },
         {
           "label": "b",
           "text": "What is the best option for mapping the ISA hierarchies in the diagram? Justify your answer.",
-          "marks": 15
+          "marks": 3
         }
       ],
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69bbb8e95decdfc12fa85ecf",
-      "original_semantic_description": "In a university database system, there are four main entities: Student, Course, Department, and Enrollment. The Student entity has attributes: StudentID, Name (with FirstName, LastName as composite attributes), and ContactNumbers (multivalued attribute). The Course entity has attributes such as CourseID, Title, Credits. contains CourseID, Title, and Credits. The Department entity includes DepartmentID, Name, and Location. The Enrollment entity has attributes such as EnrollmentID, Name, Description. has EnrollmentID, EnrollmentDate, and Status, representing the many-to-many relationship between Student and Course. The Department offers Courses, while Students enroll in these Courses through the Enrollment entity. Furthermore, the Student entity is specialized into two subtypes: GraduateStudent (with additional attributes of ThesisTitle and AdvisorName) and UndergraduateStudent (having YearOfStudy and Major).",
+      "template_id": "69bc5bb4542b81edf41aeb74",
+      "original_semantic_description": "In a university management system, there are several entities that play crucial roles. The entity 'Department' has attributes: DepartmentID, DepartmentName, and Location. The entity 'Course' includes attributes: CourseID, CourseName, and Credits. The 'Student' entity has attributes: StudentID, Name, and EmailAddresses. Additionally, 'Enrollment' represents a relationship between Student and Course, tracking attributes like EnrollmentDate and Grade. The Department offers various Courses, and Students enroll in these Courses, creating a multi-level relationship hierarchy where Departments oversee Course offerings.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
       "diagram_source": "semantic_description",
       "topic_label": "ER_EER_MODELING"
+    },
+    {
+      "question_no": "Q2",
+      "marks": 15,
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies over R: F={{AB->C, B->D, AC->E, C->D, E->A}}. Analyze the relation for normalization based on functional dependencies.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Find all the keys in relation R using the attribute closure method.",
+          "marks": 4
+        },
+        {
+          "label": "b",
+          "text": "Is R in 3NF? Give reasons for your conclusion.",
+          "marks": 3
+        },
+        {
+          "label": "c",
+          "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+          "marks": 8
+        }
+      ],
+      "pattern_label": "NORMALIZATION_FD_KEYS",
+      "main_topic": "NORMALIZATION_FD_KEYS",
+      "intent": "NORMALIZATION_FD_KEYS",
+      "template_id": "69bc5bb4542b81edf41aeb75",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": false,
+      "topic_label": "NORMALIZATION_FD_KEYS"
+    },
+    {
+      "question_no": "Q3",
+      "marks": 25,
+      "text": "A healthcare facility is implementing a database system to manage patient records and appointments. The database will include various roles to ensure efficient administration and management. Maria is the chief database administrator responsible for overseeing the database structure and ensuring data integrity. John and Lisa are junior database administrators reporting to Maria, with John managing the patient records database and Lisa overseeing the appointments database. Steve is a database developer working under John and Lisa, tasked with creating tables and relationships for patients and appointments. Emma and David are data entry operators who input patient information and appointment schedules into the system.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Write SQL queries to in the type 1 driver, jdbc api calls are directly executed against a database. accept or refute the above statement justifying your answer.",
+          "marks": 2
+        },
+        {
+          "label": "b",
+          "text": "Code Segment:\n```java\nString sql = \"SELECT * FROM employees WHERE department = ?\";\nPreparedStatement pstmt = connection.prepareStatement(sql);\npstmt.setString(1, \"IT\");\nResultSet rs = pstmt.executeQuery();\n```\n\nThere are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
+          "marks": 2
+        },
+        {
+          "label": "c",
+          "text": "Briefly explain the methods available for transferring data between tables and databases, including their advantages and disadvantages.",
+          "marks": 2
+        },
+        {
+          "label": "d",
+          "text": "Briefly explain how access control and data security are established in MySQL.",
+          "marks": 3
+        },
+        {
+          "label": "e",
+          "text": "A healthcare facility is developing a database system to manage Overseeing records and Overseeings. Different roles are assigned to various team Overseeings for database administration and management. Maria is the chief database administrator overseeing the database system. John and Lisa are junior database administrators under Maria's supervision. John manages the Overseeing records database, while Lisa handles the Overseeings database. Steve is a database developer reporting to John and Lisa. His responsibilities include designing and implementing database schemas for Overseeings and Overseeings. Emma and David are data entry operators responsible for inputting Overseeing information and Overseeing schedules into the system. Emily is a junior database administrator managing specific databases within the system.. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance.. Michael is a data entry operator responsible for inputting data into the system.. Nathan is a database developer responsible for designing and implementing database schemas..",
+          "marks": null,
+          "subquestions": [
+            {
+              "label": "i",
+              "marks": 2,
+              "text": "i. Write a T-SQL statement to create a login to Sarah with windows authentication."
+            },
+            {
+              "label": "ii",
+              "marks": 3,
+              "text": "ii. Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role."
+            },
+            {
+              "label": "iii",
+              "marks": 5,
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Appointments database using a user-defined server role."
+            },
+            {
+              "label": "iv",
+              "marks": 3,
+              "text": "iv. Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases."
+            },
+            {
+              "label": "v",
+              "marks": 3,
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Patients and Appointments databases."
+            }
+          ]
+        }
+      ],
+      "pattern_label": "SQL_DDL_DML",
+      "main_topic": "SQL_DDL_DML",
+      "intent": "SQL_DDL_DML",
+      "template_id": "69bc5bb4542b81edf41aeb76",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": false,
+      "topic_label": "SQL_DDL_DML"
+    },
+    {
+      "question_no": "Q4",
+      "marks": 40,
+      "text": "Consider the following schema of a database designed for a Hospital: Patient (patientId: int, name: varchar(100), address: varchar(150), dob: date, phoneNumber: varchar(15)) Doctor (doctorId: int, name: varchar(100), specialty: varchar(50), phoneNumber: varchar(15)) Appointment (appointmentId: int, patientId: int, doctorId: int, appointmentDate: date, status: varchar(50)) The Patient table stores information about each patient including their ID, name, address, date of birth, and contact number. The Doctor table holds details about doctors including their ID, name, specialty, and contact number. The Appointment table maintains records of patient appointments along with details regarding the doctor, date, and status of the appointment. The 'Patient' table stores information about patients, including unique patient ID, name, date of birth, and contact details. The 'Doctor' table holds details about doctors, including unique doctor ID, name, specialization, and contact information. The 'Appointment' table manages appointment records, tracking scheduled appointments between patients and doctors with dates and times. Fee (feeId: int, patientId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Write SQL Queries to perform the following:",
+          "marks": null,
+          "subquestions": [
+            {
+              "label": "i",
+              "marks": 4,
+              "text": "Find the patient's name and phone number who has an appointment scheduled on '2024-05-15'."
+            },
+            {
+              "label": "ii",
+              "marks": 6,
+              "text": "Find the doctor who specializes in 'Cardiology'."
+            },
+            {
+              "label": "iii",
+              "marks": 7,
+              "text": "Find the total number of appointments scheduled for each patient."
+            }
+          ]
+        },
+        {
+          "label": "b",
+          "marks": 11,
+          "text": "b) Create a function to calculate the total fee amount for a given patient. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
+        },
+        {
+          "label": "c",
+          "marks": 12,
+          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each patient. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by patient. The patient pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
+        }
+      ],
+      "pattern_label": "SQL_DDL_DML",
+      "main_topic": "SQL_DDL_DML",
+      "intent": "SQL_DDL_DML",
+      "template_id": "69bc5bb4542b81edf41aeb77",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": false,
+      "topic_label": "SQL_DDL_DML"
     }
   ]
 }

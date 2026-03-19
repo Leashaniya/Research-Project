@@ -242,6 +242,57 @@ function ModelPaperPage() {
     }
   };
 
+  const generatePaperA = async () => {
+    setProcessing(true);
+    setStatus("Running Standard Pipeline (Paper A)...");
+    addLog("Standard generation: using all uploaded past papers + always 4 questions...");
+    try {
+      const resp = await fetch(`${API_BASE}/model-paper/generate-paper-a`, {
+        method: "POST",
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!resp.ok) {
+        const errData = await resp.json();
+        throw new Error(errData.detail || "Server Error");
+      }
+
+      const data = await resp.json();
+
+      if (data.steps) {
+        data.steps.forEach(step => addLog(step));
+      }
+
+      if (data.status === "success") {
+        setPaper(data.paper);
+        addLog("Success! Paper A generated.");
+        setStatus("Done");
+      } else {
+        addLog(`Failed: ${data.message}`);
+        setStatus("Error");
+      }
+    } catch (err) {
+      addLog(`Error: ${err.message}`);
+      setStatus("Timed out or Connection Lost. Check backend console.");
+      try {
+        const fallbackResp = await fetch(`${API_BASE}/model-paper/paper-json`);
+        if (fallbackResp.ok) {
+          const fallbackData = await fallbackResp.json();
+          setPaper(fallbackData);
+          addLog("Loaded latest paper from disk.");
+          setStatus("Paper loaded (from disk)");
+        }
+      } catch (_) {
+        // Ignore fallback errors
+      }
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const downloadPDF = () => {
     window.open(`${API_BASE}/model-paper/download-pdf`, "_blank");
   };
@@ -474,9 +525,14 @@ function ModelPaperPage() {
             <div className="IconBox">🤖</div>
             <h3>AI Generation</h3>
             <p>Extract knowledge from all new uploads and generate the final paper.</p>
-            <button className="Btn" onClick={generatePaper} disabled={processing}>
-              {processing ? "Generating..." : "Generate Paper"}
-            </button>
+            <div className="GenerationButtons">
+              <button className="Btn BtnSecondary" onClick={generatePaperA} disabled={processing}>
+                {processing ? "Generating..." : "Generate Paper A (Standard)"}
+              </button>
+              <button className="Btn" onClick={generatePaper} disabled={processing}>
+                {processing ? "Generating..." : "Generate Paper B (Custom)"}
+              </button>
+            </div>
           </div>
         </div>
 

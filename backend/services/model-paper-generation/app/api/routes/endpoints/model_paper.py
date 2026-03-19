@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import Optional, Literal, List
 
 from fastapi import APIRouter, HTTPException
@@ -6,8 +7,9 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from app.services import pipeline_service
-from app.core.paths import OUTPUTS_DIR
+from app.core.paths import OUTPUTS_DIR, PAST_PAPERS_DIR
 import os
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -30,6 +32,40 @@ async def process_files():
     if res["status"] == "error":
         logger.error("process-files failed: %s", res.get("message"), exc_info=True)
         raise HTTPException(status_code=500, detail=res["message"])
+    return res
+
+@router.post("/generate-paper-a")
+async def generate_paper_a():
+    """
+    Paper A: Standard generation
+    - Always uses the default 4-slot blueprint generation.
+    - Uses ALL uploaded past papers for trend/topic computation.
+    - Ignores any user-provided custom generation options.
+    """
+    def _parse_file_to_selection_item(filename: str) -> dict:
+        name = str(filename or "")
+        m = re.search(r"(20\d{2})", name)
+        year = int(m.group(1)) if m else None
+        sem = "sem2" if re.search(r"\bII\b", name, re.IGNORECASE) else "sem1"
+        return {"year": year, "sem": sem, "file": name}
+
+    pp_dir = Path(PAST_PAPERS_DIR)
+    all_pdfs = []
+    if pp_dir.exists():
+        all_pdfs = sorted([p.name for p in pp_dir.glob("*.pdf")] + [p.name for p in pp_dir.glob("*.PDF")])
+
+    options = {
+        "num_slots": 4,
+        "semester_bias": "both",
+        "selected_papers": [_parse_file_to_selection_item(f) for f in all_pdfs],
+    }
+
+    res = await pipeline_service.run_full_pipeline(options=options)
+    if res["status"] == "error":
+        msg = res.get("message") or "Pipeline failed"
+        detail = str(msg) if msg else "Pipeline failed"
+        logger.error("generate-paper-a failed: %s (steps so far: %s)", detail, res.get("steps", []), exc_info=True)
+        raise HTTPException(status_code=500, detail=detail)
     return res
 
 @router.post("/generate-paper")
