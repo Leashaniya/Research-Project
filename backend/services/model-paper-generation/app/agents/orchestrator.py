@@ -69,6 +69,45 @@ def _normalize_paper_for_presentation(paper: Dict[str, Any]) -> Dict[str, Any]:
     return paper
 
 
+def _strip_marks_subquestion(sq: Dict[str, Any]) -> Dict[str, Any]:
+    """Recursively remove marks from a subquestion tree."""
+    if not isinstance(sq, dict):
+        return sq
+    out = {k: v for k, v in sq.items() if k != "marks"}
+    nested = out.get("subquestions")
+    if nested and isinstance(nested, list):
+        out["subquestions"] = [_strip_marks_subquestion(x) for x in nested]
+    return out
+
+
+def _strip_marks_from_paper(paper: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Paper B (questions_only): remove marks from final JSON so output is question text only.
+    """
+    if not isinstance(paper, dict):
+        return paper
+    out = dict(paper)
+    out.pop("total_marks", None)
+    td = out.get("topic_distribution")
+    if isinstance(td, dict):
+        out["topic_distribution"] = {
+            k: ({kk: vv for kk, vv in (v or {}).items() if kk != "marks"} if isinstance(v, dict) else v)
+            for k, v in td.items()
+        }
+    new_qs = []
+    for q in out.get("questions") or []:
+        if not isinstance(q, dict):
+            new_qs.append(q)
+            continue
+        qc = {k: v for k, v in q.items() if k != "marks"}
+        subs = qc.get("subquestions")
+        if subs and isinstance(subs, list):
+            qc["subquestions"] = [_strip_marks_subquestion(s) for s in subs]
+        new_qs.append(qc)
+    out["questions"] = new_qs
+    return out
+
+
 def enforce_top_topic_constraint(slots: List[dict], top_topic: str) -> List[dict]:
     """
     Ensure at least one slot is forced to use top_topic.
@@ -98,7 +137,13 @@ def enforce_top_topic_constraint(slots: List[dict], top_topic: str) -> List[dict
     return slots
 
 
-def validate_model_paper(paper_json: dict, *, top_topic: Optional[str] = None, expected_q_count: int = 4) -> List[str]:
+def validate_model_paper(
+    paper_json: dict,
+    *,
+    top_topic: Optional[str] = None,
+    expected_q_count: int = 4,
+    questions_only: bool = False,
+) -> List[str]:
     """
     Strict validator for final model paper constraints.
 
@@ -152,36 +197,37 @@ def validate_model_paper(paper_json: dict, *, top_topic: Optional[str] = None, e
             else:
                 errors.append(f"TOP_TOPIC_MISSING_ERROR: top_topic={top_topic} topics={topics}")
 
-    # Marks validation (basic safety)
-    total_marks = 0
-    for q in questions:
-        q_marks = int(q.get("marks") or 0)
-        if q_marks <= 0:
-            errors.append(f"MARKS_ERROR: {q.get('question_no')} has marks<=0")
-        sub = q.get("subquestions") or []
-        if sub:
-            # Use safe mark access that handles None marks and nested items
-            def get_effective_marks(sq):
-                """Get effective marks including nested items."""
-                sq_marks = sq.get("marks")
-                if sq_marks is None:
-                    nested = sq.get("subquestions", [])
-                    if nested:
-                        return sum(int(item.get("marks") or 0) for item in nested)
-                    return 0  # Edge case: None marks but no nested items
-                return int(sq_marks or 0)
-            sub_sum = sum(get_effective_marks(sq) for sq in sub)
-            if sub_sum != q_marks:
-                errors.append(f"MATH_ERROR: {q.get('question_no')} sub_sum={sub_sum} expected={q_marks}")
-        total_marks += q_marks
+    # Marks validation (basic safety) — skipped for Paper B questions_only output
+    if not questions_only:
+        total_marks = 0
+        for q in questions:
+            q_marks = int(q.get("marks") or 0)
+            if q_marks <= 0:
+                errors.append(f"MARKS_ERROR: {q.get('question_no')} has marks<=0")
+            sub = q.get("subquestions") or []
+            if sub:
+                # Use safe mark access that handles None marks and nested items
+                def get_effective_marks(sq):
+                    """Get effective marks including nested items."""
+                    sq_marks = sq.get("marks")
+                    if sq_marks is None:
+                        nested = sq.get("subquestions", [])
+                        if nested:
+                            return sum(int(item.get("marks") or 0) for item in nested)
+                        return 0  # Edge case: None marks but no nested items
+                    return int(sq_marks or 0)
+                sub_sum = sum(get_effective_marks(sq) for sq in sub)
+                if sub_sum != q_marks:
+                    errors.append(f"MATH_ERROR: {q.get('question_no')} sub_sum={sub_sum} expected={q_marks}")
+            total_marks += q_marks
 
-    paper_total = int(paper_json.get("total_marks") or 0)
-    if paper_total != total_marks:
-        errors.append(f"PAPER_TOTAL_MISMATCH: paper_total={paper_total} computed_total={total_marks}")
+        paper_total = int(paper_json.get("total_marks") or 0)
+        if paper_total != total_marks:
+            errors.append(f"PAPER_TOTAL_MISMATCH: paper_total={paper_total} computed_total={total_marks}")
 
-    # Most projects assume 100; enforce unless explicitly changed elsewhere
-    if total_marks != 100:
-        errors.append(f"TOTAL_MARKS_ERROR: expected=100 got={total_marks}")
+        # Most projects assume 100; enforce unless explicitly changed elsewhere
+        if total_marks != 100:
+            errors.append(f"TOTAL_MARKS_ERROR: expected=100 got={total_marks}")
 
     return errors
 
@@ -253,6 +299,10 @@ class AgentOrchestrator:
         self.num_slots = int(self.options.get("num_slots") or 4)
         self.selected_papers = self.options.get("selected_papers") or []
         self.semester_bias = self.options.get("semester_bias") or "both"
+        # Paper B: questions text only in saved output; no marks validation / filtering by marks band
+        self.questions_only = bool(self.options.get("questions_only"))
+        # Paper B (POST /generate-paper): topic/trend from lecture slide corpus (MiniLM + KMeans), not past-paper blueprints
+        self.lecture_based_topics = bool(self.options.get("lecture_based_topics"))
 
         self.analyst = BlueprintAnalyst(config={"num_slots": self.num_slots})
         self.researcher = ContentResearcher()
@@ -337,8 +387,8 @@ class AgentOrchestrator:
         elif banned_pattern_labels:
             pipeline[0]["$match"]["pattern_label"] = { "$nin": list(banned_pattern_labels) }
         
-        # 1. Broad Filtering by Marks (within +/- 5 range)
-        if marks:
+        # 1. Broad Filtering by Marks (within +/- 5 range) — not used for questions_only (Paper B)
+        if marks and not self.questions_only:
             pipeline[0]["$match"]["marks"] = { "$gte": int(marks)-5, "$lte": int(marks)+5 }
         
         # 2. Exclude already-used template IDs
@@ -1838,6 +1888,26 @@ class AgentOrchestrator:
         trend["num_recent_papers_for_trends"] = len(used_stems)
         return trend
 
+    async def _load_lecture_slide_trend(self) -> dict:
+        """Paper B: topics from lecture chunks (MiniLM + KMeans). Falls back to past-paper trend on failure."""
+        import asyncio
+
+        try:
+            from app.services.lecture_topic_trend_service import compute_lecture_slide_trend_sync
+
+            trend = await asyncio.to_thread(
+                compute_lecture_slide_trend_sync,
+                max(1, int(self.num_slots or 4)),
+            )
+            print(
+                f"📚 Lecture-based trend: top_topic={trend.get('top_topic')} "
+                f"source={trend.get('trend_source')} chunks={trend.get('lecture_chunk_count')}"
+            )
+            return trend or {}
+        except Exception as e:
+            print(f"⚠️ Lecture trend mining failed: {e}. Falling back to past-paper trend.")
+            return await self._load_trend_for_request()
+
     def _pick_topics_for_slots(self, trend: dict, num_slots: int) -> List[str]:
         """
         Deterministically pick topics for each slot based on topic frequencies.
@@ -1958,6 +2028,7 @@ class AgentOrchestrator:
                         "used_question_types": [],
                         "exam_title": "Model Paper",
                         "banned_topics": list(banned or set()),
+                        "lecture_creative_mode": bool(self.lecture_based_topics),
                     },
                     "needs_diagram": False,
                     "diagram_type": None,
@@ -2129,8 +2200,11 @@ class AgentOrchestrator:
                     "type": "conceptual",
                 })
 
-        # Load trends, but if user selected specific papers use those to compute frequencies
-        trend = await self._load_trend_for_request()
+        # Load trends: Paper B uses lecture-slide clustering; Paper A uses past-paper blueprint frequencies
+        if self.lecture_based_topics:
+            trend = await self._load_lecture_slide_trend()
+        else:
+            trend = await self._load_trend_for_request()
         top_topic = (trend or {}).get("top_topic") or "GENERAL_THEORY"
         recent_used = (trend or {}).get("recent_papers_used") or []
         print(f"📈 Trend summary: top_topic={top_topic} papers_used={len(recent_used)}")
@@ -2331,7 +2405,8 @@ class AgentOrchestrator:
                 "banned_topics": list(banned_topics),  # NEW: Pass banned topics for uniqueness
                 "used_scenarios": list(used_scenarios),
                 "used_question_types": list(used_question_types),  # NEW: Pass used types
-                "exam_title": exam_title
+                "exam_title": exam_title,
+                "lecture_creative_mode": bool(self.lecture_based_topics),
             }
             
             # --- STRICT ANTI-REPETITION LOGIC ---
@@ -5848,7 +5923,12 @@ Note: The diagram uses (min, max) cardinality notation where:
         # STRICT VALIDATOR → REPAIR LOOP (max 3)
         expected_q_count = max(1, int(self.num_slots or 4))
         for attempt in range(MAX_PAPER_REPAIR_RETRIES + 1):
-            errors = validate_model_paper(paper, top_topic=top_topic, expected_q_count=expected_q_count)
+            errors = validate_model_paper(
+                paper,
+                top_topic=top_topic,
+                expected_q_count=expected_q_count,
+                questions_only=self.questions_only,
+            )
             if not errors:
                 break
             print(f"🛠️ Validation failed (attempt {attempt+1}/{MAX_PAPER_REPAIR_RETRIES+1}):")
@@ -5879,6 +5959,10 @@ Note: The diagram uses (min, max) cardinality notation where:
             assert top_topic in set(final_topics_filtered), "Sanity check failed: top_topic missing"
         else:
             print(f"    [INFO] Skipping top_topic assertion - all questions have canonical templates")
+
+        if self.questions_only:
+            paper = _strip_marks_from_paper(paper)
+            print("📝 Paper B (questions_only): stripped marks from output JSON.")
 
         # Apply small presentation cleanups before persisting/returning.
         paper = _normalize_paper_for_presentation(paper)

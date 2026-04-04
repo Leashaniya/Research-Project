@@ -188,6 +188,7 @@ function ModelPaperPage() {
       num_slots: numSlots,
       selected_papers: selectedPapers,
       semester_bias: semesterBias,
+      questions_only: true, // Paper B: question text only, no marks in API output / PDF
     };
 
     try {
@@ -245,7 +246,7 @@ function ModelPaperPage() {
   const generatePaperA = async () => {
     setProcessing(true);
     setStatus("Running Standard Pipeline (Paper A)...");
-    addLog("Standard generation: using all uploaded past papers + always 4 questions...");
+    addLog("Standard generation: all past papers for trends; question count = mode of Q-counts (last 6 years, from blueprints)…");
     try {
       const resp = await fetch(`${API_BASE}/model-paper/generate-paper-a`, {
         method: "POST",
@@ -268,6 +269,16 @@ function ModelPaperPage() {
 
       if (data.status === "success") {
         setPaper(data.paper);
+        const inf = data.paper_a_slot_inference;
+        if (inf && !inf.fallback_used && inf.mode != null) {
+          addLog(
+            `Paper A: ${inf.num_slots} questions (mode=${inf.mode}, count×${inf.mode_frequency} in ${inf.year_range_inclusive?.[0]}–${inf.year_range_inclusive?.[1]}, ${inf.papers_with_blueprint} papers).`
+          );
+        } else if (inf?.fallback_used) {
+          addLog(
+            `Paper A: ${inf.num_slots} questions (fallback: ${inf.fallback_reason || "no blueprint data"}).`
+          );
+        }
         addLog("Success! Paper A generated.");
         setStatus("Done");
       } else {
@@ -584,7 +595,12 @@ function ModelPaperPage() {
           {paper.questions?.map((q, i) => (
             <div key={i} className="Question">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                <strong>Question {q.question_no} ({q.marks} Marks)</strong>
+                <strong>
+                  Question {q.question_no}
+                  {q.marks != null && q.marks !== '' && Number(q.marks) > 0
+                    ? ` (${q.marks} marks)`
+                    : ''}
+                </strong>
                 <button
                   onClick={() => fetchShortNotes(q.question_no, q)}
                   style={{

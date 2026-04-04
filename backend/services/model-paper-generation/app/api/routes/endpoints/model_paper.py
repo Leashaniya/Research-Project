@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from app.services import pipeline_service
+from app.services.paper_a_dynamic_slots import compute_paper_a_num_slots_from_recent_papers
 from app.core.paths import OUTPUTS_DIR, PAST_PAPERS_DIR
 import os
 from pathlib import Path
@@ -24,6 +25,10 @@ class GeneratePaperRequest(BaseModel):
   last_n_years: Optional[int] = None
   knowledge_weighting: Optional[Literal["past_papers", "balanced", "lecture_slides"]] = None
   num_versions: Optional[int] = None
+  # Paper B: output questions only — no marks in JSON/PDF; skip strict marks validation
+  questions_only: Optional[bool] = None
+  # Paper B: when true (default for POST /generate-paper), topic/trend from lecture MiniLM+KMeans; set false to use past-paper trends
+  lecture_based_topics: Optional[bool] = None
 
 @router.post("/process-files")
 async def process_files():
@@ -38,7 +43,8 @@ async def process_files():
 async def generate_paper_a():
     """
     Paper A: Standard generation
-    - Always uses the default 4-slot blueprint generation.
+    - num_slots: MODE of per-paper question counts from the last 6 calendar years (cached blueprints);
+      multimodal tie → smallest mode; clamped 1–8; fallback 4 if no data.
     - Uses ALL uploaded past papers for trend/topic computation.
     - Ignores any user-provided custom generation options.
     """
@@ -54,13 +60,17 @@ async def generate_paper_a():
     if pp_dir.exists():
         all_pdfs = sorted([p.name for p in pp_dir.glob("*.pdf")] + [p.name for p in pp_dir.glob("*.PDF")])
 
+    num_slots, slots_meta = compute_paper_a_num_slots_from_recent_papers()
+
     options = {
-        "num_slots": 4,
+        "num_slots": num_slots,
         "semester_bias": "both",
         "selected_papers": [_parse_file_to_selection_item(f) for f in all_pdfs],
     }
 
     res = await pipeline_service.run_full_pipeline(options=options)
+    if res["status"] == "success":
+        res["paper_a_slot_inference"] = slots_meta
     if res["status"] == "error":
         msg = res.get("message") or "Pipeline failed"
         detail = str(msg) if msg else "Pipeline failed"
@@ -71,7 +81,10 @@ async def generate_paper_a():
 @router.post("/generate-paper")
 async def generate_paper(params: GeneratePaperRequest | None = None):
     """Runs the COMPLETE pipeline: Extraction -> Blueprinting -> AI Generation."""
-    options = params.dict(exclude_none=True) if params else None
+    options = params.dict(exclude_none=True) if params else {}
+    # Paper B default: mine topics from lecture slide corpus (not selected past papers)
+    if options.get("lecture_based_topics") is None:
+        options["lecture_based_topics"] = True
     res = await pipeline_service.run_full_pipeline(options=options)
     if res["status"] == "error":
         msg = res.get("message") or "Pipeline failed"

@@ -58,12 +58,22 @@ class QuestionWriter(BaseAgent):
         if input_data.get("aggregation_spec") is not None:
             slot["aggregation_spec"] = input_data.get("aggregation_spec")
         
+        lecture_creative = bool((global_context or {}).get("lecture_creative_mode"))
+
         # Select Prompt Strategy
         if mode == "generate":
-            prompt = self._build_generation_prompt(slot, template, context, global_context, feedback, banned_topics=banned_topics)
+            prompt = self._build_generation_prompt(
+                slot, template, context, global_context, feedback,
+                banned_topics=banned_topics,
+                lecture_creative_mode=lecture_creative,
+            )
             self.log(f"Drafting question for {slot.get('question_no')} (Mode: GEN-FROM-SCRATCH)...")
         else:
-            prompt = self._build_paraphrase_prompt(slot, template, context, global_context, feedback, banned_topics=banned_topics)
+            prompt = self._build_paraphrase_prompt(
+                slot, template, context, global_context, feedback,
+                banned_topics=banned_topics,
+                lecture_creative_mode=lecture_creative,
+            )
             self.log(f"Drafting question for {slot.get('question_no')} (Mode: TEMPLATE-PARAPHRASE)...")
         
         try:
@@ -1608,7 +1618,17 @@ ORDER BY Age;"""
 INSERT INTO {primary_table} (Name, Email, Age)
 VALUES ('John Smith', 'john@example.com', 25);"""
 
-    def _build_generation_prompt(self, slot, template, context, global_context, feedback=None, *, banned_topics=None) -> str:
+    def _build_generation_prompt(
+        self,
+        slot,
+        template,
+        context,
+        global_context,
+        feedback=None,
+        *,
+        banned_topics=None,
+        lecture_creative_mode: bool = False,
+    ) -> str:
         """Mode 1: Pure Generation from Constraints (No past text shown)."""
         
         q_no = slot.get("question_no") or slot.get("slot_id", "")
@@ -1688,9 +1708,21 @@ VALUES ('John Smith', 'john@example.com', 25);"""
           students enroll in those offerings), without meta-instructions like "mandatory aggregation" or "dotted box".
 """
 
+        lecture_creative_block = ""
+        if lecture_creative_mode:
+            lecture_creative_block = """
+        
+        ⚠️ PAPER B — LECTURE-DRIVEN CREATIVE MODE ⚠️
+        - Treat the RETRIEVED LECTURE CONTEXT as the primary syllabus signal (not memorized past-exam wording).
+        - Invent ORIGINAL scenarios, entity/relation names, and examples consistent with that context.
+        - Do NOT copy or lightly rewrite scenarios from historical papers; keep the same QUESTION TYPE and template structure only.
+        - Maintain final-exam difficulty and DBMS learning outcomes.
+        """
+
         prompt = f"""
         You are an expert Exam Setter for a Database Management Systems course.
         Create a NEW, ORIGINAL exam question STRICTLY based on historical exam patterns, topic coverage, and syllabus modules.
+        {lecture_creative_block}
         
         ⚠️ CRITICAL: SYLLABUS ALIGNMENT REQUIREMENTS ⚠️
         - Generate questions STRICTLY based on historical exam patterns from past papers
@@ -2018,7 +2050,17 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         return prompt
 
     
-    def _build_paraphrase_prompt(self, slot, template, context, global_context, feedback=None, *, banned_topics=None) -> str:
+    def _build_paraphrase_prompt(
+        self,
+        slot,
+        template,
+        context,
+        global_context,
+        feedback=None,
+        *,
+        banned_topics=None,
+        lecture_creative_mode: bool = False,
+    ) -> str:
         q_no = slot.get("question_no") or slot.get("slot_id", "")
         """Mode 2: Paraphrasing (Keep structure, change content)."""
         pattern_label = template.get('pattern_label', '').lower()
@@ -2088,8 +2130,19 @@ VALUES ('John Smith', 'john@example.com', 25);"""
           not as meta-instructions about dotted boxes or mandatory aggregation.
 """
 
+        lecture_creative_block = ""
+        if lecture_creative_mode:
+            lecture_creative_block = """
+        
+        ⚠️ PAPER B — LECTURE-DRIVEN CREATIVE MODE (REVISION PASS) ⚠️
+        - Prioritize the RETRIEVED LECTURE CONTEXT over mimicking historical paper scenarios verbatim.
+        - Apply critic feedback, but re-invent scenarios/examples where needed so wording is not copied from past papers.
+        - Preserve template structure, marks, and instruction patterns as required below.
+        """
+
         base_prompt = f"""
         Generate ONE high-quality university exam question for a Database Systems course.
+        {lecture_creative_block}
         
         ⚠️ CRITICAL: SYLLABUS ALIGNMENT REQUIREMENTS ⚠️
         - Generate questions STRICTLY based on historical exam patterns from past papers

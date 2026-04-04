@@ -50,7 +50,7 @@ import cv2
 import fitz  # PyMuPDF
 import pytesseract
 from pytesseract import Output
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List, Set
 from app.services.structure_service import analyze_document_structure
 from app.services.vision_service import analyze_exam_diagram
 
@@ -99,6 +99,16 @@ SKIP_FIRST_PAGE = True
 SKIP_FILES = {
     # "some_bad_file.pdf",
 }
+
+# When true (default): skip PDFs whose output already matches source mtime/size; skip full OCR QC if nothing re-ran;
+# merge chunks.jsonl instead of rebuilding from all papers.
+PAST_PAPER_INCREMENTAL = os.getenv("PAST_PAPER_INCREMENTAL", "1").strip().lower() in (
+    "1",
+    "true",
+    "yes",
+    "on",
+)
+EXTRACT_SOURCE_META = ".extract_source.json"
 
 OUT_ROOT.mkdir(parents=True, exist_ok=True)
 TMP_PAGES.mkdir(parents=True, exist_ok=True)
@@ -467,6 +477,57 @@ def parse_blueprint_from_text(doc_text: str, pdf_stem: str, min_words=MIN_QUESTI
 
 
 # =========================
+# Incremental / fingerprint helpers
+# =========================
+def _read_extract_meta(out_pdf_dir: Path) -> Optional[dict]:
+    p = out_pdf_dir / EXTRACT_SOURCE_META
+    if not p.exists():
+        return None
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _write_extract_meta(pdf_path: Path, out_pdf_dir: Path, dpi_used: int) -> None:
+    try:
+        st = pdf_path.stat()
+    except OSError:
+        return
+    meta = {
+        "pdf_name": pdf_path.name,
+        "mtime": st.st_mtime,
+        "size": st.st_size,
+        "dpi": int(dpi_used),
+    }
+    (out_pdf_dir / EXTRACT_SOURCE_META).write_text(json.dumps(meta, indent=2), encoding="utf-8")
+
+
+def is_extract_current(pdf_path: Path, dpi_expected: int = DPI) -> bool:
+    """True if hybrid output exists and matches source file fingerprint (or legacy output adopted)."""
+    stem = pdf_path.stem
+    out_pdf_dir = OUT_ROOT / stem
+    combined = out_pdf_dir / "all_text_with_diagrams.txt"
+    pt = out_pdf_dir / "pages_text"
+    if not combined.exists() or not pt.is_dir() or not list(pt.glob("*.txt")):
+        return False
+    try:
+        st = pdf_path.stat()
+    except OSError:
+        return False
+    meta = _read_extract_meta(out_pdf_dir)
+    if meta is None:
+        # One-time adoption: keep existing cache, record fingerprint (avoids mass re-OCR)
+        _write_extract_meta(pdf_path, out_pdf_dir, dpi_expected)
+        return True
+    return (
+        meta.get("mtime") == st.st_mtime
+        and meta.get("size") == st.st_size
+        and int(meta.get("dpi") or dpi_expected) == int(dpi_expected)
+    )
+
+
+# =========================
 # Pipeline steps
 # =========================
 def process_one_pdf(pdf_path: Path, dpi_used=DPI):
@@ -477,12 +538,24 @@ def process_one_pdf(pdf_path: Path, dpi_used=DPI):
     pages_out = out_pdf_dir / "pages_text"
     diagrams_out = out_pdf_dir / "diagrams"
     
-    # Cache Check
+    # Cache Check (invalidates when PDF file changes — mtime/size)
     combined_file = out_pdf_dir / "all_text_with_diagrams.txt"
-    if combined_file.exists() and (out_pdf_dir / "pages_text").exists():
-        if list((out_pdf_dir / "pages_text").glob("*.txt")):
-            print(f" -> Skipping OCR: {stem} (Cache hit)")
-            return True
+    if combined_file.exists() and pages_out.exists() and list(pages_out.glob("*.txt")):
+        try:
+            st = pdf_path.stat()
+        except OSError:
+            st = None
+        if st is not None:
+            meta = _read_extract_meta(out_pdf_dir)
+            if meta and meta.get("mtime") == st.st_mtime and meta.get("size") == st.st_size:
+                dpi_ok = int(meta.get("dpi") or dpi_used) == int(dpi_used)
+                if dpi_ok:
+                    print(f" -> Skipping OCR: {stem} (Cache hit)")
+                    return True
+            if meta is None:
+                _write_extract_meta(pdf_path, out_pdf_dir, dpi_used)
+                print(f" -> Skipping OCR: {stem} (Cache hit, fingerprint adopted)")
+                return True
 
     pages_out.mkdir(parents=True, exist_ok=True)
     diagrams_out.mkdir(parents=True, exist_ok=True)
@@ -624,6 +697,7 @@ def process_one_pdf(pdf_path: Path, dpi_used=DPI):
         print(f" -> words: {len((page_text or '').split())} | diagrams: {len(diagrams)} | mean_conf:{mean_conf:.1f}")
 
     (out_pdf_dir / "all_text_with_diagrams.txt").write_text(combined_text, encoding="utf-8")
+    _write_extract_meta(pdf_path, out_pdf_dir, dpi_used)
     print(" Saved:", out_pdf_dir / "all_text_with_diagrams.txt")
     return True
 
@@ -631,7 +705,12 @@ def process_one_pdf(pdf_path: Path, dpi_used=DPI):
 def run_ocr_qc(tmp_pages_root=TMP_PAGES, out_dir=None,
                conf_threshold=CONF_THRESHOLD,
                min_words_for_text=MIN_WORDS_FOR_TEXT,
-               max_single_box_frac=MAX_SINGLE_BOX_FRAC):
+               max_single_box_frac=MAX_SINGLE_BOX_FRAC,
+               restrict_boxed_parents: Optional[List[Path]] = None):
+    """
+    If restrict_boxed_parents is a list of directories (e.g. TMP_PAGES / f"{stem}_boxed"),
+    only QC images under those dirs. Avoids re-running Tesseract on every cached render when nothing was re-extracted.
+    """
     if out_dir is None:
         out_dir = tmp_pages_root / "ocr_qc_report"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -639,7 +718,17 @@ def run_ocr_qc(tmp_pages_root=TMP_PAGES, out_dir=None,
     report = []
     bad = []
 
-    for img_path in sorted(tmp_pages_root.rglob("page_*.png")):
+    if restrict_boxed_parents:
+        img_paths = []
+        for parent in restrict_boxed_parents:
+            p = Path(parent)
+            if p.is_dir():
+                img_paths.extend(sorted(p.glob("page_*.png")))
+        img_paths = sorted(set(img_paths))
+    else:
+        img_paths = sorted(tmp_pages_root.rglob("page_*.png"))
+
+    for img_path in img_paths:
         img = cv2.imread(str(img_path))
         if img is None:
             continue
@@ -745,14 +834,43 @@ def build_diagrams_manifest(out_root=OUT_ROOT):
     return manifest_path
 
 
+def _load_chunks_jsonl(chunks_jsonl: Path) -> List[dict]:
+    if not chunks_jsonl.exists():
+        return []
+    rows = []
+    with open(chunks_jsonl, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rows.append(json.loads(line))
+            except json.JSONDecodeError:
+                continue
+    return rows
+
+
 # def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT):
-def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT, only_pdf_stems=None):
+def build_cleaned_docs_blueprints_and_chunks(
+    out_root=OUT_ROOT,
+    only_pdf_stems=None,
+    incremental_merge: bool = False,
+):
     PAGE_TEXT_GLOB = "*/pages_text/page_*_text.txt"
     chunks_jsonl = out_root / "chunks.jsonl"
     chunks_csv = out_root / "chunks_index.csv"
 
-    files = sorted(out_root.glob(PAGE_TEXT_GLOB))
-    print(f"DEBUG: Found {len(files)} page text files total.")
+    stems_filter: Optional[Set[str]] = set(only_pdf_stems) if only_pdf_stems is not None else None
+
+    if stems_filter:
+        files = []
+        for stem in sorted(stems_filter):
+            files.extend(sorted((out_root / stem / "pages_text").glob("page_*_text.txt")))
+        print(f"DEBUG: Found {len(files)} page text files for {len(stems_filter)} stem(s) (scoped glob).")
+    else:
+        files = sorted(out_root.glob(PAGE_TEXT_GLOB))
+        print(f"DEBUG: Found {len(files)} page text files total.")
+
     pages_by_pdf = {}
 
     for f in files:
@@ -766,7 +884,7 @@ def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT, only_pdf_stems=N
     csv_rows = []
 
     for pdf_stem, page_list in pages_by_pdf.items():
-        if only_pdf_stems is not None and pdf_stem not in only_pdf_stems:
+        if stems_filter is not None and pdf_stem not in stems_filter:
             continue
 
         page_list = sorted(page_list, key=lambda x: x[0])
@@ -877,6 +995,25 @@ def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT, only_pdf_stems=N
             c_i += 1
             start += step
 
+    if incremental_merge and stems_filter and chunks_jsonl.exists():
+        kept = [c for c in _load_chunks_jsonl(chunks_jsonl) if c.get("pdf_stem") not in stems_filter]
+        global_chunks = kept + global_chunks
+        csv_rows = []
+        for rec in global_chunks:
+            ct = rec.get("text") or ""
+            csv_rows.append({
+                "chunk_id": rec.get("chunk_id"),
+                "pdf_stem": rec.get("pdf_stem"),
+                "page_no": rec.get("page_no"),
+                "start_word": rec.get("start_word"),
+                "end_word": rec.get("end_word"),
+                "n_words": rec.get("n_words"),
+                "text_snippet": (ct[:200] + "...") if len(ct) > 200 else ct,
+            })
+        print(f"DONE: incremental merge — total chunks: {len(global_chunks)} (updated stems: {sorted(stems_filter)})")
+    else:
+        print("DONE: chunks written:", len(global_chunks))
+
     with open(chunks_jsonl, "w", encoding="utf-8") as jf:
         for rec in global_chunks:
             jf.write(json.dumps(rec, ensure_ascii=False) + "\n")
@@ -886,8 +1023,20 @@ def build_cleaned_docs_blueprints_and_chunks(out_root=OUT_ROOT, only_pdf_stems=N
         writer.writeheader()
         writer.writerows(csv_rows)
 
-    print("DONE: chunks written:", len(global_chunks))
     return True
+
+
+def stems_from_qc_bad(bad: list) -> Set[str]:
+    """Map QC failure records to PDF stems (parent dir name ends with _boxed)."""
+    out: Set[str] = set()
+    for r in bad:
+        try:
+            par = Path(r["page"]).parent.name
+            if par.endswith("_boxed"):
+                out.add(par[:-6])
+        except Exception:
+            continue
+    return out
 
 
 def main_full_run(max_passes: int = 2):
@@ -900,33 +1049,72 @@ def main_full_run(max_passes: int = 2):
     print("Found boxed PDFs:", len(pdfs))
     if not pdfs:
         raise FileNotFoundError(f"No PDFs found in: {ROOT_PDFS}")
+    print(f"PAST_PAPER_INCREMENTAL={PAST_PAPER_INCREMENTAL}")
+
+    processed_stems: Set[str] = set()
 
     for p in pdfs:
-        process_one_pdf(p, dpi_used=DPI)
+        if PAST_PAPER_INCREMENTAL and is_extract_current(p):
+            continue
+        if process_one_pdf(p, dpi_used=DPI):
+            processed_stems.add(p.stem)
 
-    run_ocr_qc()
-    build_diagrams_manifest()
-    # build_cleaned_docs_blueprints_and_chunks()
-    only_stems = {p.stem for p in pdfs}
-    build_cleaned_docs_blueprints_and_chunks(only_pdf_stems=only_stems)
+    if PAST_PAPER_INCREMENTAL and not processed_stems:
+        print(
+            f"\n[PAST_PAPER_INCREMENTAL] All {len(pdfs)} PDF(s) already match cached output "
+            f"(see {EXTRACT_SOURCE_META}) — skipping OCR QC, blueprint/chunk rebuild."
+        )
+        build_diagrams_manifest()
+        print("\nPipeline finished (fast path). Outputs in:", OUT_ROOT)
+        return
 
+    boxed_qc = [TMP_PAGES / f"{s}_boxed" for s in processed_stems]
+    boxed_qc = [b for b in boxed_qc if b.is_dir()]
+    if boxed_qc:
+        _, bad = run_ocr_qc(restrict_boxed_parents=boxed_qc)
+    else:
+        print("OCR QC skipped (no *_boxed dirs under tmp for re-extracted papers).")
+        bad = []
 
     for i in range(max_passes):
         print(f"\n=== AUTO QC PASS {i+1}/{max_passes} ===")
-        _, bad = run_ocr_qc()
         if not bad:
             print("No low-confidence pages. Done.")
             break
 
-        print("Low-confidence pages:", len(bad), "-> re-render all boxed PDFs at", FALLBACK_DPI)
+        bad_stems = stems_from_qc_bad(bad)
+        if not bad_stems:
+            print("QC flagged pages but could not map to stems; re-running QC only.")
+            break
+
+        print(
+            "Low-confidence pages:", len(bad), "-> re-render at",
+            FALLBACK_DPI, "for stem(s):", ", ".join(sorted(bad_stems)),
+        )
         for p in pdfs:
-            process_one_pdf(p, dpi_used=FALLBACK_DPI)
+            if p.stem in bad_stems:
+                if process_one_pdf(p, dpi_used=FALLBACK_DPI):
+                    processed_stems.add(p.stem)
 
         time.sleep(1)
-        build_diagrams_manifest()
-        # build_cleaned_docs_blueprints_and_chunks()
-        only_stems = {p.stem for p in pdfs}
-        build_cleaned_docs_blueprints_and_chunks(only_pdf_stems=only_stems)
+        boxed_retry = [TMP_PAGES / f"{s}_boxed" for s in bad_stems]
+        boxed_retry = [b for b in boxed_retry if b.is_dir()]
+        _, bad = run_ocr_qc(restrict_boxed_parents=boxed_retry) if boxed_retry else ([], [])
+
+    build_diagrams_manifest()
+    all_stems = {p.stem for p in pdfs}
+    chunks_path = OUT_ROOT / "chunks.jsonl"
+    # Merge chunk index only when prior chunks exist; otherwise rebuild for all stems so nothing is dropped.
+    if PAST_PAPER_INCREMENTAL and chunks_path.exists():
+        build_cleaned_docs_blueprints_and_chunks(
+            only_pdf_stems=processed_stems,
+            incremental_merge=True,
+        )
+    else:
+        build_cleaned_docs_blueprints_and_chunks(
+            only_pdf_stems=all_stems,
+            incremental_merge=False,
+        )
 
     print("\nPipeline finished. Outputs in:", OUT_ROOT)
 
@@ -949,8 +1137,10 @@ def run_single(pdf_path: Path, dpi_used: int = DPI, run_qc: bool = False) -> Dic
         qc_flagged = len(bad)
 
     manifest_path = build_diagrams_manifest()
-    # build_cleaned_docs_blueprints_and_chunks()
-    build_cleaned_docs_blueprints_and_chunks(only_pdf_stems={pdf_path.stem})
+    build_cleaned_docs_blueprints_and_chunks(
+        only_pdf_stems={pdf_path.stem},
+        incremental_merge=PAST_PAPER_INCREMENTAL,
+    )
 
 
     out_pdf_dir = OUT_ROOT / pdf_path.stem

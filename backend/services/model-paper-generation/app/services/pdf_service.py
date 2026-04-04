@@ -124,11 +124,15 @@ class PDFService:
     def _add_question_to_pdf(self, pdf: FPDF, q: Dict[str, Any], q_no: int):
         """Add a single question to the PDF."""
         question_no = q.get("question_no", f"Q{q_no}")
-        marks = q.get("marks", 0)
+        marks = q.get("marks")
         
-        # Question header
+        # Question header (omit "(N marks)" when marks not present — Paper B questions_only)
         pdf.set_font("helvetica", "B", 12)
-        pdf.cell(0, 10, PDFService._sanitize_text(f"{question_no} ({marks} marks)"), ln=True)
+        if marks is not None and int(marks) > 0:
+            header = f"{question_no} ({marks} marks)"
+        else:
+            header = str(question_no)
+        pdf.cell(0, 10, PDFService._sanitize_text(header), ln=True)
         pdf.ln(2)
         
         # Question Stem/Text (if exists and no subquestions, or as intro)
