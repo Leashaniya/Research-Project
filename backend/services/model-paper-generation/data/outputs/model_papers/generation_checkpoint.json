@@ -1,0 +1,54 @@
+{
+  "questions": [
+    {
+      "question_no": "Q1",
+      "marks": 20,
+      "text": "Consider a university database system with students, courses, and enrollments. Each student has student ID, name, and email. Each course has course code, title, and credits. Students enroll in courses, and each enrollment has a grade.",
+      "subquestions": [
+        {
+          "label": "a",
+          "marks": 17,
+          "text": "Identify the main entities and their attributes."
+        },
+        {
+          "label": "b",
+          "marks": 3,
+          "text": "What is the best option for mapping the ISA hierarchies in the diagram? Justify your answer."
+        }
+      ],
+      "template_id": "69d5569b2353de2800d22d4e",
+      "pattern_label": "ER_EER_MODELING",
+      "main_topic": "ER_EER_MODELING",
+      "intent": "ER_EER_MODELING",
+      "topic_label": "ER_EER_MODELING"
+    },
+    {
+      "question_no": "Q2",
+      "marks": 15,
+      "text": "Given a relation schema R(A, B, C, D) with functional dependencies: A \u2192 B, B \u2192 C, C \u2192 D.",
+      "subquestions": [
+        {
+          "label": "a",
+          "marks": 4,
+          "text": "Find all the keys in relation R using the attribute closure method."
+        },
+        {
+          "label": "b",
+          "marks": 3,
+          "text": "Is R in 3NF? Give reasons for your conclusion."
+        },
+        {
+          "label": "c",
+          "marks": 8,
+          "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations."
+        }
+      ],
+      "template_id": "69d5569b2353de2800d22d4f",
+      "pattern_label": "NORMALIZATION_FD_KEYS",
+      "main_topic": "NORMALIZATION_FD_KEYS",
+      "intent": "NORMALIZATION_FD_KEYS",
+      "topic_label": "NORMALIZATION_FD_KEYS"
+    }
+  ],
+  "last_update": "2026-04-08 00:41:21"
+}

@@ -232,6 +232,113 @@ class QualityCritic(BaseAgent):
         
         return True, ""
 
+    def _check_er_paper_b_exam_grade(self, draft: dict, template: dict) -> Tuple[bool, str]:
+        """
+        Paper B (questions_only): reject ER/EER questions whose stem reads like a short textbook intro.
+        Requires a long stem, several sentences, and multiple design-rich cues (composite/ISA/constraints/etc.).
+        """
+        from app.core.config import settings
+
+        draft_text = (draft.get("text") or "").strip()
+        sub_qs_text = " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])])
+        combined_lower = (draft_text + " " + sub_qs_text).lower()
+
+        if not self._is_er_pattern(template.get("pattern_label", "") or "", combined_lower):
+            return True, ""
+
+        stem = draft_text
+        if len(stem) < settings.PAPER_B_MIN_ER_STEM_CHARS:
+            return False, (
+                f"PAPER_B_TOO_SIMPLE: ER/EER question stem is too short for Paper B ({len(stem)} chars; "
+                f"need at least {settings.PAPER_B_MIN_ER_STEM_CHARS}). Expand with business rules, constraints, "
+                "attributes on relationships, composite/multivalued attributes, and cardinality/participation hints."
+            )
+
+        sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", stem) if len(s.strip()) >= 25]
+        if len(sentences) < settings.PAPER_B_MIN_ER_STEM_SENTENCES:
+            return False, (
+                f"PAPER_B_TOO_SIMPLE: ER/EER stem needs at least {settings.PAPER_B_MIN_ER_STEM_SENTENCES} "
+                f"substantial sentences (found {len(sentences)}). Break up dense lists into clear sentences with rules."
+            )
+
+        richness_patterns = [
+            r"composite|sub-attribute|\baddress\b.*\b(city|street|zip|postal)",
+            r"multivalued|multi-valued|multiple\s+\w+|more\s+than\s+one\s+\w+|several\s+\w+",
+            r"subtype|supertype|specialization|subclass|superclass|\bspecialis|\bgeneralis",
+            r"weak\s+entity|identifying\s+relationship",
+            r"cardinality|participation|optional|mandatory|total\s+participation|partial\s+participation|many-to-many|one-to-one|1:\s*[\*1n]|m\s*:\s*n",
+            r"attribute\s+on\s+the\s+relationship|descriptive\s+attribute|relationship\s+records",
+        ]
+        groups_matched = sum(1 for pat in richness_patterns if re.search(pat, stem, re.IGNORECASE))
+        need = max(1, int(settings.PAPER_B_ER_RICHNESS_GROUPS_MIN))
+        if groups_matched < need:
+            return False, (
+                f"PAPER_B_TOO_SIMPLE: ER/EER stem lacks exam-grade design detail (matched {groups_matched} richness "
+                f"cues; need at least {need}). Explicitly include constraints such as composite or multivalued "
+                "attributes, ISA/specialization, relationship attributes, and/or cardinality/participation rules."
+            )
+
+        return True, ""
+
+    def _is_er_pattern(self, pattern_label: str, combined_lower: str) -> bool:
+        pl = (pattern_label or "").lower()
+        return (
+            "er" in pl or "eer" in pl or "diagram" in pl or
+            "er diagram" in combined_lower or "eer diagram" in combined_lower or
+            ("draw" in combined_lower and ("er" in combined_lower or "entity" in combined_lower))
+        )
+
+    def _check_non_er_paper_b_stem_weight(self, draft: dict, template: dict) -> Tuple[bool, str]:
+        """
+        Paper B: non-ER questions must carry Paper A–like stem weight (not one-liner drills).
+        ER is handled separately by _check_er_paper_b_exam_grade.
+        """
+        from app.core.config import settings
+
+        stem = (draft.get("text") or "").strip()
+        sub_qs_text = " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])])
+        combined_lower = (stem + " " + sub_qs_text).lower()
+        pattern_label = template.get("pattern_label", "") or ""
+
+        if self._is_er_pattern(pattern_label, combined_lower):
+            return True, ""
+
+        is_norm = (
+            "normalization" in pattern_label.lower() or "normal form" in pattern_label.lower() or
+            "normalization" in combined_lower or "normal form" in combined_lower or
+            ("normalize" in combined_lower and ("relation" in combined_lower or "schema" in combined_lower))
+        )
+
+        min_chars = int(settings.PAPER_B_MIN_NON_ER_STEM_CHARS)
+        min_sents = int(settings.PAPER_B_MIN_NON_ER_STEM_SENTENCES)
+        min_words = int(settings.PAPER_B_MIN_NON_ER_STEM_WORDS)
+
+        sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", stem) if len(s.strip()) >= 20]
+        word_count = len(stem.split())
+        fd_arrows = len(re.findall(r"(?:->|→)", stem))
+
+        norm_dense = (
+            is_norm
+            and fd_arrows >= int(settings.PAPER_B_MIN_NORM_FD_ARROWS)
+            and len(stem) >= int(settings.PAPER_B_MIN_NORM_STEM_CHARS)
+        )
+
+        prose_rich = (
+            len(stem) >= min_chars
+            and (len(sentences) >= min_sents or word_count >= min_words)
+        )
+
+        if norm_dense or prose_rich:
+            return True, ""
+
+        hint = (
+            f"PAPER_B_TOO_SIMPLE: Stem too light for Paper B ({len(stem)} chars, {len(sentences)} sentences, "
+            f"{word_count} words). Target at least ~{min_chars} characters AND either {min_sents}+ substantial "
+            f"sentences OR {min_words}+ words in the question stem. For normalization, include a full R(...) "
+            f"with at least {settings.PAPER_B_MIN_NORM_FD_ARROWS} FDs (e.g. A,B->C) and sufficient prose."
+        )
+        return False, hint
+
     def _check_normalization_schema_required(self, draft: dict, template: dict) -> Tuple[bool, str]:
         """Check if Normalization question has required schema and functional dependencies."""
         pattern_label = template.get("pattern_label", "").lower()
@@ -598,6 +705,7 @@ class QualityCritic(BaseAgent):
         draft = input_data.get("draft", {})
         context = input_data.get("context", "")
         template = input_data.get("template", {})
+        paper_b_strict = bool(input_data.get("paper_b_strict"))
         
         # --- DETERMINISTIC HARD-FAIL RULES (Run BEFORE LLM review) ---
         
@@ -733,6 +841,16 @@ class QualityCritic(BaseAgent):
         if not er_check:
             self.log(f"❌ Deterministic Reject: {er_msg}")
             return {"approved": False, "feedback": er_msg, "feedback_code": "SCENARIO_MISSING"}
+        
+        if paper_b_strict:
+            pb_er, pb_msg = self._check_er_paper_b_exam_grade(draft, template)
+            if not pb_er:
+                self.log(f"❌ Deterministic Reject: {pb_msg}")
+                return {"approved": False, "feedback": pb_msg, "feedback_code": "PAPER_B_TOO_SIMPLE"}
+            pb_stem, pb_stem_msg = self._check_non_er_paper_b_stem_weight(draft, template)
+            if not pb_stem:
+                self.log(f"❌ Deterministic Reject: {pb_stem_msg}")
+                return {"approved": False, "feedback": pb_stem_msg, "feedback_code": "PAPER_B_TOO_SIMPLE"}
         
         # 8. Normalization Schema Check
         norm_check, norm_msg = self._check_normalization_schema_required(draft, template)

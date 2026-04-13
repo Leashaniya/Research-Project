@@ -306,9 +306,7 @@ def main():
     recent_papers = select_recent_papers(papers_good, k=NUM_RECENT_PAPERS_FOR_TRENDS)
     blueprint_papers = recent_papers  # Blueprint already uses latest papers; now trend mining matches.
 
-    print(f"\nUsing latest {len(blueprint_papers)} papers (deterministic year+semester) for blueprint + trends:")
-    for bp in blueprint_papers:
-        print(f" - {bp['pdf_stem']}")
+    print(f"\nUsing recent papers for blueprint/trend computation: {len(blueprint_papers)}")
 
     # Persist trend summary (used downstream by orchestrator/template analyzer)
     trend = compute_topic_frequencies(recent_papers)
@@ -321,7 +319,7 @@ def main():
         json.dumps(trend_summary, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
-    print(f"Saved trend_summary.json (top_topic={trend_summary['top_topic']})")
+    print("Saved trend summary artifact.")
 
 
     # ==========================================================

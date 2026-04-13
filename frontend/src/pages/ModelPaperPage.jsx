@@ -19,7 +19,6 @@ function ModelPaperPage() {
 
   // User-configurable generation parameters
   const [numSlots, setNumSlots] = useState(4); // stepper: 1–8
-  const [semesterBias, setSemesterBias] = useState('both'); // 'both' | 'sem1' | 'sem2'
   const [paperFileSelection, setPaperFileSelection] = useState({}); // { [filename]: boolean } (default true)
 
   const parsePastPaper = (file) => {
@@ -36,51 +35,14 @@ function ModelPaperPage() {
       .filter((f) => paperFileSelection[String(f)] !== false)
       .map(parsePastPaper)
       .filter((p) => p.year !== null);
-
-    // Group by year to know if a year has both sems or only one.
-    const byYear = parsed.reduce((acc, p) => {
-      acc[p.year] = acc[p.year] || { sem1: [], sem2: [] };
-      acc[p.year][p.sem].push(p);
-      return acc;
-    }, {});
-
-    const years = Object.keys(byYear).map((y) => Number(y)).sort((a, b) => a - b);
-
-    const selected = [];
-
-    for (const year of years) {
-      const g = byYear[year];
-      const hasSem1 = (g.sem1 || []).length > 0;
-      const hasSem2 = (g.sem2 || []).length > 0;
-
-      // If only one semester exists for that year, always include it.
-      if (hasSem1 && !hasSem2) {
-        selected.push(...g.sem1);
-        continue;
-      }
-      if (hasSem2 && !hasSem1) {
-        selected.push(...g.sem2);
-        continue;
-      }
-
-      // If both exist, apply semesterBias.
-      if (semesterBias === "both") {
-        selected.push(...g.sem1, ...g.sem2);
-      } else if (semesterBias === "sem1") {
-        selected.push(...g.sem1);
-      } else if (semesterBias === "sem2") {
-        selected.push(...g.sem2);
-      }
-    }
-
-    // Stable order: year asc, sem1 before sem2, then filename asc
-    selected.sort((a, b) => {
+    // Stable order: year asc, sem1 before sem2, then filename asc.
+    parsed.sort((a, b) => {
       if (a.year !== b.year) return a.year - b.year;
       if (a.sem !== b.sem) return a.sem === "sem1" ? -1 : 1;
       return a.file.localeCompare(b.file);
     });
 
-    return selected;
+    return parsed;
   };
 
   const showNotification = (message) => {
@@ -187,7 +149,6 @@ function ModelPaperPage() {
     const payload = {
       num_slots: numSlots,
       selected_papers: selectedPapers,
-      semester_bias: semesterBias,
       questions_only: true, // Paper B: question text only, no marks in API output / PDF
     };
 
@@ -471,44 +432,9 @@ function ModelPaperPage() {
                 )}
               </div>
 
-              <div className="SettingsRow">
-                <div className="SettingsRowTitle">Semester style</div>
-                <div className="PillRow" role="tablist" aria-label="Semester style">
-                  <button
-                    type="button"
-                    className={`Pill ${semesterBias === 'both' ? 'PillOn' : ''}`}
-                    onClick={() => setSemesterBias('both')}
-                    disabled={processing}
-                  >
-                    Both semesters
-                  </button>
-                  <button
-                    type="button"
-                    className={`Pill ${semesterBias === 'sem1' ? 'PillOn' : ''}`}
-                    onClick={() => setSemesterBias('sem1')}
-                    disabled={processing}
-                  >
-                    Semester I only
-                  </button>
-                  <button
-                    type="button"
-                    className={`Pill ${semesterBias === 'sem2' ? 'PillOn' : ''}`}
-                    onClick={() => setSemesterBias('sem2')}
-                    disabled={processing}
-                  >
-                    Semester II only
-                  </button>
-                </div>
-                <div className="SettingsHint">
-                  Years with only one semester available are always included regardless of this setting
-                </div>
-              </div>
-
               {(() => {
                 const selected = computeSelectedPapers();
                 const total = selected.length;
-                const semStyle =
-                  semesterBias === "both" ? "Sem I + II" : semesterBias === "sem1" ? "Sem I only" : "Sem II only";
 
                 return (
                   <div className="StatsRow" aria-label="Selection summary">
@@ -519,10 +445,6 @@ function ModelPaperPage() {
                     <div className="StatChip">
                       <div className="StatLabel">Questions</div>
                       <div className="StatValue">{numSlots}</div>
-                    </div>
-                    <div className="StatChip">
-                      <div className="StatLabel">Semester style</div>
-                      <div className="StatValue">{semStyle}</div>
                     </div>
                   </div>
                 );

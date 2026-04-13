@@ -1712,17 +1712,40 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         if lecture_creative_mode:
             lecture_creative_block = """
         
-        ⚠️ PAPER B — LECTURE-DRIVEN CREATIVE MODE ⚠️
-        - Treat the RETRIEVED LECTURE CONTEXT as the primary syllabus signal (not memorized past-exam wording).
-        - Invent ORIGINAL scenarios, entity/relation names, and examples consistent with that context.
-        - Do NOT copy or lightly rewrite scenarios from historical papers; keep the same QUESTION TYPE and template structure only.
-        - Maintain final-exam difficulty and DBMS learning outcomes.
+        ⚠️ PAPER B — LECTURE-ALIGNED, CREATIVE & COMPLEX MODE ⚠️
+        PRIMARY SOURCE: Use the RETRIEVED LECTURE CONTEXT below as the main syllabus signal. Ground topics (e.g. normalization, SQL, ER/EER, transactions, indexing) in what the slides cover — not generic or past-paper paraphrase alone.
+        NOVELTY: Invent FRESH real-world domains (e.g. university, hospital, e-commerce, logistics, library) with new entity/table names. Do NOT copy scenarios from historical templates verbatim; keep only the QUESTION TYPE and REQUIRED STRUCTURE (labels, marks per part, instruction patterns).
+        COGNITIVE DEPTH (Bloom’s taxonomy — spread across sub-parts):
+        - Remember/Understand: brief definitions or contrasts only where the template allots small marks.
+        - Apply: concrete tasks (write SQL/RA, trace a schedule, complete a decomposition step) tied to YOUR scenario.
+        - Analyze/Synthesize/Evaluate: for higher-mark parts — multi-step design, justify choices, compare approaches, or integrate schema + queries + rules in one coherent problem story.
+        COMPLEXITY & REAL WORLD: Prefer multi-step, problem-solving stems over “list theory only”. Embed a short coherent scenario when the template allows (entities, constraints, business rules). Questions should feel like a final-year DBMS exam: applied, not textbook abstract.
+        MARKS ALIGNMENT: Where the structure shows higher marks on a sub-question, that part MUST demand more work (e.g. multi-part SQL, normalization with justification, ER + mapping, or analysis). Low-mark parts stay concise.
+        BALANCE: Avoid only trivial recall across ALL parts unless the template forces it. Mix conceptual + procedural + design as the structure permits.
+        CONSTRAINTS (unchanged): Do NOT put answers, full solutions, or hints in the text. Do NOT leak the correct approach in the stem. Obey EXACT sub-question count and instruction patterns from the template.
+        - If instructions below mention "historical" or "past papers", apply that to STRUCTURE and PATTERNS only; for SCENARIO and TOPIC emphasis, prefer the lecture context and applied, creative tasks described above.
+        """
+
+        paper_b = bool((global_context or {}).get("paper_b_questions_only"))
+        paper_b_parity_block = ""
+        if paper_b:
+            paper_b_parity_block = """
+        
+        ⚠️ PAPER B — MATCH PAPER A FINAL-EXAM DIFFICULTY (ALL TOPICS, NOT DRILL LEVEL) ⚠️
+        - Marks may be omitted from the student-facing paper, but YOU must still use total marks and per-part marks internally to set depth — same tier as Paper A for this slot (every question type: ER/EER, normalization, SQL/DDL/DML, relational algebra, transactions, theory).
+        - The question stem (text before sub-parts) must be substantial: multiple sentences or a dense technical setup so the paper “weighs” like a real degree exam, not a one-line homework prompt.
+        - ER/EER: dense narrative (aim 4–7 sentences) with multiple entities and attributes, composite OR multivalued attribute in prose, relationship attributes, business rules, cardinality/participation; EER topics need believable ISA or aggregation-style situation when appropriate.
+        - Normalization: full relation R(...) with a non-trivial set of FDs (several dependencies), enough prose context that decomposition / keys / normal forms require real work — not a toy two-attribute example.
+        - SQL / DDL / DML: describe a concrete multi-table schema (constraints, keys, rules) in the stem so queries, triggers, or procedures are tied to a realistic scenario matching the mark weight.
+        - Relational algebra / tuple calculus: list all relations and attributes explicitly in the stem (several relations) so expressions require joins, selections, and projections at exam depth.
+        - Theory / other: stem must still carry enough context and constraints that higher-mark parts need analysis or justification, not a single-definition answer.
+        - If a sub-part uses a simple verb (e.g. “Identify”), the stem must still make the task non-trivial — not answerable from a generic intro.
         """
 
         prompt = f"""
         You are an expert Exam Setter for a Database Management Systems course.
         Create a NEW, ORIGINAL exam question STRICTLY based on historical exam patterns, topic coverage, and syllabus modules.
-        {lecture_creative_block}
+        {lecture_creative_block}{paper_b_parity_block}
         
         ⚠️ CRITICAL: SYLLABUS ALIGNMENT REQUIREMENTS ⚠️
         - Generate questions STRICTLY based on historical exam patterns from past papers
@@ -2134,15 +2157,26 @@ VALUES ('John Smith', 'john@example.com', 25);"""
         if lecture_creative_mode:
             lecture_creative_block = """
         
-        ⚠️ PAPER B — LECTURE-DRIVEN CREATIVE MODE (REVISION PASS) ⚠️
-        - Prioritize the RETRIEVED LECTURE CONTEXT over mimicking historical paper scenarios verbatim.
-        - Apply critic feedback, but re-invent scenarios/examples where needed so wording is not copied from past papers.
-        - Preserve template structure, marks, and instruction patterns as required below.
+        ⚠️ PAPER B — LECTURE-ALIGNED CREATIVE MODE (REVISION PASS) ⚠️
+        - Prioritize RETRIEVED LECTURE CONTEXT for topic accuracy; keep questions applied, multi-step, and scenario-driven where the template allows.
+        - Strengthen weak parts: add real-world context, Bloom-appropriate depth (Apply/Analyze for higher marks), and problem-solving — without adding hints or solutions.
+        - Apply critic feedback exactly; re-invent entities/domains if needed so text is not copied from the reference question.
+        - Preserve EXACT structure, sub-question count, marks, and instruction patterns below.
+        """
+
+        paper_b = bool((global_context or {}).get("paper_b_questions_only"))
+        paper_b_parity_block = ""
+        if paper_b:
+            paper_b_parity_block = """
+        
+        ⚠️ PAPER B — REVISION: FINAL-EXAM DEPTH FOR EVERY TOPIC (MATCH PAPER A) ⚠️
+        - Expand thin stems: ER/EER — long scenario + design richness; Normalization — full R(...) + multiple FDs + context; SQL — multi-table schema + rules; RA — explicit multi-relation schema; theory — enough setup for analysis at this mark total.
+        - Fix critic feedback; keep structure, marks, and instruction patterns unchanged.
         """
 
         base_prompt = f"""
         Generate ONE high-quality university exam question for a Database Systems course.
-        {lecture_creative_block}
+        {lecture_creative_block}{paper_b_parity_block}
         
         ⚠️ CRITICAL: SYLLABUS ALIGNMENT REQUIREMENTS ⚠️
         - Generate questions STRICTLY based on historical exam patterns from past papers

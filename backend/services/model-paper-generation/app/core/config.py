@@ -58,6 +58,17 @@ class Settings:
     # Critic Validation Config
     MIN_SCENARIO_CHARS = int(os.getenv("MIN_SCENARIO_CHARS", 120))  # Minimum scenario length in characters
     MIN_SCENARIO_TOKENS = int(os.getenv("MIN_SCENARIO_TOKENS", 25))  # Minimum scenario length in tokens (approx)
+    # Paper B (questions_only): stem weight must match Paper A final-exam level (not drill intros)
+    PAPER_B_MIN_ER_STEM_CHARS = int(os.getenv("PAPER_B_MIN_ER_STEM_CHARS", 400))
+    PAPER_B_MIN_ER_STEM_SENTENCES = int(os.getenv("PAPER_B_MIN_ER_STEM_SENTENCES", 4))
+    PAPER_B_ER_RICHNESS_GROUPS_MIN = int(os.getenv("PAPER_B_ER_RICHNESS_GROUPS_MIN", 2))
+    # Non-ER (normalization, SQL, RA, theory, etc.)
+    PAPER_B_MIN_NON_ER_STEM_CHARS = int(os.getenv("PAPER_B_MIN_NON_ER_STEM_CHARS", 300))
+    PAPER_B_MIN_NON_ER_STEM_SENTENCES = int(os.getenv("PAPER_B_MIN_NON_ER_STEM_SENTENCES", 3))
+    PAPER_B_MIN_NON_ER_STEM_WORDS = int(os.getenv("PAPER_B_MIN_NON_ER_STEM_WORDS", 60))
+    # Normalization: allow FD-dense single block (few sentence boundaries) if enough FD arrows + length
+    PAPER_B_MIN_NORM_STEM_CHARS = int(os.getenv("PAPER_B_MIN_NORM_STEM_CHARS", 240))
+    PAPER_B_MIN_NORM_FD_ARROWS = int(os.getenv("PAPER_B_MIN_NORM_FD_ARROWS", 2))
     
     # Fallback Config
     FALLBACK_REBUILDS_MAX = int(os.getenv("FALLBACK_REBUILDS_MAX", 2))  # Maximum fallback rebuild attempts

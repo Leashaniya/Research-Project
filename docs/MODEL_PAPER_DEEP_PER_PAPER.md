@@ -213,6 +213,22 @@ After the paper passes **`validate_model_paper`** with **`questions_only=True`**
 
 **Result for Paper B:** A paper with **N** questions (1–8); **default** topic/trend signal from **lecture** clustering (MiniLM + KMeans); **no marks** in saved JSON/PDF when `questions_only`; **no strict marks math** on the final artifact. Use **`lecture_based_topics: false`** to drive trends from **selected** past papers instead.
 
+### 3.6 Paper B — writer prompt goals (lecture-aligned, creative, complex)
+
+When **`lecture_based_topics`** is enabled (default for **`POST /model-paper/generate-paper`**), the orchestrator sets **`lecture_creative_mode`** in the **`QuestionWriter`** `global_context`. The writer then appends an extra instruction block in **`app/agents/writer.py`** (generation and paraphrase/revision paths). Intent for future maintainers:
+
+| Goal | What the prompts steer the LLM to do |
+|------|----------------------------------------|
+| **Lecture as primary syllabus signal** | Treat **retrieved slide context** (FAISS + **ContentResearcher**) as the main guide for topics such as SQL, normalization, ER/EER, transactions, indexing, etc., rather than copying past-paper scenarios. |
+| **Creative, applied tasks** | Use **fresh real-world domains** (e.g. university, hospital, e-commerce) and new entity/schema names; keep **template question type** and **required structure** (sub-part count, instruction patterns, marks per part) from Mongo/canonical templates. |
+| **Bloom’s taxonomy & marks** | Spread cognitive demand across sub-parts: lighter **recall/understand** where marks are low; **apply** (e.g. write SQL/RA, concrete steps); **analyze / synthesize / evaluate** for **higher-mark** parts (design, justify, compare, integrated scenarios). |
+| **Multi-step & problem-solving** | Prefer **multi-step, scenario-based** stems over theory-only papers; align difficulty with **per-subquestion marks** where the template exposes them. |
+| **Consistency with “historical” wording** | Global prompt text still refers to historical patterns for **structure**; the Paper B block clarifies that **scenario and topic emphasis** follow **lecture + applied tasks**, while **structure and patterns** stay template-faithful. |
+| **No solutions in the stem** | Unchanged system rules: **no** full answers, hints, or leaked approaches in the question text. |
+| **Paraphrase / revision mode** | After **QualityCritic** feedback, the same Paper B block (short form) reinforces **lecture-grounded**, **applied**, **multi-step** fixes without breaking structure or marks. |
+
+**Code reference:** `QuestionWriter.run()` → `lecture_creative_mode` from `global_context`; `_build_generation_prompt` and `_build_paraphrase_prompt` — search for **`PAPER B — LECTURE-ALIGNED`**.
+
 ---
 
 ## 4. Side-by-side: “what differs” in one table
@@ -254,6 +270,8 @@ After the paper passes **`validate_model_paper`** with **`questions_only=True`**
 | Full pipeline | `app/services/pipeline_service.py` |
 | Orchestrator entry | `app/agents/orchestrator.py` → `main`, `AgentOrchestrator.run_pipeline` |
 | Trend from selection | `AgentOrchestrator._load_trend_for_request` |
+| Paper B lecture topics | `AgentOrchestrator._load_lecture_slide_trend` → `app/services/lecture_topic_trend_service.py` |
+| Paper B creative prompts | `app/agents/writer.py` (`lecture_creative_mode`; see §3.6) |
 | Template marks filter | `AgentOrchestrator._select_template` |
 | Validation & strip | `validate_model_paper`, `_strip_marks_from_paper` |
 | Blueprint load | `app/agents/analyst.py` |

@@ -150,10 +150,19 @@ class BlueprintAnalyst(BaseAgent):
         # Update blueprint
         blueprint["question_slots"] = trimmed
         total_marks = sum(slot.get("target_marks", 0) for slot in trimmed)
+
+        canonical_nq = int(blueprint.get("canonical_num_questions") or 0)
+        if canonical_nq <= 0:
+            canonical_nq = len(repaired_slots) if repaired_slots else target_count
+        
+        # TOTAL-MARKS RECONCILIATION: Only for a full-length paper (same # questions as canonical exam).
+        # If the user requests fewer slots (e.g. num_slots=1), keep each slot's historical target_marks
+        # (Q1 stays ~Paper A Q1 weight), instead of inflating one question to absorb the full 100 marks.
+        partial_paper = len(trimmed) != canonical_nq
         
         # TOTAL-MARKS RECONCILIATION: Ensure sum matches canonical_total_marks
         # This prevents papers ending up with totals like 80, 95, 105 accidentally
-        if blueprint_total and blueprint_total > 0:
+        if blueprint_total and blueprint_total > 0 and not partial_paper:
             diff = blueprint_total - total_marks
             if diff != 0:
                 self.log(f"[WARN] Total marks mismatch: sum={total_marks}, canonical={blueprint_total}, diff={diff}")
@@ -190,6 +199,11 @@ class BlueprintAnalyst(BaseAgent):
                     # Recalculate total
                     total_marks = sum(slot.get("target_marks", 0) for slot in trimmed)
                     self.log(f"[INFO] Total marks reconciled: {total_marks} (canonical: {blueprint_total})")
+        elif blueprint_total and blueprint_total > 0 and partial_paper:
+            self.log(
+                f"[INFO] Partial paper ({len(trimmed)} question(s) vs canonical {canonical_nq}): "
+                f"keeping per-slot target_marks from blueprint (sum={total_marks}, canonical paper total={blueprint_total})."
+            )
         
         # Log validation results
         if has_invalid:

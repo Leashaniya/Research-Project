@@ -387,8 +387,10 @@ class AgentOrchestrator:
         elif banned_pattern_labels:
             pipeline[0]["$match"]["pattern_label"] = { "$nin": list(banned_pattern_labels) }
         
-        # 1. Broad Filtering by Marks (within +/- 5 range) — not used for questions_only (Paper B)
-        if marks and not self.questions_only:
+        # 1. Broad Filtering by Marks (within +/- 5 range)
+        # Paper B strips marks only in the saved JSON/PDF; template selection still follows slot marks
+        # so difficulty matches Paper A (same mark band as the blueprint slot).
+        if marks:
             pipeline[0]["$match"]["marks"] = { "$gte": int(marks)-5, "$lte": int(marks)+5 }
         
         # 2. Exclude already-used template IDs
@@ -2029,6 +2031,7 @@ class AgentOrchestrator:
                         "exam_title": "Model Paper",
                         "banned_topics": list(banned or set()),
                         "lecture_creative_mode": bool(self.lecture_based_topics),
+                        "paper_b_questions_only": bool(self.questions_only),
                     },
                     "needs_diagram": False,
                     "diagram_type": None,
@@ -2041,7 +2044,14 @@ class AgentOrchestrator:
                 draft["main_topic"] = template.get("pattern_label")
 
                 review = await self.critic.run(
-                    {"draft": draft, "slot": writer_input["slot"], "context": context, "template": template, "global_context": writer_input["global_context"]}
+                    {
+                        "draft": draft,
+                        "slot": writer_input["slot"],
+                        "context": context,
+                        "template": template,
+                        "global_context": writer_input["global_context"],
+                        "paper_b_strict": bool(self.questions_only),
+                    }
                 )
                 if review.get("approved"):
                     return draft
@@ -2407,6 +2417,7 @@ class AgentOrchestrator:
                 "used_question_types": list(used_question_types),  # NEW: Pass used types
                 "exam_title": exam_title,
                 "lecture_creative_mode": bool(self.lecture_based_topics),
+                "paper_b_questions_only": bool(self.questions_only),
             }
             
             # --- STRICT ANTI-REPETITION LOGIC ---
@@ -4264,7 +4275,8 @@ class AgentOrchestrator:
                         "slot": slot,
                         "context": context,
                         "template": template,
-                        "global_context": global_context
+                        "global_context": global_context,
+                        "paper_b_strict": bool(self.questions_only),
                     }
                     
                     review = await self.critic.run(critic_input)
