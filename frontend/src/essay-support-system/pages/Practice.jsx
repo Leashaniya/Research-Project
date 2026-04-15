@@ -83,16 +83,18 @@ export default function Practice() {
     setError(null)
     try {
       const data = await api.submitAnswer(answer)
-      if (data.success) {
+      // Backend returns data directly, not with success field
+      if (data && data.feedback) {
         setFeedback(data)
         updateFromResult(data)
         setPhase(PHASE.FEEDBACK)
       } else {
-        setError(data.message || 'Evaluation failed.')
+        setError('Evaluation failed - invalid response')
         setPhase(PHASE.ANSWERING)
       }
     } catch (e) {
-      setError(e.message)
+      console.error('Submit answer error:', e)
+      setError(e.message || 'Evaluation failed.')
       setPhase(PHASE.ANSWERING)
     }
   }

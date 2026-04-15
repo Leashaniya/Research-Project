@@ -53,6 +53,7 @@ const api = {
   resetSession:  ()                              => request('/sessions/reset',  { method: 'POST', body: {} }),
   getQuestion:   (diff)                          => request('/questions/next',  { method: 'POST', body: { difficulty: diff || null } }),
   submitAnswer:  (answer, question, difficulty)   => request('/answers/submit', { method: 'POST', body: { answer, question, difficulty } }),
+  evaluatePracticeAnswers: (data)                => request('/practice/evaluate', { method: 'POST', body: data }),
   getStats:      ()                              => request('/stats'),
   checkPdfs:     ()                              => request('/pdfs/check'),
   getHistory:    ()                              => request('/history'),

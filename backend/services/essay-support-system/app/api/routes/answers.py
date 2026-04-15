@@ -5,7 +5,9 @@ from pydantic import BaseModel
 
 from app.api.routes.sessions import get_session
 from app.core.config import settings
-from app.services.evaluation_service import evaluate_answer, detect_topic
+from app.services.evaluation_service import (
+    evaluate_answer, detect_topic, get_practice_questions_with_fallback
+)
 from app.services.rl_engine import rl_engine
 from app.services.logging_service import log_attempt
 
@@ -77,6 +79,22 @@ async def submit_answer(
     # Log to CSV
     log_attempt(sess["attempt"], topic, difficulty, behaviour, reward, score)
 
+    # Create evaluation result for n8n
+    evaluation_result = {
+        "is_correct": is_correct,
+        "feedback": result.get("feedback", {}).get("improvements", ""),
+        "topic": result.get("topic", topic),
+        "recommendation": result.get("recommendation", "")
+    }
+    
+    # Get practice questions if answer is incorrect
+    practice_questions = []
+    if not is_correct:
+        practice_questions = await get_practice_questions_with_fallback(evaluation_result)
+    
+    # Include practice questions in response
+    evaluation_result["practice_questions"] = practice_questions
+    
     # Store last result in session (useful for exports / history)
     sess["last_result"] = {
         "question": question_text,
@@ -89,6 +107,7 @@ async def submit_answer(
         "topic": topic,
         "attempt": sess["attempt"],
         "next_difficulty": next_diff,
+        "practice_questions": practice_questions,
     }
 
     return {
@@ -108,4 +127,6 @@ async def submit_answer(
         "difficulty": difficulty,
         "validated": bool(result.get("_validated", False)),
         "fallback_used": bool(result.get("_fallback_used", False)),
+        "practice_questions": practice_questions,
+        "evaluation_result": evaluation_result  # For automation tools
     }
