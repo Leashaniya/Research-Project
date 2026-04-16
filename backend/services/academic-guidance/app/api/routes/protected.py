@@ -1,3 +1,4 @@
+import io
 import fitz  # PyMuPDF
 import logging
 import re
@@ -22,6 +23,7 @@ from app.models.schemas import (
     FlashcardUpdateRequest,
     GuidanceFeedbackRequest,
     ReinforceGuidanceRequest,
+    GuidancePdfRequest,
 )
 from app.ca_guidance.crew import create_guidance_crew, create_summarization_crew
 from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR
@@ -512,6 +514,44 @@ async def run_guidance(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to run guidance: {e}"
+        )
+
+
+@router.post("/guidance/download-pdf")
+async def download_guidance_pdf(
+    request: GuidancePdfRequest,
+    user: UserInfo = Depends(get_current_user),
+):
+    report_content = (request.report_content or "").strip()
+    if not report_content:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Guidance content is required to generate a PDF.",
+        )
+
+    try:
+        from app.services.guidance_pdf_service import build_guidance_pdf, sanitize_download_filename
+
+        pdf_bytes = build_guidance_pdf(
+            report_content=report_content,
+            image_names=request.images or [],
+            title=(request.title or "CA Guidance Report").strip() or "CA Guidance Report",
+        )
+        filename = sanitize_download_filename(request.file_name)
+
+        return StreamingResponse(
+            io.BytesIO(pdf_bytes),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "Cache-Control": "no-store",
+            },
+        )
+    except Exception as e:
+        logger.error(f"Error generating guidance PDF for {user.email}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate guidance PDF: {e}",
         )
 
 

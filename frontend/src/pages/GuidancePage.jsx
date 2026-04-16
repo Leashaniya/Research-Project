@@ -16,7 +16,8 @@ import {
   FaThumbsUp,
   FaThumbsDown,
   FaEdit,
-  FaSpinner
+  FaSpinner,
+  FaDownload
 } from 'react-icons/fa';
 import { HiMiniSparkles } from 'react-icons/hi2';
 import { BsDiagram3Fill } from 'react-icons/bs';
@@ -95,6 +96,8 @@ function GuidancePage() {
   const [guidanceCalendarEventMessage, setGuidanceCalendarEventMessage] = useState(null);
   const [guidanceSessionId, setGuidanceSessionId] = useState(null);
   const [lastGuidanceFeedbackId, setLastGuidanceFeedbackId] = useState(null);
+  const [guidancePdfLoading, setGuidancePdfLoading] = useState(false);
+  const [guidancePdfError, setGuidancePdfError] = useState(null);
   const [modalOpen, setModalOpen] = useState(null); // 'guidance' | 'summarize' | 'flashcards' | 'er' | null
 
   // Ensure bare URLs in markdown become clickable links [url](url)
@@ -213,6 +216,7 @@ function GuidancePage() {
           setGuidanceFeedbackError(null);
           setGuidanceReinforceSuccess(false);
           setGuidanceCalendarEventMessage(null);
+          setGuidancePdfError(null);
         } else {
           setGuidanceId(null);
           setGuidanceCalendarEventMessage(null);
@@ -220,6 +224,7 @@ function GuidancePage() {
           setBaseGuidanceImages([]);
           setReinforcedGuidanceContent(null);
           setReinforcedGuidanceImages([]);
+          setGuidancePdfError(null);
         }
       } else {
         console.error('Failed to run guidance');
@@ -230,6 +235,63 @@ function GuidancePage() {
       setReport({ error: 'An error occurred while running the guidance.' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadGuidancePdf = async () => {
+    const currentGuidanceContent =
+      activeGuidanceView === 'reinforced' && reinforcedGuidanceContent
+        ? reinforcedGuidanceContent
+        : (baseGuidanceContent || report?.content || (typeof report === 'string' ? report : null));
+
+    const currentGuidanceImages =
+      activeGuidanceView === 'reinforced' && reinforcedGuidanceImages.length > 0
+        ? reinforcedGuidanceImages
+        : (baseGuidanceImages || report?.images || []);
+
+    if (!currentGuidanceContent) {
+      setGuidancePdfError('No guidance content is available to download.');
+      return;
+    }
+
+    setGuidancePdfLoading(true);
+    setGuidancePdfError(null);
+
+    try {
+      const sourceName = assignmentFile?.name?.replace(/\.pdf$/i, '') || 'ca-guidance';
+      const fileName = `${sourceName}-${activeGuidanceView || 'report'}.pdf`;
+
+      const response = await fetch(`${API_URL}/protected/guidance/download-pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          report_content: currentGuidanceContent,
+          images: currentGuidanceImages,
+          title: activeGuidanceView === 'reinforced' ? 'Reinforced CA Guidance Report' : 'CA Guidance Report',
+          file_name: fileName,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ detail: 'Failed to generate guidance PDF.' }));
+        throw new Error(err.detail || 'Failed to generate guidance PDF.');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading guidance PDF:', error);
+      setGuidancePdfError(error.message || 'An error occurred while downloading the PDF.');
+    } finally {
+      setGuidancePdfLoading(false);
     }
   };
 
@@ -655,6 +717,7 @@ function GuidancePage() {
       setGuidanceFeedbackType(null);
       setGuidanceFeedbackOpen(false);
       setGuidanceLiked(false);
+      setGuidancePdfError(null);
     } catch (error) {
       console.error('Error submitting guidance feedback and reinforcing:', error);
       setGuidanceReinforceError('An error occurred while generating reinforced guidance.');
@@ -1074,9 +1137,37 @@ function GuidancePage() {
 
                 {report && (
                   <div>
-                    <h2 style={{ marginBottom: '20px', color: '#495057' }}>
-                      <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Guidance Report
-                    </h2>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                      <h2 style={{ marginBottom: 0, color: '#495057' }}>
+                        <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Guidance Report
+                      </h2>
+                      {!report.error && (report.content != null || typeof report === 'string') && (
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={handleDownloadGuidancePdf}
+                          disabled={guidancePdfLoading}
+                        >
+                          {guidancePdfLoading ? (
+                            <>
+                              <FaSpinner className="loading-spinner" />
+                              Preparing PDF...
+                            </>
+                          ) : (
+                            <>
+                              <FaDownload />
+                              Download PDF
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    {guidancePdfError && (
+                      <div className="error-message" style={{ marginBottom: '16px' }}>
+                        {guidancePdfError}
+                      </div>
+                    )}
 
                     {typeof report === 'string' ? (
                       <div className="report-content">
