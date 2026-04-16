@@ -19,6 +19,26 @@ from sentence_transformers import SentenceTransformer, util
 NUM_RECENT_PAPERS_FOR_TRENDS = 6  # single source of truth for trend artifacts
 
 
+def _normalize_signature_text(text: str) -> str:
+    """Normalize question text for stable duplicate detection across runs."""
+    s = str(text or "").lower()
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+def _question_signature(question: Dict[str, Any]) -> str:
+    """Build a deterministic signature from question stem + subquestion text."""
+    if not isinstance(question, dict):
+        return ""
+    parts: List[str] = [str(question.get("text") or "")]
+    for sq in (question.get("subquestions") or []):
+        if isinstance(sq, dict):
+            parts.append(str(sq.get("text") or ""))
+    merged = " ".join(parts)
+    # Keep a bounded signature to avoid giant comparisons while preserving intent.
+    return _normalize_signature_text(merged)[:600]
+
+
 def _normalize_paper_for_presentation(paper: Dict[str, Any]) -> Dict[str, Any]:
     """
     Apply small, presentation-focused cleanups to the generated paper JSON
@@ -36,16 +56,13 @@ def _normalize_paper_for_presentation(paper: Dict[str, Any]) -> Dict[str, Any]:
         if q.get("question_no") == "Q3":
             for sq in subqs:
                 if sq.get("label") == "b":
-                    # Match past paper wording (2024/2023 blueprint): JDBC API, "result sets", "code segment"
-                    # Use "shown above" because we render the code block above the question in the PDF.
+                    # Keep Q3(b) code snippet in plain text (no markdown code fences/labels).
                     sq["text"] = (
-                        "Code Segment:\n"
-                        "```java\n"
                         'String sql = "SELECT * FROM employees WHERE department = ?";\n'
                         "PreparedStatement pstmt = connection.prepareStatement(sql);\n"
                         'pstmt.setString(1, "IT");\n'
                         "ResultSet rs = pstmt.executeQuery();\n"
-                        "```\n\n"
+                        "\n"
                         "There are several different statements in the JDBC API to retrieve result sets "
                         "based on different requirements. Which type of statements is used in the code segment "
                         "shown above? Briefly explain when this type of statement will be used."
@@ -311,7 +328,10 @@ class AgentOrchestrator:
         
         self.out_dir = OUTPUTS_DIR / "model_papers"
         self.out_dir.mkdir(parents=True, exist_ok=True)
-        self.checkpoint_path = self.out_dir / "generation_checkpoint.json"
+        # Keep checkpoint state isolated per paper mode so interrupted Paper B runs
+        # cannot leak partial questions into Paper A resume flow (and vice versa).
+        paper_mode = "paper_b" if (self.lecture_based_topics or self.questions_only) else "paper_a"
+        self.checkpoint_path = self.out_dir / f"generation_checkpoint_{paper_mode}.json"
         
         # MongoDB Connection
         self.db = db.get_db()
@@ -2264,6 +2284,24 @@ class AgentOrchestrator:
         used_modules = set() # NEW: Track syllabus modules
         used_intents = set() # Track used pattern_label/intent to avoid duplicates
         used_template_ids = set() # Track used template _id to never reuse exact same template
+        previous_paper_signatures: Set[str] = set()
+
+        # Cross-run anti-overlap:
+        # seed signatures from the latest generated paper so Paper A/B remain distinct
+        # even when templates/topics are similar.
+        latest_path = self.out_dir / "agentic_model_paper.json"
+        if latest_path.exists():
+            try:
+                latest_payload = json.loads(latest_path.read_text(encoding="utf-8"))
+                for old_q in (latest_payload.get("questions") or []):
+                    sig = _question_signature(old_q)
+                    if sig:
+                        previous_paper_signatures.add(sig)
+                        used_scenarios.add(sig[:50])
+                if previous_paper_signatures:
+                    print(f"🧭 Cross-run anti-overlap: loaded {len(previous_paper_signatures)} previous question signatures")
+            except Exception as e:
+                print(f"⚠️ Could not load previous paper signatures: {e}")
         
         # ENFORCE: Only process exactly target_q_count slots
         if len(slots) > target_q_count:
@@ -2551,6 +2589,16 @@ class AgentOrchestrator:
                     draft["intent"] = template_intent
                     if template_id:
                         draft["template_id"] = template_id
+
+                    # Prevent overlap with the previous generated paper (Paper A/B independence).
+                    draft_sig = _question_signature(draft)
+                    if draft_sig and draft_sig in previous_paper_signatures:
+                        feedback = (
+                            "DUPLICATE_WITH_PREVIOUS_PAPER: This question is too similar to the most recently "
+                            "generated paper. Regenerate with a different scenario/context and wording."
+                        )
+                        print("    [WARN] Draft overlaps previous paper; forcing regeneration attempt.")
+                        continue
                     
                     # CRITICAL: Fix Q1 entity attributes BEFORE critic review
                     if q_no in ["Q1", "1"] and template_intent and ("er" in template_intent.lower() or "eer" in template_intent.lower() or "diagram" in template_intent.lower()):
@@ -4661,7 +4709,8 @@ Note: The diagram uses (min, max) cardinality notation where:
                         output_path_str = str(output_path)
                         diagram_exists = os.path.exists(output_path_str)
                         
-                        if result and result.get("success"):
+                        result_dict = result if isinstance(result, dict) else {}
+                        if result_dict.get("success"):
                             # Add image reference to draft
                             draft["diagram_image_path"] = output_path_str
                             draft["diagram_generated"] = True
@@ -4701,7 +4750,12 @@ Note: The diagram uses (min, max) cardinality notation where:
                                 draft["needs_diagram"] = False
                     else:
                         # Diagram generation failed, but we still added the reference text and cardinality notation
-                        error_msg = result.get("error", "Unknown error") if result else "Diagram generation failed"
+                        if isinstance(result, dict):
+                            error_msg = result.get("error", "Unknown error")
+                        elif result is not None:
+                            error_msg = str(result)
+                        else:
+                            error_msg = "Diagram generation failed"
                         print(f"    [WARN] Graphviz diagram generation failed: {error_msg}")
                         # Check if diagram file exists anyway (might have been generated despite error)
                         # CRITICAL: Only link diagram if it's for THIS specific question (check filename contains q_no)

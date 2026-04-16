@@ -207,7 +207,7 @@ function ModelPaperPage() {
   const generatePaperA = async () => {
     setProcessing(true);
     setStatus("Running Standard Pipeline (Paper A)...");
-    addLog("Standard generation: all past papers for trends; question count = mode of Q-counts (last 6 years, from blueprints)…");
+    addLog("Standard generation in progress...");
     try {
       const resp = await fetch(`${API_BASE}/model-paper/generate-paper-a`, {
         method: "POST",
@@ -230,16 +230,7 @@ function ModelPaperPage() {
 
       if (data.status === "success") {
         setPaper(data.paper);
-        const inf = data.paper_a_slot_inference;
-        if (inf && !inf.fallback_used && inf.mode != null) {
-          addLog(
-            `Paper A: ${inf.num_slots} questions (mode=${inf.mode}, count×${inf.mode_frequency} in ${inf.year_range_inclusive?.[0]}–${inf.year_range_inclusive?.[1]}, ${inf.papers_with_blueprint} papers).`
-          );
-        } else if (inf?.fallback_used) {
-          addLog(
-            `Paper A: ${inf.num_slots} questions (fallback: ${inf.fallback_reason || "no blueprint data"}).`
-          );
-        }
+        addLog("Paper A generated successfully.");
         addLog("Success! Paper A generated.");
         setStatus("Done");
       } else {
