@@ -31,7 +31,7 @@ class Settings:
 
     # ─── OpenAI ───────────────────────────────────────────────────
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o")
     BLOOM_CLASSIFIER_TEMPERATURE: float = float(os.getenv("BLOOM_CLASSIFIER_TEMPERATURE", "0.2"))
 
     # ─── Server ───────────────────────────────────────────────────

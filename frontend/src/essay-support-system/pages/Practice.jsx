@@ -82,7 +82,12 @@ export default function Practice() {
     setPhase(PHASE.EVALUATING)
     setError(null)
     try {
-      const data = await api.submitAnswer(answer)
+      const data = await api.submitAnswer({
+        answer: answer,
+        question: question?.question,
+        difficulty: session.difficulty,
+        batch_mode: false
+      })
       // Backend returns data directly, not with success field
       if (data && data.feedback) {
         setFeedback(data)

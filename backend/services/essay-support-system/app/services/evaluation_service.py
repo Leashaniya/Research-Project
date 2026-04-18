@@ -620,19 +620,24 @@ def _coerce_correct_bool(val: Any) -> Optional[bool]:
 
 
 def _normalize_practice_answer_keys(practice_answers: Dict[Any, str], n: int) -> Dict[int, str]:
-    """Map 0-based or 1-based string/int keys to 0..n-1 for evaluation."""
-    out: Dict[int, str] = {}
-    for k, v in practice_answers.items():
-        try:
-            ik = int(str(k).strip())
-        except (TypeError, ValueError):
-            continue
-        sval = v if isinstance(v, str) else str(v)
-        if 1 <= ik <= n:
-            out[ik - 1] = sval
-        elif 0 <= ik < n:
-            out.setdefault(ik, sval)
-    return out
+    """
+    Preserve exact order. No shifting, no overwriting.
+    """
+    print(f" [NORMALIZE] Input practice_answers: {practice_answers}")
+    print(f" [NORMALIZE] Input keys: {list(practice_answers.keys())}")
+    print(f" [NORMALIZE] Input values: {list(practice_answers.values())}")
+    print(f" [NORMALIZE] Number of questions (n): {n}")
+    
+    normalized = {}
+    for i in range(n):
+        answer = practice_answers.get(i, "No answer")
+        if answer is None or str(answer).strip() == "":
+            answer = "No answer"
+        normalized[i] = str(answer).strip()
+        print(f" [NORMALIZE]   - Index {i}: key={i}, value='{answer}' -> normalized[{i}]='{normalized[i]}'")
+    
+    print(f" [NORMALIZE] Final normalized: {normalized}")
+    return normalized
 
 
 def _merge_llm_and_fallback_practice(
@@ -690,8 +695,20 @@ def _merge_llm_and_fallback_practice(
 async def evaluate_practice_answers(practice_answers: Dict[int, str], practice_questions: List[str], topic: str) -> Dict[str, Any]:
     """Evaluate student's practice answers using OpenAI."""
     print(f" [EVALUATION] Starting evaluation with {len(practice_answers)} answers and {len(practice_questions)} questions")
+    
+    # Debug validation logs
+    print(f" [EVALUATION] Questions: {len(practice_questions)}")
+    print(f" [EVALUATION] Answers: {len(practice_answers)}")
+    print(f" [EVALUATION] Answer keys: {list(practice_answers.keys())}")
+    
+    # Validate count matching - be more flexible with key structures
+    if len(practice_answers) > len(practice_questions):
+        print(f" [EVALUATION] WARNING: More answers than questions, using first {len(practice_questions)}")
+    elif len(practice_answers) < len(practice_questions):
+        print(f" [EVALUATION] WARNING: Fewer answers than questions, missing answers will be 'No answer'")
 
     practice_answers = _normalize_practice_answer_keys(practice_answers, len(practice_questions))
+    print(f" [EVALUATION] Normalized practice_answers: {practice_answers}")
 
     client = get_openai_client()
     if not client:
@@ -702,12 +719,16 @@ async def evaluate_practice_answers(practice_answers: Dict[int, str], practice_q
     try:
         print(f" [EVALUATION] Using OpenAI evaluation")
         # Prepare the evaluation prompt
-        answers_text = "\n".join([
-            f"Question {i+1}: {q}\nAnswer: {practice_answers.get(i, 'No answer')}\n"
-            for i, q in enumerate(practice_questions)
-        ])
-
-        print(f" [EVALUATION] Answers text prepared: {answers_text}")
+        print(f" [EVALUATION] Building answers_text with enumerate:")
+        answers_parts = []
+        for i, q in enumerate(practice_questions):
+            answer = practice_answers.get(i, 'No answer')
+            part = f"Question {i+1}: {q}\nAnswer: {answer}\n"
+            answers_parts.append(part)
+            print(f"   - i={i}, Question {i+1}, Answer key={i}, Answer value='{answer}'")
+        
+        answers_text = "\n".join(answers_parts)
+        print(f" [EVALUATION] Final answers_text: {answers_text}")
 
         prompt = f"""
         You are an expert educator evaluating student answers for database and computer science topics.
@@ -716,25 +737,33 @@ async def evaluate_practice_answers(practice_answers: Dict[int, str], practice_q
         
         {answers_text}
         
+        IMPORTANT RULES:
+        - If the answer shows correct understanding → mark TRUE
+        - Do NOT penalize for short answers
+        - Accept concise answers
+        - Accept paraphrased answers
+        - Even partially correct answers → mark TRUE
+        - Focus on concept correctness, NOT length or wording
+        
         For each answer, provide detailed evaluation:
         1. Check if the answer is correct (true/false)
-        2. Give specific, constructive feedback
-        3. If wrong, explain what's missing and how to improve
-        4. If correct, praise what was done well
+        2. Provide constructive feedback explaining why the answer is correct or incorrect
+        3. Suggest improvements for incorrect answers
         
-        Evaluation Criteria:
-        - Accuracy: Is the technical information correct?
-        - Completeness: Does it cover the key concepts?
-        - Clarity: Is the explanation clear and well-structured?
-        - Relevance: Does it directly answer the question?
-        
-        Return your response as a JSON object with:
+        Return your response as a JSON object with the following structure:
         {{
-            "correct_answers": <number of correct answers>,
-            "total_answers": <total number of answers>,
-            "detailed_feedback": <overall feedback on performance>,
-            "overall_score": <percentage score>,
-            "question_results": [
+          "evaluations": [
+            {{
+              "question_number": 1,
+              "correct": true/false,
+              "feedback": "Detailed feedback here"
+            }},
+            {{
+              "question_number": 2,
+              "correct": true/false,
+              "feedback": "Detailed feedback here"
+            }}
+          ]
                 {{
                     "question_number": 1,
                     "correct": true/false,
@@ -757,15 +786,36 @@ async def evaluate_practice_answers(practice_answers: Dict[int, str], practice_q
         - "Perfect answer! You covered all the key aspects of database normalization."
         """
 
+        # Log OpenAI API request details
+        print(f"🤖 [OPENAI API] REQUEST DETAILS:")
+        print(f"   - Model: gpt-3.5-turbo")
+        print(f"   - Temperature: 0.3")
+        print(f"   - Max Tokens: 1000")
+        print(f"   - Topic: {topic}")
+        print(f"   - Number of Answers: {len(practice_answers)}")
+        print(f"   - Number of Questions: {len(practice_questions)}")
+        print(f"   - Prompt Length: {len(prompt)} characters")
+        
+        # Show truncated prompt for debugging
+        prompt_preview = prompt[:500] + "..." if len(prompt) > 500 else prompt
+        print(f"   - Prompt Preview: {prompt_preview}")
+
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are an expert educator evaluating student answers. Provide constructive, detailed feedback that helps students learn."},
+                {"role": "system", "content": "You are an IT Teacher evaluating student answers. Provide constructive, detailed feedback that helps students learn."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3,
             max_tokens=1000
         )
+        
+        # Log OpenAI API response details
+        ai_response = response.choices[0].message.content
+        print(f"📤 [OPENAI API] RESPONSE DETAILS:")
+        print(f"   - Response Length: {len(ai_response)} characters")
+        print(f"   - Response Preview: {ai_response[:300]}...")
+        print(f"   - Full Response: {ai_response}")
 
         result_text = response.choices[0].message.content.strip()
         print(f" [EVALUATION] OpenAI response: {result_text}")
@@ -775,9 +825,30 @@ async def evaluate_practice_answers(practice_answers: Dict[int, str], practice_q
         try:
             result = json.loads(cleaned)
             print(f" [EVALUATION] Parsed JSON result: {result}")
-            fb_merge = evaluate_practice_answers_fallback(practice_answers, practice_questions)
-            result = _merge_llm_and_fallback_practice(result, fb_merge, len(practice_questions))
-            return result
+            
+            # Process OpenAI result directly without mixing with fallback
+            evaluations = result.get("evaluations", [])
+            question_results = []
+            correct_count = 0
+            
+            for i, eval_item in enumerate(evaluations):
+                is_correct = bool(eval_item.get("correct", False))
+                if is_correct:
+                    correct_count += 1
+                    
+                question_results.append({
+                    "question_number": eval_item.get("question_number", i + 1),
+                    "correct": is_correct,
+                    "feedback": eval_item.get("feedback", "No feedback provided")
+                })
+            
+            return {
+                "correct_answers": correct_count,
+                "total_answers": len(practice_questions),
+                "question_results": question_results,
+                "overall_score": round((correct_count / len(practice_questions)) * 100, 1) if len(practice_questions) > 0 else 0
+            }
+            
         except json.JSONDecodeError as e:
             print(f" [EVALUATION] JSON parsing failed: {e}")
             print(f" [EVALUATION] Falling back to keyword evaluation")
@@ -1004,7 +1075,7 @@ OR
 """
 
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a fair academic evaluator. Return only valid JSON, no explanations."},
                 {"role": "user", "content": prompt}

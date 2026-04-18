@@ -100,8 +100,8 @@ async def evaluate_practice_answers_endpoint(
         print(f"📈 [BACKEND] Predicted next difficulty: {next_difficulty}")
         feedback = f"Excellent work! You got {correct_count} out of {total_count} correct. Moving to {next_difficulty} level."
     else:
-        # Student failed - trigger webhook for additional practice
-        print(f"📚 [BACKEND] Student failed - triggering webhook for additional questions...")
+        # Student failed - generate exactly 5 additional practice questions
+        print(f"📚 [BACKEND] Student failed - generating 5 additional practice questions...")
         
         webhook_payload = {
             "topic": body.topic,
@@ -112,7 +112,8 @@ async def evaluate_practice_answers_endpoint(
                 "correct_answers": correct_count,
                 "total_answers": total_count,
                 "answers": body.practice_answers
-            }
+            },
+            "question_count": 5  # Explicitly request 5 questions
         }
         
         print(f"🌐 [BACKEND] Webhook payload: {webhook_payload}")
@@ -120,15 +121,21 @@ async def evaluate_practice_answers_endpoint(
         # Call n8n webhook for additional questions
         webhook_questions = await call_n8n_webhook(webhook_payload)
         
-        if webhook_questions:
-            additional_questions = webhook_questions
-            print(f"✅ [BACKEND] Received {len(webhook_questions)} additional questions from n8n")
+        if webhook_questions and len(webhook_questions) >= 5:
+            # Take first 5 questions if more are returned
+            additional_questions = webhook_questions[:5]
+            print(f"✅ [BACKEND] Received {len(webhook_questions)} additional questions from n8n, using first 5")
         else:
-            # Fallback to local generation
+            # Fallback to local generation - ensure exactly 5 questions
             additional_questions = generate_practice_questions(f"{body.topic} - additional practice")
-            print(f"🔄 [BACKEND] Using fallback local generation: {len(additional_questions)} questions")
+            # Ensure we have exactly 5 questions
+            while len(additional_questions) < 5:
+                more_questions = generate_practice_questions(f"{body.topic} - more practice")
+                additional_questions.extend(more_questions)
+            additional_questions = additional_questions[:5]
+            print(f"🔄 [BACKEND] Using fallback local generation: generated {len(additional_questions)} questions")
         
-        feedback = f"You got {correct_count} out of {total_count} correct. Keep practicing with these additional questions to improve your understanding."
+        feedback = f"You got {correct_count} out of {total_count} correct. Here are 5 more practice questions to help you improve."
     
     result = {
         "passed": passed,

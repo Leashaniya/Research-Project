@@ -12,9 +12,13 @@ import api from '../api/api';
 
 export default function FeedbackPanel({ feedback, onNext }) {
   const [practiceAnswers, setPracticeAnswers] = useState({});
-  const [submittedQuestions, setSubmittedQuestions] = useState(new Set());
-  const [individualResults, setIndividualResults] = useState({});
+  const [batchSubmitted, setBatchSubmitted] = useState(false);
+  const [batchResult, setBatchResult] = useState(null);
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [additionalPracticeAnswers, setAdditionalPracticeAnswers] = useState({});
+  const [additionalBatchSubmitted, setAdditionalBatchSubmitted] = useState(false);
+  const [additionalBatchResult, setAdditionalBatchResult] = useState(null);
+  const [showAdditionalQuestions, setShowAdditionalQuestions] = useState(false);
 
   if (!feedback) return null;
 
@@ -24,7 +28,25 @@ export default function FeedbackPanel({ feedback, onNext }) {
   const practiceQuestions = feedback.practice_questions || [];
 
   const handlePracticeAnswerChange = (questionIndex, answer) => {
-    setPracticeAnswers(prev => ({
+    console.log(`🔄 [FRONTEND] Answer change for Question ${questionIndex + 1}:`, answer);
+    console.log(`   - Previous state:`, practiceAnswers);
+    
+    setPracticeAnswers(prev => {
+      const newState = {
+        ...prev,
+        [questionIndex]: answer
+      };
+      console.log(`   - New state:`, newState);
+      console.log(`   - New state keys:`, Object.keys(newState));
+      console.log(`   - New state values:`, Object.values(newState));
+      return newState;
+    });
+  };
+
+  const handleAdditionalPracticeAnswerChange = (questionIndex, answer) => {
+    console.log(`🔄 [FRONTEND] Additional answer change for Question ${questionIndex + 1}:`, answer);
+    
+    setAdditionalPracticeAnswers(prev => ({
       ...prev,
       [questionIndex]: answer
     }));
@@ -75,18 +97,127 @@ export default function FeedbackPanel({ feedback, onNext }) {
     }
   };
 
-  const handlePracticeSubmit = async (questionIndex) => {
-    setSubmittedQuestions(prev => new Set([...prev, questionIndex]));
+  const handleBatchSubmit = async () => {
+    // Check if all questions have answers
+    const unansweredQuestions = practiceQuestions.filter((_, index) => {
+      const answer = practiceAnswers[index];
+      return !answer || answer.trim().length === 0;
+    });
     
-    // Evaluate this answer immediately
-    await evaluateIndividualAnswer(questionIndex);
+    if (unansweredQuestions.length > 0) {
+      alert(`Please answer all questions before submitting. You have ${unansweredQuestions.length} unanswered question(s).`);
+      return;
+    }
     
-    // Check if all questions have been submitted for overall evaluation
-    const totalQuestions = practiceQuestions.length;
-    const submittedCount = submittedQuestions.size + 1;
+    setIsEvaluating(true);
     
-    if (submittedCount === totalQuestions) {
-      await evaluateAllAnswers();
+    try {
+      // Prepare batch submission payload
+      console.log('🔍 [FRONTEND BATCH] Preparing payload with current state:');
+      console.log('   - practiceAnswers type:', typeof practiceAnswers);
+      console.log('   - practiceAnswers:', practiceAnswers);
+      console.log('   - practiceAnswers keys:', Object.keys(practiceAnswers));
+      console.log('   - practiceAnswers values:', Object.values(practiceAnswers));
+      console.log('   - practiceQuestions type:', typeof practiceQuestions);
+      console.log('   - practiceQuestions:', practiceQuestions);
+      console.log('   - practiceQuestions length:', practiceQuestions.length);
+      
+      const batchPayload = {
+        answers: practiceAnswers,
+        questions: practiceQuestions,
+        topic: feedback.topic || 'General',
+        difficulty: feedback.difficulty || 'easy',
+        batch_mode: true
+      };
+      
+      // Frontend debugging logs
+      console.log('� [FRONTEND BATCH] Starting batch submission...');
+      console.log('📥 [FRONTEND BATCH] INPUT PAYLOAD:');
+      console.log('   - Answers:', practiceAnswers);
+      console.log('   - Questions:', practiceQuestions);
+      console.log('   - Topic:', feedback.topic || 'General');
+      console.log('   - Difficulty:', feedback.difficulty || 'easy');
+      console.log('   - Batch Mode:', true);
+      console.log('   - Full Payload:', batchPayload);
+      
+      // Call batch submit API
+      console.log('🌐 [FRONTEND BATCH] Calling API.submitAnswer...');
+      const response = await api.submitAnswer(batchPayload);
+      
+      // Frontend response debugging logs
+      console.log('📤 [FRONTEND BATCH] API RESPONSE:');
+      console.log('   - Full Response:', response);
+      console.log('   - Status:', response.status);
+      console.log('   - Correct Answers:', response.correct_answers);
+      console.log('   - Total Answers:', response.total_answers);
+      console.log('   - Score:', response.score);
+      console.log('   - Is Correct:', response.is_correct);
+      console.log('   - Feedback:', response.feedback);
+      console.log('   - Next Difficulty:', response.next_difficulty);
+      console.log('   - Question Results:', response.question_results);
+      console.log('   - Batch Mode:', response.batch_mode);
+      
+      setBatchResult(response);
+      setBatchSubmitted(true);
+      
+      // If student failed and there are additional questions, show them
+      if (response.status === 'FAILED' && response.additional_questions && response.additional_questions.length > 0) {
+        console.log('📚 [FRONTEND] Student failed, showing additional practice questions');
+        setShowAdditionalQuestions(true);
+      }
+      
+    } catch (error) {
+      console.error('❌ [FRONTEND BATCH] Batch submission failed:', error);
+      console.error('   - Error Message:', error.message);
+      console.error('   - Error Stack:', error.stack);
+      alert('Failed to submit answers. Please try again.');
+    } finally {
+      setIsEvaluating(false);
+    }
+  };
+
+  const handleAdditionalBatchSubmit = async () => {
+    const additionalQuestions = batchResult?.additional_questions || [];
+    
+    // Check if all additional questions have answers
+    const unansweredQuestions = additionalQuestions.filter((_, index) => {
+      const answer = additionalPracticeAnswers[index];
+      return !answer || answer.trim().length === 0;
+    });
+    
+    if (unansweredQuestions.length > 0) {
+      alert(`Please answer all additional questions before submitting. You have ${unansweredQuestions.length} unanswered question(s).`);
+      return;
+    }
+    
+    setIsEvaluating(true);
+    
+    try {
+      // Prepare additional batch submission payload
+      const additionalBatchPayload = {
+        answers: additionalPracticeAnswers,
+        questions: additionalQuestions,
+        topic: feedback.topic || 'General',
+        difficulty: feedback.difficulty || 'easy',
+        batch_mode: true,
+        additional_round: true  // Flag to indicate this is additional practice round
+      };
+      
+      console.log('🔍 [FRONTEND ADDITIONAL BATCH] Submitting additional practice answers...');
+      
+      // Call batch submit API
+      const response = await api.submitAnswer(additionalBatchPayload);
+      
+      console.log('📤 [FRONTEND ADDITIONAL BATCH] API RESPONSE:', response);
+      
+      setAdditionalBatchResult(response);
+      setAdditionalBatchSubmitted(true);
+      
+    } catch (error) {
+      console.error('❌ [FRONTEND ADDITIONAL BATCH] Submission failed:', error);
+      alert('Failed to submit additional answers. Please try again.');
+    } finally {
+      setIsEvaluating(false);
     }
   };
 
@@ -170,33 +301,13 @@ export default function FeedbackPanel({ feedback, onNext }) {
         <div className="fb-practice">
           <h4><LuBrain size={16} /> Practice Questions</h4>
           <p>Based on your answer, try these practice questions to improve:</p>
-          
-          {/* Overall Progress Summary */}
-          {Object.keys(individualResults).length > 0 && (
-            <div className="overall-progress">
-              <h6>Overall Progress:</h6>
-              <div className="progress-summary">
-                <span className="submitted-count">
-                  Submitted: {Object.keys(individualResults).length}/{practiceQuestions.length}
-                </span>
-                <span className="correct-count">
-                  Correct: {Object.values(individualResults).filter(r => r.question_results?.[0]?.correct).length}
-                </span>
-                <span className="wrong-count">
-                  Wrong: {Object.values(individualResults).filter(r => !r.question_results?.[0]?.correct).length}
-                </span>
-              </div>
-            </div>
-          )}
 
           {/* Practice Questions List */}
           <div className="practice-questions-list">
             {practiceQuestions.map((question, index) => {
-              const result = individualResults[index];
-              const questionResult = result?.question_results?.[0];
-              const isCorrect = questionResult?.correct || false;
-              const isSubmitted = submittedQuestions.has(index);
-              const isEvaluatingThis = isEvaluating && !result && isSubmitted;
+              console.log(`📝 [FRONTEND] Rendering Question ${index + 1}:`, question);
+              console.log(`   - Current answer for index ${index}:`, practiceAnswers[index]);
+              console.log(`   - All practiceAnswers:`, practiceAnswers);
               
               return (
                 <div key={index} className="practice-question-item">
@@ -211,36 +322,16 @@ export default function FeedbackPanel({ feedback, onNext }) {
                       onChange={(e) => handlePracticeAnswerChange(index, e.target.value)}
                       placeholder="Enter your answer here..."
                       rows={3}
-                      disabled={isSubmitted}
+                      disabled={batchSubmitted}
                     />
-                    
-                    {!isSubmitted ? (
-                      <button 
-                        className="btn btn-primary btn-sm"
-                        onClick={() => handlePracticeSubmit(index)}
-                        disabled={!practiceAnswers[index] || practiceAnswers[index].trim().length === 0}
-                      >
-                        Submit
-                      </button>
-                    ) : (
-                      <div className="submitted-indicator">
-                        <LuCircleCheck size={16} /> Submitted
-                      </div>
-                    )}
                   </div>
 
-                  {/* Individual Evaluation Result */}
-                  {isEvaluatingThis && (
-                    <div className="evaluation-indicator">
-                      <p>⏳ Evaluating your answer...</p>
-                    </div>
-                  )}
-
-                  {result && questionResult && (
-                    <div className={`individual-result ${isCorrect ? 'correct' : 'wrong'}`}>
+                  {/* Individual Result after Batch Submission */}
+                  {batchSubmitted && batchResult && batchResult.question_results && batchResult.question_results[index] && (
+                    <div className={`individual-result ${batchResult.question_results[index].correct ? 'correct' : 'wrong'}`}>
                       <div className="result-header">
                         <span className="result-badge">
-                          {isCorrect ? '✅ Correct' : '❌ Wrong'}
+                          {batchResult.question_results[index].correct ? '✅ Correct' : '❌ Wrong'}
                         </span>
                       </div>
                       
@@ -248,9 +339,9 @@ export default function FeedbackPanel({ feedback, onNext }) {
                         <strong>Your answer:</strong> {practiceAnswers[index] || 'No answer provided'}
                       </div>
                       
-                      {questionResult.feedback && (
+                      {batchResult.question_results[index].feedback && (
                         <div className="answer-feedback">
-                          <strong>Feedback:</strong> {questionResult.feedback}
+                          <strong>Feedback:</strong> {batchResult.question_results[index].feedback}
                         </div>
                       )}
                     </div>
@@ -260,47 +351,164 @@ export default function FeedbackPanel({ feedback, onNext }) {
             })}
           </div>
 
-          {/* Final Summary when all questions are submitted */}
-          {Object.keys(individualResults).length === practiceQuestions.length && practiceQuestions.length > 0 && (
+          {/* Submit All Button */}
+          {!batchSubmitted && (
+            <div className="submit-all-section">
+              <button 
+                className="btn btn-primary submit-all-btn"
+                onClick={handleBatchSubmit}
+                disabled={isEvaluating || Object.keys(practiceAnswers).length < practiceQuestions.length || Object.values(practiceAnswers).some(answer => !answer || answer.trim().length === 0)}
+              >
+                {isEvaluating ? '⏳ Evaluating...' : '🚀 Submit All Answers'}
+              </button>
+              <p className="submit-all-hint">
+                Complete all questions to submit for evaluation
+              </p>
+            </div>
+          )}
+
+          {/* Final Summary after Batch Submission */}
+          {batchSubmitted && batchResult && (
             <div className="final-summary">
-              <h6>Final Evaluation Summary:</h6>
-              {(() => {
-                const totalCorrect = Object.values(individualResults).filter(r => r.question_results?.[0]?.correct).length;
-                const passed = totalCorrect >= 3;
-                const firstResult = Object.values(individualResults)[0];
-                
-                return (
-                  <>
-                    <div className={`final-result ${passed ? 'passed' : 'failed'}`}>
-                      <h5>
-                        {passed ? (
-                          <><LuCircleCheck size={16} /> Evaluation Passed!</>
-                        ) : (
-                          <><LuTriangleAlert size={16} /> Needs More Practice</>
-                        )}
-                      </h5>
-                      <p>
-                        You got {totalCorrect} out of {practiceQuestions.length} correct.
-                        {passed 
-                          ? ' Great job! Moving to next difficulty level.' 
-                          : ' Keep practicing to improve your understanding.'
-                        }
-                      </p>
+              <div className={`final-result ${batchResult.status === 'PASSED' ? 'passed' : 'failed'}`}>
+                <div className="result-header">
+                  {batchResult.status === 'PASSED' ? (
+                    <div className="result-status passed">
+                      <LuCircleCheck size={20} />
+                      <h4>Excellent Work! 🎉</h4>
                     </div>
-                    
-                    {!passed && firstResult?.additional_questions && (
-                      <div className="additional-questions">
-                        <h6>Additional Practice Questions:</h6>
-                        <ul>
-                          {firstResult.additional_questions.map((q, i) => (
-                            <li key={i}>{q}</li>
-                          ))}
-                        </ul>
+                  ) : (
+                    <div className="result-status failed">
+                      <LuTriangleAlert size={20} />
+                      <h4>Needs More Practice ⚠️</h4>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="score-display">
+                  <div className="score-numbers">
+                    <span className="score-correct">{batchResult.correct_answers}</span>
+                    <span className="score-divider">out of</span>
+                    <span className="score-total">{batchResult.total_answers}</span>
+                  </div>
+                  <div className="score-label">questions answered correctly</div>
+                  <div className="progress-bar-container">
+                    <div className="progress-bar">
+                      <div 
+                        className="progress-fill" 
+                        style={{ width: `${(batchResult.correct_answers / batchResult.total_answers) * 100}%` }}
+                      ></div>
+                    </div>
+                    <div className="progress-text">
+                      {Math.round((batchResult.correct_answers / batchResult.total_answers) * 100)}% Complete
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="result-message">
+                  {batchResult.status === 'PASSED' ? (
+                    <p>
+                      Fantastic progress! You've mastered this level and are ready to move on to more challenging content. Your dedication is paying off!
+                    </p>
+                  ) : (
+                    <p>
+                      You answered {batchResult.correct_answers} out of {batchResult.total_answers} questions correctly. Keep practicing to strengthen your understanding and improve your performance. Every attempt brings you closer to mastery!
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Additional Practice Questions Section */}
+          {showAdditionalQuestions && batchResult && batchResult.additional_questions && (
+            <div className="additional-practice-section">
+              <h4><LuBrain size={16} /> Additional Practice Questions</h4>
+              <p>Here are 5 more practice questions to help you improve:</p>
+              
+              {/* Additional Practice Questions List */}
+              <div className="practice-questions-list">
+                {batchResult.additional_questions.map((question, index) => {
+                  return (
+                    <div key={index} className="practice-question-item">
+                      <div className="practice-question-text">
+                        <span className="question-number">{index + 1}.</span>
+                        {question}
                       </div>
-                    )}
-                  </>
-                );
-              })()}
+                      
+                      <div className="practice-answer-area">
+                        <textarea
+                          value={additionalPracticeAnswers[index] || ''}
+                          onChange={(e) => handleAdditionalPracticeAnswerChange(index, e.target.value)}
+                          placeholder="Enter your answer here..."
+                          rows={3}
+                          disabled={additionalBatchSubmitted}
+                        />
+                      </div>
+
+                      {/* Additional Individual Result after Batch Submission */}
+                      {additionalBatchSubmitted && additionalBatchResult && additionalBatchResult.question_results && additionalBatchResult.question_results[index] && (
+                        <div className={`individual-result ${additionalBatchResult.question_results[index].correct ? 'correct' : 'wrong'}`}>
+                          <div className="result-header">
+                            <span className="result-badge">
+                              {additionalBatchResult.question_results[index].correct ? '✅ Correct' : '❌ Wrong'}
+                            </span>
+                          </div>
+                          
+                          <div className="student-answer">
+                            <strong>Your answer:</strong> {additionalPracticeAnswers[index] || 'No answer provided'}
+                          </div>
+                          
+                          {additionalBatchResult.question_results[index].feedback && (
+                            <div className="answer-feedback">
+                              <strong>Feedback:</strong> {additionalBatchResult.question_results[index].feedback}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Additional Submit All Button */}
+              {!additionalBatchSubmitted && (
+                <div className="submit-all-section">
+                  <button 
+                    className="btn btn-primary submit-all-btn"
+                    onClick={handleAdditionalBatchSubmit}
+                    disabled={isEvaluating || Object.keys(additionalPracticeAnswers).length < batchResult.additional_questions.length || Object.values(additionalPracticeAnswers).some(answer => !answer || answer.trim().length === 0)}
+                  >
+                    {isEvaluating ? '⏳ Evaluating...' : '🚀 Submit Additional Answers'}
+                  </button>
+                  <p className="submit-all-hint">
+                    Complete all questions to submit for evaluation
+                  </p>
+                </div>
+              )}
+
+              {/* Additional Final Summary */}
+              {additionalBatchSubmitted && additionalBatchResult && (
+                <div className="final-summary">
+                  <h6>Additional Practice Evaluation Summary:</h6>
+                  <div className={`final-result ${additionalBatchResult.status === 'PASSED' ? 'passed' : 'failed'}`}>
+                    <h5>
+                      {additionalBatchResult.status === 'PASSED' ? (
+                        <><LuCircleCheck size={16} /> Additional Practice Passed!</>
+                      ) : (
+                        <><LuTriangleAlert size={16} /> Keep Practicing!</>
+                      )}
+                    </h5>
+                    <p>
+                      You got {additionalBatchResult.correct_answers} out of {additionalBatchResult.total_answers} correct in the additional practice.
+                      {additionalBatchResult.status === 'PASSED' 
+                        ? ' Excellent improvement!' 
+                        : ' Continue practicing to strengthen your understanding.'
+                      }
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -681,48 +889,209 @@ export default function FeedbackPanel({ feedback, onNext }) {
 
         .final-summary {
           margin-top: 2rem;
-          padding: 1.5rem;
-          background: var(--surface);
-          border-radius: var(--radius-sm);
-          border: 2px solid var(--border);
-        }
-        .final-summary h6 {
-          font-size: 1rem;
-          font-weight: 600;
-          color: var(--text);
-          margin-bottom: 1rem;
         }
         .final-result {
-          padding: 1rem;
-          border-radius: var(--radius-sm);
-          margin-bottom: 1rem;
+          padding: 2rem;
+          border-radius: 16px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          text-align: center;
+          position: relative;
+          overflow: hidden;
+        }
+        .final-result::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%);
         }
         .final-result.passed {
-          background: rgba(16,185,129,0.08);
-          border-left: 4px solid #10b981;
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
         }
         .final-result.failed {
-          background: rgba(239,68,68,0.08);
-          border-left: 4px solid #ef4444;
+          background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+          color: white;
         }
-        .final-result h5 {
+        
+        .result-header {
+          margin-bottom: 1.5rem;
+        }
+        .result-status {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          font-size: 0.95rem;
-          font-weight: 600;
+          justify-content: center;
+          gap: 0.75rem;
           margin-bottom: 0.5rem;
         }
-        .final-result.passed h5 {
-          color: #10b981;
+        .result-status h4 {
+          font-size: 1.5rem;
+          font-weight: 700;
+          margin: 0;
+          letter-spacing: -0.025em;
         }
-        .final-result.failed h5 {
-          color: #ef4444;
+        
+        .score-display {
+          margin: 2rem 0;
+          padding: 1.5rem;
+          background: #EFF6FF;
+          border-radius: 12px;
+          border: 1px solid #BFDBFE;
+        }
+        .score-numbers {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          font-size: 2.5rem;
+          font-weight: 800;
+          margin-bottom: 0.5rem;
+          line-height: 1;
+        }
+        .score-correct {
+          color: #3B82F6;
+          text-shadow: none;
+        }
+        .score-divider {
+          font-size: 1.2rem;
+          color: #374151;
+          font-weight: 400;
+        }
+        .score-total {
+          color: #374151;
+        }
+        .score-label {
+          font-size: 0.9rem;
+          color: #374151;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+        }
+        
+        .progress-bar-container {
+          margin-top: 1rem;
+        }
+        .progress-bar {
+          width: 100%;
+          height: 8px;
+          background: #E5E7EB;
+          border-radius: 4px;
+          overflow: hidden;
+          margin-bottom: 0.5rem;
+        }
+        .progress-fill {
+          height: 100%;
+          background: #3B82F6;
+          border-radius: 4px;
+          transition: width 0.3s ease;
+        }
+        .progress-text {
+          font-size: 0.85rem;
+          color: #374151;
+          text-align: center;
+          font-weight: 500;
+        }
+        
+        .result-message {
+          margin-top: 1.5rem;
+        }
+        .result-message p {
+          font-size: 1rem;
+          line-height: 1.7;
+          margin: 0;
+          opacity: 0.95;
+          font-weight: 400;
         }
         .final-result p {
           font-size: 0.9rem;
           line-height: 1.4;
           margin: 0;
+        }
+
+        .submit-all-section {
+          margin: 2rem 0;
+          padding: 2rem;
+          background: linear-gradient(135deg, rgba(37, 99, 235, 0.03), rgba(30, 64, 175, 0.02));
+          border: 1px solid var(--primary-200);
+          border-radius: 16px;
+          text-align: center;
+          position: relative;
+          box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+        }
+
+        .submit-all-section::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 60px;
+          height: 3px;
+          background: linear-gradient(90deg, var(--primary), var(--primary-600));
+          border-radius: 0 0 3px 3px;
+        }
+
+        .submit-all-btn {
+          padding: 1rem 2.5rem;
+          font-size: 1.1rem;
+          font-weight: 700;
+          background: linear-gradient(135deg, var(--primary), var(--primary-600));
+          color: white;
+          border: none;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          margin-bottom: 1rem;
+          box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+          letter-spacing: 0.02em;
+        }
+
+        .submit-all-btn:hover:not(:disabled) {
+          background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+          transform: translateY(-3px);
+          box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
+        }
+
+        .submit-all-btn:disabled {
+          background: var(--border);
+          color: var(--text-muted);
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+
+        .submit-all-hint {
+          font-size: 0.9rem;
+          color: var(--text-muted);
+          margin: 0;
+          line-height: 1.5;
+          font-weight: 400;
+        }
+
+        .additional-practice-section {
+          margin-top: 2rem;
+          padding: 1rem;
+          background: rgba(245,158,11,0.08);
+          border-radius: var(--radius-sm);
+          border-left: 3px solid var(--warning);
+        }
+        
+        .additional-practice-section h4 {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          font-size: 0.85rem;
+          color: var(--warning);
+          margin-bottom: 0.5rem;
+        }
+        
+        .additional-practice-section p {
+          font-size: 0.88rem;
+          color: var(--text-muted);
+          margin-bottom: 1rem;
         }
 
         .fb-actions {
