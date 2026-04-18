@@ -135,6 +135,8 @@ function GuidancePage() {
       return `![Diagram](/api/images/${enc})`;
     });
 
+    out = out.replace(/<figcaption\b[^>]*>[\s\S]*?<\/figcaption>/gi, '');
+
     out = ensureLinksInMarkdown(out);
     return out;
   };
