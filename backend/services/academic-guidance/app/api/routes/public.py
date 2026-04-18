@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import FileResponse
-from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR
+from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR, GENERATED_IMAGE_OUTPUT_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ async def health_check():
 @router.get("/images/{image_name:path}")
 async def get_image(image_name: str):
     """
-    Public endpoint to serve images from the RAG extracted images directory.
+    Public endpoint to serve images from RAG image directories.
     No authentication required.
     
     Args:
@@ -39,48 +39,47 @@ async def get_image(image_name: str):
             logger.error(f"Invalid file type: {decoded_name}")
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid image file type")
         
-        # Resolve to absolute path to ensure we're looking in the right place
-        image_output_dir_abs = IMAGE_OUTPUT_DIR.resolve()
-        
-        if not image_output_dir_abs.exists():
-            error_msg = f"IMAGE_OUTPUT_DIR does not exist: {image_output_dir_abs}"
-            logger.error(error_msg)
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Image directory does not exist: {image_output_dir_abs}"
-            )
-        
-        # Try exact match first
-        image_path = image_output_dir_abs / decoded_name
-        
-        # Try case-insensitive match if not found
-        if not image_path.exists():
+        image_dirs = [GENERATED_IMAGE_OUTPUT_DIR.resolve(), IMAGE_OUTPUT_DIR.resolve()]
+        image_path = None
+        available_files = []
+
+        for image_dir_abs in image_dirs:
+            if not image_dir_abs.exists():
+                continue
+
+            # Try exact match first
+            candidate = image_dir_abs / decoded_name
+            if candidate.exists():
+                image_path = candidate
+                break
+
+            # Try case-insensitive / partial match if not found
             decoded_lower = decoded_name.lower()
-            available_files = [f for f in image_output_dir_abs.glob("*") if f.is_file()]
-            
-            for img_file in available_files:
+            files_in_dir = [f for f in image_dir_abs.glob("*") if f.is_file()]
+            available_files.extend([f.name for f in files_in_dir])
+
+            for img_file in files_in_dir:
                 if img_file.name.lower() == decoded_lower:
                     image_path = img_file
                     break
-            
-            # If still not found, try partial match (filename might have been truncated)
-            if not image_path.exists():
-                base_name = decoded_name.rsplit('.', 1)[0].lower()
-                for img_file in available_files:
-                    file_base = img_file.name.rsplit('.', 1)[0].lower()
-                    # Check if the requested name is contained in the file name or vice versa
-                    if base_name in file_base or file_base in base_name:
-                        # Prefer exact or longer matches
-                        if len(file_base) >= len(base_name) * 0.8:  # At least 80% match
-                            image_path = img_file
-                            break
-        
-        if not image_path.exists():
-            available_files = [f.name for f in image_output_dir_abs.glob("*") if f.is_file()]
-            logger.error(f"Image not found: {decoded_name}. Available files: {len(available_files)} files in directory.")
+            if image_path:
+                break
+
+            base_name = decoded_name.rsplit('.', 1)[0].lower()
+            for img_file in files_in_dir:
+                file_base = img_file.name.rsplit('.', 1)[0].lower()
+                if base_name in file_base or file_base in base_name:
+                    if len(file_base) >= len(base_name) * 0.8:
+                        image_path = img_file
+                        break
+            if image_path:
+                break
+
+        if not image_path or not image_path.exists():
+            logger.error(f"Image not found: {decoded_name}. Available files across image dirs: {len(available_files)}")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
-                detail=f"Image not found: {decoded_name}. Available files: {len(available_files)} files in directory."
+                detail=f"Image not found: {decoded_name}. Available files: {len(available_files)}"
             )
         
         # Determine media type based on actual file extension

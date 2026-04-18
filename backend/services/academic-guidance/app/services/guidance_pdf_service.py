@@ -7,7 +7,7 @@ from typing import List, Optional
 
 import fitz
 
-from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR
+from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR, GENERATED_IMAGE_OUTPUT_DIR
 
 
 PAGE_WIDTH = 595
@@ -129,11 +129,13 @@ def _resolve_images(image_names: List[str]) -> List[Path]:
         name = Path(str(image_name)).name
         if not name:
             continue
-        image_path = IMAGE_OUTPUT_DIR / name
-        key = str(image_path).lower()
-        if image_path.exists() and key not in seen:
-            seen.add(key)
-            resolved.append(image_path)
+        for image_dir in (GENERATED_IMAGE_OUTPUT_DIR, IMAGE_OUTPUT_DIR):
+            image_path = image_dir / name
+            key = str(image_path).lower()
+            if image_path.exists() and key not in seen:
+                seen.add(key)
+                resolved.append(image_path)
+                break
     return resolved
 
 

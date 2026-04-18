@@ -115,6 +115,30 @@ function GuidancePage() {
     return text;
   };
 
+  // Guidance report: expand [IMAGE:file] to real markdown images, fix HTML <img src="/api/..."> for gateway proxy
+  const prepareGuidanceMarkdown = (text) => {
+    if (!text || typeof text !== 'string') return text;
+    let out = unwrapMarkdownFromCodeBlock(text);
+    const base = String(API_URL || '').replace(/\/$/, '');
+
+    if (base) {
+      out = out.replace(/(<img\b[^>]*\bsrc=)(["'])(\/api\/images\/[^"']+)\2/gi, (_, pre, q, srcPath) => {
+        if (srcPath.startsWith(`${base}/`) || srcPath === base) return _;
+        return `${pre}${q}${base}${srcPath}${q}`;
+      });
+    }
+
+    out = out.replace(/\[IMAGE:\s*([^\]]+)\]/gi, (_, raw) => {
+      const name = String(raw).trim();
+      if (!name) return _;
+      const enc = encodeURIComponent(name);
+      return `![Diagram](/api/images/${enc})`;
+    });
+
+    out = ensureLinksInMarkdown(out);
+    return out;
+  };
+
   // ✅ Helper: make a path absolute using API_URL
   const toAbsoluteUrl = (maybeRelativeUrl) => {
     if (!maybeRelativeUrl) return null;
@@ -126,7 +150,10 @@ function GuidancePage() {
     const base = String(API_URL || '').replace(/\/$/, '');
     if (!base) return url;
 
-    if (url.startsWith('/')) return `${base}${url}`;
+    if (url.startsWith('/')) {
+      if (url === base || url.startsWith(`${base}/`)) return url;
+      return `${base}${url}`;
+    }
     return `${base}/${url}`;
   };
 
@@ -1171,15 +1198,15 @@ function GuidancePage() {
 
                     {typeof report === 'string' ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report))}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report)}</ReactMarkdown>
                       </div>
                     ) : report.content ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report.content))}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report.content)}</ReactMarkdown>
                       </div>
                     ) : report.markdown_report ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report.markdown_report))}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report.markdown_report)}</ReactMarkdown>
                       </div>
                     ) : report.error ? (
                       <div className="error-message">{report.error}</div>

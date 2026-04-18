@@ -26,7 +26,7 @@ from app.models.schemas import (
     GuidancePdfRequest,
 )
 from app.ca_guidance.crew import create_guidance_crew, create_summarization_crew
-from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR
+from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR, GENERATED_IMAGE_OUTPUT_DIR
 from app.ca_guidance.tools.tts_tool import text_to_speech_wav  # ✅ AUDIO
 from app.ca_guidance.tools.rag_tool import (
     _get_rag_chain,
@@ -36,6 +36,17 @@ from app.ca_guidance.tools.rag_tool import (
 )
 
 logger = logging.getLogger(__name__)
+
+_DIAGRAM_REQUEST_RE = re.compile(
+    r"\b(draw|create|generate|design|sketch|construct)\b.*\b(er\s*diagram|eerd?|entity\s*relationship|flowchart|diagram|schema)\b"
+    r"|\b(er\s*diagram|eerd?|entity\s*relationship|flowchart|schema)\b",
+    re.IGNORECASE,
+)
+
+_CROW_FOOT_RE = re.compile(
+    r"erDiagram|\|\|--|--\|\||\}o--|--o\{|\}\|--|--\|\{|\}\|\.{2}|\.{2}\|\{",
+    re.IGNORECASE,
+)
 
 
 def _effective_audio_url(summary_doc: dict) -> Optional[str]:
@@ -188,17 +199,21 @@ def extract_and_replace_images(
         logger.debug(f"Content preview (first 500 chars): {content[:500]}")
 
     available_images = {}
-    if IMAGE_OUTPUT_DIR.exists():
-        for img_file in IMAGE_OUTPUT_DIR.glob("*"):
-            if img_file.is_file() and img_file.suffix.lower() in ['.jpeg', '.jpg', '.png', '.gif']:
-                available_images[img_file.name] = img_file.name
-                available_images[img_file.name.lower()] = img_file.name
-        
-        logger.info(f"Found {len(available_images)} available image(s) in {IMAGE_OUTPUT_DIR}")
+    image_dirs = [GENERATED_IMAGE_OUTPUT_DIR, IMAGE_OUTPUT_DIR]
+    found_any_dir = False
+    for image_dir in image_dirs:
+        if image_dir.exists():
+            found_any_dir = True
+            for img_file in image_dir.glob("*"):
+                if img_file.is_file() and img_file.suffix.lower() in ['.jpeg', '.jpg', '.png', '.gif']:
+                    available_images[img_file.name] = img_file.name
+                    available_images[img_file.name.lower()] = img_file.name
+    if found_any_dir:
+        logger.info(f"Found {len(available_images)} available image(s) across generated/extracted image dirs")
         if image_matches and len(available_images) > 0:
             logger.info(f"Sample available images: {list(available_images.keys())[:5]}")
     else:
-        logger.warning(f"IMAGE_OUTPUT_DIR does not exist: {IMAGE_OUTPUT_DIR}")
+        logger.warning("No image directories found for generated/extracted images")
 
     def replace_image(match):
         img_name = match.group(1).strip()
@@ -300,7 +315,38 @@ def extract_and_replace_images(
         logger.error(f"❌ Image '{img_name[:50]}...' NOT FOUND in available images!")
         logger.error(f"   Searched for: {img_name}")
         logger.error(f"   Available images ({len(available_images)}): {list(available_images.keys())[:10]}")
-        logger.warning(f"   Will generate HTML with placeholder - image may not display correctly")
+        logger.warning("   Attempting to auto-generate missing diagram image")
+
+        # Try generating a replacement diagram image when filename implies ER/schema/diagram.
+        if re.search(r"(er|eer|entity|relationship|schema|diagram|weak\s*entity)", img_name, re.IGNORECASE):
+            try:
+                from app.ca_guidance.tools.diagram_image_tool import generate_assignment_diagram
+
+                tool_out = generate_assignment_diagram.run(
+                    diagram_type="er_diagram",
+                    description=f"Create conceptual ER diagram for: {img_name}",
+                )
+                new_refs = re.findall(r"\[IMAGE:([^\]]+)\]", tool_out or "", flags=re.IGNORECASE)
+                if new_refs:
+                    new_name = new_refs[0].strip()
+                    if new_name:
+                        available_images[new_name] = new_name
+                        available_images[new_name.lower()] = new_name
+                        image_paths.append(new_name)
+                        image_counter[0] += 1
+                        figure_num = image_counter[0]
+                        encoded_name = quote(new_name)
+                        auto_caption = new_name.replace('_', ' ').replace('-', ' ').replace('.png', '').title()
+                        return (
+                            f'<figure>\n'
+                            f'<img src="{base_url}{encoded_name}" alt="{new_name}" class="markdown-image" />\n'
+                            f'<figcaption><strong>Figure {figure_num}:</strong> {auto_caption}</figcaption>\n'
+                            f'</figure>'
+                        )
+            except Exception as e:
+                logger.warning(f"   Auto-generation for missing image failed: {e}")
+
+        logger.warning("   Falling back to placeholder HTML - image may not display correctly")
         # Still generate HTML figure tag even if image not found, so explanation can be shown
         image_counter[0] += 1
         figure_num = image_counter[0]
@@ -403,8 +449,188 @@ def clean_markdown_response(content: str) -> str:
         cleaned_lines.append(line)
 
     content = '\n'.join(cleaned_lines)
+    # Remove legacy auto-generated diagram headings/metadata; keep actual image refs.
+    content = re.sub(r'^\s*#{2,6}\s*Auto-generated Diagram[^\n]*\n?', '', content, flags=re.IGNORECASE | re.MULTILINE)
+    content = re.sub(r'^\s*Source request:\s*[^\n]*\n?', '', content, flags=re.IGNORECASE | re.MULTILINE)
+    content = re.sub(r'^\s*\*\*Diagram for this question:\*\*\s*\n?', '', content, flags=re.IGNORECASE | re.MULTILINE)
     content = re.sub(r'\n{3,}', '\n\n', content)
     return content.strip()
+
+
+def _extract_diagram_requests(assignment_text: str, limit: int = 4) -> list[str]:
+    """Extract candidate question snippets that appear to request a diagram."""
+    text = (assignment_text or "").strip()
+    if not text:
+        return []
+    chunks = re.split(r'[\n\r]+|(?<=[.?!])\s+', text)
+    requests: list[str] = []
+    seen = set()
+    for chunk in chunks:
+        c = chunk.strip()
+        if not c or len(c) < 12:
+            continue
+        if _DIAGRAM_REQUEST_RE.search(c):
+            key = c.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            requests.append(c[:600])
+            if len(requests) >= limit:
+                break
+    return requests
+
+
+def _infer_diagram_type(request_text: str) -> str:
+    low = (request_text or "").lower()
+    if "flowchart" in low or "flow chart" in low or "workflow" in low:
+        return "flowchart"
+    return "er_diagram"
+
+
+def _er_rule_hints(request_text: str) -> list[str]:
+    """Map question text to ER rule hints aligned with app/er schema concepts."""
+    low = (request_text or "").lower()
+    hints: list[str] = []
+    if "isa" in low or "inheritance" in low or "specialization" in low or "generalization" in low:
+        hints.append("Include ISA hierarchy: parent entity with child entities; indicate disjoint/overlap and total/partial if stated.")
+    if "weak entity" in low or "identifying relationship" in low or "dependent" in low:
+        hints.append("Include weak entity modeling: weak entity, identifying relationship, and strong owner entity.")
+    if "aggregation" in low or "whole-part" in low or "part of" in low:
+        hints.append("Include aggregation-style whole/part structure using relationship and relevant part entities.")
+    if "ternary" in low or "three-way" in low:
+        hints.append("Include ternary relationship structure with three participating entities.")
+    if "cardinality" in low or "1:n" in low or "m:n" in low or "one-to-many" in low or "many-to-many" in low:
+        hints.append("Ensure explicit cardinalities on each relationship edge.")
+    if "participation" in low or "total participation" in low or "partial participation" in low:
+        hints.append("Include participation constraints (total/partial) where specified.")
+    if "composite attribute" in low or "multivalued" in low:
+        hints.append("Model composite/multivalued attributes as separate attribute nodes connected to owner.")
+    if not hints:
+        hints.append("Use conceptual Chen-style ER: entities, relationship diamonds, separate attribute ovals, and clear cardinality labels.")
+    return hints
+
+
+def _strip_crow_foot_blocks(content: str) -> str:
+    """
+    Remove fenced code blocks that contain Crow's Foot notation so rendered output
+    does not show disallowed notation; Graphviz image sections are appended separately.
+    """
+    if not content:
+        return content
+
+    def _replace_block(match):
+        block = match.group(0)
+        if _CROW_FOOT_RE.search(block):
+            return "\n\n> Crow's Foot text diagram removed. Conceptual ER image generated instead.\n\n"
+        return block
+
+    return re.sub(r"```[\s\S]*?```", _replace_block, content)
+
+
+def _token_set(text: str) -> set[str]:
+    words = re.findall(r"[a-zA-Z][a-zA-Z0-9_]{2,}", (text or "").lower())
+    stop = {
+        "the", "and", "for", "with", "that", "this", "from", "into", "your", "their",
+        "question", "diagram", "draw", "create", "generate", "design", "schema", "erd",
+        "eer", "entity", "relationship",
+    }
+    return {w for w in words if w not in stop}
+
+
+def _find_best_insertion_line(content_lines: list[str], request_text: str) -> int | None:
+    req_tokens = _token_set(request_text)
+    if not req_tokens:
+        return None
+
+    best_idx = None
+    best_score = 0.0
+    for idx, line in enumerate(content_lines):
+        line_tokens = _token_set(line)
+        if not line_tokens:
+            continue
+        inter = len(req_tokens & line_tokens)
+        if inter == 0:
+            continue
+        union = len(req_tokens | line_tokens)
+        score = inter / union if union else 0.0
+        # Prefer heading/question-like lines when score ties.
+        if re.match(r"^\s{0,3}(#+\s+|Q\d+[:.)]|Question\s+\d+)", line, re.IGNORECASE):
+            score += 0.08
+        if score > best_score:
+            best_score = score
+            best_idx = idx
+
+    # Require a minimal relevance threshold.
+    if best_score < 0.08:
+        return None
+    return best_idx
+
+
+def _has_image_near_line(content_lines: list[str], idx: int, window: int = 12) -> bool:
+    start = max(0, idx)
+    end = min(len(content_lines), idx + window + 1)
+    snippet = "\n".join(content_lines[start:end])
+    return bool(re.search(r"\[IMAGE:[^\]]+\]|<img\s+[^>]*src=", snippet, flags=re.IGNORECASE))
+
+
+def _ensure_guidance_diagrams(
+    assignment_text: str,
+    cleaned_content: str,
+) -> str:
+    """
+    Safety net: if assignment asks for diagrams but guidance output has no [IMAGE:...],
+    invoke diagram generation tool directly and append generated image refs.
+    """
+    if not cleaned_content:
+        return cleaned_content
+    cleaned_content = _strip_crow_foot_blocks(cleaned_content)
+
+    requests = _extract_diagram_requests(assignment_text)
+    if not requests:
+        return cleaned_content
+
+    try:
+        from app.ca_guidance.tools.diagram_image_tool import generate_assignment_diagram
+    except Exception as e:
+        logger.warning(f"Could not import diagram generation tool for fallback: {e}")
+        return cleaned_content
+
+    content_lines = cleaned_content.splitlines()
+    inserts_made = 0
+
+    for idx, req in enumerate(requests, start=1):
+        anchor_idx = _find_best_insertion_line(content_lines, req)
+        if anchor_idx is None:
+            # Only insert when we can confidently map to a relevant question line.
+            continue
+        if _has_image_near_line(content_lines, anchor_idx):
+            # Already has an image near the relevant question.
+            continue
+
+        diagram_type = _infer_diagram_type(req)
+        try:
+            hints = _er_rule_hints(req) if diagram_type == "er_diagram" else []
+            description = req
+            if hints:
+                description = req + "\n\nER RULE HINTS:\n- " + "\n- ".join(hints)
+            tool_output = generate_assignment_diagram.run(
+                diagram_type=diagram_type,
+                description=description,
+            )
+            image_refs = re.findall(r"\[IMAGE:[^\]]+\]", tool_output or "", flags=re.IGNORECASE)
+            if not image_refs:
+                continue
+            # Place strictly under best-matching question line.
+            insertion_block = ["", *image_refs, ""]
+            content_lines[anchor_idx + 1:anchor_idx + 1] = insertion_block
+            inserts_made += 1
+        except Exception as e:
+            logger.warning(f"Fallback diagram generation failed for request '{req[:80]}...': {e}")
+
+    new_content = "\n".join(content_lines).rstrip()
+    if inserts_made:
+        logger.info(f"Placed {inserts_made} diagram(s) under matched questions")
+    return new_content
 
 
 router = APIRouter(prefix="/protected", tags=["protected"])
@@ -473,6 +699,10 @@ async def run_guidance(
 
         report_str = str(report_content)
         cleaned_content = clean_markdown_response(report_str)
+        cleaned_content = _ensure_guidance_diagrams(
+            assignment_text=text,
+            cleaned_content=cleaned_content,
+        )
 
         base_url = "/api/images/"
         # For guidance, explanations are optional (set to False by default)

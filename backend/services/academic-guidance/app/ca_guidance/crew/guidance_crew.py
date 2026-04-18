@@ -1,4 +1,5 @@
 import logging
+import re
 from crewai import Crew, Task
 from app.core.config import settings
 from app.ca_guidance.agents.guidance_agent import guidance_agent
@@ -28,6 +29,37 @@ def _chunk_assignment_text(text: str, max_chars: int = 8000) -> list[str]:
     return [c for c in chunks if c]
 
 
+def _extract_question_markers(text: str, limit: int = 25) -> list[str]:
+    """
+    Extract question headings/markers so guidance can explicitly cover full document.
+    """
+    if not text:
+        return []
+    markers: list[str] = []
+    seen = set()
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    patterns = [
+        r'^(Q(?:uestion)?\s*\d+[\]:.)-]?\s*.*)$',
+        r'^(\d+[\).]\s+.+)$',
+        r'^([A-Za-z][\).]\s+.+)$',
+        r'^(Task\s*\d+[:.)-]?\s*.*)$',
+        r'^(Part\s*\d+[:.)-]?\s*.*)$',
+    ]
+    for ln in lines:
+        for p in patterns:
+            m = re.match(p, ln, flags=re.IGNORECASE)
+            if m:
+                marker = m.group(1).strip()
+                key = marker.lower()
+                if key not in seen:
+                    seen.add(key)
+                    markers.append(marker[:220])
+                break
+        if len(markers) >= limit:
+            break
+    return markers
+
+
 def create_guidance_crew(assignment_text: str, access_token: str):
     """
     Create a CrewAI crew to handle DBMS assignment guidance.
@@ -46,6 +78,8 @@ def create_guidance_crew(assignment_text: str, access_token: str):
     # Task 1: Analyze assignment and produce DBMS guidance
     # If the assignment is long, split it into chunks so every part is read.
     chunks = _chunk_assignment_text(assignment_text)
+    question_markers = _extract_question_markers(assignment_text)
+    question_list_text = "\n".join(f"- {q}" for q in question_markers) if question_markers else "- (No explicit numbered markers detected; still cover all assignment sections.)"
     guidance_tasks: list[Task] = []
 
     for idx, chunk in enumerate(chunks, start=1):
@@ -62,12 +96,23 @@ def create_guidance_crew(assignment_text: str, access_token: str):
                 Assignment Text (Part {idx} of {len(chunks)}):
                 {chunk}
 
+                Known question/section markers detected from the full assignment:
+                {question_list_text}
+
                 Your output for this part MUST:
                 - Be written in clear, structured markdown format.
                 - Produce **DBMS-specific guidance**, not programming guidance.
                 - Write all notes and explanations as **normal prose text** (plain paragraphs and lists). Do not put explanatory notes inside code blocks; reserve code blocks only for actual SQL, code, or diagram syntax.
                 - Provide step-by-step instructions, explanations, or solutions based on the assignment type.
-                - If the assignment requires drawing: describe how to draw the ERD/EERD; put any diagram syntax (e.g. ASCII, Mermaid, or diagram code) inside a markdown fenced code block so it is clearly a diagram.
+                - If the assignment requires an **ER or EER diagram** (draw / sketch / model entities and relationships):
+                    → Call **generate_assignment_diagram** with `diagram_type` **er_diagram** and a `description` that lists entities, relationship sets, key attributes, and cardinalities for that question.
+                    → The tool returns `[IMAGE:filename.png]` for a rendered conceptual ER diagram image: paste that line outside code fences.
+                    → ER style constraints: keep attributes as separate ovals OUTSIDE entity boxes, and do NOT use Crow's Foot notation.
+                    → Add brief prose before or after explaining entities, relationships, and cardinality.
+                - If the assignment asks for a **flowchart** or other non-ER diagram and a PNG is appropriate:
+                    → Call **generate_assignment_diagram** with `diagram_type` **flowchart** or **general** and a concise process description.
+                    → If the tool returns `[IMAGE:filename.png]`, paste that line outside fenced code blocks.
+                - If no diagram is requested, you may use optional Mermaid or ASCII in a fenced code block only.
                 - If SQL queries are required: provide full working SQL statements in a code block.
                 - If conceptual answers are required: provide accurate, lecture-aligned explanations as normal text.
                 - If the assignment involves design (ER models, EER models, normalization, schema design, constraints):
@@ -75,7 +120,8 @@ def create_guidance_crew(assignment_text: str, access_token: str):
                     → Explain reasoning and methodology.
                 - If this part contains multiple questions:
                     → Provide solutions for each question or guidance for each part.
-                - If diagrams are needed: put them in markdown (e.g. a fenced code block for diagram text/ASCII, or use ![alt](url) for images). Do not mix diagram content with notes in one block.
+                - You MUST explicitly label every covered question/section in your output (use headings like `### Question ...` or `### Part ...`) so coverage is auditable.
+                - If diagrams are text-only (Mermaid/ASCII/Graphviz DOT you wrote yourself): use a fenced code block. For PNG outputs from the tool, keep `[IMAGE:...]` outside code blocks.
 
                 IMPORTANT:
                 - Use the **query_lecture_materials** tool to verify accuracy based on course content.
@@ -171,7 +217,12 @@ def create_guidance_crew(assignment_text: str, access_token: str):
         - Do NOT say things like "the solution is provided above".
         - Do NOT summarize or shorten the guidance unless explicitly asked.
         - Preserve all steps, explanations, and answers from each part so that the final document covers the entire assignment.
+        - Preserve every `[IMAGE:filename]` line from the guidance tasks exactly (do not remove or rewrite filenames); these are generated PNG diagram images.
+        - Preserve every fenced diagram block (```dot / ```graphviz / ```mermaid) exactly when present as fallback diagrams.
         - Start by reproducing the full combined guidance (you may organize it by question number or by assignment section).
+        - Ensure full-document coverage: for every detected question/section marker listed below, include a corresponding section in the final output (or clearly state "Not found in this part" only if truly absent):
+        {question_list_text}
+        - Do NOT output only diagrams. Keep full prose guidance and keep each relevant diagram directly under its question section.
         - Then at the very end, add a section:
 
         Add a final short section at the end titled:
