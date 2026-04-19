@@ -94,8 +94,8 @@ def generate_assignment_diagram(diagram_type: str, description: str) -> str:
 
     Args:
         diagram_type: One of: "er_diagram", "flowchart", or "general" (synonyms like "ERD" are OK).
-        description: For ER: entities, relationships, attributes, and cardinalities from the question.
-            For flowchart/general: process steps or what to illustrate.
+        description: For ER: full CA-question context—entities, attributes (PK, multivalued, composite, relationship-owned),
+            relationships (binary/ternary/ISA/aggregation), and cardinalities. For flowchart/general: process or concept to illustrate.
 
     Returns:
         Instructions including the exact `[IMAGE:...]` reference to embed in markdown.
@@ -114,13 +114,28 @@ def generate_assignment_diagram(diagram_type: str, description: str) -> str:
                 render_dot_to_png,
             )
 
-            dot = generate_conceptual_er_dot(description)
+            scenario = (description or "").strip()
+            # Ground the LLM: one scenario only (question / answer text from the caller).
+            grounded = (
+                "Model exactly ONE conceptual ER scenario: the text below is the only source of entities, "
+                "relationships, attributes, and cardinalities. Do not substitute a different problem.\n\n"
+                + scenario
+            )
+            dot = generate_conceptual_er_dot(grounded)
             image_bytes = render_dot_to_png(dot)
             GENERATED_IMAGE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
             fname = f"guidance_er_diagram_{uuid.uuid4().hex[:10]}.png"
             out_path = GENERATED_IMAGE_OUTPUT_DIR / fname
             out_path.write_bytes(image_bytes)
             logger.info("Saved conceptual ER diagram image to %s", out_path)
+            try:
+                from app.ca_guidance.tools.guidance_diagram_registry import (
+                    register_guidance_diagram_png,
+                )
+
+                register_guidance_diagram_png(fname, description)
+            except Exception:
+                pass
             return (
                 f"Generated conceptual ER diagram image saved as `{fname}`.\n\n"
                 "Include this **exact** line in your markdown next to your explanation (outside code fences):\n\n"
@@ -189,6 +204,14 @@ def generate_assignment_diagram(diagram_type: str, description: str) -> str:
         out_path = GENERATED_IMAGE_OUTPUT_DIR / fname
         out_path.write_bytes(image_bytes)
         logger.info("Saved assignment diagram image to %s", out_path)
+        try:
+            from app.ca_guidance.tools.guidance_diagram_registry import (
+                register_guidance_diagram_png,
+            )
+
+            register_guidance_diagram_png(fname, description)
+        except Exception:
+            pass
 
         alt = f"{kind.replace('_', ' ').title()} for assignment"
         return (

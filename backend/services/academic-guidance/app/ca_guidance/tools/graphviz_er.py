@@ -61,76 +61,135 @@ def _safe_label(text: str) -> str:
     return (text or "").replace('"', '\\"')
 
 
+def _html_escape(s: str) -> str:
+    return (
+        (s or "")
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+    )
+
+
+def _attribute_label_html(attr) -> str:
+    """Graphviz HTML-like label: attribute name only (PK underlined). Type is shown by shape (double oval = multivalued)."""
+    name = _html_escape(attr.name)
+    if attr.pk:
+        core = f"<u>{name}</u>"
+    else:
+        core = name
+    return f"<{core}>"
+
+
 def _er_model_to_dot(model: ERModel) -> str:
     """
     Convert validated ERModel to conceptual Chen-style Graphviz DOT.
+    Entities: rectangles. Attributes: ovals (multivalued = double oval / peripheries=2).
+    Relationships: diamonds. ISA: triangle. Weak entities: double rectangle.
+    Aggregation: inner relationship diamond(s) inside a dashed subgraph cluster.
     """
     lines: list[str] = []
     lines.append("graph ER {")
     lines.append("  rankdir=LR;")
-    lines.append('  graph [splines=true, overlap=false, fontname="Helvetica"];')
+    lines.append(
+        '  graph [splines=true, overlap=false, fontname="Helvetica", '
+        'nodesep=0.9, ranksep=1.1, sep="+10,10"];'
+    )
     lines.append('  node [fontname="Helvetica"];')
     lines.append('  edge [fontname="Helvetica"];')
 
     entity_id_to_node: dict[str, str] = {}
     rel_id_to_node: dict[str, str] = {}
 
-    # Entities
+    def _emit_attr_oval(prefix_indent: str, aid: str, attr) -> None:
+        lab = _attribute_label_html(attr)
+        extra = ", peripheries=2" if attr.type == "multivalued" else ""
+        lines.append(f"{prefix_indent}{aid} [shape=ellipse, label={lab}{extra}];")
+
+    def _emit_entity_attributes(prefix_indent: str, eid: str, nid: str, attrs: list) -> None:
+        for a in attrs:
+            aid = f"A_{_slug(eid)}_{_slug(a.id)}"
+            _emit_attr_oval(prefix_indent, aid, a)
+            lines.append(f"{prefix_indent}{nid} -- {aid};")
+            for sub in a.subAttributes or []:
+                sid = f"S_{_slug(eid)}_{_slug(a.id)}_{_slug(sub.id)}"
+                _emit_attr_oval(prefix_indent, sid, sub)
+                lines.append(f"{prefix_indent}{aid} -- {sid};")
+
+    # Strong entities (rectangles)
     for e in model.entities:
+        if e.isWeak:
+            continue
         nid = f"E_{_slug(e.id)}"
         entity_id_to_node[e.id] = nid
-        shape = "ellipse" if e.isWeak else "box"
-        lines.append(f'  {nid} [shape={shape}, label="{_safe_label(e.name)}"];')
+        lines.append(f'  {nid} [shape=box, label="{_safe_label(e.name)}"];')
+        _emit_entity_attributes("  ", e.id, nid, e.attributes)
 
-        # Entity attributes as separate ovals
-        for a in e.attributes:
-            aid = f"A_{_slug(e.id)}_{_slug(a.id)}"
-            label = a.name
-            if a.pk:
-                label = f"{label} (PK)"
-            if a.type == "multivalued":
-                label = f"{label} (multivalued)"
-            if a.type == "composite":
-                label = f"{label} (composite)"
-            lines.append(f'  {aid} [shape=ellipse, label="{_safe_label(label)}"];')
-            lines.append(f"  {nid} -- {aid};")
-            for sub in (a.subAttributes or []):
-                sid = f"S_{_slug(e.id)}_{_slug(a.id)}_{_slug(sub.id)}"
-                lines.append(f'  {sid} [shape=ellipse, label="{_safe_label(sub.name)}"];')
-                lines.append(f"  {aid} -- {sid};")
+    # Weak entities: double-line rectangle (Chen); attributes as ovals linked to the entity
+    for e in model.entities:
+        if not e.isWeak:
+            continue
+        nid = f"E_{_slug(e.id)}"
+        entity_id_to_node[e.id] = nid
+        lines.append(f'  {nid} [shape=box, peripheries=2, label="{_safe_label(e.name)}"];')
+        _emit_entity_attributes("  ", e.id, nid, e.attributes)
 
     # Relationships
     for r in model.relationships:
-        # Aggregation container: render inner relationships only
+        # Aggregation: dashed cluster around inner relationship diamond(s) and their attributes
         if r.relationshipType == "aggregation":
             whole = entity_id_to_node.get(r.aggregationWholeEntityId or "")
-            for ar in (r.aggregationRelationships or []):
+            inner: list[tuple] = []
+            for ar in r.aggregationRelationships or []:
                 part = entity_id_to_node.get(ar.partEntityId or "")
                 if not whole or not part:
                     continue
                 rid = f"R_{_slug(r.id)}_{_slug(ar.id)}"
-                lines.append(f'  {rid} [shape=diamond, label="{_safe_label(ar.name)}"];')
-                if ar.direction == "part_to_whole":
-                    lines.append(f'  {part} -- {rid} [label="{_safe_label(ar.cardinality)}"];')
-                    lines.append(f'  {whole} -- {rid} [label="1..1"];')
-                else:
-                    lines.append(f'  {whole} -- {rid} [label="1..1"];')
-                    lines.append(f'  {part} -- {rid} [label="{_safe_label(ar.cardinality)}"];')
+                inner.append((ar, part, rid))
+            if inner:
+                cid = f"cluster_agg_{_slug(r.id)}"
+                lines.append(f"  subgraph {cid} {{")
+                lines.append("    style=dashed;")
+                lines.append("    color=dimgray;")
+                lines.append('    fontname="Helvetica";')
+                lines.append('    label="";')
+                for ar, _part, rid in inner:
+                    lines.append(f'    {rid} [shape=diamond, label="{_safe_label(ar.name)}"];')
+                    for a in ar.attributes or []:
+                        aid = f"AR_{_slug(r.id)}_{_slug(ar.id)}_{_slug(a.id)}"
+                        _emit_attr_oval("    ", aid, a)
+                        lines.append(f"    {rid} -- {aid};")
+                lines.append("  }")
+                for ar, part, rid in inner:
+                    if ar.direction == "part_to_whole":
+                        lines.append(f'  {part} -- {rid} [label="{_safe_label(ar.cardinality)}"];')
+                        lines.append(f'  {whole} -- {rid} [label="1..1"];')
+                    else:
+                        lines.append(f'  {whole} -- {rid} [label="1..1"];')
+                        lines.append(f'  {part} -- {rid} [label="{_safe_label(ar.cardinality)}"];')
             continue
 
         rid = f"R_{_slug(r.id)}"
         rel_id_to_node[r.id] = rid
         rel_label = "ISA" if r.relationshipType == "isa" else r.name
-        lines.append(f'  {rid} [shape=diamond, label="{_safe_label(rel_label)}"];')
+        if r.relationshipType == "isa":
+            # Chen-style ISA / subset: triangle (not diamond); parent above, children linked to triangle
+            lines.append(
+                f'  {rid} [shape=triangle, fixedsize=true, width=0.55, height=0.5, '
+                f'label="{_safe_label(rel_label)}"];'
+            )
+        else:
+            lines.append(f'  {rid} [shape=diamond, label="{_safe_label(rel_label)}"];')
 
         if r.relationshipType == "isa":
+            # One parent (supertype) to triangle; triangle to each subtype. No edge labels (reduces clutter/overlap).
             parent = entity_id_to_node.get(r.parentEntityId or "")
             if parent:
-                lines.append(f'  {parent} -- {rid} [label="{ "total" if r.isTotal else "partial" }"];')
+                lines.append(f"  {parent} -- {rid};")
             for child in (r.childEntityIds or []):
                 c = entity_id_to_node.get(child)
                 if c:
-                    lines.append(f'  {c} -- {rid} [label="{ "disjoint" if r.isDisjoint else "overlap" }"];')
+                    lines.append(f"  {rid} -- {c};")
         else:
             e_from = entity_id_to_node.get(r.fromEntityId)
             e_to = entity_id_to_node.get(r.toEntityId)
@@ -144,17 +203,12 @@ def _er_model_to_dot(model: ERModel) -> str:
                     third_card = r.thirdCardinality or "1..1"
                     lines.append(f'  {e_third} -- {rid} [label="{_safe_label(third_card)}"];')
 
-        # Relationship attributes
+        # Descriptive (relationship) attributes: ovals connected to the relationship diamond
+        if r.relationshipType == "isa":
+            continue
         for a in r.attributes:
             aid = f"AR_{_slug(r.id)}_{_slug(a.id)}"
-            label = a.name
-            if a.pk:
-                label = f"{label} (PK)"
-            if a.type == "multivalued":
-                label = f"{label} (multivalued)"
-            if a.type == "composite":
-                label = f"{label} (composite)"
-            lines.append(f'  {aid} [shape=ellipse, label="{_safe_label(label)}"];')
+            _emit_attr_oval("  ", aid, a)
             lines.append(f"  {rid} -- {aid};")
 
     lines.append("}")
@@ -183,18 +237,34 @@ Rules:
   (even for isa/aggregation, set them consistently to existing entities and valid cardinalities).
 - Cardinalities MUST be one of: "0..1", "1..1", "0..*", "1..*".
 - For ISA: set parentEntityId, childEntityIds, isDisjoint, isTotal.
-- For aggregation: set aggregationWholeEntityId, aggregationPartEntityIds, aggregationRelationships.
-- Attributes must be listed separately in entity/relationship attributes arrays, not embedded in names.
+- For aggregation: set aggregationWholeEntityId, aggregationPartEntityIds, aggregationRelationships (inner diamonds + part entities).
+- Entities: rectangles. Relationships: diamonds. Attributes: NEVER inside entity boxes—each attribute is its own object with pk/type/subAttributes.
+- Primary keys: set pk=true on key attributes (rendered underlined in the diagram).
+- Multivalued attributes: type "multivalued" (double-line oval in the diagram).
+- Composite attributes: type "composite" with subAttributes for parts (e.g. Address → Street, City).
+- Descriptive attributes: attributes that describe a relationship belong in that relationship's attributes array.
+- Binary: two entities to one diamond. Ternary: three entities to one diamond (thirdEntityId + thirdCardinality).
+- Weak entities: isWeak=true, strongEntityId; diagram uses double-line rectangle for the weak entity.
+- ISA: relationshipType "isa", label conceptually "ISA"; parent + children entities.
 - Do NOT use Crow's Foot. Conceptual Chen semantics only.
+- ATTRIBUTE OBJECTS (critical): every attribute MUST include id, name, pk (boolean), unique (boolean), nullable (boolean),
+  and type MUST be exactly one of: "regular", "composite", "multivalued" only.
+  Never use SQL or domain types (string, int, integer, date, varchar, etc.) as the value of "type"—those are not allowed.
 - Return JSON only, no markdown fences, no commentary.
 """
 
     user_base = (
-        "Build a conceptual ERModel JSON from this assignment text. "
-        "Extract entities, relationships, attributes, and cardinalities. "
-        "Keep attributes as explicit attribute objects linked to entities/relationships by ownership, "
-        "and avoid Crow's Foot notation.\n\n"
-        f"{desc}"
+        "=== ASSIGNMENT / QUESTION CONTEXT (single source of truth for the diagram) ===\n"
+        f"{desc}\n"
+        "=== END CONTEXT ===\n\n"
+        "Build ONE complete ERModel JSON for EXACTLY the scenario in the context block above.\n"
+        "- Entity names, relationship names, and attributes MUST reflect that context. "
+        "Do not swap in unrelated textbook examples unless the same concepts are clearly present in the context.\n"
+        "- Do not invent major entities or relationships that are not stated or clearly implied by the context.\n"
+        "- If the context is a single exam question, model only what that question asks for.\n"
+        "- Identify every entity, relationship (binary/ternary/ISA/aggregation), attribute (including multivalued, composite, "
+        "and relationship-descriptive), and cardinality as stated or reasonably implied from the context.\n"
+        "- Every relationship diamond must connect only to entities that participate in that relationship in the context.\n"
     )
 
     client = _get_openai_client()
@@ -203,11 +273,15 @@ Rules:
     for attempt in range(3):
         user = user_base
         if extra_feedback:
-            user += "\n\nIMPORTANT CORRECTIONS FROM PREVIOUS ATTEMPT:\n" + extra_feedback
+            user += (
+                "\n\nIMPORTANT CORRECTIONS FROM PREVIOUS ATTEMPT (fix schema/IDs only; "
+                "keep the same real-world scenario as in the context block above):\n"
+                + extra_feedback
+            )
 
         resp = client.chat.completions.create(
             model=model,
-            temperature=0.2,
+            temperature=0.1,
             messages=[
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},

@@ -3,8 +3,8 @@ import io
 import re
 import textwrap
 from pathlib import Path
-from typing import Iterator, List, Optional, Tuple
-from urllib.parse import unquote
+from typing import List, Optional, Tuple
+from urllib.parse import unquote, urlparse
 
 import fitz
 
@@ -27,57 +27,6 @@ def sanitize_download_filename(file_name: Optional[str]) -> str:
     return name or "ca-guidance-report.pdf"
 
 
-def _iter_report_segments(report_content: str) -> Iterator[Tuple[str, Optional[str]]]:
-    """
-    Walk report HTML/Markdown in document order: ("text", segment) or ("image", src_or_filename).
-    """
-    s = report_content or ""
-    pattern = re.compile(
-        r'(<img\b[^>]*\bsrc\s*=\s*["\']([^"\']+)["\'][^>]*>)'
-        r'|(!\[[^\]]*\]\(\s*([^)]+?)\s*\))'
-        r'|(\[IMAGE:\s*([^\]]+?)\])',
-        re.IGNORECASE,
-    )
-    pos = 0
-    for m in pattern.finditer(s):
-        if m.start() > pos:
-            yield "text", s[pos : m.start()]
-        src = (m.group(2) or m.group(4) or m.group(6) or "").strip()
-        if src:
-            yield "image", src
-        pos = m.end()
-    if pos < len(s):
-        yield "text", s[pos:]
-
-
-def _filename_from_image_src(src: str) -> Optional[str]:
-    raw = (src or "").strip()
-    if not raw:
-        return None
-    if raw.startswith("http://") or raw.startswith("https://"):
-        # Last path segment of URL
-        raw = raw.split("?", 1)[0].rstrip("/").split("/")[-1]
-    elif "/api/images/" in raw:
-        raw = raw.split("/api/images/", 1)[-1]
-    elif raw.startswith("/"):
-        raw = raw.lstrip("/").split("/")[-1]
-    name = unquote(raw.split("?", 1)[0].strip())
-    if not name or name.startswith("."):
-        return None
-    return Path(name).name
-
-
-def _lookup_image_path(filename: str) -> Optional[Path]:
-    name = Path(str(filename)).name
-    if not name:
-        return None
-    for image_dir in (GENERATED_IMAGE_OUTPUT_DIR, IMAGE_OUTPUT_DIR):
-        image_path = image_dir / name
-        if image_path.is_file():
-            return image_path
-    return None
-
-
 def build_guidance_pdf(report_content: str, image_names: Optional[List[str]] = None, title: str = "CA Guidance Report") -> bytes:
     doc = fitz.open()
     page = doc.new_page(width=PAGE_WIDTH, height=PAGE_HEIGHT)
@@ -86,9 +35,10 @@ def build_guidance_pdf(report_content: str, image_names: Optional[List[str]] = N
     page, y = _draw_text(doc, page, y, title, "title")
     y += 10
 
-    drawn_image_keys: set[str] = set()
+    segments = _segment_report_for_pdf(report_content)
+    seen_inline_names: set[str] = set()
 
-    for kind, payload in _iter_report_segments(report_content):
+    for kind, payload in segments:
         if kind == "text":
             text_content = _html_to_text(payload)
             for line in text_content.splitlines():
@@ -98,27 +48,75 @@ def build_guidance_pdf(report_content: str, image_names: Optional[List[str]] = N
                     continue
                 page, y = _draw_text(doc, page, y, text, style)
         else:
-            fname = _filename_from_image_src(payload or "")
-            if not fname:
-                continue
-            image_path = _lookup_image_path(fname)
-            if image_path:
-                key = str(image_path.resolve()).lower()
-                if key not in drawn_image_keys:
-                    drawn_image_keys.add(key)
-                    page, y = _draw_image(doc, page, y, image_path)
+            img_path = _resolve_single_image_path(payload)
+            if img_path:
+                seen_inline_names.add(Path(payload).name.lower())
+                page, y = _draw_image(doc, page, y, img_path)
 
     for image_path in _resolve_images(image_names or []):
-        key = str(image_path.resolve()).lower()
-        if key in drawn_image_keys:
+        key = Path(image_path).name.lower()
+        if key in seen_inline_names:
             continue
-        drawn_image_keys.add(key)
         page, y = _draw_image(doc, page, y, image_path)
 
     output = io.BytesIO()
     doc.save(output)
     doc.close()
     return output.getvalue()
+
+
+def _filename_from_image_reference(ref: str) -> str:
+    """Resolve a local filename from markdown/HTML image URL or [IMAGE:...] fragment."""
+    ref = (ref or "").strip()
+    if not ref:
+        return ""
+    if ref.startswith(("http://", "https://")):
+        path = urlparse(ref).path
+    else:
+        path = ref.split("?", 1)[0]
+    path = unquote(path.replace("\\", "/"))
+    lower = path.lower()
+    for marker in ("/api/images/", "/images/"):
+        if marker in lower:
+            tail = path[lower.index(marker) + len(marker) :]
+            return Path(tail.split("/")[-1]).name
+    return Path(path).name
+
+
+def _segment_report_for_pdf(report_content: str) -> List[Tuple[str, str]]:
+    """Split report into ordered text and image segments (same order as on-screen content)."""
+    content = report_content or ""
+    content = re.sub(r"<figcaption>.*?</figcaption>", "", content, flags=re.IGNORECASE | re.DOTALL)
+    pattern = re.compile(
+        r'(?:<img\b[^>]*\bsrc=["\']([^"\']+)["\'][^>]*>)|'
+        r'(?:!\[[^\]]*\]\(([^)]+)\))|'
+        r'(?:\[IMAGE:\s*([^\]]+)\])',
+        re.IGNORECASE,
+    )
+    out: List[Tuple[str, str]] = []
+    pos = 0
+    for m in pattern.finditer(content):
+        if m.start() > pos:
+            out.append(("text", content[pos : m.start()]))
+        src = (m.group(1) or m.group(2) or m.group(3) or "").strip()
+        name = _filename_from_image_reference(src)
+        if name:
+            out.append(("image", name))
+        pos = m.end()
+    if pos < len(content):
+        out.append(("text", content[pos:]))
+    return out
+
+
+def _resolve_single_image_path(filename: str) -> Optional[Path]:
+    name = Path(str(filename)).name
+    if not name:
+        return None
+    for image_dir in (GENERATED_IMAGE_OUTPUT_DIR, IMAGE_OUTPUT_DIR):
+        image_path = image_dir / name
+        if image_path.is_file():
+            return image_path
+    return None
 
 
 def _html_to_text(content: str) -> str:

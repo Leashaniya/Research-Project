@@ -208,7 +208,82 @@ def build_render_plan(model: ERModel) -> RenderPlan:
                 )
             continue
 
-        # Regular (binary / ternary / ISA treated as binary here) relationship node
+        # ISA (specialization): one parent entity, triangle node, edges to each child subtype (Chen triangle)
+        if r.relationshipType == "isa":
+            parent_id = r.parentEntityId
+            child_ids = [c for c in (r.childEntityIds or []) if c]
+            if not parent_id or not child_ids:
+                continue
+            p_xy = entity_pos.get(parent_id)
+            if not p_xy:
+                continue
+            child_positions = [entity_pos[c] for c in child_ids if c in entity_pos]
+            if not child_positions:
+                continue
+
+            pcx = p_xy[0] + entity_w / 2.0
+            pcy = p_xy[1] + entity_h / 2.0
+            ccx = sum(xy[0] + entity_w / 2.0 for xy in child_positions) / len(child_positions)
+            ccy = sum(xy[1] + entity_h / 2.0 for xy in child_positions) / len(child_positions)
+
+            dx = ccx - pcx
+            dy = ccy - pcy
+            distance = math.sqrt(dx * dx + dy * dy)
+            if distance > 0:
+                unit_x = dx / distance
+                unit_y = dy / distance
+            else:
+                unit_x, unit_y = 0.0, 1.0
+
+            lane_index = entity_lane_counters[parent_id]
+            entity_lane_counters[parent_id] += 1
+            perp_x = -unit_y
+            perp_y = unit_x
+
+            margin = (entity_w / 2.0) + (rel_w / 2.0) + min_rel_gap
+            tri_cx = pcx + unit_x * margin * 1.15 + perp_x * (lane_index * lane_offset)
+            tri_cy = pcy + unit_y * margin * 1.15 + perp_y * (lane_index * lane_offset)
+
+            rx = tri_cx - rel_w / 2.0
+            ry = tri_cy - rel_h / 2.0
+
+            isa_label = (r.name or "").strip() or "ISA"
+            plan.nodes.append(
+                RenderNode(
+                    id=f"R:{r.id}",
+                    type="isa",
+                    label=isa_label,
+                    x=rx,
+                    y=ry,
+                    w=rel_w,
+                    h=rel_h,
+                )
+            )
+
+            plan.edges.append(
+                RenderEdge(
+                    id=f"edge-{edge_counter}",
+                    **{"from": f"E:{parent_id}", "to": f"R:{r.id}"},
+                    labelNearFrom="",
+                    labelNearTo="",
+                )
+            )
+            edge_counter += 1
+            for cid in child_ids:
+                if cid not in entity_pos:
+                    continue
+                plan.edges.append(
+                    RenderEdge(
+                        id=f"edge-{edge_counter}",
+                        **{"from": f"R:{r.id}", "to": f"E:{cid}"},
+                        labelNearFrom="",
+                        labelNearTo="",
+                    )
+                )
+                edge_counter += 1
+            continue
+
+        # Regular binary / ternary relationship node (diamond)
         _place_relationship_node(
             rel_id=f"R:{r.id}",
             label=r.name,

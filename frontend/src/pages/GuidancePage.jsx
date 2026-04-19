@@ -121,10 +121,19 @@ function GuidancePage() {
     let out = unwrapMarkdownFromCodeBlock(text);
     const base = String(API_URL || '').replace(/\/$/, '');
 
+    // Strip auto captions under images (legacy HTML from older responses)
+    out = out.replace(/<figcaption\b[^>]*>[\s\S]*?<\/figcaption>/gi, '');
+
     if (base) {
       out = out.replace(/(<img\b[^>]*\bsrc=)(["'])(\/api\/images\/[^"']+)\2/gi, (_, pre, q, srcPath) => {
         if (srcPath.startsWith(`${base}/`) || srcPath === base) return _;
         return `${pre}${q}${base}${srcPath}${q}`;
+      });
+      // LLM sometimes emits /guidance/api/images/... — prefix once for Vite proxy + gateway
+      out = out.replace(/(<img\b[^>]*\bsrc=)(["'])(\/guidance\/api\/images\/[^"']+)\2/gi, (_, pre, q, srcPath) => {
+        if (srcPath.startsWith(`${base}/`)) return _;
+        const pathOnly = srcPath.replace(/^\/guidance/, '');
+        return `${pre}${q}${base}${pathOnly}${q}`;
       });
     }
 
@@ -134,8 +143,6 @@ function GuidancePage() {
       const enc = encodeURIComponent(name);
       return `![Diagram](/api/images/${enc})`;
     });
-
-    out = out.replace(/<figcaption\b[^>]*>[\s\S]*?<\/figcaption>/gi, '');
 
     out = ensureLinksInMarkdown(out);
     return out;
@@ -256,8 +263,36 @@ function GuidancePage() {
           setGuidancePdfError(null);
         }
       } else {
-        console.error('Failed to run guidance');
-        setReport({ error: 'Failed to run guidance. Make sure you are logged in.' });
+        let message = `Failed to run guidance (HTTP ${response.status}).`;
+        try {
+          const errData = await response.json();
+          const d = errData?.detail;
+          if (d !== undefined && d !== null) {
+            message =
+              typeof d === 'string'
+                ? d
+                : Array.isArray(d)
+                  ? d
+                      .map((x) => (x && typeof x === 'object' && x.msg != null ? x.msg : JSON.stringify(x)))
+                      .join('; ')
+                  : String(d);
+          }
+        } catch {
+          /* non-JSON error body */
+        }
+        if (response.status === 504) {
+          message =
+            'The gateway timed out waiting for guidance (this can take many minutes). ' +
+            'The backend may still be working—check its terminal, or restart the gateway with a higher GUIDANCE_PROXY_TIMEOUT. ' +
+            'If the response eventually completes, try calling the service directly on port 8081.';
+        }
+        if (response.status === 401 || response.status === 403) {
+          if (message.startsWith('Failed to run guidance (HTTP')) {
+            message = 'Not authenticated. Sign in (e.g. with Google) and try again.';
+          }
+        }
+        console.error('Failed to run guidance:', response.status, message);
+        setReport({ error: message });
       }
     } catch (error) {
       console.error('Error running guidance:', error);
@@ -442,7 +477,13 @@ function GuidancePage() {
         setSummaryAudio((prev) => prev || audioUrl);
       } else {
         const errorData = await response.json().catch(() => ({ detail: 'Failed to create summary' }));
-        setSummary({ error: errorData.detail || 'Failed to create summary. Make sure you are logged in.' });
+        let detail = errorData.detail || 'Failed to create summary. Make sure you are logged in.';
+        if (response.status === 504) {
+          detail =
+            'The gateway timed out while summarizing (this can take many minutes). ' +
+            'Check the academic-guidance service terminal or increase GUIDANCE_PROXY_TIMEOUT on the gateway.';
+        }
+        setSummary({ error: typeof detail === 'string' ? detail : JSON.stringify(detail) });
       }
     } catch (error) {
       console.error('Error creating summary:', error);
@@ -1026,8 +1067,9 @@ function GuidancePage() {
       
       // If src doesn't start with http/https, make it absolute
       if (imageSrc && !imageSrc.startsWith('http://') && !imageSrc.startsWith('https://')) {
-        // If it already starts with /api/images/, preserve it
-        if (imageSrc.startsWith('/api/images/')) {
+        if (imageSrc.startsWith('/guidance/api/images/')) {
+          imageSrc = toAbsoluteUrl(imageSrc.replace(/^\/guidance/, ''));
+        } else if (imageSrc.startsWith('/api/images/')) {
           imageSrc = toAbsoluteUrl(imageSrc);
         } else if (imageSrc.startsWith('/')) {
           // Other absolute paths
@@ -1037,8 +1079,6 @@ function GuidancePage() {
           imageSrc = toAbsoluteUrl(`/api/images/${imageSrc}`);
         }
       }
-      
-      console.log(`Image src: ${src} -> ${imageSrc}`);
 
       return (
         <img
