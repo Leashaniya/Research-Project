@@ -7,8 +7,19 @@ from app.ca_guidance.agents.event_scheduler_agent import event_scheduler_agent
 
 logger = logging.getLogger(__name__)
 
+# Line-start patterns for questions / parts (keep in sync with _extract_question_markers)
+_QUESTION_LINE_PATTERNS: tuple[str, ...] = (
+    r"^(Q(?:uestion)?\s*\d+[\]:.)-]?\s*.*)$",
+    r"^(\d+[\).]\s+.+)$",
+    r"^([A-Za-z][\).]\s+.+)$",
+    r"^(\([a-z]\)\s+.+)$",
+    r"^(Task\s*\d+[:.)-]?\s*.*)$",
+    r"^(Part\s*\d+[:.)-]?\s*.*)$",
+    r"^((?:Section|Chapter)\s*\d+[:\s.).-]?\s*.+)$",
+)
 
-def _chunk_assignment_text(text: str, max_chars: int = 24000, overlap: int = 1000) -> list[str]:
+
+def _chunk_assignment_text(text: str, max_chars: int = 9000, overlap: int = 1400) -> list[str]:
     """
     Split a long assignment into chunks so the guidance agent can process the full document.
     Uses paragraph boundaries and a small overlap so nothing is lost at chunk edges.
@@ -38,7 +49,89 @@ def _chunk_assignment_text(text: str, max_chars: int = 24000, overlap: int = 100
     return [c for c in chunks if c]
 
 
-def _extract_question_markers(text: str, limit: int = 45) -> list[str]:
+def _line_starts_question(line: str) -> bool:
+    stripped = line.strip()
+    if not stripped:
+        return False
+    for p in _QUESTION_LINE_PATTERNS:
+        if re.match(p, stripped, flags=re.IGNORECASE):
+            return True
+    return False
+
+
+def _chunk_assignment_by_questions(text: str, max_chars: int) -> list[str]:
+    """
+    Split assignment at question/section boundaries so each chunk contains whole questions.
+    Falls back to paragraph chunking when boundaries are sparse or a single block exceeds max_chars.
+    """
+    if not (text or "").strip():
+        return []
+    stripped = text.strip()
+    if len(stripped) <= max_chars:
+        return [stripped]
+
+    lines = text.splitlines()
+    start_indices: list[int] = []
+    for i, ln in enumerate(lines):
+        if _line_starts_question(ln):
+            start_indices.append(i)
+    start_indices = sorted(set(start_indices))
+    if len(start_indices) < 2:
+        logger.info(
+            "Question-based chunking: found %s boundary line(s); using character chunking",
+            len(start_indices),
+        )
+        return _chunk_assignment_text(text, max_chars=max_chars, overlap=1200)
+
+    bounds = sorted(set([0, len(lines)] + start_indices))
+    segments: list[str] = []
+    for a, b in zip(bounds, bounds[1:]):
+        seg = "\n".join(lines[a:b]).strip()
+        if seg:
+            segments.append(seg)
+
+    chunks: list[str] = []
+    buf: list[str] = []
+    cur_len = 0
+
+    def flush_buf() -> None:
+        nonlocal buf, cur_len
+        if buf:
+            chunks.append("\n\n".join(buf))
+            buf = []
+            cur_len = 0
+
+    for seg in segments:
+        add_len = len(seg) + (2 if buf else 0)
+        if cur_len + add_len <= max_chars:
+            buf.append(seg)
+            cur_len += add_len
+            continue
+        flush_buf()
+        if len(seg) > max_chars:
+            sub = _chunk_assignment_text(seg, max_chars=max_chars, overlap=800)
+            if len(sub) > 1:
+                chunks.extend(sub[:-1])
+            buf = [sub[-1]] if sub else []
+            cur_len = len(buf[0]) if buf else 0
+        else:
+            buf = [seg]
+            cur_len = len(seg)
+
+    flush_buf()
+    out = [c for c in chunks if c.strip()]
+    if not out:
+        return _chunk_assignment_text(text, max_chars=max_chars, overlap=1200)
+    logger.info(
+        "Question-based chunking: segments=%s chunks=%s (max_chars=%s)",
+        len(segments),
+        len(out),
+        max_chars,
+    )
+    return out
+
+
+def _extract_question_markers(text: str, limit: int = 80) -> list[str]:
     """
     Extract question headings/markers so guidance can explicitly cover full document.
     """
@@ -47,17 +140,8 @@ def _extract_question_markers(text: str, limit: int = 45) -> list[str]:
     markers: list[str] = []
     seen = set()
     lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
-    patterns = [
-        r'^(Q(?:uestion)?\s*\d+[\]:.)-]?\s*.*)$',
-        r'^(\d+[\).]\s+.+)$',
-        r'^([A-Za-z][\).]\s+.+)$',
-        r'^(\([a-z]\)\s+.+)$',  # (a) sub-items
-        r'^(Task\s*\d+[:.)-]?\s*.*)$',
-        r'^(Part\s*\d+[:.)-]?\s*.*)$',
-        r'^((?:Section|Chapter)\s*\d+[:\s.).-]?\s*.+)$',
-    ]
     for ln in lines:
-        for p in patterns:
+        for p in _QUESTION_LINE_PATTERNS:
             m = re.match(p, ln, flags=re.IGNORECASE)
             if m:
                 marker = m.group(1).strip()
@@ -87,9 +171,15 @@ def create_guidance_crew(assignment_text: str, access_token: str):
     set_access_token(access_token)
     
     # Task 1: Analyze assignment and produce DBMS guidance
-    # If the assignment is long, split it into chunks so every part is read.
-    chunks = _chunk_assignment_text(assignment_text)
-    question_markers = _extract_question_markers(assignment_text)
+    # Split by question boundaries when possible so each task sees whole questions.
+    max_chunk = max(4000, int(getattr(settings, "CA_GUIDANCE_CHUNK_MAX_CHARS", 14000)))
+    chunks = _chunk_assignment_by_questions(assignment_text, max_chars=max_chunk)
+    logger.info(
+        "Guidance crew: assignment length=%s chars, chunk_count=%s, chunk_mode=by_question",
+        len(assignment_text or ""),
+        len(chunks),
+    )
+    question_markers = _extract_question_markers(assignment_text, limit=80)
     question_list_text = "\n".join(f"- {q}" for q in question_markers) if question_markers else "- (No explicit numbered markers detected; still cover all assignment sections.)"
     guidance_tasks: list[Task] = []
 
@@ -105,6 +195,8 @@ def create_guidance_crew(assignment_text: str, access_token: str):
                 - Do not skip any question in this part, even if it looks similar to previous ones.
                 - If this chunk overlaps another part, do not repeat long boilerplate—still answer everything that appears in the text above.
                 - The combined parts must cover the **whole** assignment document; never assume another part will answer a question that appears here.
+                - Do **not** shorten answers with trailing `...`, "etc.", "and so on", "similarly for the rest", or placeholders—finish each item completely.
+                - Every answer must stay **grounded in this PDF chunk**: reuse the assignment's entity/table/attribute names and constraints; do not replace with unrelated examples.
 
                 Assignment Text (Part {idx} of {len(chunks)}):
                 {chunk}
@@ -125,7 +217,7 @@ def create_guidance_crew(assignment_text: str, access_token: str):
                 - Write all notes and explanations as **normal prose text** (plain paragraphs and lists). Do not put explanatory notes inside code blocks; reserve code blocks only for actual SQL, code, or diagram syntax.
                 - Provide step-by-step instructions, explanations, or solutions based on the assignment type.
                 - If the CA asks for an **ER / EER / conceptual or relational schema** (e.g. draw, create, diagram, schema, model entities):
-                    → Call **generate_assignment_diagram** with `diagram_type` **er_diagram** and a `description` covering every entity, attribute (PK, multivalued, composite, relationship-descriptive), relationship type (binary, ternary, ISA, aggregation), and cardinalities **for that question only**.
+                    → Call **generate_assignment_diagram** with `diagram_type` **er_diagram** and a `description` that **quotes the scenario from the assignment text and your answer**: list each entity name, its attributes (PK, multivalued, composite), each relationship (name + participating entities), relationship-owned attributes if any, and cardinalities (1:1, 1:N, M:N)—**only for that question**, no generic textbook example.
                     → The tool returns `[IMAGE:filename.png]` (Chen-style Graphviz): paste that line **after** the answer paragraphs for that question, outside code fences.
                     → Style: entity rectangles, relationship diamonds, attribute ovals (no attributes inside entity boxes), triangle for ISA, double rectangle for weak entities; no Crow's Foot.
                     → Add one short sentence **immediately after** each `[IMAGE:...]` line describing what the diagram shows.
@@ -179,6 +271,7 @@ def create_guidance_crew(assignment_text: str, access_token: str):
                     f"DBMS guidance for assignment part {idx} of {len(chunks)} "
                     "with step-by-step explanations aligned with lecture materials (raw markdown, not wrapped in a code block)."
                 ),
+                markdown=True,
             )
         )
 
@@ -239,6 +332,7 @@ def create_guidance_crew(assignment_text: str, access_token: str):
         - You MUST include the entire DBMS guidance content from **every** guidance task in your response.
         - Do NOT say things like "the solution is provided above".
         - Do NOT summarize or shorten the guidance unless explicitly asked.
+        - Your combined output must be nearly as long as all guidance parts together (at least ~90% of their total character count)—if you shorten, you are failing the task.
         - Preserve all steps, explanations, and answers from each part so that the final document covers the entire assignment.
         - Preserve every `[IMAGE:filename]` line from the guidance tasks exactly (do not remove or rewrite filenames); these are generated PNG diagram images.
         - Keep each `[IMAGE:...]` in the **same** `### Question / Part / ...` section as the prose that answers that item—**below** that answer, never orphaned at the end of the document unless that item is the last question.
@@ -251,12 +345,11 @@ def create_guidance_crew(assignment_text: str, access_token: str):
         {question_list_text}
         - Do NOT output only diagrams. Keep full prose guidance and keep each relevant diagram **after** its question's answer in that section.
         - After each pasted `[IMAGE:...]` line, add **one short plain sentence** describing what the diagram shows (entities/relationships or process), so students can follow without opening the file alone.
-        - Then at the very end, add a section:
-
-        Add a final short section at the end titled:
+        - Preserve **every** `### Related Web Resources` block from the guidance parts. If parts contain multiple such blocks, consolidate them into **one** final section at the end titled exactly `### Related Web Resources`, with the tool output subheadings `#### Articles` and `#### YouTube Videos` preserved, and **at least one** working YouTube link and **several** documentation/article links. Do not drop URLs to save tokens.
+        - Then add a final short section titled:
         ### Deadline / Calendar Confirmation
 
-        If a deadline was found: mention the event creation.
+        If a deadline was found: mention the event creation (use the scheduling task output verbatim if helpful).
         If no deadline was found: state that no deadline was detected.
 
         Return the final completed guidance.
@@ -264,6 +357,7 @@ def create_guidance_crew(assignment_text: str, access_token: str):
         agent=guidance_agent,
         expected_output="A complete DBMS guidance document with a final deadline confirmation section.",
         context=[*guidance_tasks, scheduling_task],
+        markdown=True,
     )
 
     # Create crew

@@ -60,6 +60,11 @@ class Settings:
 
     # OpenAI Model Configuration
     RAG_SUMMARY_MODEL: str = os.getenv("RAG_SUMMARY_MODEL", "gpt-4o-mini")
+
+    # CA guidance crew: chat model and output budget (reduces truncation on long assignments)
+    CA_GUIDANCE_MODEL: str = os.getenv("CA_GUIDANCE_MODEL", "gpt-4o")
+    CA_GUIDANCE_MAX_OUTPUT_TOKENS: int = int(os.getenv("CA_GUIDANCE_MAX_OUTPUT_TOKENS", "16384"))
+    CA_GUIDANCE_CHUNK_MAX_CHARS: int = int(os.getenv("CA_GUIDANCE_CHUNK_MAX_CHARS", "14000"))
     
     # MongoDB Configuration
     MONGO_URI: str = os.getenv("MONGO_URI", "")

@@ -28,6 +28,7 @@ from app.models.schemas import (
     GuidancePdfRequest,
 )
 from app.ca_guidance.crew import create_guidance_crew, create_summarization_crew
+from app.ca_guidance.crew.guidance_crew import _extract_question_markers
 from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR, GENERATED_IMAGE_OUTPUT_DIR
 from app.ca_guidance.tools.tts_tool import text_to_speech_wav  # ✅ AUDIO
 from app.ca_guidance.tools.rag_tool import (
@@ -81,7 +82,169 @@ def _caption_from_tool_or_context(
         "photo",
     ):
         return _short_guidance_image_caption(alt, 160)
-    return _caption_heading_from_context(context_before)
+    head = _caption_heading_from_context(context_before)
+    if head:
+        return head
+    return "Illustration for the guidance section above."
+
+
+def _caption_line_after_image_ref(full_content: str, match_end: int) -> str:
+    """Use the first plain sentence after [IMAGE:...] as an under-image description (crew often puts it there)."""
+    tail = (full_content[match_end:] if full_content else "").lstrip("\n \t")
+    if not tail:
+        return ""
+    first_line = tail.split("\n", 1)[0].strip()
+    if not first_line or first_line.startswith("#") or first_line.startswith("!["):
+        return ""
+    if first_line.startswith(("- ", "* ", "• ")) or re.match(r"^\d+[\).]\s", first_line):
+        return ""
+    s = re.sub(r"\*\*([^*]+)\*\*", r"\1", first_line)
+    s = re.sub(r"`([^`]+)`", r"\1", s)
+    if len(s) < 10:
+        return ""
+    return _short_guidance_image_caption(s, 200)
+
+
+def _search_query_from_assignment(assignment_text: str) -> str:
+    t = re.sub(r"\s+", " ", (assignment_text or "").strip()[:900])
+    if len(t) < 24:
+        return "DBMS ER modeling normalization SQL tutorial documentation"
+    return (t[:400] + " DBMS ER SQL normalization documentation tutorial").strip()
+
+
+def _related_resources_section_is_weak(content: str) -> bool:
+    """True when we should server-append DuckDuckGo articles + YouTube links."""
+    s = content or ""
+    low = s.lower()
+    if "youtube.com" not in low and "youtu.be" not in low:
+        return True
+    if len(re.findall(r"\]\(https?://", s)) < 4:
+        return True
+    if "### related web resources" not in low:
+        return True
+    return False
+
+
+def _append_related_web_resources_block(content: str, search_markdown: str) -> str:
+    """
+    Append DuckDuckGo links at the end of the report.
+
+    Never splice out an existing \"### Related Web Resources\" region: the next `###`
+    heading may be thousands of lines away (many `##` sections in between), and replacing
+    that span would delete the whole guidance body—leaving only links in the UI.
+    """
+    block = (
+        "\n\n### Related Web Resources (auto)\n\n"
+        "_Additional documentation and video references:_\n\n"
+        f"{search_markdown.strip()}\n"
+    )
+    return (content or "").rstrip() + block
+
+
+def _ensure_related_web_resources_server_backfill(content: str, assignment_text: str) -> str:
+    if not (content or "").strip():
+        return content
+    if not _related_resources_section_is_weak(content):
+        return content
+    try:
+        from app.ca_guidance.tools.search_tool import duckduckgo_search
+
+        fn = getattr(duckduckgo_search, "func", None)
+        if not callable(fn):
+            return content
+        q = _search_query_from_assignment(assignment_text)
+        out = fn(query=q, max_results=6, max_youtube_results=4)
+        if not out or "no valid" in out.lower()[:120]:
+            return content
+        logger.info("Guidance: server backfill appended Related Web Resources (DuckDuckGo)")
+        return _append_related_web_resources_block(content, out)
+    except Exception as e:
+        logger.warning("Related Web Resources server backfill failed: %s", e)
+        return content
+
+
+def _deadline_like_context_near(assignment_text: str, fragment: str) -> bool:
+    low = (assignment_text or "").lower()
+    frag_l = (fragment or "").lower()
+    pos = low.find(frag_l)
+    if pos < 0:
+        frag_l = re.sub(r"\s+", " ", frag_l)
+        pos = low.find(frag_l)
+    if pos < 0:
+        return bool(re.search(r"\d{1,2}:\d{2}|am|pm", fragment or "", re.I))
+    window = low[max(0, pos - 200) : pos + len(frag_l) + 220]
+    return bool(
+        re.search(
+            r"deadline|due\s+date|due:|submit|submission|hand\s*-?\s*in|"
+            r"on\s+or\s+before|before\s+\d|closes?|last\s+day|end\s+of\s+day|"
+            r"11:59|23:59",
+            window,
+            re.I,
+        )
+    )
+
+
+def _merge_deadline_confirmation_paragraph(content: str, extra_md: str) -> str:
+    if not extra_md.strip():
+        return content
+    pat = re.compile(
+        r"(###\s*Deadline\s*/\s*Calendar\s*Confirmation\s*\n)([\s\S]*?)(?=\n###\s+[^\n#]|\Z)",
+        re.IGNORECASE,
+    )
+    m = pat.search(content or "")
+    if m:
+        body = (m.group(2) or "").rstrip()
+        if extra_md.strip() in body:
+            return content
+        new_body = (body + "\n\n" + extra_md.strip()).strip()
+        return content[: m.start(2)] + new_body + content[m.end(2) :]
+    return (content or "").rstrip() + "\n\n### Deadline / Calendar Confirmation\n\n" + extra_md.strip() + "\n"
+
+
+def _ensure_calendar_from_pdf_if_missed(result, assignment_text: str, access_token: Optional[str], content: str) -> str:
+    """
+    If the scheduling agent did not create an event but the PDF clearly contains a deadline,
+    parse the date server-side and call Google Calendar once.
+    """
+    if not (access_token or "").strip():
+        return content
+    low = (content or "").lower()
+    if "successfully scheduled" in low and "calendar" in low:
+        return content
+    tasks_output = getattr(result, "tasks_output", None)
+    if tasks_output and len(tasks_output) >= 2:
+        sched = _task_output_text(tasks_output[-2]).lower()
+        if "successfully scheduled" in sched:
+            return content
+
+    from app.ca_guidance.tools.calendar_tool import (
+        _extract_date_fragment,
+        create_calendar_event_with_token,
+    )
+
+    frag = _extract_date_fragment(assignment_text)
+    if not frag or not _deadline_like_context_near(assignment_text, frag):
+        return content
+
+    try:
+        msg = create_calendar_event_with_token(
+            access_token.strip(),
+            "Submit: CA assignment (deadline from document)",
+            frag,
+            duration_hours=1,
+        )
+    except Exception as e:
+        logger.warning("Calendar server fallback failed: %s", e)
+        return content
+
+    if "successfully scheduled" not in msg.lower():
+        logger.info("Calendar server fallback did not schedule: %s", msg[:200])
+        return content
+    logger.info("Guidance: calendar event created via server fallback from PDF text")
+    note = (
+        "**Calendar:** " + msg.strip()
+    )
+    return _merge_deadline_confirmation_paragraph(content, note)
 
 
 _DIAGRAM_REQUEST_RE = re.compile(
@@ -585,14 +748,22 @@ def extract_and_replace_images(
             cap = _caption_from_tool_or_context(
                 actual_name, diagram_captions, preserved_markdown_alts, context_before
             )
-            if not cap and actual_name.lower().startswith("guidance_er_diagram_"):
-                cap = "Conceptual ER diagram for this assignment section."
-            elif not cap and actual_name.lower().startswith(
-                ("guidance_flowchart_", "guidance_general_")
-            ):
-                cap = "Diagram for this assignment section."
-            elif not cap and actual_name.lower().startswith("extracted_"):
-                cap = "Figure from course materials."
+            after_cap = _caption_line_after_image_ref(content, match.end())
+            generic = cap == "Illustration for the guidance section above."
+            if after_cap:
+                if not cap or len(cap) < 10 or generic:
+                    cap = after_cap
+                elif after_cap.lower() not in (cap or "").lower():
+                    cap = _short_guidance_image_caption(f"{cap} — {after_cap}", 220)
+            generic = cap == "Illustration for the guidance section above." or not (cap or "").strip()
+            an = actual_name.lower()
+            if generic:
+                if an.startswith("guidance_er_diagram_"):
+                    cap = "Conceptual ER diagram for this assignment section."
+                elif an.startswith(("guidance_flowchart_", "guidance_general_")):
+                    cap = "Diagram for this assignment section."
+                elif an.startswith("extracted_"):
+                    cap = "Figure from course materials."
             image_paths.append(actual_name)
             encoded_name = quote(actual_name)
             logger.info(f"Matched image '{img_name[:50]}...' -> '{actual_name}', URL: {base_url}{encoded_name}")
@@ -754,64 +925,304 @@ def clean_markdown_response(content: str) -> str:
     return content.strip()
 
 
+def _assistant_text_from_task_messages(task_output) -> str:
+    """Recover answer text from CrewAI TaskOutput.messages when raw is empty or tool-only."""
+    msgs = getattr(task_output, "messages", None) or []
+    chunks: list[str] = []
+    for msg in msgs:
+        if not isinstance(msg, dict):
+            continue
+        if msg.get("role") != "assistant":
+            continue
+        c = msg.get("content")
+        if isinstance(c, str) and len(c.strip()) > 120:
+            chunks.append(c.strip())
+        elif isinstance(c, list):
+            for part in c:
+                if not isinstance(part, dict):
+                    continue
+                if part.get("type") == "text":
+                    t = part.get("text") or ""
+                    if isinstance(t, str) and len(t.strip()) > 120:
+                        chunks.append(t.strip())
+    if not chunks:
+        return ""
+    # Prefer the longest assistant payload (final answer is usually last and longest).
+    return max(chunks, key=len)
+
+
 def _task_output_text(task_output) -> str:
     """Best-effort plain text from a CrewAI task output object."""
     if task_output is None:
         return ""
     raw = getattr(task_output, "raw", None)
-    if raw is not None and str(raw).strip():
-        return str(raw).strip()
+    raw_s = str(raw).strip() if raw is not None else ""
+    if len(raw_s) > 80:
+        return raw_s
+    # Tool-heavy turns sometimes leave raw short/empty; full markdown may live in messages.
+    msg_s = _assistant_text_from_task_messages(task_output)
+    if len(msg_s) > len(raw_s) + 200 and len(msg_s) > 200:
+        return msg_s
+    if raw_s:
+        return raw_s
+    if len(msg_s) > 80:
+        return msg_s
     content = getattr(task_output, "content", None)
     if content is not None and str(content).strip():
         return str(content).strip()
-    return str(task_output).strip()
+    # CrewAI TaskOutput: structured fields (raw may be empty while pydantic/json_dict holds the report)
+    pyd = getattr(task_output, "pydantic", None)
+    if pyd is not None:
+        try:
+            dumped = pyd.model_dump() if hasattr(pyd, "model_dump") else {}
+            for key in ("report", "guidance", "markdown", "markdown_report", "content", "body", "text"):
+                v = dumped.get(key) if isinstance(dumped, dict) else None
+                if isinstance(v, str) and len(v.strip()) > 80:
+                    return v.strip()
+        except Exception:
+            pass
+        try:
+            ps = str(pyd).strip()
+            if len(ps) > 80 and ps not in ("{}", "None"):
+                return ps
+        except Exception:
+            pass
+    jd = getattr(task_output, "json_dict", None)
+    if isinstance(jd, dict) and jd:
+        for key in ("report", "guidance", "markdown", "markdown_report", "content", "body", "text"):
+            v = jd.get(key)
+            if isinstance(v, str) and len(v.strip()) > 80:
+                return v.strip()
+    s = str(task_output).strip()
+    if len(s) > 80 and s not in ("{}", "None"):
+        return s
+    return ""
 
 
 def _merge_guidance_crew_task_outputs(result) -> Optional[str]:
     """
     Build the guidance report from per-part tasks when the finalize task truncates.
 
-    ``result.raw`` / last-task output is often the finalize step only; the model
-    may summarize into a short paragraph despite instructions. When
-    ``tasks_output`` is present, concatenate all guidance parts and append the
-    scheduling message unless finalize clearly retained the full merged body.
+    The finalize step often summarizes and drops questions. We only trust finalize
+    when it is almost as long as the stitched guidance parts and preserves structure
+    (headings, code fences, image refs). Otherwise we return every part verbatim plus
+    the scheduling footer so the full assignment is still shown.
     """
     tasks_output = getattr(result, "tasks_output", None)
-    if not tasks_output or len(tasks_output) < 3:
+    if not tasks_output or len(tasks_output) < 2:
         return None
 
-    guidance_slice = tasks_output[:-2]
-    schedule_out = _task_output_text(tasks_output[-2])
-    finalize_out = _task_output_text(tasks_output[-1])
+    if len(tasks_output) >= 3:
+        guidance_slice = tasks_output[:-2]
+        schedule_out = _task_output_text(tasks_output[-2])
+        finalize_out = _task_output_text(tasks_output[-1])
+    else:
+        guidance_slice = tasks_output[:-1]
+        schedule_out = ""
+        finalize_out = _task_output_text(tasks_output[-1])
 
     parts_text = "\n\n".join(t for t in (_task_output_text(x) for x in guidance_slice) if t)
     if not parts_text:
-        return finalize_out or None
+        fb = _fallback_guidance_from_crew_result(result)
+        if fb:
+            parts_text = fb
+        else:
+            return finalize_out or None
 
-    min_finalize = max(400, int(0.45 * len(parts_text)))
-    finalize_ok = bool(
-        finalize_out
-        and len(finalize_out) >= min_finalize
-        and len(finalize_out) >= int(0.82 * len(parts_text))
-    )
+    lp = len(parts_text)
+    lf = len(finalize_out or "")
+    h_parts = len(re.findall(r"(?m)^###\s+[^\n#]", parts_text))
+    h_fin = len(re.findall(r"(?m)^###\s+[^\n#]", finalize_out or ""))
 
-    if finalize_ok:
-        logger.info(
-            "Guidance merge: using finalize output (len=%s, parts_len=%s)",
-            len(finalize_out),
-            len(parts_text),
-        )
-        return finalize_out
-
-    logger.warning(
-        "Guidance merge: finalize output looks truncated vs part tasks "
-        "(finalize_len=%s, parts_len=%s); assembling from part outputs + schedule.",
-        len(finalize_out or ""),
-        len(parts_text),
+    # Finalize almost always drops or shortens content. Always ship the stitched part outputs
+    # so every chunk of the assignment is represented in the UI; calendar comes from scheduling.
+    logger.info(
+        "Guidance merge: using full stitched part outputs (parts_len=%s, finalize_len=%s, h3_parts=%s h3_fin=%s)",
+        lp,
+        lf,
+        h_parts,
+        h_fin,
     )
     merged = parts_text + "\n\n### Deadline / Calendar Confirmation\n\n"
     merged += schedule_out or "_(No scheduling details returned.)_"
     return merged
+
+
+def _norm_heading_key(s: str) -> str:
+    t = re.sub(r"\s+", " ", (s or "").strip().lower())
+    return re.sub(r"[^\w\s\d.():]", "", t).strip()
+
+
+def _markdown_headings_from_report(report: str) -> list[str]:
+    if not report:
+        return []
+    return re.findall(r"(?m)^#{1,4}\s+(.+?)\s*$", report)
+
+
+def _marker_likely_covered(marker: str, headings: list[str]) -> bool:
+    mk = _norm_heading_key(marker)
+    if not mk:
+        return True
+    for h in headings:
+        hk = _norm_heading_key(h)
+        if not hk:
+            continue
+        if mk in hk or hk in mk:
+            return True
+        m_tokens = [t for t in mk.split() if len(t) > 1][:6]
+        if len(m_tokens) >= 2 and sum(1 for t in m_tokens if t in hk) >= min(3, len(m_tokens)):
+            return True
+    return False
+
+
+def _missing_markers_for_report(assignment_text: str, report: str, limit: int = 120) -> list[str]:
+    markers = _extract_question_markers(assignment_text, limit=limit)
+    if not markers:
+        return []
+    headings = _markdown_headings_from_report(report)
+    return [m for m in markers if not _marker_likely_covered(m, headings)]
+
+
+def _assignment_snippet_for_marker(assignment_text: str, marker: str, window: int = 4800) -> str:
+    if not assignment_text:
+        return ""
+    low = assignment_text.lower()
+    key = (marker or "").strip().lower()[:72]
+    pos = low.find(key) if key else -1
+    if pos == -1 and marker:
+        first = marker.splitlines()[0].strip().lower()[:48]
+        pos = low.find(first) if first else -1
+    if pos == -1:
+        return assignment_text[:window]
+    start = max(0, pos - 500)
+    end = min(len(assignment_text), pos + window)
+    return assignment_text[start:end]
+
+
+def _log_guidance_crew_result_metrics(result, assignment_len: int) -> None:
+    tasks_output = getattr(result, "tasks_output", None) or []
+    total_out = 0
+    for i, t in enumerate(tasks_output):
+        txt = _task_output_text(t)
+        total_out += len(txt)
+        logger.info(
+            "Guidance crew task[%s] output_chars=%s (assignment_chars=%s)",
+            i,
+            len(txt),
+            assignment_len,
+        )
+    logger.info("Guidance crew stitched task output_chars_total=%s", total_out)
+    for attr in ("token_usage", "usage", "usage_metadata"):
+        u = getattr(result, attr, None)
+        if u is not None and u != {}:
+            logger.info("Guidance crew result.%s=%s", attr, u)
+    try:
+        if hasattr(result, "model_dump"):
+            d = result.model_dump()
+            for k in ("token_usage", "usage", "usage_metadata"):
+                if k in d and d[k]:
+                    logger.info("Guidance crew model_dump[%s]=%s", k, d[k])
+    except Exception:
+        pass
+
+
+async def _gap_fill_missing_guidance_sections(
+    assignment_text: str,
+    missing_markers: list[str],
+) -> str:
+    """Second pass: LLM answers only for markers not reflected in the merged report."""
+    if not missing_markers:
+        return ""
+    from langchain_core.messages import HumanMessage
+    from langchain_openai import ChatOpenAI
+
+    snippets = []
+    for m in missing_markers:
+        snippets.append(
+            f"### Assignment excerpt for: {m}\n{_assignment_snippet_for_marker(assignment_text, m)}"
+        )
+    joined = "\n\n".join(snippets)
+    labels = "\n".join(f"- {m}" for m in missing_markers)
+    prompt = (
+        "You are writing supplemental DBMS assignment guidance. The main report may have omitted "
+        "or truncated these items.\n\n"
+        "For EACH label below, output ONE markdown section:\n"
+        "- Start with `### ` followed by the label text (match assignment numbering).\n"
+        "- Then give complete DBMS-specific guidance (SQL, ER description, normalization steps, etc.) "
+        "grounded in the excerpt. No placeholders, no 'see above'.\n"
+        "- Do not add a Related Web Resources section.\n"
+        "- Output raw markdown only (no outer code fence).\n\n"
+        f"Labels to cover:\n{labels}\n\n"
+        f"Assignment excerpts:\n{joined}"
+    )
+    llm = ChatOpenAI(
+        model=settings.CA_GUIDANCE_MODEL,
+        api_key=settings.OPENAI_API_KEY,
+        max_tokens=min(settings.CA_GUIDANCE_MAX_OUTPUT_TOKENS, 32768),
+        temperature=0.2,
+    )
+    msg = await llm.ainvoke([HumanMessage(content=prompt)])
+    return (getattr(msg, "content", None) or "").strip()
+
+
+async def _ensure_guidance_full_coverage(
+    assignment_text: str,
+    report: str,
+    max_passes: int = 2,
+) -> tuple[str, list[str]]:
+    """
+    Detect markers without matching headings; run gap-fill; repeat until covered or max_passes.
+    Returns (possibly extended report, final missing list).
+    """
+    current = report
+    last_missing: list[str] = []
+    for pass_idx in range(max_passes):
+        last_missing = _missing_markers_for_report(assignment_text, current)
+        logger.info(
+            "Guidance coverage pass %s: missing_markers=%s (count=%s)",
+            pass_idx + 1,
+            last_missing[:12],
+            len(last_missing),
+        )
+        if not last_missing:
+            break
+        fill = await _gap_fill_missing_guidance_sections(assignment_text, last_missing)
+        if not fill or len(fill) < 40:
+            logger.warning(
+                "Guidance gap-fill pass %s returned little or no text; stopping coverage loop",
+                pass_idx + 1,
+            )
+            break
+        current = (
+            current.rstrip()
+            + "\n\n### Supplemental answers (coverage pass)\n\n"
+            + fill
+        )
+    final_missing = _missing_markers_for_report(assignment_text, current)
+    if final_missing:
+        logger.warning(
+            "Guidance coverage: after gap-fill, still unmatched markers (count=%s): %s",
+            len(final_missing),
+            final_missing[:15],
+        )
+    return current, final_missing
+
+
+def _fallback_guidance_from_crew_result(result) -> Optional[str]:
+    """Last-resort report body when merge heuristics cannot build from structured tasks."""
+    tasks_output = getattr(result, "tasks_output", None)
+    if tasks_output:
+        texts: list[str] = []
+        for t in tasks_output:
+            txt = _task_output_text(t)
+            if len(txt) > 200:
+                texts.append(txt)
+        if texts:
+            return "\n\n".join(texts).strip()
+    raw = getattr(result, "raw", None)
+    if raw is not None and len(str(raw).strip()) > 400:
+        return str(raw).strip()
+    return None
 
 
 def _extract_diagram_requests(assignment_text: str, limit: int = 18) -> list[str]:
@@ -1020,6 +1431,33 @@ def _has_image_near_line(content_lines: list[str], idx: int, window: int = 12) -
     return bool(re.search(r"\[IMAGE:[^\]]+\]|<img\s+[^>]*src=", snippet, flags=re.IGNORECASE))
 
 
+def _guidance_answer_context_after_anchor(
+    content_lines: list[str],
+    anchor_idx: int,
+    *,
+    max_lines: int = 48,
+    max_chars: int = 4000,
+) -> str:
+    """
+    Collect the guidance prose written under a question heading (until next ### or size cap).
+    Used to ground fallback ER generation in the same entities/relationships as the answer.
+    """
+    start = min(len(content_lines), max(0, anchor_idx + 1))
+    buf: list[str] = []
+    n = 0
+    for j in range(start, len(content_lines)):
+        if n >= max_lines:
+            break
+        line = content_lines[j]
+        if re.match(r"^\s{0,3}###\s+\S", line):
+            break
+        buf.append(line)
+        n += 1
+        if sum(len(x) + 1 for x in buf) >= max_chars:
+            break
+    return "\n".join(buf).strip()
+
+
 def _ensure_guidance_diagrams(
     assignment_text: str,
     cleaned_content: str,
@@ -1057,9 +1495,17 @@ def _ensure_guidance_diagrams(
         diagram_type = _infer_diagram_type(req)
         try:
             hints = _er_rule_hints(req) if diagram_type == "er_diagram" else []
-            description = req
+            answer_ctx = _guidance_answer_context_after_anchor(
+                content_lines, anchor_idx, max_lines=52, max_chars=4500
+            )
+            description = (
+                "ASSIGNMENT SNIPPET (question / requirements):\n"
+                + req.strip()
+                + "\n\nGUIDANCE ALREADY WRITTEN FOR THIS ITEM (entities, attributes, relationships—mirror these in the diagram):\n"
+                + (answer_ctx if answer_ctx else "(no guidance text yet under this heading—use the snippet only.)")
+            )
             if hints:
-                description = req + "\n\nER RULE HINTS:\n- " + "\n- ".join(hints)
+                description = description + "\n\nER RULE HINTS:\n- " + "\n- ".join(hints)
             tool_output = generate_assignment_diagram.run(
                 diagram_type=diagram_type,
                 description=description,
@@ -1083,6 +1529,45 @@ def _ensure_guidance_diagrams(
 router = APIRouter(prefix="/protected", tags=["protected"])
 
 
+def _extract_text_from_pdf_doc(doc: fitz.Document) -> str:
+    """
+    Extract as much machine-readable text as possible (reading order + block fallback).
+    Some PDFs only populate text when using sort=True or block extraction.
+    """
+    page_texts: list[str] = []
+    for page in doc:
+        chunk = ""
+        try:
+            chunk = page.get_text("text", sort=True) or ""
+        except (TypeError, ValueError):
+            try:
+                chunk = page.get_text(sort=True) or ""
+            except (TypeError, ValueError):
+                chunk = ""
+        if not (chunk or "").strip():
+            chunk = page.get_text() or ""
+        page_texts.append((chunk or "").strip())
+
+    merged = "\n\n".join(t for t in page_texts if t).strip()
+    n_pages = len(page_texts) or 1
+    if len(merged) < 30 * n_pages:
+        block_lines: list[str] = []
+        for page in doc:
+            try:
+                blocks = page.get_text("blocks") or []
+            except Exception:
+                blocks = []
+            for b in blocks:
+                if isinstance(b, (list, tuple)) and len(b) > 4 and isinstance(b[4], str):
+                    t = b[4].strip()
+                    if t:
+                        block_lines.append(t)
+        alt = "\n\n".join(block_lines).strip()
+        if len(alt) > len(merged):
+            merged = alt
+    return merged
+
+
 @router.post("/run-guidance")
 async def run_guidance(
     user: UserInfo = Depends(get_current_user),
@@ -1093,11 +1578,10 @@ async def run_guidance(
     logger.info("Step 1: Extracting text from PDF")
     try:
         pdf_bytes = await file.read()
-        text = ""
         with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
-            for page in doc:
-                text += page.get_text()
-        logger.info(f"Extracted {len(text)} characters from PDF")
+            page_count = doc.page_count
+            text = _extract_text_from_pdf_doc(doc)
+        logger.info("Extracted %s characters from PDF (%s pages)", len(text), page_count)
 
         if not text.strip():
             raise HTTPException(
@@ -1128,9 +1612,12 @@ async def run_guidance(
 
             logger.info("Step 3: Executing crew tasks")
             result = crew.kickoff()
+            _log_guidance_crew_result_metrics(result, len(text))
 
             logger.info("Step 4: Extracting markdown from crew result")
             report_content = _merge_guidance_crew_task_outputs(result)
+            if not report_content:
+                report_content = _fallback_guidance_from_crew_result(result)
 
             if not report_content:
                 if hasattr(result, 'raw'):
@@ -1158,11 +1645,23 @@ async def run_guidance(
                 )
 
             report_str = str(report_content)
+            report_str, coverage_missing = await _ensure_guidance_full_coverage(text, report_str)
+            logger.info(
+                "Guidance post-merge: report_chars=%s coverage_missing_final=%s",
+                len(report_str),
+                len(coverage_missing),
+            )
             cleaned_content = clean_markdown_response(report_str)
             cleaned_content = _swap_er_graphviz_fences_for_images(text, cleaned_content)
             cleaned_content = _ensure_guidance_diagrams(
                 assignment_text=text,
                 cleaned_content=cleaned_content,
+            )
+            cleaned_content = _ensure_related_web_resources_server_backfill(
+                cleaned_content, text
+            )
+            cleaned_content = _ensure_calendar_from_pdf_if_missed(
+                result, text, user.access_token, cleaned_content
             )
 
             base_url = "/api/images/"

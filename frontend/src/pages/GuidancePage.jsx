@@ -106,45 +106,132 @@ function GuidancePage() {
     return text.replace(/(?<!\]\()(https?:\/\/[^\s)\]>\"]+)/g, (url) => `[${url}](${url})`);
   };
 
-  // If the content is wrapped in a markdown code block (```markdown ... ``` or ``` ... ```), unwrap it so ReactMarkdown renders it as formatted content, not as one big code block
+  /** Only transform segments that are not inside ``` … ``` fences (avoids mangling SQL/HTML examples). */
+  const transformOutsideFencedCode = (text, fn) => {
+    if (!text || typeof text !== 'string') return text;
+    const lines = text.split('\n');
+    let i = 0;
+    const parts = [];
+    while (i < lines.length) {
+      if (lines[i].trimStart().startsWith('```')) {
+        const start = i;
+        i += 1;
+        while (i < lines.length && !/^`{3,}\s*$/.test(lines[i].trim())) {
+          i += 1;
+        }
+        if (i < lines.length) {
+          parts.push(lines.slice(start, i + 1).join('\n'));
+          i += 1;
+        } else {
+          parts.push(lines.slice(start).join('\n'));
+          break;
+        }
+      } else {
+        const start = i;
+        while (i < lines.length && !lines[i].trimStart().startsWith('```')) {
+          i += 1;
+        }
+        const chunk = lines.slice(start, i).join('\n');
+        parts.push(fn(chunk));
+      }
+    }
+    return parts.join('\n');
+  };
+
+  // If the whole payload is wrapped in ```markdown … ```, unwrap using the *last* closing fence
+  // so nested ```sql …``` blocks inside the report do not truncate the body.
   const unwrapMarkdownFromCodeBlock = (text) => {
     if (!text || typeof text !== 'string') return text;
     const trimmed = text.trim();
-    const match = trimmed.match(/^```(?:markdown|md)?\s*\n?([\s\S]*?)\n?```\s*$/);
-    if (match) return match[1].trim();
-    return text;
+    if (!trimmed.startsWith('```')) return text;
+    const firstNl = trimmed.indexOf('\n');
+    if (firstNl === -1) return text;
+    const opener = trimmed.slice(0, firstNl).trim();
+    if (!/^```(?:markdown|md)?$/.test(opener)) return text;
+    const afterOpen = trimmed.slice(firstNl + 1);
+    const closeIdx = afterOpen.lastIndexOf('\n```');
+    if (closeIdx === -1) return text;
+    const afterClose = afterOpen.slice(closeIdx + 1).trim();
+    // Closing fence only (optional whitespace / newlines after it) — no trailing junk
+    if (!/^`{3,}\s*$/s.test(afterClose)) return text;
+    return afterOpen.slice(0, closeIdx).trim();
   };
 
-  // Guidance report: expand [IMAGE:file] to real markdown images, fix HTML <img src="/api/..."> for gateway proxy
+  // Convert backend <figure><img ...><figcaption>...</figcaption></figure> to markdown so
+  // ensureLinksInMarkdown never corrupts src="https://..." and React/rehype do not see broken tags.
+  const figureHtmlToGuidanceMarkdown = (figureHtml, apiBase) => {
+    const srcMatch = figureHtml.match(/\bsrc=(["'])([^"']+)\1/i);
+    if (!srcMatch) return figureHtml;
+    let src = srcMatch[2].trim();
+    const altMatch = figureHtml.match(/\balt=(["'])([^"']*)\1/i);
+    let alt = (altMatch && altMatch[2] ? String(altMatch[2]) : 'Diagram').replace(/\]/g, '').trim() || 'Diagram';
+    const capMatch = figureHtml.match(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/i);
+    const cap = capMatch
+      ? String(capMatch[1])
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+      : '';
+    const b = String(apiBase || '').replace(/\/$/, '');
+    if (b) {
+      if (src.startsWith('/api/images/') && !src.startsWith(`${b}/`) && src !== b) {
+        src = `${b}${src}`;
+      }
+      if (src.startsWith('/guidance/api/images/')) {
+        src = `${b}${src.replace(/^\/guidance/, '')}`;
+      }
+    }
+    let md = `![${alt}](${src})`;
+    if (cap) md += `\n\n*${cap}*`;
+    return md;
+  };
+
+  const standaloneImgHtmlToMarkdown = (imgTag, apiBase) => {
+    const srcMatch = imgTag.match(/\bsrc=(["'])([^"']+)\1/i);
+    if (!srcMatch) return imgTag;
+    let src = srcMatch[2].trim();
+    const altMatch = imgTag.match(/\balt=(["'])([^"']*)\1/i);
+    let alt = (altMatch && altMatch[2] ? String(altMatch[2]) : 'Diagram').replace(/\]/g, '').trim() || 'Diagram';
+    const b = String(apiBase || '').replace(/\/$/, '');
+    if (b) {
+      if (src.startsWith('/api/images/') && !src.startsWith(`${b}/`) && src !== b) {
+        src = `${b}${src}`;
+      }
+      if (src.startsWith('/guidance/api/images/')) {
+        src = `${b}${src.replace(/^\/guidance/, '')}`;
+      }
+    }
+    return `![${alt}](${src})`;
+  };
+
+  // Guidance report: expand [IMAGE:file] to real markdown images; normalize HTML figures/images
   const prepareGuidanceMarkdown = (text) => {
     if (!text || typeof text !== 'string') return text;
     let out = unwrapMarkdownFromCodeBlock(text);
     const base = String(API_URL || '').replace(/\/$/, '');
 
-    // Strip auto captions under images (legacy HTML from older responses)
-    out = out.replace(/<figcaption\b[^>]*>[\s\S]*?<\/figcaption>/gi, '');
-
-    if (base) {
-      out = out.replace(/(<img\b[^>]*\bsrc=)(["'])(\/api\/images\/[^"']+)\2/gi, (_, pre, q, srcPath) => {
-        if (srcPath.startsWith(`${base}/`) || srcPath === base) return _;
-        return `${pre}${q}${base}${srcPath}${q}`;
+    const applyFigureImgAndImageTokens = (segment) => {
+      let s = segment;
+      s = s.replace(/<figure>[\s\S]*?<\/figure>/gi, (block) => figureHtmlToGuidanceMarkdown(block, base));
+      s = s.replace(/<img\b[^>]*\/?>/gi, (tag) => standaloneImgHtmlToMarkdown(tag, base));
+      s = s.replace(/\[IMAGE:\s*([^\]]+)\]/gi, (_, raw) => {
+        const name = String(raw).trim();
+        if (!name) return _;
+        const enc = encodeURIComponent(name);
+        const path = `/api/images/${enc}`;
+        const url = base ? `${base}${path}` : path;
+        return `![Diagram](${url})`;
       });
-      // LLM sometimes emits /guidance/api/images/... — prefix once for Vite proxy + gateway
-      out = out.replace(/(<img\b[^>]*\bsrc=)(["'])(\/guidance\/api\/images\/[^"']+)\2/gi, (_, pre, q, srcPath) => {
-        if (srcPath.startsWith(`${base}/`)) return _;
-        const pathOnly = srcPath.replace(/^\/guidance/, '');
-        return `${pre}${q}${base}${pathOnly}${q}`;
-      });
-    }
+      s = s
+        .replace(/<imgsrc=/gi, '<img src=')
+        .replace(/<img\/src=/gi, '<img src=')
+        .replace(/<img\s+src=/gi, '<img src=');
+      return s;
+    };
 
-    out = out.replace(/\[IMAGE:\s*([^\]]+)\]/gi, (_, raw) => {
-      const name = String(raw).trim();
-      if (!name) return _;
-      const enc = encodeURIComponent(name);
-      return `![Diagram](/api/images/${enc})`;
-    });
+    out = transformOutsideFencedCode(out, applyFigureImgAndImageTokens);
+    out = transformOutsideFencedCode(out, ensureLinksInMarkdown);
 
-    out = ensureLinksInMarkdown(out);
     return out;
   };
 
@@ -227,8 +314,8 @@ function GuidancePage() {
       if (response.ok) {
         const result = await response.json();
 
-        console.log('=== Full API Response ===');
-        console.log(JSON.stringify(result, null, 2));
+        const rep = result?.report;
+        console.log('Guidance API ok; report length (chars):', typeof rep === 'string' ? rep.length : 0);
 
         setReport({
           content: result.report,

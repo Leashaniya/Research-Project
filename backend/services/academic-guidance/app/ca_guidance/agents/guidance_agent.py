@@ -1,5 +1,8 @@
 import os
+
 from crewai import Agent
+from langchain_openai import ChatOpenAI
+
 from app.core.config import settings
 from app.ca_guidance.tools.search_tool import duckduckgo_search
 from app.ca_guidance.tools.rag_tool import query_lecture_materials
@@ -7,6 +10,13 @@ from app.ca_guidance.tools.diagram_image_tool import generate_assignment_diagram
 
 # Set environment variable for CrewAI to use OpenAI
 os.environ["OPENAI_API_KEY"] = settings.OPENAI_API_KEY
+
+_guidance_llm = ChatOpenAI(
+    model=settings.CA_GUIDANCE_MODEL,
+    api_key=settings.OPENAI_API_KEY,
+    max_tokens=settings.CA_GUIDANCE_MAX_OUTPUT_TOKENS,
+    temperature=0.2,
+)
 
 guidance_agent = Agent(
     role="Database Management Systems Tutor and Assessment Guide Creator",
@@ -37,6 +47,8 @@ guidance_agent = Agent(
         "using the document's own wording for titles and data where possible so the student sees everything from their PDF reflected on screen. "
         "Every explicit request for a diagram or schema should result in a **generate_assignment_diagram** call "
         "with a detailed description scoped to that question only, then the exact returned [IMAGE:...] line **after** that question's answer. "
+        "In the tool `description`, list concrete **entity names**, **attributes** (PK/multivalued/composite), **relationship names**, "
+        "and **cardinalities** taken verbatim from that question (and your answer)—do not invent a different scenario. "
         "Immediately after each [IMAGE:...] line, add one short sentence describing what the diagram shows. "
         "When necessary, use external search via duckduckgo_search to supplement missing context. "
         "After completing the main DBMS explanation, you must call the duckduckgo_search tool with a "
@@ -45,10 +57,12 @@ guidance_agent = Agent(
         "You must include these links in a 'Related Web Resources' section at the end of your answer. "
         "Insert the tool output exactly as returned, in Markdown hyperlink format, without rewriting "
         "or summarizing it. These links are for reference only; do not use their content to influence "
-        "your main explanation."
+        "your main explanation. "
+        "Never truncate explanations with '...', 'etc.', 'and so on', or 'to save space'—write full, "
+        "meaningful answers tied to the assignment wording so the student can submit from your guidance alone."
     ),
     tools=[query_lecture_materials, duckduckgo_search, generate_assignment_diagram],
     verbose=True,
     allow_delegation=False,
-    llm="gpt-4o",  # Preferred OpenAI model for CrewAI
+    llm=_guidance_llm,
 )
