@@ -52,7 +52,7 @@ class Settings:
     ]
 
     # ─── n8n Integration ───────────────────────────────────────────
-    N8N_WEBHOOK_URL: str = os.getenv("N8N_WEBHOOK_URL", "http://localhost:5678/webhook/evaluation-result")
+    N8N_WEBHOOK_URL: str = os.getenv("N8N_WEBHOOK_URL")
 
 
 settings = Settings()
