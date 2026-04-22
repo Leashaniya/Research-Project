@@ -517,6 +517,38 @@
   margin-top: 0.5em;
 }
 
+/* Markdown table styling (SQL query result tables) */
+.report-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 1.5rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  display: block;
+  overflow-x: auto;
+}
+
+.report-content thead th {
+  background: #f1f5f9;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.report-content th,
+.report-content td {
+  border: 1px solid #cbd5e1;
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.report-content tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
 .report-content blockquote {
   border-left: 4px solid #2a5a94;
   padding-left: 1em;

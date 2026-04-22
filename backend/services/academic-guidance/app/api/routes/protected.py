@@ -1,11 +1,13 @@
 import html
 import io
+import csv
 import fitz  # PyMuPDF
+import sqlite3
 import logging
 import re
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Any
 from urllib.parse import unquote, urlparse, quote
 
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
@@ -39,6 +41,349 @@ from app.ca_guidance.tools.rag_tool import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_sql_identifier(name: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9_]+", "_", (name or "").strip()).strip("_")
+    if not cleaned:
+        cleaned = "col"
+    if cleaned[0].isdigit():
+        cleaned = f"c_{cleaned}"
+    return cleaned
+
+
+def _load_dataset_into_sqlite(dataset_name: str, dataset_bytes: bytes) -> sqlite3.Connection:
+    conn = sqlite3.connect(":memory:")
+    name = (dataset_name or "").lower()
+    if name.endswith(".sql"):
+        script = dataset_bytes.decode("utf-8", errors="replace")
+        conn.executescript(script)
+        logger.info("SQL dataset loaded via executescript (bytes=%s)", len(dataset_bytes or b""))
+        return conn
+    if name.endswith(".csv"):
+        text = dataset_bytes.decode("utf-8-sig", errors="replace")
+        rows = list(csv.reader(io.StringIO(text)))
+        if not rows:
+            raise ValueError("CSV dataset is empty.")
+        header = [_sanitize_sql_identifier(h or f"col_{i+1}") for i, h in enumerate(rows[0])]
+        tbl = _sanitize_sql_identifier(Path(dataset_name).stem or "dataset")
+        placeholders = ", ".join("?" for _ in header)
+        cols_sql = ", ".join(f'"{h}" TEXT' for h in header)
+        conn.execute(f'CREATE TABLE "{tbl}" ({cols_sql})')
+        if len(rows) > 1:
+            quoted_cols = ", ".join(f'"{h}"' for h in header)
+            conn.executemany(
+                f'INSERT INTO "{tbl}" ({quoted_cols}) VALUES ({placeholders})',
+                [tuple(r[: len(header)] + [""] * max(0, len(header) - len(r))) for r in rows[1:]],
+            )
+        conn.commit()
+        logger.info("CSV dataset loaded into table '%s' rows=%s cols=%s", tbl, max(0, len(rows) - 1), len(header))
+        return conn
+    raise ValueError("Unsupported dataset type. Upload .sql or .csv file.")
+
+
+def _extract_sql_queries_from_guidance(text: str, limit: int = 20) -> list[str]:
+    src = text or ""
+    queries: list[str] = []
+    seen = set()
+    # Work from SQL-fenced blocks first so queries are separated from surrounding prose/comments.
+    for m in re.finditer(r"```sql\s*([\s\S]*?)```", src, flags=re.IGNORECASE):
+        block = (m.group(1) or "").strip()
+        for stmt in _split_sql_statements(block):
+            q = stmt.strip()
+            if not q:
+                continue
+            if not re.match(r"^(select|with)\b", q, flags=re.IGNORECASE):
+                continue
+            q = q + ";"
+            key = q.lower()
+            if key not in seen:
+                seen.add(key)
+                queries.append(q)
+            if len(queries) >= limit:
+                return queries
+    # Fallback inline extraction only outside fenced code blocks.
+    non_fenced = re.sub(r"```[\s\S]*?```", " ", src)
+    inline_pat = r"(?is)\b(select|with)\b[\s\S]{10,800}?;"
+    for m in re.finditer(inline_pat, non_fenced):
+        q = (m.group(0) or "").strip()
+        if not q or not re.match(r"^(select|with)\b", q, flags=re.IGNORECASE):
+            continue
+        key = q.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        queries.append(q)
+        if len(queries) >= limit:
+            break
+    return queries
+
+
+def _split_sql_statements(block: str) -> list[str]:
+    """
+    Split SQL block into statements while ignoring markdown bullets/comments and semicolons in quotes.
+    """
+    raw = (block or "")
+    # Drop markdown/bullet lines and SQL comments that are documentation noise.
+    cleaned_lines: list[str] = []
+    for ln in raw.splitlines():
+        s = ln.strip()
+        if not s:
+            cleaned_lines.append("")
+            continue
+        if s.startswith(("- ", "* ", "• ")):
+            continue
+        if s.startswith("--"):
+            continue
+        if s.startswith("#"):
+            continue
+        cleaned_lines.append(ln)
+    text = "\n".join(cleaned_lines).strip()
+    if not text:
+        return []
+
+    out: list[str] = []
+    cur: list[str] = []
+    in_single = False
+    in_double = False
+    for ch in text:
+        if ch == "'" and not in_double:
+            in_single = not in_single
+        elif ch == '"' and not in_single:
+            in_double = not in_double
+        if ch == ";" and not in_single and not in_double:
+            stmt = "".join(cur).strip()
+            if stmt:
+                out.append(stmt)
+            cur = []
+        else:
+            cur.append(ch)
+    tail = "".join(cur).strip()
+    if tail:
+        out.append(tail)
+    return out
+
+
+def _normalize_sql_query(q: str) -> str:
+    s = (q or "").strip()
+    # Remove common markdown bullets/prefixes that can leak into extracted SQL
+    s = re.sub(r"^\s*[-*]\s+", "", s)
+    s = re.sub(r"^\s*\d+[\).]\s+", "", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    if s and not s.endswith(";"):
+        s += ";"
+    return s
+
+
+def _sqlite_schema_snapshot(conn: sqlite3.Connection) -> dict[str, set[str]]:
+    schema: dict[str, set[str]] = {}
+    try:
+        cur = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [str(r[0]) for r in cur.fetchall() if r and r[0]]
+    except Exception:
+        return schema
+    for t in tables:
+        try:
+            cols = conn.execute(f'PRAGMA table_info("{t}")').fetchall()
+            schema[t.lower()] = {str(c[1]).lower() for c in cols if len(c) > 1}
+        except Exception:
+            schema[t.lower()] = set()
+    return schema
+
+
+def _extract_query_table_names(query: str) -> list[str]:
+    q = query or ""
+    names = []
+    for m in re.finditer(r"(?is)\b(?:from|join)\s+([A-Za-z_][\w.]*)", q):
+        nm = (m.group(1) or "").strip().strip('"')
+        if nm:
+            names.append(nm.split(".")[-1])
+    # ignore CTE names declared in WITH ...
+    cte_names = {
+        (m.group(1) or "").strip().lower()
+        for m in re.finditer(r"(?is)\bwith\s+([A-Za-z_]\w*)\s+as\s*\(", q)
+    }
+    out = []
+    seen = set()
+    for n in names:
+        k = n.lower()
+        if k in cte_names or k in seen:
+            continue
+        seen.add(k)
+        out.append(n)
+    return out
+
+
+def _extract_select_columns(query: str) -> list[str]:
+    m = re.search(r"(?is)\bselect\b\s+(.*?)\s+\bfrom\b", query or "")
+    if not m:
+        return []
+    part = (m.group(1) or "").strip()
+    if not part:
+        return []
+    # split select list by commas that are not inside parentheses
+    cols: list[str] = []
+    buf = []
+    depth = 0
+    for ch in part:
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(0, depth - 1)
+        if ch == "," and depth == 0:
+            cols.append("".join(buf).strip())
+            buf = []
+        else:
+            buf.append(ch)
+    if buf:
+        cols.append("".join(buf).strip())
+    return cols
+
+
+def _column_candidate_from_expr(expr: str) -> str:
+    e = (expr or "").strip()
+    # strip aliases
+    e = re.sub(r"(?is)\s+as\s+[A-Za-z_]\w*$", "", e).strip()
+    e = re.sub(r"(?is)\s+[A-Za-z_]\w*$", "", e).strip() if "(" not in e else e
+    # only plain identifier or table.identifier
+    m = re.match(r'^(?:"?([A-Za-z_]\w*)"?\.)?"?([A-Za-z_]\w*)"?$', e)
+    if not m:
+        return ""
+    return (m.group(2) or "").strip()
+
+
+def _validate_select_query(conn: sqlite3.Connection, query: str) -> tuple[bool, str]:
+    q = (query or "").strip()
+    if not q:
+        return False, "Empty query"
+    if not re.match(r"^(select|with)\b", q, flags=re.IGNORECASE):
+        return False, "Only SELECT/CTE queries are allowed"
+    if not re.search(r"\bselect\b", q, flags=re.IGNORECASE) or not re.search(r"\bfrom\b", q, flags=re.IGNORECASE):
+        return False, "Query must contain SELECT and FROM clauses"
+    # Enforce clause order sanity for common mistakes.
+    low = q.lower()
+    pos_group = low.find(" group by ")
+    pos_having = low.find(" having ")
+    if pos_having != -1 and pos_group == -1:
+        return False, "HAVING used without GROUP BY"
+    if pos_group != -1 and pos_having != -1 and pos_having < pos_group:
+        return False, "HAVING appears before GROUP BY"
+    # Block obvious write/DDL operations if leaked into a malformed query string.
+    if re.search(r"\b(insert|update|delete|drop|alter|create|attach|detach|pragma|vacuum|replace)\b", q, flags=re.IGNORECASE):
+        return False, "Query contains non-read-only SQL keywords"
+    schema = _sqlite_schema_snapshot(conn)
+    table_names = _extract_query_table_names(q)
+    if table_names and schema:
+        missing_tables = [t for t in table_names if t.lower() not in schema]
+        if missing_tables:
+            return False, f"Unknown table(s): {', '.join(missing_tables)}"
+        # For single-table simple selects, verify referenced column names.
+        if len(table_names) == 1:
+            cols_in_table = schema.get(table_names[0].lower(), set())
+            unknown_cols: list[str] = []
+            for expr in _extract_select_columns(q):
+                if expr.strip() == "*" or expr.strip().endswith(".*"):
+                    continue
+                cand = _column_candidate_from_expr(expr)
+                if cand and cand.lower() not in cols_in_table:
+                    unknown_cols.append(cand)
+            if unknown_cols:
+                return False, f"Unknown column(s) for table {table_names[0]}: {', '.join(sorted(set(unknown_cols)))}"
+    logger.debug(
+        "SQL parser diagnostics: tables=%s select_items=%s",
+        table_names,
+        len(_extract_select_columns(q)),
+    )
+    # Pre-validate syntax without executing data-returning query.
+    try:
+        conn.execute(f"EXPLAIN QUERY PLAN {q.rstrip(';')}")
+    except Exception as e:
+        return False, f"Syntax validation failed: {e}"
+    return True, ""
+
+
+def _execute_dataset_queries(
+    conn: sqlite3.Connection,
+    queries: list[str],
+    row_limit: int = 25,
+) -> list[dict[str, Any]]:
+    results: list[dict[str, Any]] = []
+    for raw_q in queries:
+        q = _normalize_sql_query(raw_q)
+        entry: dict[str, Any] = {"query": q, "explanation": _query_explanation_from_sql(q)}
+        ok, validation_msg = _validate_select_query(conn, q)
+        if not ok:
+            entry["error"] = validation_msg
+            results.append(entry)
+            logger.warning("SQL query rejected before execution: %s", validation_msg)
+            continue
+        try:
+            cur = conn.execute(q)
+            cols = [d[0] for d in (cur.description or [])]
+            rows = cur.fetchmany(row_limit)
+            entry["columns"] = cols
+            entry["rows"] = [list(map(lambda x: "" if x is None else str(x), r)) for r in rows]
+            entry["row_count_preview"] = len(rows)
+        except Exception as e:
+            entry["error"] = str(e)
+        results.append(entry)
+    return results
+
+
+def _query_explanation_from_sql(query: str) -> str:
+    q = (query or "").strip()
+    if not q:
+        return "This query reads data from the uploaded dataset."
+    # Keep explanation concise and directly tied to the query block.
+    tables = _extract_query_table_names(q)
+    table_text = ", ".join(tables) if tables else "the dataset"
+    low = q.lower()
+    if "group by" in low:
+        return f"This query summarizes records from {table_text} using GROUP BY."
+    if re.search(r"\b(count|sum|avg|min|max)\s*\(", low):
+        return f"This query computes aggregate values from {table_text}."
+    if " join " in low:
+        return f"This query combines related rows from {table_text} and returns matching records."
+    if " where " in low:
+        return f"This query filters rows from {table_text} based on the specified conditions."
+    return f"This query retrieves rows from {table_text}."
+
+
+def _format_query_results_markdown(results: list[dict[str, Any]]) -> str:
+    if not results:
+        return ""
+    out = ["### SQL Dataset Query Results"]
+    for idx, r in enumerate(results, start=1):
+        out.append(f"\n#### Question {idx}")
+        explanation = (r.get("explanation") or "").strip()
+        out.append("**Query Explanation**:")
+        out.append(explanation or "This query reads data from the uploaded dataset.")
+        out.append("")
+        out.append("**SQL Query**:")
+        out.append("```sql")
+        out.append((r.get("query") or "").strip())
+        out.append("```")
+        out.append("")
+        out.append("**Query Result Table**:")
+        if r.get("error"):
+            out.append(f"- Error: {r['error']}")
+            continue
+        cols = r.get("columns") or []
+        rows = r.get("rows") or []
+        if not cols:
+            out.append("- No tabular output returned.")
+            continue
+        safe_cols = [str(c).replace("|", "\\|") for c in cols]
+        out.append("| " + " | ".join(safe_cols) + " |")
+        out.append("| " + " | ".join("---" for _ in cols) + " |")
+        for row in rows:
+            vals = [str(v).replace("|", "\\|") for v in row[: len(cols)]]
+            if len(vals) < len(cols):
+                vals.extend([""] * (len(cols) - len(vals)))
+            out.append("| " + " | ".join(vals) + " |")
+        if not rows:
+            out.append("| " + " | ".join(["_(no rows)_"] + [""] * (len(cols) - 1)) + " |")
+    return "\n".join(out).strip()
 
 
 def _short_guidance_image_caption(text: str, max_len: int = 185) -> str:
@@ -199,6 +544,56 @@ def _merge_deadline_confirmation_paragraph(content: str, extra_md: str) -> str:
         new_body = (body + "\n\n" + extra_md.strip()).strip()
         return content[: m.start(2)] + new_body + content[m.end(2) :]
     return (content or "").rstrip() + "\n\n### Deadline / Calendar Confirmation\n\n" + extra_md.strip() + "\n"
+
+
+def _pop_last_section_block(content: str, heading_pattern: str) -> tuple[str, str]:
+    """
+    Remove all matching section blocks and return (content_without_sections, last_section_body).
+    Matching is case-insensitive and heading-level agnostic (# to ######).
+    """
+    text = content or ""
+    pat = re.compile(
+        rf"(?mis)^\s*#{1,6}\s*{heading_pattern}\s*\n([\s\S]*?)(?=^\s*#{1,6}\s+\S|\Z)"
+    )
+    matches = list(pat.finditer(text))
+    if not matches:
+        return text, ""
+    last_body = (matches[-1].group(1) or "").strip()
+    stripped = pat.sub("", text)
+    stripped = re.sub(r"\n{3,}", "\n\n", stripped).strip()
+    return stripped, last_body
+
+
+def _dedupe_guidance_terminal_sections(content: str, schedule_out: str = "") -> str:
+    """
+    Ensure Related Web Resources and Deadline sections appear once, at the end.
+    """
+    base = content or ""
+    base, related_body = _pop_last_section_block(base, r"Related\s+Web\s+Resources(?:\s*\(auto\))?")
+    base, deadline_body = _pop_last_section_block(base, r"Deadline\s*/\s*Calendar\s*Confirmation")
+
+    deadline_combined = "\n\n".join(
+        x for x in (deadline_body.strip(), (schedule_out or "").strip()) if x
+    ).strip()
+    # Lightweight dedupe of duplicated lines in merged deadline body.
+    if deadline_combined:
+        seen = set()
+        lines = []
+        for ln in deadline_combined.splitlines():
+            key = ln.strip().lower()
+            if key and key in seen:
+                continue
+            if key:
+                seen.add(key)
+            lines.append(ln)
+        deadline_combined = "\n".join(lines).strip()
+
+    out = base.rstrip()
+    if related_body:
+        out += "\n\n### Related Web Resources\n\n" + related_body
+    if deadline_combined:
+        out += "\n\n### Deadline / Calendar Confirmation\n\n" + deadline_combined
+    return re.sub(r"\n{3,}", "\n\n", out).strip()
 
 
 def _ensure_calendar_from_pdf_if_missed(result, assignment_text: str, access_token: Optional[str], content: str) -> str:
@@ -1043,8 +1438,20 @@ def _merge_guidance_crew_task_outputs(result) -> Optional[str]:
         h_parts,
         h_fin,
     )
-    merged = parts_text + "\n\n### Deadline / Calendar Confirmation\n\n"
-    merged += schedule_out or "_(No scheduling details returned.)_"
+    merged = _dedupe_guidance_terminal_sections(parts_text, schedule_out)
+    merged_h3 = len(re.findall(r"(?m)^###\s+[^\n#]", merged))
+    if merged_h3 < max(2, int(h_parts * 0.6)):
+        logger.warning(
+            "Guidance merge completeness warning: merged_h3=%s parts_h3=%s",
+            merged_h3,
+            h_parts,
+        )
+    if not re.search(r"(?im)^###\s*deadline\s*/\s*calendar\s*confirmation\s*$", merged):
+        merged = (
+            merged.rstrip()
+            + "\n\n### Deadline / Calendar Confirmation\n\n"
+            + (schedule_out or "_(No scheduling details returned.)_")
+        )
     return merged
 
 
@@ -1102,9 +1509,12 @@ def _assignment_snippet_for_marker(assignment_text: str, marker: str, window: in
 def _log_guidance_crew_result_metrics(result, assignment_len: int) -> None:
     tasks_output = getattr(result, "tasks_output", None) or []
     total_out = 0
+    weak_tasks = 0
     for i, t in enumerate(tasks_output):
         txt = _task_output_text(t)
         total_out += len(txt)
+        if len((txt or "").strip()) < 120:
+            weak_tasks += 1
         logger.info(
             "Guidance crew task[%s] output_chars=%s (assignment_chars=%s)",
             i,
@@ -1112,6 +1522,11 @@ def _log_guidance_crew_result_metrics(result, assignment_len: int) -> None:
             assignment_len,
         )
     logger.info("Guidance crew stitched task output_chars_total=%s", total_out)
+    if weak_tasks:
+        logger.warning(
+            "Guidance crew completion check: %s task(s) produced very short output (<120 chars)",
+            weak_tasks,
+        )
     for attr in ("token_usage", "usage", "usage_metadata"):
         u = getattr(result, attr, None)
         if u is not None and u != {}:
@@ -1499,9 +1914,9 @@ def _ensure_guidance_diagrams(
                 content_lines, anchor_idx, max_lines=52, max_chars=4500
             )
             description = (
-                "ASSIGNMENT SNIPPET (question / requirements):\n"
+                "\n"
                 + req.strip()
-                + "\n\nGUIDANCE ALREADY WRITTEN FOR THIS ITEM (entities, attributes, relationships—mirror these in the diagram):\n"
+                + "\n\n\n"
                 + (answer_ctx if answer_ctx else "(no guidance text yet under this heading—use the snippet only.)")
             )
             if hints:
@@ -1571,7 +1986,8 @@ def _extract_text_from_pdf_doc(doc: fitz.Document) -> str:
 @router.post("/run-guidance")
 async def run_guidance(
     user: UserInfo = Depends(get_current_user),
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
+    sql_dataset: Optional[UploadFile] = File(None),
 ):
     logger.info("=== Starting guidance process ===")
 
@@ -1597,6 +2013,28 @@ async def run_guidance(
 
     logger.info("Step 2: Creating and running CrewAI crew")
     try:
+        dataset_bytes: bytes | None = None
+        dataset_name = ""
+        if sql_dataset is not None and (sql_dataset.filename or "").strip():
+            dataset_name = sql_dataset.filename or ""
+            lower = dataset_name.lower()
+            if not (lower.endswith(".sql") or lower.endswith(".csv")):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="SQL dataset must be .sql or .csv",
+                )
+            dataset_bytes = await sql_dataset.read()
+            if not dataset_bytes:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Uploaded SQL dataset file is empty.",
+                )
+            logger.info(
+                "Received optional SQL dataset for guidance: name=%s bytes=%s",
+                dataset_name,
+                len(dataset_bytes),
+            )
+
         from app.ca_guidance.tools.guidance_diagram_registry import (
             begin_guidance_diagram_registry,
             end_guidance_diagram_registry,
@@ -1684,6 +2122,40 @@ async def run_guidance(
             logger.info(f"Successfully extracted markdown (length: {len(final_content)})")
             logger.info(f"Found {len(image_paths)} image(s) in response")
 
+            query_results: list[dict[str, Any]] = []
+            if dataset_bytes:
+                try:
+                    conn = _load_dataset_into_sqlite(dataset_name, dataset_bytes)
+                    try:
+                        queries = _extract_sql_queries_from_guidance(final_content, limit=20)
+                        logger.info(
+                            "SQL dataset processing: extracted_queries=%s from guidance",
+                            len(queries),
+                        )
+                        query_results = _execute_dataset_queries(conn, queries, row_limit=25)
+                    finally:
+                        conn.close()
+                    if query_results:
+                        q_md = _format_query_results_markdown(query_results)
+                        if q_md:
+                            final_content = final_content.rstrip() + "\n\n" + q_md + "\n"
+                    logger.info(
+                        "SQL query pipeline: extracted=%s executed=%s errors=%s",
+                        len(queries),
+                        len(query_results),
+                        sum(1 for x in query_results if x.get("error")),
+                    )
+                except Exception as sql_err:
+                    logger.warning("SQL dataset processing failed: %s", sql_err, exc_info=True)
+                    query_results = [
+                        {
+                            "query": "",
+                            "error": f"SQL dataset processing failed: {sql_err}",
+                            "columns": [],
+                            "rows": [],
+                        }
+                    ]
+
             # Store base guidance for reinforcement flow (same style as summarization)
             try:
                 from app.services.guidance_reinforcement_service import GuidanceReinforcementService
@@ -1704,6 +2176,7 @@ async def run_guidance(
                 "report": final_content,
                 "images": image_paths,
                 "guidance_id": guidance_id,
+                "query_results": query_results,
             }
         finally:
             end_guidance_diagram_registry()
@@ -1731,12 +2204,27 @@ async def download_guidance_pdf(
     try:
         from app.services.guidance_pdf_service import build_guidance_pdf, sanitize_download_filename
 
+        logger.info(
+            "Guidance PDF request: user=%s report_chars=%s images_in_request=%s title=%r file_name=%r",
+            user.email,
+            len(report_content),
+            len(request.images or []),
+            request.title,
+            request.file_name,
+        )
         pdf_bytes = build_guidance_pdf(
             report_content=report_content,
             image_names=request.images or [],
+            query_results=request.query_results or [],
             title=(request.title or "CA Guidance Report").strip() or "CA Guidance Report",
         )
         filename = sanitize_download_filename(request.file_name)
+        logger.info(
+            "Guidance PDF response: user=%s bytes=%s filename=%s",
+            user.email,
+            len(pdf_bytes),
+            filename,
+        )
 
         return StreamingResponse(
             io.BytesIO(pdf_bytes),
@@ -1744,6 +2232,7 @@ async def download_guidance_pdf(
             headers={
                 "Content-Disposition": f'attachment; filename="{filename}"',
                 "Cache-Control": "no-store",
+                "Content-Length": str(len(pdf_bytes)),
             },
         )
     except Exception as e:

@@ -181,6 +181,11 @@ def create_guidance_crew(assignment_text: str, access_token: str):
     )
     question_markers = _extract_question_markers(assignment_text, limit=80)
     question_list_text = "\n".join(f"- {q}" for q in question_markers) if question_markers else "- (No explicit numbered markers detected; still cover all assignment sections.)"
+    logger.info(
+        "Guidance crew markers: detected=%s sample=%s",
+        len(question_markers),
+        question_markers[:10],
+    )
     guidance_tasks: list[Task] = []
 
     for idx, chunk in enumerate(chunks, start=1):
@@ -195,6 +200,7 @@ def create_guidance_crew(assignment_text: str, access_token: str):
                 - Do not skip any question in this part, even if it looks similar to previous ones.
                 - If this chunk overlaps another part, do not repeat long boilerplate—still answer everything that appears in the text above.
                 - The combined parts must cover the **whole** assignment document; never assume another part will answer a question that appears here.
+                - You are graded on **task completion**: every detectable question/sub-question in this part must receive a complete answer.
                 - Do **not** shorten answers with trailing `...`, "etc.", "and so on", "similarly for the rest", or placeholders—finish each item completely.
                 - Every answer must stay **grounded in this PDF chunk**: reuse the assignment's entity/table/attribute names and constraints; do not replace with unrelated examples.
 
@@ -236,6 +242,7 @@ def create_guidance_crew(assignment_text: str, access_token: str):
                     → Provide solutions for each question or guidance for each part.
                 - You MUST explicitly label every covered question/section **that appears in the chunk above** (use headings like `### Question ...` or `### Part ...`) so coverage is auditable.
                 - Markers listed may belong to other parts of the assignment: do **not** write stub lines such as "Not found in this part", "N/A for this part", or "See other part" for those—**omit** them from this part's output entirely.
+                - Before finalizing, perform a quick self-check: did you answer every numbered/lettered item visible in this part? If not, add the missing answer now.
                 - For non-ER diagrams only, you may use Mermaid in a fenced block. For ER/schema, **only** `[IMAGE:...]` from the diagram tool (no raw Graphviz DOT in the answer).
 
                 IMPORTANT:

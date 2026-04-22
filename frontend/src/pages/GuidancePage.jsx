@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -34,6 +35,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/guidance';
 function GuidancePage() {
   const { user } = useAuth();
   const [assignmentFile, setAssignmentFile] = useState(null);
+  const [sqlDatasetFile, setSqlDatasetFile] = useState(null);
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
   const [summaryTopic, setSummaryTopic] = useState('');
@@ -303,6 +305,9 @@ function GuidancePage() {
 
     const formData = new FormData();
     formData.append('file', assignmentFile);
+    if (sqlDatasetFile) {
+      formData.append('sql_dataset', sqlDatasetFile);
+    }
 
     try {
       const response = await fetch(`${API_URL}/protected/run-guidance`, {
@@ -314,16 +319,18 @@ function GuidancePage() {
       if (response.ok) {
         const result = await response.json();
 
-        const rep = result?.report;
+        const rep = (result?.report || result?.markdown_report || '').toString();
         console.log('Guidance API ok; report length (chars):', typeof rep === 'string' ? rep.length : 0);
+        console.log('Guidance API query results count:', Array.isArray(result?.query_results) ? result.query_results.length : 0);
 
         setReport({
-          content: result.report,
-          images: result.images || []
+          content: rep,
+          images: result.images || [],
+          query_results: result.query_results || [],
         });
         if (result.guidance_id) {
           setGuidanceId(result.guidance_id);
-          setBaseGuidanceContent(result.report);
+          setBaseGuidanceContent(rep);
           setBaseGuidanceImages(result.images || []);
           setReinforcedGuidanceContent(null);
           setReinforcedGuidanceImages([]);
@@ -399,6 +406,8 @@ function GuidancePage() {
       activeGuidanceView === 'reinforced' && reinforcedGuidanceImages.length > 0
         ? reinforcedGuidanceImages
         : (baseGuidanceImages || report?.images || []);
+    const currentQueryResults =
+      Array.isArray(report?.query_results) ? report.query_results : [];
 
     if (!currentGuidanceContent) {
       setGuidancePdfError('No guidance content is available to download.');
@@ -411,17 +420,28 @@ function GuidancePage() {
     try {
       const sourceName = assignmentFile?.name?.replace(/\.pdf$/i, '') || 'ca-guidance';
       const fileName = `${sourceName}-${activeGuidanceView || 'report'}.pdf`;
+      const requestPayload = {
+        report_content: currentGuidanceContent,
+        images: currentGuidanceImages,
+        query_results: currentQueryResults,
+        title: activeGuidanceView === 'reinforced' ? 'Reinforced CA Guidance Report' : 'CA Guidance Report',
+        file_name: fileName,
+      };
+      const imageTokenCount = (String(currentGuidanceContent || '').match(/\[IMAGE:\s*[^\]]+\]/gi) || []).length;
+      console.info('Guidance PDF request payload:', {
+        reportChars: String(currentGuidanceContent || '').length,
+        imageCount: Array.isArray(currentGuidanceImages) ? currentGuidanceImages.length : 0,
+        queryResultCount: currentQueryResults.length,
+        imageTokenCount,
+        activeGuidanceView,
+        fileName,
+      });
 
       const response = await fetch(`${API_URL}/protected/guidance/download-pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({
-          report_content: currentGuidanceContent,
-          images: currentGuidanceImages,
-          title: activeGuidanceView === 'reinforced' ? 'Reinforced CA Guidance Report' : 'CA Guidance Report',
-          file_name: fileName,
-        }),
+        body: JSON.stringify(requestPayload),
       });
 
       if (!response.ok) {
@@ -430,14 +450,52 @@ function GuidancePage() {
       }
 
       const blob = await response.blob();
+      console.info('Guidance PDF response metadata:', {
+        status: response.status,
+        contentType: response.headers.get('content-type'),
+        contentLength: response.headers.get('content-length'),
+        blobSize: blob?.size ?? 0,
+      });
+      if ((blob?.size ?? 0) < 2500) {
+        console.warn('Guidance PDF diagnostic: unusually small PDF blob size', {
+          blobSize: blob?.size ?? 0,
+          reportChars: String(currentGuidanceContent || '').length,
+          imageCount: Array.isArray(currentGuidanceImages) ? currentGuidanceImages.length : 0,
+          imageTokenCount,
+        });
+      }
+      if (!blob || blob.size === 0) {
+        throw new Error('Generated PDF is empty. Please try again.');
+      }
+
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+
+      // Show PDF on screen (new tab) while still allowing a direct download fallback.
+      let opened = null;
+      try {
+        opened = window.open(url, '_blank', 'noopener,noreferrer');
+      } catch {
+        opened = null;
+      }
+
+      // If popup/new-tab is blocked, force file download.
+      if (!opened) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Keep object URL alive briefly so new-tab viewer can read it before cleanup.
+      window.setTimeout(() => {
+        try {
+          window.URL.revokeObjectURL(url);
+        } catch {
+          // no-op
+        }
+      }, 30000);
     } catch (error) {
       console.error('Error downloading guidance PDF:', error);
       setGuidancePdfError(error.message || 'An error occurred while downloading the PDF.');
@@ -1200,6 +1258,7 @@ function GuidancePage() {
   const clearStateOnLogout = () => {
     setReport(null);
     setAssignmentFile(null);
+    setSqlDatasetFile(null);
     setSummary(null);
     setSummaryTopic('');
     setSummaryAudio(null);
@@ -1276,6 +1335,23 @@ function GuidancePage() {
                       </div>
                     )}
                   </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="sql-dataset-file">
+                      Upload SQL Dataset (optional: .sql or .csv)
+                    </label>
+                    <input
+                      id="sql-dataset-file"
+                      type="file"
+                      accept=".sql,.csv,text/csv,application/sql"
+                      onChange={(e) => setSqlDatasetFile(e.target.files[0] || null)}
+                      className="file-input"
+                    />
+                    {sqlDatasetFile && (
+                      <div className="info-message" style={{ marginTop: '10px' }}>
+                        SQL Dataset: <strong>{sqlDatasetFile.name}</strong>
+                      </div>
+                    )}
+                  </div>
                   <button type="submit" className="btn btn-primary" disabled={loading}>
                     {loading ? (
                       <>
@@ -1327,21 +1403,21 @@ function GuidancePage() {
 
                     {typeof report === 'string' ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report)}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report)}</ReactMarkdown>
                       </div>
                     ) : report.content ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report.content)}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report.content)}</ReactMarkdown>
                       </div>
                     ) : report.markdown_report ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report.markdown_report)}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report.markdown_report)}</ReactMarkdown>
                       </div>
                     ) : report.error ? (
                       <div className="error-message">{report.error}</div>
                     ) : (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>
+                        <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                           {JSON.stringify(report, null, 2)}
                         </ReactMarkdown>
                       </div>
@@ -1747,7 +1823,7 @@ function GuidancePage() {
                               }
                             }
                             return (
-                              <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>
+                              <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                                 {content}
                               </ReactMarkdown>
                             );
