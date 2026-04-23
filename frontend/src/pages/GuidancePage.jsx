@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -101,6 +101,8 @@ function GuidancePage() {
   const [guidancePdfLoading, setGuidancePdfLoading] = useState(false);
   const [guidancePdfError, setGuidancePdfError] = useState(null);
   const [modalOpen, setModalOpen] = useState(null); // 'guidance' | 'summarize' | 'flashcards' | 'er' | null
+  const assignmentFileInputRef = useRef(null);
+  const sqlDatasetInputRef = useRef(null);
 
   // Ensure bare URLs in markdown become clickable links [url](url)
   const ensureLinksInMarkdown = (text) => {
@@ -1259,6 +1261,8 @@ function GuidancePage() {
     setReport(null);
     setAssignmentFile(null);
     setSqlDatasetFile(null);
+    if (assignmentFileInputRef.current) assignmentFileInputRef.current.value = '';
+    if (sqlDatasetInputRef.current) sqlDatasetInputRef.current.value = '';
     setSummary(null);
     setSummaryTopic('');
     setSummaryAudio(null);
@@ -1322,6 +1326,7 @@ function GuidancePage() {
                       <FaFilePdf style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Upload Assignment PDF
                     </label>
                     <input
+                      ref={assignmentFileInputRef}
                       id="assignment-file"
                       type="file"
                       accept="application/pdf"
@@ -1330,8 +1335,20 @@ function GuidancePage() {
                       required
                     />
                     {assignmentFile && (
-                      <div className="info-message" style={{ marginTop: '10px' }}>
+                      <div className="info-message file-selected-message" style={{ marginTop: '10px' }}>
                         Selected: <strong>{assignmentFile.name}</strong>
+                        <button
+                          type="button"
+                          className="file-clear-btn"
+                          aria-label="Clear selected assignment file"
+                          title="Clear file"
+                          onClick={() => {
+                            setAssignmentFile(null);
+                            if (assignmentFileInputRef.current) assignmentFileInputRef.current.value = '';
+                          }}
+                        >
+                          ×
+                        </button>
                       </div>
                     )}
                   </div>
@@ -1340,6 +1357,7 @@ function GuidancePage() {
                       Upload SQL Dataset (optional: .sql or .csv)
                     </label>
                     <input
+                      ref={sqlDatasetInputRef}
                       id="sql-dataset-file"
                       type="file"
                       accept=".sql,.csv,text/csv,application/sql"
@@ -1347,8 +1365,20 @@ function GuidancePage() {
                       className="file-input"
                     />
                     {sqlDatasetFile && (
-                      <div className="info-message" style={{ marginTop: '10px' }}>
+                      <div className="info-message file-selected-message" style={{ marginTop: '10px' }}>
                         SQL Dataset: <strong>{sqlDatasetFile.name}</strong>
+                        <button
+                          type="button"
+                          className="file-clear-btn"
+                          aria-label="Clear selected SQL dataset file"
+                          title="Clear file"
+                          onClick={() => {
+                            setSqlDatasetFile(null);
+                            if (sqlDatasetInputRef.current) sqlDatasetInputRef.current.value = '';
+                          }}
+                        >
+                          ×
+                        </button>
                       </div>
                     )}
                   </div>
