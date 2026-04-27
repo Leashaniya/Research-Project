@@ -10,7 +10,7 @@ const features = [
   {
     icon: <LuFileText size={28} />,
     title: 'Smart Question Extraction',
-    description: 'Intelligently extracts relevant questions from your content using advanced NLP techniques',
+    description: 'Intelligently extracts relevant questions from your content based on meaning and context',
     color: 'var(--primary)',
     bg: 'var(--primary-50)',
   },
@@ -93,23 +93,27 @@ export default function Home() {
       </section>
 
       <style>{`
+        /* Global High-End SaaS Standards */
         .home-page {
           max-width: 1100px;
           margin: 0 auto;
-          padding: 16px 0 80px;
+          padding: 16px 0 40px;
+          font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+          background: #F8FAFC;
         }
 
-        /* Hero Section */
+        /* Glassmorphism Hero Card */
         .hero {
           position: relative;
           text-align: center;
-          padding: 120px 48px 100px;
-          background: linear-gradient(135deg, #2563EB 0%, #1E40AF 50%, #1E3A8A 100%);
-          border: none;
-          border-radius: 24px;
-          box-shadow: 0 20px 60px rgba(37, 99, 235, 0.3), 0 8px 30px rgba(0, 0, 0, 0.12);
+          padding: 40px 48px;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 12px;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
           overflow: hidden;
-          margin-bottom: 4rem;
+          margin-bottom: 2.5rem;
         }
 
         .hero::before {
@@ -140,7 +144,7 @@ export default function Home() {
           display: inline-flex;
           align-items: center;
           gap: 10px;
-          padding: 14px 28px;
+          padding: 12px 24px;
           background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
           color: #ffffff;
           border: 1px solid rgba(255, 255, 255, 0.25);
@@ -148,7 +152,7 @@ export default function Home() {
           font-size: 0.95rem;
           font-weight: 600;
           letter-spacing: 0.04em;
-          margin-bottom: 40px;
+          margin-bottom: 24px;
           backdrop-filter: blur(16px);
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
           text-transform: uppercase;
@@ -162,11 +166,11 @@ export default function Home() {
         }
 
         .hero h1 {
-          font-size: 4.2rem;
+          font-size: 3.5rem;
           font-weight: 900;
           line-height: 1.05;
           letter-spacing: -0.04em;
-          margin-bottom: 32px;
+          margin-bottom: 24px;
           color: #ffffff;
           text-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
@@ -184,13 +188,13 @@ export default function Home() {
           gap: 24px;
           justify-content: center;
           flex-wrap: wrap;
-          margin-top: 48px;
+          margin-top: 32px;
         }
 
         .hero-actions .btn {
-          min-width: 200px;
-          padding: 20px 32px;
-          font-size: 1.1rem;
+          min-width: 180px;
+          padding: 16px 28px;
+          font-size: 1rem;
           font-weight: 700;
           border-radius: 12px;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -213,30 +217,32 @@ export default function Home() {
           left: 100%;
         }
 
+        /* Custom Primary Button Styling */
         .hero-actions .btn-primary {
-          background: linear-gradient(135deg, #ffffff, #f8fafc);
-          color: #1E40AF;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          box-shadow: 0 8px 32px rgba(255, 255, 255, 0.2);
+          background: #007bff;
+          color: white;
+          border: none;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .hero-actions .btn-primary:hover {
-          background: linear-gradient(135deg, #ffffff, #f1f5f9);
-          transform: translateY(-3px);
-          box-shadow: 0 12px 40px rgba(255, 255, 255, 0.3);
+          background: #0056b3;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.15);
         }
 
         .hero-actions .btn-outline {
-          background: rgba(255, 255, 255, 0.1);
-          color: #ffffff;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          backdrop-filter: blur(10px);
+          background: transparent;
+          color: white;
+          border: 2px solid rgba(255, 255, 255, 0.8);
+          transition: all 0.3s ease;
         }
 
         .hero-actions .btn-outline:hover {
-          background: rgba(255, 255, 255, 0.2);
-          transform: translateY(-3px);
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+          background: rgba(255, 255, 255, 0.1);
+          border-color: white;
+          transform: translateY(-2px);
         }
 
         /* Decorative Elements */
@@ -289,16 +295,17 @@ export default function Home() {
 
         /* Features Section */
         .features-section {
-          margin-bottom: 4rem;
+          margin-bottom: 2rem;
         }
 
         .section-title {
-          font-size: 2.2rem;
-          font-weight: 700;
-          color: var(--text);
+          font-size: 2rem;
+          font-weight: 600;
+          color: #1a202c;
           text-align: center;
-          margin-bottom: 3rem;
+          margin-bottom: 2rem;
           letter-spacing: -0.02em;
+          line-height: 1.6;
         }
 
         .features-grid {
@@ -308,13 +315,13 @@ export default function Home() {
         }
 
         .feature-card {
-          background: var(--surface);
-          border: 1px solid var(--border);
-          border-radius: 16px;
-          padding: 2.5rem 2rem;
+          background: white;
+          border: 1px solid #E2E8F0;
+          border-radius: 12px;
+          padding: 2rem 1.5rem;
           text-align: center;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
           position: relative;
           overflow: hidden;
         }
@@ -363,14 +370,14 @@ export default function Home() {
         .feature-card h3 {
           font-size: 1.3rem;
           font-weight: 600;
-          color: var(--text);
+          color: #1a202c;
           margin: 0 0 1rem 0;
           line-height: 1.4;
         }
 
         .feature-description {
           font-size: 0.95rem;
-          color: var(--text-muted);
+          color: #64748b;
           line-height: 1.6;
           margin: 0;
         }
@@ -409,13 +416,13 @@ export default function Home() {
         /* Responsive Design */
         @media (max-width: 768px) {
           .home-page {
-            padding: 12px 0 60px;
+            padding: 8px 0 30px;
           }
 
           .hero {
-            padding: 80px 24px 60px;
+            padding: 50px 24px 40px;
             border-radius: 16px;
-            margin-bottom: 3rem;
+            margin-bottom: 2rem;
           }
 
           .hero h1 {

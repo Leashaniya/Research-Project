@@ -58,10 +58,10 @@ export default function DifficultySelector({ onSelect }) {
       <style>{`
         .difficulty-selector {
           text-align: center;
-          padding: 2rem 0;
+          padding: 1rem 0;
         }
-        .ds-heading { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.35rem; }
-        .ds-sub { color: var(--text-muted); margin-bottom: 2rem; }
+        .ds-heading { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .ds-sub { color: var(--text-muted); margin-bottom: 1.5rem; }
 
         .ds-grid {
           display: grid;
@@ -74,12 +74,12 @@ export default function DifficultySelector({ onSelect }) {
         .ds-card {
           border: 1px solid;
           border-radius: var(--radius);
-          padding: 1.75rem 1.25rem;
+          padding: 1.25rem 1rem;
           text-align: left;
           transition: transform 0.2s, box-shadow 0.2s;
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.4rem;
         }
         .ds-card:hover {
           transform: translateY(-3px);

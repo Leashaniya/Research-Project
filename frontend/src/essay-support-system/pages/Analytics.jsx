@@ -16,6 +16,122 @@ const getRewardMessage = (reward) => {
   return 'Poor Attempt'
 }
 
+// Non-Score-Based Analytics Insights Functions
+const generateNonScoreInsights = (session) => {
+  const insights = {
+    dataStatus: '',
+    attempts: '',
+    difficulty: '',
+    weakTopic: '',
+    topicCoverage: '',
+    consistency: '',
+    recommendation: ''
+  }
+
+  // Rule 1: Check if we have enough data
+  if (!session.attempts || session.attempts === 0) {
+    insights.dataStatus = "Not enough data available yet. Complete a few attempts to generate insights."
+    insights.attempts = "Not enough data available for this insight."
+    insights.difficulty = "Not enough data available for this insight."
+    insights.weakTopic = "Not enough data available for this insight."
+    insights.topicCoverage = "Not enough data available for this insight."
+    insights.consistency = "Not enough data available for this insight."
+    insights.recommendation = "Not enough data available for this insight."
+    return insights
+  }
+
+  const totalAttempts = session.attempts
+  const scoreHistory = session.scoreHistory || []
+  const currentDifficulty = session.difficulty || 'easy'
+
+  // Rule 2: Attempt Insight
+  if (totalAttempts <= 3) {
+    insights.attempts = "You have only completed a few attempts. Try more questions to better understand your performance."
+  } else if (totalAttempts <= 10) {
+    insights.attempts = "You have completed several attempts. This helps in building consistent learning progress."
+  } else {
+    insights.attempts = "You have completed multiple attempts. This helps in building consistent learning progress."
+  }
+
+  // Rule 3: Difficulty Insight
+  if (scoreHistory.length > 0) {
+    const difficulties = scoreHistory.map(h => h.difficulty || 'easy')
+    const uniqueDifficulties = [...new Set(difficulties)]
+    const difficultyCounts = {}
+    
+    difficulties.forEach(diff => {
+      difficultyCounts[diff] = (difficultyCounts[diff] || 0) + 1
+    })
+    
+    const mostCommonDifficulty = Object.keys(difficultyCounts).reduce((a, b) => 
+      difficultyCounts[a] > difficultyCounts[b] ? a : b
+    )
+    
+    if (uniqueDifficulties.length === 1) {
+      insights.difficulty = `You are currently focused on ${mostCommonDifficulty} level. Consider progressing when ready.`
+    } else if (uniqueDifficulties.length === 2) {
+      insights.difficulty = "You are gradually progressing across difficulty levels, showing learning progression."
+    } else {
+      insights.difficulty = "You are working across multiple difficulty levels, showing comprehensive learning approach."
+    }
+  } else {
+    insights.difficulty = `You are currently at ${currentDifficulty} level. Continue practicing to build consistency.`
+  }
+
+  // Rule 4: Weak Topic Insight (Generic since specific topic data isn't available in session)
+  // We'll use attempt count as a proxy for identifying areas needing more practice
+  if (totalAttempts < 5) {
+    insights.weakTopic = "You need more practice across various DMS topics to identify weak areas."
+  } else if (totalAttempts < 10) {
+    insights.weakTopic = "Focus on fundamental database concepts and basic SQL operations to strengthen your foundation."
+  } else {
+    insights.weakTopic = "No major weak topics detected yet. Your consistent practice is building good understanding."
+  }
+
+  // Rule 5: Topic Coverage Insight
+  if (totalAttempts <= 3) {
+    insights.topicCoverage = "You have focused on limited topics. Try covering more DMS topics for better understanding."
+  } else if (totalAttempts <= 8) {
+    insights.topicCoverage = "You are building topic coverage. Continue exploring different DMS areas for comprehensive understanding."
+  } else {
+    insights.topicCoverage = "You have covered a variety of topics, which improves overall subject understanding."
+  }
+
+  // Rule 6: Consistency Insight
+  if (scoreHistory.length >= 3) {
+    // Check if attempts are spread over time (we'll use index as a proxy for time)
+    const recentAttempts = scoreHistory.slice(-5)
+    const attemptGap = recentAttempts.length > 1 ? 
+      Math.max(...recentAttempts.map((_, i) => i)) - Math.min(...recentAttempts.map((_, i) => i)) : 0
+    
+    if (attemptGap <= 2 && recentAttempts.length >= 3) {
+      insights.consistency = "You are practicing consistently, which is good for learning progress."
+    } else {
+      insights.consistency = "Your activity is inconsistent. Regular practice will improve learning."
+    }
+  } else {
+    insights.consistency = totalAttempts >= 3 ? 
+      "You are building practice consistency. Continue regular attempts." : 
+      "Not enough data available for this insight."
+  }
+
+  // Rule 7: Final Recommendation
+  if (totalAttempts < 5) {
+    insights.recommendation = "Recommended action: Complete more attempts across different topics to build comprehensive understanding."
+  } else {
+    const difficulties = scoreHistory.map(h => h.difficulty || 'easy')
+    const uniqueDifficulties = [...new Set(difficulties)]
+    
+    if (uniqueDifficulties.length === 1) {
+      insights.recommendation = "Recommended action: Practice weak topics and gradually move to higher difficulty levels while maintaining consistency."
+    } else {
+      insights.recommendation = "Recommended action: Continue consistent practice across difficulty levels and explore advanced topics."
+    }
+  }
+
+  return insights
+}
+
 // Adaptive Difficulty Timeline Chart Component
 const DifficultyTimeline = ({ data }) => {
   if (!data || data.length === 0) {
@@ -133,6 +249,9 @@ export default function Analytics() {
   const [analyticsData, setAnalyticsData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  
+  // Generate non-score-based insights based on current session data
+  const insights = generateNonScoreInsights(session)
 
   const loadData = async () => {
     setLoading(true)
@@ -170,8 +289,9 @@ export default function Analytics() {
         </div>
       )}
 
-      {/* Performance Metrics Overview */}
-      <div className="analytics-section fade-in">
+      {/* Performance Overview */}
+      <section className="analytics-section">
+        <h2 className="section-title">Performance Overview</h2>
         <div className="stats-grid">
           <StatsCard
             title="Total Attempts"
@@ -186,7 +306,7 @@ export default function Analytics() {
             color="primary"
           />
         </div>
-      </div>
+      </section>
 
       {/* Learning Progression Visualization */}
       <div className="analytics-section fade-in-up">
@@ -209,39 +329,156 @@ export default function Analytics() {
         </div>
       </div>
 
+      {/* Analytics Insights */}
+      <section className="analytics-section">
+        <h2 className="section-title">Analytics Insights</h2>
+        <p className="section-subtitle">Analysis of your learning progress and practice patterns</p>
+        
+        {insights.dataStatus === "Not enough data available yet. Complete a few attempts to generate insights." ? (
+          <div className="empty-state-card">
+            <h3>Not enough data available yet</h3>
+            <p>Complete more practice sessions to view insights.</p>
+          </div>
+        ) : (
+          <div className="insights-grid">
+            <div className="insight-card">
+              <h3 className="insight-title">Performance Insight</h3>
+              <p className="insight-content">{insights.attempts}</p>
+            </div>
+            
+            <div className="insight-card">
+              <h3 className="insight-title">Difficulty Insight</h3>
+              <p className="insight-content">{insights.difficulty}</p>
+            </div>
+            
+            <div className="insight-card">
+              <h3 className="insight-title">Weak Topic Insight</h3>
+              <p className="insight-content">{insights.weakTopic}</p>
+            </div>
+            
+            <div className="insight-card">
+              <h3 className="insight-title">Topic Coverage Insight</h3>
+              <p className="insight-content">{insights.topicCoverage}</p>
+            </div>
+            
+            <div className="insight-card">
+              <h3 className="insight-title">Consistency Insight</h3>
+              <p className="insight-content">{insights.consistency}</p>
+            </div>
+            
+            <div className="insight-card">
+              <h3 className="insight-title">Recommendation</h3>
+              <p className="insight-content">{insights.recommendation}</p>
+            </div>
+          </div>
+        )}
+      </section>
+
       <style>{`
+        /* Professional Analytics Dashboard */
         .analytics-page {
-          padding: 1rem;
+          background: #F8FAFC;
+          min-height: 100vh;
+          padding: 24px;
+          font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
           max-width: 1200px;
           margin: 0 auto;
         }
         
+        /* Page Header */
+        .page-header h1 {
+          font-size: 2rem;
+          font-weight: 700;
+          color: #001A35;
+          margin-bottom: 2rem;
+          line-height: 1.3;
+          letter-spacing: -0.02em;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        
+        /* Analytics Section Structure */
+        .analytics-section {
+          margin-bottom: 3rem;
+        }
+        
+        .section-title {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #001A35;
+          margin: 0 0 1.5rem 0;
+          line-height: 1.3;
+          text-align: center;
+        }
+        
+        /* Chart section titles */
+        .chart-title {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #001A35;
+          margin: 0 0 1.5rem 0;
+          line-height: 1.3;
+          text-align: center;
+        }
+        
+        .section-subtitle {
+          font-size: 1rem;
+          color: #64748b;
+          margin-bottom: 2rem;
+          line-height: 1.6;
+        }
+        
+        /* Stats Grid Layout - Full Width Usage */
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1.5rem;
+          width: 100%;
+        }
+        
+        /* Original Analytics Section Styles */
         .analytics-section {
           margin-bottom: 2rem;
         }
         
         .analytics-section h3 {
           margin-bottom: 1rem;
-          color: var(--text);
+          color: #1a202c;
           font-size: 1.1rem;
           font-weight: 600;
+          line-height: 1.6;
         }
         
-        .stats-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-          gap: 1rem;
-          margin-bottom: 2rem;
+        .card {
+          background: white;
+          border: 1px solid #E2E8F0;
+          border-radius: 12px;
+          padding: 2rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease;
         }
         
+        .card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.15);
+        }
+                
+        /* Enhanced Stats Cards */
         .stats-card {
-          background: var(--surface);
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
+          background: white;
+          border: 1px solid #E2E8F0;
+          border-radius: 12px;
           padding: 1.5rem;
-          transition: transform 0.2s, box-shadow 0.2s;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
           overflow: hidden;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 16px -1px rgba(0, 0, 0, 0.15);
         }
         
         .stats-card::before {
@@ -251,83 +488,53 @@ export default function Analytics() {
           left: 0;
           right: 0;
           height: 4px;
-          background: var(--primary);
-        }
-        
-        .stats-card-success::before {
-          background: var(--success);
-        }
-        
-        .stats-card-warning::before {
-          background: var(--warning);
-        }
-        
-        .stats-card-danger::before {
-          background: var(--danger);
-        }
-        
-        .stats-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+          background: linear-gradient(90deg, #0062FF, #0052CC);
         }
         
         .stats-card h3 {
-          font-size: 0.85rem;
-          color: var(--text-muted);
+          font-size: 0.875rem;
+          color: #64748b;
           text-transform: uppercase;
           letter-spacing: 0.05em;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.75rem;
           font-weight: 600;
+          line-height: 1.4;
         }
         
         .stats-card-value {
-          font-size: 2rem;
-          font-weight: 700;
-          color: var(--text);
-          margin-bottom: 0.25rem;
+          font-size: 2.25rem;
+          font-weight: 800;
+          color: #0062FF;
+          margin-bottom: 0.5rem;
           display: flex;
           align-items: center;
           gap: 0.5rem;
-        }
-        
-        .trend {
-          font-size: 0.9rem;
-          font-weight: 500;
-        }
-        
-        .trend.positive {
-          color: var(--success);
-        }
-        
-        .trend.negative {
-          color: var(--danger);
-        }
-        
-        .trend.neutral {
-          color: var(--text-muted);
+          line-height: 1.2;
         }
         
         .stats-card p {
-          font-size: 0.8rem;
-          color: var(--text-muted);
+          font-size: 0.875rem;
+          color: #64748b;
           margin: 0;
+          line-height: 1.5;
         }
         
+        /* Chart Containers with Consistent Blue Theme */
         .chart-container {
           padding: 2rem;
           background: white;
-          border-radius: var(--radius);
-          border: 1px solid var(--border);
+          border-radius: 12px;
+          border: 1px solid #E2E8F0;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease;
+        }
+
+        .chart-container:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.15);
         }
         
-        .chart-title {
-          text-align: center;
-          margin-bottom: 2rem;
-          color: var(--text);
-          font-size: 1.3rem;
-          font-weight: 600;
-        }
-        
+                
         .difficulty-chart {
           max-width: 100%;
           height: auto;
@@ -343,24 +550,24 @@ export default function Analytics() {
         }
         
         .difficulty-easy {
-          background: var(--success);
+          background: #007bff;
           color: white;
         }
         
         .difficulty-medium {
-          background: var(--warning);
+          background: #0056b3;
           color: white;
         }
         
         .difficulty-hard {
-          background: var(--danger);
+          background: #004085;
           color: white;
         }
         
         .empty-state {
           text-align: center;
           padding: 3rem;
-          color: var(--text-muted);
+          color: #6c757d;
         }
         
         .empty-icon {
@@ -369,26 +576,123 @@ export default function Analytics() {
         }
         
         .empty-state h3 {
-          color: var(--text);
+          color: #2c3e50;
           margin-bottom: 0.5rem;
         }
         
+        /* Insights Grid Layout */
+        .insights-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 1.5rem;
+        }
+        
+        /* Professional Insight Cards */
+        .insight-card {
+          background: white;
+          border: 1px solid #E2E8F0;
+          border-radius: 12px;
+          padding: 1.5rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease;
+          display: flex;
+          flex-direction: column;
+        }
+        
+        .insight-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.15);
+        }
+        
+        .insight-title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #001A35;
+          margin-bottom: 0.75rem;
+          line-height: 1.4;
+        }
+        
+        .insight-content {
+          font-size: 0.95rem;
+          color: #475569;
+          line-height: 1.6;
+          margin: 0;
+          flex: 1;
+        }
+        
+        /* Empty State Card */
+        .empty-state-card {
+          background: white;
+          border: 1px solid #E2E8F0;
+          border-radius: 12px;
+          padding: 3rem 2rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+          text-align: center;
+        }
+        
+        .empty-state-card h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: #001A35;
+          margin-bottom: 0.75rem;
+        }
+        
+        .empty-state-card p {
+          font-size: 0.95rem;
+          color: #64748b;
+          line-height: 1.6;
+          margin: 0;
+        }
+        
+        /* Responsive Design */
         @media (max-width: 768px) {
           .analytics-page {
-            padding: 0.5rem;
+            padding: 16px;
+          }
+          
+          .page-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+          }
+          
+          .analytics-section {
+            margin-bottom: 1.5rem;
+          }
+          
+          .section-title {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
           }
           
           .stats-grid {
             grid-template-columns: 1fr;
+            gap: 1rem;
+            width: 100%;
           }
           
-          .chart-container {
+          .card {
             padding: 1rem;
           }
           
-          .difficulty-chart {
-            width: 100%;
-            height: auto;
+          .insights-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+          }
+          
+          .insight-card {
+            padding: 1.25rem;
+          }
+          
+          .empty-state-card {
+            padding: 2rem 1.5rem;
+          }
+          
+          .stats-card {
+            padding: 1.25rem;
+          }
+          
+          .stats-card-value {
+            font-size: 2rem;
           }
         }
       `}</style>
