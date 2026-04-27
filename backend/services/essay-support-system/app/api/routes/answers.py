@@ -177,15 +177,23 @@ async def _handle_batch_submission(body: SubmitAnswerRequest, sid: str, sess: di
         # Student failed - trigger webhook for additional practice
         print(f"📚 [BATCH EVAL] Student FAILED - triggering webhook for additional questions...")
         
+        # Debug logging to track topic preservation
+        print(f"🔍 [BATCH EVAL] TOPIC TRACKING:")
+        print(f"    Original topic from body: {body.topic}")
+        print(f"    Detected topic: {topic}")
+        print(f"    First question (being ignored for topic): {body.questions[0][:50] if body.questions else 'NO_QUESTIONS'}...")
+        
         webhook_payload = {
             "is_correct": False,
-            "question_text": body.questions[0] if body.questions else "",
-            "topic": topic,
+            "question_text": body.questions[0] if body.questions else "",  # Kept for compatibility but ignored in n8n call
+            "topic": topic,  # This is the original topic that will be used
             "feedback": {
                 "weaknesses": f"Student got {total_count - correct_count} out of {total_count} answers wrong"
             },
             "recommendation": f"Review {topic} concepts and try again"
         }
+        
+        print(f"🔍 [BATCH EVAL] WEBHOOK PAYLOAD TOPIC: {webhook_payload['topic']}")
         
         # Call n8n webhook for additional questions
         webhook_questions = await get_practice_questions_with_fallback(webhook_payload)
@@ -497,16 +505,24 @@ async def batch_submit_answers(
             # This is the first round - generate additional practice questions
             print(f"📚 [BATCH EVAL] Student FAILED - generating 5 additional practice questions...")
             
+            # Debug logging to track topic preservation
+            print(f"🔍 [BATCH EVAL] TOPIC TRACKING (ADDITIONAL ROUND):")
+            print(f"    Original topic from body: {body.topic}")
+            print(f"    Detected topic: {topic}")
+            print(f"    First question (being ignored for topic): {body.questions[0][:50] if body.questions else 'NO_QUESTIONS'}...")
+            
             webhook_payload = {
                 "is_correct": False,
-                "question_text": body.questions[0] if body.questions else "",
-                "topic": topic,
+                "question_text": body.questions[0] if body.questions else "",  # Kept for compatibility but ignored in n8n call
+                "topic": topic,  # This is the original topic that will be used
                 "feedback": {
                     "weaknesses": f"Student got {total_count - correct_count} out of {total_count} answers wrong"
                 },
                 "recommendation": f"Review {topic} concepts and try again",
                 "question_count": 5  # Explicitly request 5 questions
             }
+            
+            print(f"🔍 [BATCH EVAL] WEBHOOK PAYLOAD TOPIC (ADDITIONAL): {webhook_payload['topic']}")
             
             # Call n8n webhook for additional questions
             webhook_questions = await get_practice_questions_with_fallback(webhook_payload)

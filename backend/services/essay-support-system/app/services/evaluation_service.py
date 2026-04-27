@@ -482,10 +482,15 @@ async def call_n8n_webhook(evaluation_result: dict) -> Optional[List[str]]:
         return None
 
     # ── Build payload ────────────────────────────────────────────
-    topic_for_n8n = (
-        evaluation_result.get("question_text")
-        or evaluation_result.get("topic", "General")
-    )
+    # CRITICAL FIX: Always use original topic, never question_text
+    # question_text contains the first question which overwrites the topic name
+    topic_for_n8n = evaluation_result.get("topic", "General")
+    
+    # Debug logging to ensure topic is correct
+    print(f"🔍 [N8N] TOPIC DEBUG:")
+    print(f"    Original topic: {evaluation_result.get('topic', 'NOT_FOUND')}")
+    print(f"    question_text (ignored): {evaluation_result.get('question_text', 'NOT_FOUND')[:50] if evaluation_result.get('question_text') else 'NOT_FOUND'}")
+    print(f"    Final topic_for_n8n: {topic_for_n8n}")
 
     feedback_data = evaluation_result.get("feedback", "")
     if isinstance(feedback_data, dict):
@@ -509,6 +514,7 @@ async def call_n8n_webhook(evaluation_result: dict) -> Optional[List[str]]:
     print(f"    topic          : {n8n_payload['topic'][:120]}")
     print(f"    feedback       : {n8n_payload['feedback'][:120]}")
     print(f"    recommendation : {n8n_payload['recommendation'][:120]}")
+    print(f"  ✅ FINAL TOPIC SENT TO N8N: '{topic_for_n8n}'")
     print(f"{SEP}\n")
 
     try:
