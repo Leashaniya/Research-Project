@@ -39,6 +39,35 @@ def _question_signature(question: Dict[str, Any]) -> str:
     return _normalize_signature_text(merged)[:600]
 
 
+def _is_eer_intent(intent_lower: str) -> bool:
+    """True when pattern/intent refers to Extended ER (EER)."""
+    s = (intent_lower or "").strip().lower()
+    if not s:
+        return False
+    return "eer" in s or "extended entity" in s or "e-e-r" in s
+
+
+def _is_er_or_eer_intent(intent_lower: str) -> bool:
+    """
+    True when pattern/intent is ER or EER modeling/diagrams (matches template pattern_label
+    strings such as ER_EER_MODELING without substring false positives on arbitrary 'er').
+    """
+    s = (intent_lower or "").strip().lower()
+    if not s:
+        return False
+    if _is_eer_intent(intent_lower):
+        return True
+    if "entity" in s and "relationship" in s:
+        return True
+    if "entity_relationship" in s or "entity-relationship" in s:
+        return True
+    if "er_eer" in s or "er/eer" in s:
+        return True
+    if "er_modeling" in s or "er_diagram" in s or "e-r diagram" in s or "e/r diagram" in s:
+        return True
+    return False
+
+
 def _normalize_paper_for_presentation(paper: Dict[str, Any]) -> Dict[str, Any]:
     """
     Apply small, presentation-focused cleanups to the generated paper JSON
@@ -318,6 +347,8 @@ class AgentOrchestrator:
         self.semester_bias = self.options.get("semester_bias") or "both"
         # Paper B: questions text only in saved output; no marks validation / filtering by marks band
         self.questions_only = bool(self.options.get("questions_only"))
+        # Treat questions_only requests as Paper B even if explicit flag is absent.
+        self.paper_b_mode = bool(self.options.get("paper_b_mode")) or self.questions_only
         # Paper B (POST /generate-paper): topic/trend from lecture slide corpus (MiniLM + KMeans), not past-paper blueprints
         self.lecture_based_topics = bool(self.options.get("lecture_based_topics"))
 
@@ -536,7 +567,7 @@ class AgentOrchestrator:
         
         # If stem is missing, too short, or placeholder, build from intent
         if not stem or self._is_placeholder(stem) or len(stem.strip()) < 20:
-            if "er" in intent_lower or "eer" in intent_lower:
+            if _is_er_or_eer_intent(intent_lower):
                 stem = "Consider a university database system with students, courses, and enrollments. Each student has student ID, name, and email. Each course has course code, title, and credits. Students enroll in courses, and each enrollment has a grade."
             elif "normalization" in intent_lower:
                 stem = "Given a relation schema R(A, B, C, D) with functional dependencies: A → B, B → C, C → D."
@@ -545,7 +576,7 @@ class AgentOrchestrator:
 
         # If stem exists but is too short for ER/Normalization, ensure required content is present
         elif len(stem.strip()) < 50:
-            if ("er" in intent_lower or "eer" in intent_lower) and ("entity" not in stem.lower() and "student" not in stem.lower()):
+            if _is_er_or_eer_intent(intent_lower) and ("entity" not in stem.lower() and "student" not in stem.lower()):
                 stem = "Consider a university database system with students, courses, and enrollments. Each student has student ID, name, and email. Each course has course code, title, and credits. Students enroll in courses, and each enrollment has a grade. " + stem
             elif "normalization" in intent_lower and ("schema" not in stem.lower() and "relation" not in stem.lower()):
                 stem = "Given a relation schema R(A, B, C, D) with functional dependencies: A → B, B → C, C → D. " + stem
@@ -562,7 +593,7 @@ class AgentOrchestrator:
                 struct_source.append({
                     "label": string.ascii_lowercase[idx],
                     "marks": marks_per_subq + (1 if idx < remainder else 0),
-                    "text": f"Explain the key concepts related to {template.get('pattern_label', 'Database Systems')}."
+                    "text": "Solve the given DBMS task using a clear method and concise justification."
                 })
         
         # Build subquestions from template structure (ensure distinct wording)
@@ -592,7 +623,7 @@ class AgentOrchestrator:
             # If text is missing, placeholder, or duplicate, generate distinct text
             if not text or self._is_placeholder(text) or text_normalized in used_texts:
                 # Generate distinct subquestion text based on intent and index
-                if "er" in intent_lower or "eer" in intent_lower:
+                if _is_er_or_eer_intent(intent_lower):
                     er_texts = [
                         "Identify the main entities and their attributes.",
                         "Draw the ER/EER diagram showing relationships and cardinalities.",
@@ -1529,10 +1560,12 @@ class AgentOrchestrator:
         
         # Determine question type from intent
         intent_lower = intent.lower()
-        is_er = "er" in intent_lower or "eer" in intent_lower or "diagram" in intent_lower
+        is_er = _is_er_or_eer_intent(intent_lower) or "diagram" in intent_lower
         is_norm = "normalization" in intent_lower or "normal form" in intent_lower
         is_sql = "sql" in intent_lower or "query" in intent_lower
         is_rel_algebra = "relational algebra" in intent_lower or "relational_algebra" in intent_lower or "tuple calculus" in intent_lower
+        is_indexing = "indexing_storage" in intent_lower or "index" in intent_lower or "b+ tree" in intent_lower
+        is_tx = "transactions_concurrency" in intent_lower or "transaction" in intent_lower or "serializ" in intent_lower or "locking" in intent_lower
         
         # Build stem with required content based on intent
         stem_parts = []
@@ -1566,6 +1599,12 @@ class AgentOrchestrator:
             stem_parts.append("agency (aid, aname, acity)")
             stem_parts.append("flight (fid, fdate, time, departs, arrives)")
             stem_parts.append("booking (pid, aid, fid, fdate)")
+        elif is_indexing:
+            stem_parts.append("Consider a relation FILE(id, dept, salary, joinDate) with one million tuples stored on disk.")
+            stem_parts.append("The workload includes both equality and range predicates on dept, salary, and joinDate.")
+        elif is_tx:
+            stem_parts.append("Consider two concurrent transactions T1 and T2 operating on shared items A, B, and C.")
+            stem_parts.append("The DBMS supports lock-based concurrency control and standard isolation levels.")
         else:
             stem_parts.append("Consider a database management system scenario.")
         
@@ -1599,8 +1638,12 @@ class AgentOrchestrator:
                     text = f"{verb} the decomposition steps to achieve 3NF."
                 elif is_sql and idx == 0:
                     text = f"{verb} the SQL query to retrieve customer orders."
+                elif is_indexing and idx == 0:
+                    text = "Explain how an index lookup is executed for an equality predicate and estimate I/O cost."
+                elif is_tx and idx == 0:
+                    text = "Determine whether the given schedule is conflict-serializable and justify your answer."
                 else:
-                    text = f"{verb} the key concepts related to {intent}."
+                    text = f"{verb} a suitable DBMS solution for the given scenario."
                 
                 subquestions.append({"label": label, "marks": marks, "text": text})
         else:
@@ -1694,14 +1737,34 @@ class AgentOrchestrator:
                         text = f"{verb} {task}."
                     elif is_rel_algebra:
                         rel_algebra_combinations = [
-                            ("Find", "the name of the agencies, such that they are located in the same city as passenger with passenger id 123"),
-                            ("Find", "the passenger names for those who do not have any bookings in any flights"),
-                            ("Get", "the details of flights that are scheduled on both dates 01/12/2024 and 02/12/2024 at 16:00 hours"),
-                            ("Retrieve", "the names of the passengers who have booked all available flights"),
-                            ("How many", "passengers have booked the flight f001?"),
-                            ("Express", "the above queries in tuple calculus")
+                            ("Write", "a relational algebra expression to retrieve the required tuples for the first query"),
+                            ("Write", "a relational algebra expression using join, selection, and projection for the requirement"),
+                            ("Write", "a relational algebra expression using aggregation/grouping for the required computation"),
+                            ("Write", "a relational algebra expression using set difference or division for the stated condition"),
+                            ("Translate", "one of the above relational algebra expressions into tuple relational calculus"),
+                            ("Justify", "the sequence of relational algebra operators used in your solution")
                         ]
                         verb, task = rel_algebra_combinations[idx % len(rel_algebra_combinations)]
+                        text = f"{verb} {task}."
+                    elif is_indexing:
+                        indexing_combinations = [
+                            ("Explain", "how a B+ tree index supports equality and range searches for this workload"),
+                            ("Compare", "B+ tree and hash indexing for the given query patterns"),
+                            ("Design", "a composite index strategy and justify attribute ordering"),
+                            ("Estimate", "index maintenance overhead under frequent updates"),
+                            ("Recommend", "a final indexing plan with performance trade-offs"),
+                        ]
+                        verb, task = indexing_combinations[idx % len(indexing_combinations)]
+                        text = f"{verb} {task}."
+                    elif is_tx:
+                        tx_combinations = [
+                            ("Determine", "whether the schedule is conflict-serializable and justify your reasoning"),
+                            ("Illustrate", "one concurrency anomaly and explain how isolation level choice prevents it"),
+                            ("Apply", "strict two-phase locking and identify lock and unlock points"),
+                            ("Analyze", "a possible deadlock and propose prevention or detection"),
+                            ("Evaluate", "throughput versus consistency for stricter isolation levels"),
+                        ]
+                        verb, task = tx_combinations[idx % len(tx_combinations)]
                         text = f"{verb} {task}."
                     else:
                         generic_combinations = [
@@ -1714,7 +1777,7 @@ class AgentOrchestrator:
                             ("List", "the key features and their benefits")
                         ]
                         verb, task = generic_combinations[idx % len(generic_combinations)]
-                        text = f"{verb} {task} related to {intent}."
+                        text = f"{verb} {task}."
                 
                 subquestions.append({"label": label, "marks": marks, "text": text})
             
@@ -1964,6 +2027,130 @@ class AgentOrchestrator:
             picked.append("GENERAL_THEORY")
         return picked
 
+    def _build_paper_b_topic_plan(self, trend: dict, num_slots: int) -> List[Optional[str]]:
+        """
+        Paper B topic plan:
+        - Q1..Q4: keep canonical/Paper-A-like positional behavior (no forced topic override)
+        - Q5..Q8: force lower-frequency topics from past-paper trend
+        - If a low-frequency pick is GENERAL_THEORY, replace it using high-frequency topics:
+          first replacement uses highest-frequency topic, next uses second-highest, etc.
+        """
+        plan: List[Optional[str]] = [None] * max(1, int(num_slots or 1))
+        if num_slots <= 4:
+            return plan
+
+        freqs = (trend or {}).get("topic_frequencies") or {}
+        if not isinstance(freqs, dict) or not freqs:
+            return plan
+
+        # Exclude GENERAL_THEORY from Paper B extra-slot planning.
+        # Q5+ should remain concrete and exam-task oriented.
+        non_general = {k: v for k, v in freqs.items() if str(k or "").upper() != "GENERAL_THEORY"}
+        if not non_general:
+            return plan
+
+        # High-frequency order: freq desc, name asc (deterministic)
+        high = [name for name, _ in sorted(non_general.items(), key=lambda kv: (-int(kv[1] or 0), str(kv[0] or ""))) if name]
+        # Low-frequency order: freq asc, name asc (deterministic)
+        low = [name for name, _ in sorted(non_general.items(), key=lambda kv: (int(kv[1] or 0), str(kv[0] or ""))) if name]
+
+        replacements_used = 0
+        for idx in range(4, num_slots):
+            low_idx = idx - 4
+            topic = low[low_idx] if low_idx < len(low) else None
+            if not topic:
+                if replacements_used < len(high):
+                    topic = high[replacements_used]
+                    replacements_used += 1
+                elif high:
+                    topic = high[0]
+            plan[idx] = topic
+        return plan
+
+    def _question_index(self, q_no: Optional[str]) -> Optional[int]:
+        """Parse a question number like 'Q4' into an integer index."""
+        match = re.search(r"(\d+)", str(q_no or ""))
+        if not match:
+            return None
+        try:
+            return int(match.group(1))
+        except Exception:
+            return None
+
+    def _enhance_extra_slot_question_quality(self, draft: dict, intent: str, q_no: str) -> dict:
+        """
+        Improve Q5+ quality by replacing vague generic wording with
+        intent-specific exam-style tasks.
+        """
+        q_idx = self._question_index(q_no)
+        if q_idx is None or q_idx <= 4 or not isinstance(draft, dict):
+            return draft
+
+        subqs = draft.get("subquestions") or []
+        if not isinstance(subqs, list) or not subqs:
+            return draft
+
+        low_quality_markers = [
+            "key concepts related to",
+            "related to general_theory",
+            "related to indexing_storage",
+            "related to transactions_concurrency",
+            "related to relational_algebra",
+        ]
+        has_low_quality = any(
+            isinstance(sq, dict)
+            and any(m in str(sq.get("text", "")).lower() for m in low_quality_markers)
+            for sq in subqs
+        )
+        if not has_low_quality:
+            return draft
+
+        intent_upper = str(intent or "").upper()
+        if intent_upper == "INDEXING_STORAGE":
+            replacements = [
+                "Explain how a B+ tree index supports equality and range predicates, including expected I/O behavior.",
+                "Compare B+ tree and hash indexing for the given workload and justify the better choice.",
+                "Design a composite index strategy for two frequent query predicates and justify key ordering.",
+                "Estimate index maintenance overhead under heavy insert and update operations.",
+                "Recommend a final indexing plan and justify the performance trade-offs.",
+            ]
+        elif intent_upper == "TRANSACTIONS_CONCURRENCY":
+            replacements = [
+                "Determine whether the given schedule is conflict-serializable and justify your answer.",
+                "Show one concurrency anomaly and explain how a stricter isolation level prevents it.",
+                "Apply strict two-phase locking to the schedule and identify lock and unlock points.",
+                "Analyze a possible deadlock and propose one prevention or detection strategy.",
+                "Evaluate throughput versus consistency when moving to SERIALIZABLE isolation.",
+            ]
+        elif intent_upper == "RELATIONAL_ALGEBRA":
+            replacements = [
+                "Write a relational algebra expression to retrieve the required tuples for the first query.",
+                "Write a relational algebra expression using join, selection, and projection for the second query.",
+                "Write a relational algebra expression using aggregation/grouping for the required computation.",
+                "Write a relational algebra expression using set difference or division for the stated condition.",
+                "Translate one of your relational algebra expressions into tuple relational calculus.",
+            ]
+        else:
+            replacements = [
+                "State key assumptions for the scenario and justify them.",
+                "Apply suitable DBMS concepts to solve the requirement with clear reasoning.",
+                "Compare two valid approaches and justify the preferred one.",
+                "Identify potential anomalies or risks and propose corrective actions.",
+                "Provide a concise implementation-focused solution for the scenario.",
+            ]
+
+        rewritten = []
+        for i, sq in enumerate(subqs):
+            if not isinstance(sq, dict):
+                continue
+            s = dict(sq)
+            if i < len(replacements):
+                s["text"] = replacements[i]
+            rewritten.append(s)
+        if rewritten:
+            draft["subquestions"] = rewritten
+        return draft
+
     async def _count_templates_for_topic(self, marks: int, pattern_label: str) -> int:
         """
         Count MongoDB templates matching a topic and approximate marks.
@@ -2050,7 +2237,7 @@ class AgentOrchestrator:
                         "used_question_types": [],
                         "exam_title": "Model Paper",
                         "banned_topics": list(banned or set()),
-                        "lecture_creative_mode": bool(self.lecture_based_topics),
+                        "lecture_creative_mode": bool(self.lecture_based_topics) and (not self.paper_b_mode),
                         "paper_b_questions_only": bool(self.questions_only),
                     },
                     "needs_diagram": False,
@@ -2161,24 +2348,24 @@ class AgentOrchestrator:
             
             if overused_topics:
                 seen: Dict[str, int] = {}
-            for i, q in enumerate(questions):
-                t = q.get("pattern_label") or q.get("main_topic")
-                if not t:
-                    continue
-                    
+                for i, q in enumerate(questions):
+                    t = q.get("pattern_label") or q.get("main_topic")
+                    if not t:
+                        continue
+
                     # Count occurrences so far
                     count_so_far = seen.get(t, 0)
-                    
+
                     if t in overused_topics and count_so_far >= 2:
                         # This topic already appears twice, regenerate this question
                         banned = set([topic for topic, count in topic_counts.items() if count >= 2])
-                    if top_topic:
-                        banned.discard(top_topic)
-                    questions[i] = await regenerate_question(i, required=None, banned=banned)
-                    t2 = questions[i].get("pattern_label") or questions[i].get("main_topic")
-                    if t2:
+                        if top_topic:
+                            banned.discard(top_topic)
+                        questions[i] = await regenerate_question(i, required=None, banned=banned)
+                        t2 = questions[i].get("pattern_label") or questions[i].get("main_topic")
+                        if t2:
                             seen[t2] = seen.get(t2, 0) + 1
-                else:
+                    else:
                         seen[t] = count_so_far + 1
 
         # If topics are missing (None or empty), regenerate those questions
@@ -2230,8 +2417,12 @@ class AgentOrchestrator:
                     "type": "conceptual",
                 })
 
-        # Load trends: Paper B uses lecture-slide clustering; Paper A uses past-paper blueprint frequencies
-        if self.lecture_based_topics:
+        # Load trends:
+        # - Paper B mode: always past-paper blueprint frequencies
+        # - Paper A: existing behavior
+        if self.paper_b_mode:
+            trend = await self._load_trend_for_request()
+        elif self.lecture_based_topics:
             trend = await self._load_lecture_slide_trend()
         else:
             trend = await self._load_trend_for_request()
@@ -2239,30 +2430,31 @@ class AgentOrchestrator:
         recent_used = (trend or {}).get("recent_papers_used") or []
         print(f"📈 Trend summary: top_topic={top_topic} papers_used={len(recent_used)}")
 
-        # Plan top-topic enforcement BEFORE generation
-        slot_previews = await self._preview_slot_intents(slots)
-        if slot_previews is None:
-            slot_previews = {}
-        if slot_previews and any(intent == top_topic for intent in slot_previews.values()):
-            print("✅ Top-topic already covered by canonical intents (no forcing needed).")
-        else:
-            # Choose slot with the most available templates for top_topic (deterministic)
-            best_idx = 0
-            best_count = -1
-            for i, s in enumerate(slots):
-                c = await self._count_templates_for_topic(int(s.get("target_marks") or 0), top_topic)
-                if c > best_count:
-                    best_idx = i
-                    best_count = c
-            slots[best_idx]["forced_pattern_label"] = top_topic
-            print(f"🧱 Enforcing top_topic={top_topic} on slot {slots[best_idx].get('question_no')} (candidates={best_count})")
+        # Plan top-topic enforcement BEFORE generation (Paper A behavior only).
+        if not self.paper_b_mode:
+            slot_previews = await self._preview_slot_intents(slots)
+            if slot_previews is None:
+                slot_previews = {}
+            if slot_previews and any(intent == top_topic for intent in slot_previews.values()):
+                print("✅ Top-topic already covered by canonical intents (no forcing needed).")
+            else:
+                # Choose slot with the most available templates for top_topic (deterministic)
+                best_idx = 0
+                best_count = -1
+                for i, s in enumerate(slots):
+                    c = await self._count_templates_for_topic(int(s.get("target_marks") or 0), top_topic)
+                    if c > best_count:
+                        best_idx = i
+                        best_count = c
+                slots[best_idx]["forced_pattern_label"] = top_topic
+                print(f"🧱 Enforcing top_topic={top_topic} on slot {slots[best_idx].get('question_no')} (candidates={best_count})")
 
-        # Required function hook (ensures at least one forced slot exists)
-        if slots is None:
-            raise ValueError("Slots is None - cannot enforce top topic constraint")
-        slots = enforce_top_topic_constraint(slots, top_topic)
-        if slots is None:
-            raise ValueError("enforce_top_topic_constraint returned None")
+            # Required function hook (ensures at least one forced slot exists)
+            if slots is None:
+                raise ValueError("Slots is None - cannot enforce top topic constraint")
+            slots = enforce_top_topic_constraint(slots, top_topic)
+            if slots is None:
+                raise ValueError("enforce_top_topic_constraint returned None")
         
         # 1.5 CHECKPOINT: Load existing progress if any
         checkpoint_data = {}
@@ -2321,8 +2513,11 @@ class AgentOrchestrator:
             # Scenario tracking might be trickier from saved text, but we can try simple extraction
             # Or just rely on fresh generation for the rest
         
-        # Choose desired topics for each slot using frequencies (deterministic)
-        desired_topics = self._pick_topics_for_slots(trend or {}, target_q_count)
+        # Choose desired topics for each slot (deterministic)
+        if self.paper_b_mode:
+            desired_topics = self._build_paper_b_topic_plan(trend or {}, target_q_count)
+        else:
+            desired_topics = self._pick_topics_for_slots(trend or {}, target_q_count)
         for i, slot in enumerate(slots):
             if slot.get("forced_pattern_label"):
                 continue
@@ -2360,7 +2555,42 @@ class AgentOrchestrator:
 
             # Hard topic constraints for this slot
             forced_topic = slot.get("forced_pattern_label")
-            slot_banned_topics: Set[str] = set(used_intents)  # No repeats across the 4 generated questions
+            slot_banned_topics: Set[str] = set(used_intents)
+            if self.paper_b_mode:
+                if forced_topic and str(forced_topic).upper() == "GENERAL_THEORY":
+                    forced_topic = None
+                if forced_topic:
+                    # Allow explicitly planned topic for Q5+ even if seen before.
+                    slot_banned_topics.discard(forced_topic)
+
+                # If forced topic has no available templates in the mark band, pick the best
+                # available non-general topic from trend frequencies for this slot.
+                if forced_topic:
+                    forced_topic_count = await self._count_templates_for_topic(target_marks, forced_topic)
+                    if forced_topic_count <= 0:
+                        alt_forced_topic = None
+                        freqs = (trend or {}).get("topic_frequencies") or {}
+                        items_desc = sorted(
+                            [(k, int(v or 0)) for k, v in freqs.items() if k and str(k).upper() != "GENERAL_THEORY"],
+                            key=lambda kv: (-kv[1], str(kv[0])),
+                        )
+                        for cand_topic, _ in items_desc:
+                            cand_count = await self._count_templates_for_topic(target_marks, cand_topic)
+                            if cand_count > 0:
+                                alt_forced_topic = cand_topic
+                                break
+                        if alt_forced_topic:
+                            print(
+                                f"    [INFO] Forced topic '{forced_topic}' has no templates for {target_marks} marks; "
+                                f"switching to '{alt_forced_topic}'."
+                            )
+                            forced_topic = alt_forced_topic
+                        else:
+                            print(
+                                f"    [WARN] Forced topic '{forced_topic}' has no templates and no non-general alternative "
+                                "found for this mark band; using open template selection."
+                            )
+                            forced_topic = None
             
             # Build template dict for backward compatibility
             if isinstance(canonical, dict) and "subquestion_structure" in canonical:
@@ -2379,7 +2609,10 @@ class AgentOrchestrator:
                         used_modules,
                         used_intents,
                         used_template_ids,
-                        required_pattern_label=forced_topic if (forced_topic and forced_topic not in used_intents) else None,
+                        required_pattern_label=(
+                            forced_topic if self.paper_b_mode else
+                            (forced_topic if (forced_topic and forced_topic not in used_intents) else None)
+                        ),
                         banned_pattern_labels=slot_banned_topics,
                     )
                 else:
@@ -2400,13 +2633,36 @@ class AgentOrchestrator:
                     used_modules,
                     used_intents,
                     used_template_ids,
-                    required_pattern_label=forced_topic if (forced_topic and forced_topic not in used_intents) else None,
+                    required_pattern_label=(
+                        forced_topic if self.paper_b_mode else
+                        (forced_topic if (forced_topic and forced_topic not in used_intents) else None)
+                    ),
                     banned_pattern_labels=slot_banned_topics,
                 )
             
             # Record the module choice
             current_module = self.classifier.classify(template.get("full_text", "")) if self.classifier else "General"
             used_modules.add(current_module)
+
+            # Paper B Q5+ must avoid GENERAL_THEORY unless absolutely unavoidable.
+            q_idx_for_slot = self._question_index(q_no)
+            if self.paper_b_mode and q_idx_for_slot and q_idx_for_slot > 4:
+                if str(template.get("pattern_label") or "").upper() == "GENERAL_THEORY":
+                    print("    [INFO] Q5+ selected GENERAL_THEORY; trying non-general replacement template.")
+                    replacement = await self._select_template(
+                        q_no,
+                        target_marks,
+                        used_modules,
+                        used_intents,
+                        used_template_ids,
+                        required_pattern_label=None,
+                        banned_pattern_labels={"GENERAL_THEORY"},
+                    )
+                    if replacement and str(replacement.get("pattern_label") or "").upper() != "GENERAL_THEORY":
+                        template = replacement
+                        current_module = self.classifier.classify(template.get("full_text", "")) if self.classifier else "General"
+                        used_modules.add(current_module)
+                        print(f"    [INFO] Replaced with non-general template intent: {template.get('pattern_label')}")
             
             # Log template selection for verification (BEFORE tracking)
             template_id = str(template.get("_id", ""))
@@ -2454,7 +2710,7 @@ class AgentOrchestrator:
                 "used_scenarios": list(used_scenarios),
                 "used_question_types": list(used_question_types),  # NEW: Pass used types
                 "exam_title": exam_title,
-                "lecture_creative_mode": bool(self.lecture_based_topics),
+                "lecture_creative_mode": bool(self.lecture_based_topics) and (not self.paper_b_mode),
                 "paper_b_questions_only": bool(self.questions_only),
             }
             
@@ -4379,8 +4635,13 @@ class AgentOrchestrator:
             if approved:
                 try:
                     from app.services.semantic_diagram_service import SemanticDiagramService
-                    from app.core.paths import OUTPUTS_DIR
                     import re
+
+                    # Paper B extra slots should stay text-first and avoid diagram generation noise.
+                    q_idx = self._question_index(q_no)
+                    if self.paper_b_mode and q_idx and q_idx > 4:
+                        needs_diagram = False
+                        diagram_type = None
                     
                     # Check if question asks student to draw (don't generate in that case)
                     all_text = draft.get("text", "") + " " + " ".join([sq.get("text", "") for sq in draft.get("subquestions", [])])
@@ -5909,6 +6170,8 @@ Note: The diagram uses (min, max) cardinality notation where:
             topic_label = template.get("pattern_label") or slot.get("topics", ["General"])[0]
             draft["main_topic"] = topic_label
             draft["topic_label"] = topic_label  # For output clarity
+            if self.paper_b_mode:
+                draft = self._enhance_extra_slot_question_quality(draft, topic_label, q_no)
             
             final_questions.append(draft)
             print(f"\n✅ Successfully generated {q_no}!")

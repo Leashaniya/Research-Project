@@ -82,9 +82,13 @@ async def generate_paper_a():
 async def generate_paper(params: GeneratePaperRequest | None = None):
     """Runs the COMPLETE pipeline: Extraction -> Blueprinting -> AI Generation."""
     options = params.dict(exclude_none=True) if params else {}
-    # Paper B default: mine topics from lecture slide corpus (not selected past papers)
-    if options.get("lecture_based_topics") is None:
-        options["lecture_based_topics"] = True
+    # Paper B mode:
+    # - Always use past-paper trend/topic signals (no lecture-based topic mining)
+    # - Default to 8 questions unless explicitly provided
+    options["paper_b_mode"] = True
+    options["lecture_based_topics"] = False
+    if options.get("num_slots") is None:
+        options["num_slots"] = 8
     res = await pipeline_service.run_full_pipeline(options=options)
     if res["status"] == "error":
         msg = res.get("message") or "Pipeline failed"
