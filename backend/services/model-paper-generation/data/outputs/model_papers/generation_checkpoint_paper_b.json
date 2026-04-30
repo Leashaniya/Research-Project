@@ -1,0 +1,180 @@
+{
+  "questions": [
+    {
+      "question_no": "Q1",
+      "marks": 20,
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA hospital database system is designed to manage patients, doctors, and appointments efficiently. The 'Patient' entity has attributes including PatientID, Name, DateOfBirth, and PhoneNumbers. The 'Doctor' entity contains DoctorID, Name, Specialization, and OfficeHours. Each doctor can have multiple appointments; thus, an 'Appointment' entity is created with attributes such as AppointmentID, AppointmentDate, and ReasonForVisit. Additionally, to capture the hospital's departments, there is a 'Department' entity that includes DepartmentID and DepartmentName. The relationships established are as follows: a doctor belongs to a specific department, and patients can make several appointments with doctors. The cardinality between patients and appointments is (1,N), indicating that one patient can have multiple appointments, while each appointment belongs to exactly one patient. The relationship between doctors and departments is one-to-one",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulting relations clearly.",
+          "marks": 17
+        },
+        {
+          "label": "b",
+          "text": "What is the best option for mapping the ISA hierarchies in the diagram? Justify your answer.",
+          "marks": 3
+        }
+      ],
+      "pattern_label": "ER_EER_MODELING",
+      "main_topic": "ER_EER_MODELING",
+      "intent": "ER_EER_MODELING",
+      "template_id": "69f35e0cce7ce8e738a3967f",
+      "original_semantic_description": "A hospital database system is designed to manage patients, doctors, and appointments efficiently. The 'Patient' entity has attributes including PatientID, Name, DateOfBirth, and PhoneNumbers. The 'Doctor' entity contains DoctorID, Name, Specialization, and OfficeHours. Each doctor can have multiple appointments; thus, an 'Appointment' entity is created with attributes such as AppointmentID, AppointmentDate, and ReasonForVisit. Additionally, to capture the hospital's departments, there is a 'Department' entity that includes DepartmentID and DepartmentName. The relationships established are as follows: a doctor belongs to a specific department, and patients can make several appointments with doctors. The cardinality between patients and appointments is (1,N), indicating that one patient can have multiple appointments, while each appointment belongs to exactly one patient. The relationship between doctors and departments is one-to-one.",
+      "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
+      "diagram_generated": true,
+      "diagram_type": "EER",
+      "needs_diagram": true,
+      "diagram_source": "semantic_description",
+      "topic_label": "ER_EER_MODELING"
+    },
+    {
+      "question_no": "Q2",
+      "marks": 15,
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, A->D, C->E, B->A, DE->B}}. This schema represents a database designed to keep track of employee performance, where each employee can be associated with multiple performance metrics and ratings. The attributes A, B, C denote employee identification details, while D and E track performance metrics and grades respectively.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Find all the keys in relation R using the attribute closure method.",
+          "marks": 4
+        },
+        {
+          "label": "b",
+          "text": "Is R in 3NF? Give reasons for your conclusion.",
+          "marks": 3
+        },
+        {
+          "label": "c",
+          "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+          "marks": 8
+        }
+      ],
+      "pattern_label": "NORMALIZATION_FD_KEYS",
+      "main_topic": "NORMALIZATION_FD_KEYS",
+      "intent": "NORMALIZATION_FD_KEYS",
+      "template_id": "69f35e0cce7ce8e738a39680",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": false,
+      "topic_label": "NORMALIZATION_FD_KEYS"
+    },
+    {
+      "question_no": "Q3",
+      "marks": 25,
+      "text": "A retail company is developing a database system to manage its inventory and sales transactions. The system should store information about products, suppliers, customers, and sales. Each product has attributes like productID, name, description, price, and quantity in stock. Suppliers are tracked with attributes such as supplierID, name, contact information, and address. Customers are identified with customerID, name, email, and loyalty points. Sales transactions include transactionID, customerID, productID, quantity sold, date, and time of sale. The company requires that every sale links to a customer and a product, while suppliers can provide multiple products. Additionally, if a product is out of stock, it cannot be sold until restocked.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Write SQL queries to in type 2 driver, jdbc api calls are converted to native java api calls. accept or refute the above statement justifying your answer.",
+          "marks": 2
+        },
+        {
+          "label": "b",
+          "text": "Code Segment: ```java String sql = \"SELECT * FROM employees WHERE department = ?\"; PreparedStatement pstmt = connection.prepareStatement(sql); pstmt.setString(1, \"IT\"); ResultSet rs = pstmt.executeQuery(); ``` There are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used.",
+          "marks": 2
+        },
+        {
+          "label": "c",
+          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers.",
+          "marks": 2
+        },
+        {
+          "label": "d",
+          "text": "Briefly explain how authentication and authorization are achieved in SQL Server.",
+          "marks": 3
+        },
+        {
+          "label": "e",
+          "text": "An organization is establishing role-based access control for its database system. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the operational database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating transaction data.",
+          "marks": null,
+          "subquestions": [
+            {
+              "label": "i",
+              "marks": 2,
+              "text": "i. Write a T-SQL statement to create a login to Sarah with windows authentication."
+            },
+            {
+              "label": "ii",
+              "marks": 3,
+              "text": "ii. Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role."
+            },
+            {
+              "label": "iii",
+              "marks": 5,
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the operational database using a user-defined server role."
+            },
+            {
+              "label": "iv",
+              "marks": 3,
+              "text": "iv. Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases."
+            },
+            {
+              "label": "v",
+              "marks": 3,
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the operational databases."
+            }
+          ]
+        }
+      ],
+      "pattern_label": "SQL_DDL_DML",
+      "main_topic": "SQL_DDL_DML",
+      "intent": "SQL_DDL_DML",
+      "template_id": "69f35e0cce7ce8e738a39681",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": false,
+      "topic_label": "SQL_DDL_DML"
+    },
+    {
+      "question_no": "Q4",
+      "marks": 40,
+      "text": "Consider the following schema of a database designed for a healthcare facility: Patient (patientId: int, name: varchar(100), email: varchar(100), phone: varchar(15)) Doctor (doctorId: int, name: varchar(100), specialty: varchar(50), phone: varchar(15)) Appointment (appointmentId: int, patientId: int, doctorId: int, appointmentDate: date, status: varchar(20)) Fee (feeId: int, appointmentId: int, amount: real, paymentStatus: varchar(20)). The 'Patient' table stores information about patients including unique ID, contact details, and name. The 'Doctor' table contains details of doctors, their specialties, and contact numbers. The 'Appointment' table tracks patient appointments with their respective doctors along with the date and current status. The 'Fee' table maintains a record of fees linked to appointments, the amount charged, and the payment status. The 'Appointment' table manages appointment records, tracking scheduled appointments between patients and doctors with dates and times. The 'Fee' table contains relevant information for the database system.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Write SQL Queries to perform the following: i. Find the name and phone number of the doctor who has an appointment with the patient whose ID is 101.",
+          "marks": null,
+          "subquestions": [
+            {
+              "label": "i",
+              "marks": 4,
+              "text": "Find the name and phone number of the doctor who has an appointment with the patient whose ID is 101."
+            },
+            {
+              "label": "ii",
+              "marks": 6,
+              "text": "Find the patient who has the highest total amount compared to all other patients. Find the patientId and name."
+            },
+            {
+              "label": "iii",
+              "marks": 7,
+              "text": "Find the name and name from Doctor, Patient, and Appointment where Appointment.appointmentDate is not null."
+            }
+          ]
+        },
+        {
+          "label": "b",
+          "marks": 11,
+          "text": "b) Create a function to calculate the total fee amount for a given patient. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
+        },
+        {
+          "label": "c",
+          "marks": 12,
+          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each patient. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by patient. The patient pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
+        }
+      ],
+      "pattern_label": "SQL_DDL_DML",
+      "main_topic": "SQL_DDL_DML",
+      "intent": "SQL_DDL_DML",
+      "template_id": "69f35e0cce7ce8e738a39682",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": false,
+      "topic_label": "SQL_DDL_DML"
+    }
+  ],
+  "last_update": "2026-04-30 19:22:32"
+}
