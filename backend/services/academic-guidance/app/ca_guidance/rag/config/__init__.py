@@ -3,6 +3,7 @@
 from .settings import (
     LECTURES_DIR,
     IMAGE_OUTPUT_DIR,
+    GENERATED_IMAGE_OUTPUT_DIR,
     VECTORSTORE_DIR,
     TEXT_EMBED_MODEL_NAME,
     DEVICE,
@@ -22,6 +23,7 @@ from .settings import (
 __all__ = [
     "LECTURES_DIR",
     "IMAGE_OUTPUT_DIR",
+    "GENERATED_IMAGE_OUTPUT_DIR",
     "VECTORSTORE_DIR",
     "TEXT_EMBED_MODEL_NAME",
     "DEVICE",

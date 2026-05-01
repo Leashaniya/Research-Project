@@ -122,7 +122,8 @@ class RenderNode(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     id: str
-    type: Literal["entity", "relationship"]
+    # "isa" = Chen specialization triangle (one parent entity, subtype entities as children)
+    type: Literal["entity", "relationship", "isa"]
     label: str
     x: float
     y: float

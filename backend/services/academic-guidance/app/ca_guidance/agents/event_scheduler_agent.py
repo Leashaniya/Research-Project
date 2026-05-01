@@ -14,7 +14,8 @@ event_scheduler_agent = Agent(
         "A deadline can appear in natural language (e.g., '31st of December 2025 11:59 PM'). "
         "You can pass the FULL RAW DEADLINE PHRASE to the create_calendar_event tool. "
         "Do NOT restrict yourself to numeric or cleaned dates. "
-        "If ANY date-like phrase exists, treat it as a deadline."
+        "If ANY date-like phrase exists in a submission/due context, you MUST call create_calendar_event—"
+        "never stop after only describing the date in prose."
     ),
     tools=[create_calendar_event],
     verbose=True,

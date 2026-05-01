@@ -344,11 +344,11 @@ LECTURE/CONTEXT (use for accuracy):
 INSTRUCTIONS:
 - Output a complete, improved guidance document in the same markdown style
 - Write all notes and explanatory text as **normal prose** (paragraphs, bullet lists). Do not put notes inside code blocks; use code blocks only for SQL, code, or diagram syntax
-- Put diagrams in markdown: use a fenced code block for diagram text/ASCII (e.g. ER diagram syntax) or ![alt](url) for images
+- For ER/EER/schema diagrams: do NOT use ```dot or ```graphviz; keep or add only `[IMAGE:filename.png]` lines from the diagram tool (or existing `<figure>` image HTML). For other visuals, Mermaid in a fence is OK
 - Format every URL as a markdown link so it is clickable: [link text](URL). Never output bare URLs as plain text
 - Keep the same overall structure (sections, headings) unless feedback asks to change it
 - Add or expand clarification where the user was confused or had doubts
-- Preserve any SQL, ER descriptions, or diagrams from the original (in code blocks or image markdown)
+- Preserve SQL, prose ER descriptions, and existing diagram images from the original; do not introduce new raw Graphviz DOT for ER
 - Do not remove content unless it was wrong; improve and extend
 - For "add_more_links": ensure a strong Related Web Resources section with multiple links in [text](url) format
 - For "simplify_language": use plain, clear language throughout

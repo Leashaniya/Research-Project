@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -16,7 +17,8 @@ import {
   FaThumbsUp,
   FaThumbsDown,
   FaEdit,
-  FaSpinner
+  FaSpinner,
+  FaDownload
 } from 'react-icons/fa';
 import { HiMiniSparkles } from 'react-icons/hi2';
 import { BsDiagram3Fill } from 'react-icons/bs';
@@ -33,6 +35,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/guidance';
 function GuidancePage() {
   const { user } = useAuth();
   const [assignmentFile, setAssignmentFile] = useState(null);
+  const [sqlDatasetFiles, setSqlDatasetFiles] = useState([]);
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
   const [summaryTopic, setSummaryTopic] = useState('');
@@ -95,7 +98,11 @@ function GuidancePage() {
   const [guidanceCalendarEventMessage, setGuidanceCalendarEventMessage] = useState(null);
   const [guidanceSessionId, setGuidanceSessionId] = useState(null);
   const [lastGuidanceFeedbackId, setLastGuidanceFeedbackId] = useState(null);
+  const [guidancePdfLoading, setGuidancePdfLoading] = useState(false);
+  const [guidancePdfError, setGuidancePdfError] = useState(null);
   const [modalOpen, setModalOpen] = useState(null); // 'guidance' | 'summarize' | 'flashcards' | 'er' | null
+  const assignmentFileInputRef = useRef(null);
+  const sqlDatasetInputRef = useRef(null);
 
   // Ensure bare URLs in markdown become clickable links [url](url)
   const ensureLinksInMarkdown = (text) => {
@@ -103,13 +110,133 @@ function GuidancePage() {
     return text.replace(/(?<!\]\()(https?:\/\/[^\s)\]>\"]+)/g, (url) => `[${url}](${url})`);
   };
 
-  // If the content is wrapped in a markdown code block (```markdown ... ``` or ``` ... ```), unwrap it so ReactMarkdown renders it as formatted content, not as one big code block
+  /** Only transform segments that are not inside ``` … ``` fences (avoids mangling SQL/HTML examples). */
+  const transformOutsideFencedCode = (text, fn) => {
+    if (!text || typeof text !== 'string') return text;
+    const lines = text.split('\n');
+    let i = 0;
+    const parts = [];
+    while (i < lines.length) {
+      if (lines[i].trimStart().startsWith('```')) {
+        const start = i;
+        i += 1;
+        while (i < lines.length && !/^`{3,}\s*$/.test(lines[i].trim())) {
+          i += 1;
+        }
+        if (i < lines.length) {
+          parts.push(lines.slice(start, i + 1).join('\n'));
+          i += 1;
+        } else {
+          parts.push(lines.slice(start).join('\n'));
+          break;
+        }
+      } else {
+        const start = i;
+        while (i < lines.length && !lines[i].trimStart().startsWith('```')) {
+          i += 1;
+        }
+        const chunk = lines.slice(start, i).join('\n');
+        parts.push(fn(chunk));
+      }
+    }
+    return parts.join('\n');
+  };
+
+  // If the whole payload is wrapped in ```markdown … ```, unwrap using the *last* closing fence
+  // so nested ```sql …``` blocks inside the report do not truncate the body.
   const unwrapMarkdownFromCodeBlock = (text) => {
     if (!text || typeof text !== 'string') return text;
     const trimmed = text.trim();
-    const match = trimmed.match(/^```(?:markdown|md)?\s*\n?([\s\S]*?)\n?```\s*$/);
-    if (match) return match[1].trim();
-    return text;
+    if (!trimmed.startsWith('```')) return text;
+    const firstNl = trimmed.indexOf('\n');
+    if (firstNl === -1) return text;
+    const opener = trimmed.slice(0, firstNl).trim();
+    if (!/^```(?:markdown|md)?$/.test(opener)) return text;
+    const afterOpen = trimmed.slice(firstNl + 1);
+    const closeIdx = afterOpen.lastIndexOf('\n```');
+    if (closeIdx === -1) return text;
+    const afterClose = afterOpen.slice(closeIdx + 1).trim();
+    // Closing fence only (optional whitespace / newlines after it) — no trailing junk
+    if (!/^`{3,}\s*$/s.test(afterClose)) return text;
+    return afterOpen.slice(0, closeIdx).trim();
+  };
+
+  // Convert backend <figure><img ...><figcaption>...</figcaption></figure> to markdown so
+  // ensureLinksInMarkdown never corrupts src="https://..." and React/rehype do not see broken tags.
+  const figureHtmlToGuidanceMarkdown = (figureHtml, apiBase) => {
+    const srcMatch = figureHtml.match(/\bsrc=(["'])([^"']+)\1/i);
+    if (!srcMatch) return figureHtml;
+    let src = srcMatch[2].trim();
+    const altMatch = figureHtml.match(/\balt=(["'])([^"']*)\1/i);
+    let alt = (altMatch && altMatch[2] ? String(altMatch[2]) : 'Diagram').replace(/\]/g, '').trim() || 'Diagram';
+    const capMatch = figureHtml.match(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/i);
+    const cap = capMatch
+      ? String(capMatch[1])
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+      : '';
+    const b = String(apiBase || '').replace(/\/$/, '');
+    if (b) {
+      if (src.startsWith('/api/images/') && !src.startsWith(`${b}/`) && src !== b) {
+        src = `${b}${src}`;
+      }
+      if (src.startsWith('/guidance/api/images/')) {
+        src = `${b}${src.replace(/^\/guidance/, '')}`;
+      }
+    }
+    let md = `![${alt}](${src})`;
+    if (cap) md += `\n\n*${cap}*`;
+    return md;
+  };
+
+  const standaloneImgHtmlToMarkdown = (imgTag, apiBase) => {
+    const srcMatch = imgTag.match(/\bsrc=(["'])([^"']+)\1/i);
+    if (!srcMatch) return imgTag;
+    let src = srcMatch[2].trim();
+    const altMatch = imgTag.match(/\balt=(["'])([^"']*)\1/i);
+    let alt = (altMatch && altMatch[2] ? String(altMatch[2]) : 'Diagram').replace(/\]/g, '').trim() || 'Diagram';
+    const b = String(apiBase || '').replace(/\/$/, '');
+    if (b) {
+      if (src.startsWith('/api/images/') && !src.startsWith(`${b}/`) && src !== b) {
+        src = `${b}${src}`;
+      }
+      if (src.startsWith('/guidance/api/images/')) {
+        src = `${b}${src.replace(/^\/guidance/, '')}`;
+      }
+    }
+    return `![${alt}](${src})`;
+  };
+
+  // Guidance report: expand [IMAGE:file] to real markdown images; normalize HTML figures/images
+  const prepareGuidanceMarkdown = (text) => {
+    if (!text || typeof text !== 'string') return text;
+    let out = unwrapMarkdownFromCodeBlock(text);
+    const base = String(API_URL || '').replace(/\/$/, '');
+
+    const applyFigureImgAndImageTokens = (segment) => {
+      let s = segment;
+      s = s.replace(/<figure>[\s\S]*?<\/figure>/gi, (block) => figureHtmlToGuidanceMarkdown(block, base));
+      s = s.replace(/<img\b[^>]*\/?>/gi, (tag) => standaloneImgHtmlToMarkdown(tag, base));
+      s = s.replace(/\[IMAGE:\s*([^\]]+)\]/gi, (_, raw) => {
+        const name = String(raw).trim();
+        if (!name) return _;
+        const enc = encodeURIComponent(name);
+        const path = `/api/images/${enc}`;
+        const url = base ? `${base}${path}` : path;
+        return `![Diagram](${url})`;
+      });
+      s = s
+        .replace(/<imgsrc=/gi, '<img src=')
+        .replace(/<img\/src=/gi, '<img src=')
+        .replace(/<img\s+src=/gi, '<img src=');
+      return s;
+    };
+
+    out = transformOutsideFencedCode(out, applyFigureImgAndImageTokens);
+    out = transformOutsideFencedCode(out, ensureLinksInMarkdown);
+
+    return out;
   };
 
   // ✅ Helper: make a path absolute using API_URL
@@ -123,7 +250,10 @@ function GuidancePage() {
     const base = String(API_URL || '').replace(/\/$/, '');
     if (!base) return url;
 
-    if (url.startsWith('/')) return `${base}${url}`;
+    if (url.startsWith('/')) {
+      if (url === base || url.startsWith(`${base}/`)) return url;
+      return `${base}${url}`;
+    }
     return `${base}/${url}`;
   };
 
@@ -177,6 +307,9 @@ function GuidancePage() {
 
     const formData = new FormData();
     formData.append('file', assignmentFile);
+    if (Array.isArray(sqlDatasetFiles) && sqlDatasetFiles.length > 0) {
+      sqlDatasetFiles.forEach((f) => formData.append('sql_dataset', f));
+    }
 
     try {
       const response = await fetch(`${API_URL}/protected/run-guidance`, {
@@ -188,16 +321,18 @@ function GuidancePage() {
       if (response.ok) {
         const result = await response.json();
 
-        console.log('=== Full API Response ===');
-        console.log(JSON.stringify(result, null, 2));
+        const rep = (result?.report || result?.markdown_report || '').toString();
+        console.log('Guidance API ok; report length (chars):', typeof rep === 'string' ? rep.length : 0);
+        console.log('Guidance API query results count:', Array.isArray(result?.query_results) ? result.query_results.length : 0);
 
         setReport({
-          content: result.report,
-          images: result.images || []
+          content: rep,
+          images: result.images || [],
+          query_results: result.query_results || [],
         });
         if (result.guidance_id) {
           setGuidanceId(result.guidance_id);
-          setBaseGuidanceContent(result.report);
+          setBaseGuidanceContent(rep);
           setBaseGuidanceImages(result.images || []);
           setReinforcedGuidanceContent(null);
           setReinforcedGuidanceImages([]);
@@ -213,6 +348,7 @@ function GuidancePage() {
           setGuidanceFeedbackError(null);
           setGuidanceReinforceSuccess(false);
           setGuidanceCalendarEventMessage(null);
+          setGuidancePdfError(null);
         } else {
           setGuidanceId(null);
           setGuidanceCalendarEventMessage(null);
@@ -220,16 +356,153 @@ function GuidancePage() {
           setBaseGuidanceImages([]);
           setReinforcedGuidanceContent(null);
           setReinforcedGuidanceImages([]);
+          setGuidancePdfError(null);
         }
       } else {
-        console.error('Failed to run guidance');
-        setReport({ error: 'Failed to run guidance. Make sure you are logged in.' });
+        let message = `Failed to run guidance (HTTP ${response.status}).`;
+        try {
+          const errData = await response.json();
+          const d = errData?.detail;
+          if (d !== undefined && d !== null) {
+            message =
+              typeof d === 'string'
+                ? d
+                : Array.isArray(d)
+                  ? d
+                      .map((x) => (x && typeof x === 'object' && x.msg != null ? x.msg : JSON.stringify(x)))
+                      .join('; ')
+                  : String(d);
+          }
+        } catch {
+          /* non-JSON error body */
+        }
+        if (response.status === 504) {
+          message =
+            'The gateway timed out waiting for guidance (this can take many minutes). ' +
+            'The backend may still be working—check its terminal, or restart the gateway with a higher GUIDANCE_PROXY_TIMEOUT. ' +
+            'If the response eventually completes, try calling the service directly on port 8081.';
+        }
+        if (response.status === 401 || response.status === 403) {
+          if (message.startsWith('Failed to run guidance (HTTP')) {
+            message = 'Not authenticated. Sign in (e.g. with Google) and try again.';
+          }
+        }
+        console.error('Failed to run guidance:', response.status, message);
+        setReport({ error: message });
       }
     } catch (error) {
       console.error('Error running guidance:', error);
       setReport({ error: 'An error occurred while running the guidance.' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadGuidancePdf = async () => {
+    const currentGuidanceContent =
+      activeGuidanceView === 'reinforced' && reinforcedGuidanceContent
+        ? reinforcedGuidanceContent
+        : (baseGuidanceContent || report?.content || (typeof report === 'string' ? report : null));
+
+    const currentGuidanceImages =
+      activeGuidanceView === 'reinforced' && reinforcedGuidanceImages.length > 0
+        ? reinforcedGuidanceImages
+        : (baseGuidanceImages || report?.images || []);
+    const currentQueryResults =
+      Array.isArray(report?.query_results) ? report.query_results : [];
+
+    if (!currentGuidanceContent) {
+      setGuidancePdfError('No guidance content is available to download.');
+      return;
+    }
+
+    setGuidancePdfLoading(true);
+    setGuidancePdfError(null);
+
+    try {
+      const sourceName = assignmentFile?.name?.replace(/\.pdf$/i, '') || 'ca-guidance';
+      const fileName = `${sourceName}-${activeGuidanceView || 'report'}.pdf`;
+      const requestPayload = {
+        report_content: currentGuidanceContent,
+        images: currentGuidanceImages,
+        query_results: currentQueryResults,
+        title: activeGuidanceView === 'reinforced' ? 'Reinforced CA Guidance Report' : 'CA Guidance Report',
+        file_name: fileName,
+      };
+      const imageTokenCount = (String(currentGuidanceContent || '').match(/\[IMAGE:\s*[^\]]+\]/gi) || []).length;
+      console.info('Guidance PDF request payload:', {
+        reportChars: String(currentGuidanceContent || '').length,
+        imageCount: Array.isArray(currentGuidanceImages) ? currentGuidanceImages.length : 0,
+        queryResultCount: currentQueryResults.length,
+        imageTokenCount,
+        activeGuidanceView,
+        fileName,
+      });
+
+      const response = await fetch(`${API_URL}/protected/guidance/download-pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(requestPayload),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ detail: 'Failed to generate guidance PDF.' }));
+        throw new Error(err.detail || 'Failed to generate guidance PDF.');
+      }
+
+      const blob = await response.blob();
+      console.info('Guidance PDF response metadata:', {
+        status: response.status,
+        contentType: response.headers.get('content-type'),
+        contentLength: response.headers.get('content-length'),
+        blobSize: blob?.size ?? 0,
+      });
+      if ((blob?.size ?? 0) < 2500) {
+        console.warn('Guidance PDF diagnostic: unusually small PDF blob size', {
+          blobSize: blob?.size ?? 0,
+          reportChars: String(currentGuidanceContent || '').length,
+          imageCount: Array.isArray(currentGuidanceImages) ? currentGuidanceImages.length : 0,
+          imageTokenCount,
+        });
+      }
+      if (!blob || blob.size === 0) {
+        throw new Error('Generated PDF is empty. Please try again.');
+      }
+
+      const url = window.URL.createObjectURL(blob);
+
+      // Show PDF on screen (new tab) while still allowing a direct download fallback.
+      let opened = null;
+      try {
+        opened = window.open(url, '_blank', 'noopener,noreferrer');
+      } catch {
+        opened = null;
+      }
+
+      // If popup/new-tab is blocked, force file download.
+      if (!opened) {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Keep object URL alive briefly so new-tab viewer can read it before cleanup.
+      window.setTimeout(() => {
+        try {
+          window.URL.revokeObjectURL(url);
+        } catch {
+          // no-op
+        }
+      }, 30000);
+    } catch (error) {
+      console.error('Error downloading guidance PDF:', error);
+      setGuidancePdfError(error.message || 'An error occurred while downloading the PDF.');
+    } finally {
+      setGuidancePdfLoading(false);
     }
   };
 
@@ -351,7 +624,13 @@ function GuidancePage() {
         setSummaryAudio((prev) => prev || audioUrl);
       } else {
         const errorData = await response.json().catch(() => ({ detail: 'Failed to create summary' }));
-        setSummary({ error: errorData.detail || 'Failed to create summary. Make sure you are logged in.' });
+        let detail = errorData.detail || 'Failed to create summary. Make sure you are logged in.';
+        if (response.status === 504) {
+          detail =
+            'The gateway timed out while summarizing (this can take many minutes). ' +
+            'Check the academic-guidance service terminal or increase GUIDANCE_PROXY_TIMEOUT on the gateway.';
+        }
+        setSummary({ error: typeof detail === 'string' ? detail : JSON.stringify(detail) });
       }
     } catch (error) {
       console.error('Error creating summary:', error);
@@ -655,6 +934,7 @@ function GuidancePage() {
       setGuidanceFeedbackType(null);
       setGuidanceFeedbackOpen(false);
       setGuidanceLiked(false);
+      setGuidancePdfError(null);
     } catch (error) {
       console.error('Error submitting guidance feedback and reinforcing:', error);
       setGuidanceReinforceError('An error occurred while generating reinforced guidance.');
@@ -934,8 +1214,9 @@ function GuidancePage() {
       
       // If src doesn't start with http/https, make it absolute
       if (imageSrc && !imageSrc.startsWith('http://') && !imageSrc.startsWith('https://')) {
-        // If it already starts with /api/images/, preserve it
-        if (imageSrc.startsWith('/api/images/')) {
+        if (imageSrc.startsWith('/guidance/api/images/')) {
+          imageSrc = toAbsoluteUrl(imageSrc.replace(/^\/guidance/, ''));
+        } else if (imageSrc.startsWith('/api/images/')) {
           imageSrc = toAbsoluteUrl(imageSrc);
         } else if (imageSrc.startsWith('/')) {
           // Other absolute paths
@@ -945,8 +1226,6 @@ function GuidancePage() {
           imageSrc = toAbsoluteUrl(`/api/images/${imageSrc}`);
         }
       }
-      
-      console.log(`Image src: ${src} -> ${imageSrc}`);
 
       return (
         <img
@@ -981,6 +1260,9 @@ function GuidancePage() {
   const clearStateOnLogout = () => {
     setReport(null);
     setAssignmentFile(null);
+    setSqlDatasetFiles([]);
+    if (assignmentFileInputRef.current) assignmentFileInputRef.current.value = '';
+    if (sqlDatasetInputRef.current) sqlDatasetInputRef.current.value = '';
     setSummary(null);
     setSummaryTopic('');
     setSummaryAudio(null);
@@ -1044,6 +1326,7 @@ function GuidancePage() {
                       <FaFilePdf style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Upload Assignment PDF
                     </label>
                     <input
+                      ref={assignmentFileInputRef}
                       id="assignment-file"
                       type="file"
                       accept="application/pdf"
@@ -1052,8 +1335,51 @@ function GuidancePage() {
                       required
                     />
                     {assignmentFile && (
-                      <div className="info-message" style={{ marginTop: '10px' }}>
+                      <div className="info-message file-selected-message" style={{ marginTop: '10px' }}>
                         Selected: <strong>{assignmentFile.name}</strong>
+                        <button
+                          type="button"
+                          className="file-clear-btn"
+                          aria-label="Clear selected assignment file"
+                          title="Clear file"
+                          onClick={() => {
+                            setAssignmentFile(null);
+                            if (assignmentFileInputRef.current) assignmentFileInputRef.current.value = '';
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="sql-dataset-file">
+                      Upload SQL Dataset (optional: .sql or .csv)
+                    </label>
+                    <input
+                      ref={sqlDatasetInputRef}
+                      id="sql-dataset-file"
+                      type="file"
+                      multiple
+                      accept=".sql,.csv,text/csv,application/sql"
+                      onChange={(e) => setSqlDatasetFiles(Array.from(e.target.files || []))}
+                      className="file-input"
+                    />
+                    {sqlDatasetFiles.length > 0 && (
+                      <div className="info-message file-selected-message" style={{ marginTop: '10px' }}>
+                        SQL Datasets: <strong>{sqlDatasetFiles.map((f) => f.name).join(', ')}</strong>
+                        <button
+                          type="button"
+                          className="file-clear-btn"
+                          aria-label="Clear selected SQL dataset file"
+                          title="Clear file"
+                          onClick={() => {
+                            setSqlDatasetFiles([]);
+                            if (sqlDatasetInputRef.current) sqlDatasetInputRef.current.value = '';
+                          }}
+                        >
+                          ×
+                        </button>
                       </div>
                     )}
                   </div>
@@ -1074,27 +1400,55 @@ function GuidancePage() {
 
                 {report && (
                   <div>
-                    <h2 style={{ marginBottom: '20px', color: '#495057' }}>
-                      <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Guidance Report
-                    </h2>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                      <h2 style={{ marginBottom: 0, color: '#495057' }}>
+                        <FaClipboard style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Guidance Report
+                      </h2>
+                      {!report.error && (report.content != null || typeof report === 'string') && (
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={handleDownloadGuidancePdf}
+                          disabled={guidancePdfLoading}
+                        >
+                          {guidancePdfLoading ? (
+                            <>
+                              <FaSpinner className="loading-spinner" />
+                              Preparing PDF...
+                            </>
+                          ) : (
+                            <>
+                              <FaDownload />
+                              Download PDF
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    {guidancePdfError && (
+                      <div className="error-message" style={{ marginBottom: '16px' }}>
+                        {guidancePdfError}
+                      </div>
+                    )}
 
                     {typeof report === 'string' ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report))}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report)}</ReactMarkdown>
                       </div>
                     ) : report.content ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report.content))}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report.content)}</ReactMarkdown>
                       </div>
                     ) : report.markdown_report ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>{ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(report.markdown_report))}</ReactMarkdown>
+                        <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report.markdown_report)}</ReactMarkdown>
                       </div>
                     ) : report.error ? (
                       <div className="error-message">{report.error}</div>
                     ) : (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>
+                        <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                           {JSON.stringify(report, null, 2)}
                         </ReactMarkdown>
                       </div>
@@ -1500,7 +1854,7 @@ function GuidancePage() {
                               }
                             }
                             return (
-                              <ReactMarkdown components={CodeBlock} rehypePlugins={[rehypeRaw]}>
+                              <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                                 {content}
                               </ReactMarkdown>
                             );

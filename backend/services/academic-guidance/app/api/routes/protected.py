@@ -1,8 +1,13 @@
+import html
+import io
+import csv
 import fitz  # PyMuPDF
+import sqlite3
 import logging
 import re
+import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Any
 from urllib.parse import unquote, urlparse, quote
 
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
@@ -22,9 +27,11 @@ from app.models.schemas import (
     FlashcardUpdateRequest,
     GuidanceFeedbackRequest,
     ReinforceGuidanceRequest,
+    GuidancePdfRequest,
 )
 from app.ca_guidance.crew import create_guidance_crew, create_summarization_crew
-from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR
+from app.ca_guidance.crew.guidance_crew import _extract_question_markers
+from app.ca_guidance.rag.config.settings import IMAGE_OUTPUT_DIR, GENERATED_IMAGE_OUTPUT_DIR
 from app.ca_guidance.tools.tts_tool import text_to_speech_wav  # ✅ AUDIO
 from app.ca_guidance.tools.rag_tool import (
     _get_rag_chain,
@@ -34,6 +41,617 @@ from app.ca_guidance.tools.rag_tool import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _sanitize_sql_identifier(name: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9_]+", "_", (name or "").strip()).strip("_")
+    if not cleaned:
+        cleaned = "col"
+    if cleaned[0].isdigit():
+        cleaned = f"c_{cleaned}"
+    return cleaned
+
+
+def _load_dataset_into_sqlite(dataset_name: str, dataset_bytes: bytes) -> sqlite3.Connection:
+    conn = sqlite3.connect(":memory:")
+    name = (dataset_name or "").lower()
+    if name.endswith(".sql"):
+        script = dataset_bytes.decode("utf-8", errors="replace")
+        conn.executescript(script)
+        logger.info("SQL dataset loaded via executescript (bytes=%s)", len(dataset_bytes or b""))
+        return conn
+    if name.endswith(".csv"):
+        text = dataset_bytes.decode("utf-8-sig", errors="replace")
+        rows = list(csv.reader(io.StringIO(text)))
+        if not rows:
+            raise ValueError("CSV dataset is empty.")
+        header = [_sanitize_sql_identifier(h or f"col_{i+1}") for i, h in enumerate(rows[0])]
+        tbl = _sanitize_sql_identifier(Path(dataset_name).stem or "dataset")
+        placeholders = ", ".join("?" for _ in header)
+        cols_sql = ", ".join(f'"{h}" TEXT' for h in header)
+        conn.execute(f'CREATE TABLE "{tbl}" ({cols_sql})')
+        if len(rows) > 1:
+            quoted_cols = ", ".join(f'"{h}"' for h in header)
+            conn.executemany(
+                f'INSERT INTO "{tbl}" ({quoted_cols}) VALUES ({placeholders})',
+                [tuple(r[: len(header)] + [""] * max(0, len(header) - len(r))) for r in rows[1:]],
+            )
+        conn.commit()
+        logger.info("CSV dataset loaded into table '%s' rows=%s cols=%s", tbl, max(0, len(rows) - 1), len(header))
+        return conn
+    raise ValueError("Unsupported dataset type. Upload .sql or .csv file.")
+
+
+def _extract_sql_queries_from_guidance(text: str, limit: int = 20) -> list[str]:
+    src = text or ""
+    queries: list[str] = []
+    seen = set()
+    # Work from SQL-fenced blocks first so queries are separated from surrounding prose/comments.
+    for m in re.finditer(r"```sql\s*([\s\S]*?)```", src, flags=re.IGNORECASE):
+        block = (m.group(1) or "").strip()
+        for stmt in _split_sql_statements(block):
+            q = stmt.strip()
+            if not q:
+                continue
+            if not re.match(r"^(select|with)\b", q, flags=re.IGNORECASE):
+                continue
+            q = q + ";"
+            key = q.lower()
+            if key not in seen:
+                seen.add(key)
+                queries.append(q)
+            if len(queries) >= limit:
+                return queries
+    # Fallback inline extraction only outside fenced code blocks.
+    non_fenced = re.sub(r"```[\s\S]*?```", " ", src)
+    inline_pat = r"(?is)\b(select|with)\b[\s\S]{10,800}?;"
+    for m in re.finditer(inline_pat, non_fenced):
+        q = (m.group(0) or "").strip()
+        if not q or not re.match(r"^(select|with)\b", q, flags=re.IGNORECASE):
+            continue
+        key = q.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        queries.append(q)
+        if len(queries) >= limit:
+            break
+    return queries
+
+
+def _split_sql_statements(block: str) -> list[str]:
+    """
+    Split SQL block into statements while ignoring markdown bullets/comments and semicolons in quotes.
+    """
+    raw = (block or "")
+    # Drop markdown/bullet lines and SQL comments that are documentation noise.
+    cleaned_lines: list[str] = []
+    for ln in raw.splitlines():
+        s = ln.strip()
+        if not s:
+            cleaned_lines.append("")
+            continue
+        if s.startswith(("- ", "* ", "• ")):
+            continue
+        if s.startswith("--"):
+            continue
+        if s.startswith("#"):
+            continue
+        cleaned_lines.append(ln)
+    text = "\n".join(cleaned_lines).strip()
+    if not text:
+        return []
+
+    out: list[str] = []
+    cur: list[str] = []
+    in_single = False
+    in_double = False
+    for ch in text:
+        if ch == "'" and not in_double:
+            in_single = not in_single
+        elif ch == '"' and not in_single:
+            in_double = not in_double
+        if ch == ";" and not in_single and not in_double:
+            stmt = "".join(cur).strip()
+            if stmt:
+                out.append(stmt)
+            cur = []
+        else:
+            cur.append(ch)
+    tail = "".join(cur).strip()
+    if tail:
+        out.append(tail)
+    return out
+
+
+def _normalize_sql_query(q: str) -> str:
+    s = (q or "").strip()
+    # Remove common markdown bullets/prefixes that can leak into extracted SQL
+    s = re.sub(r"^\s*[-*]\s+", "", s)
+    s = re.sub(r"^\s*\d+[\).]\s+", "", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    if s and not s.endswith(";"):
+        s += ";"
+    return s
+
+
+def _sqlite_schema_snapshot(conn: sqlite3.Connection) -> dict[str, set[str]]:
+    schema: dict[str, set[str]] = {}
+    try:
+        cur = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = [str(r[0]) for r in cur.fetchall() if r and r[0]]
+    except Exception:
+        return schema
+    for t in tables:
+        try:
+            cols = conn.execute(f'PRAGMA table_info("{t}")').fetchall()
+            schema[t.lower()] = {str(c[1]).lower() for c in cols if len(c) > 1}
+        except Exception:
+            schema[t.lower()] = set()
+    return schema
+
+
+def _extract_query_table_names(query: str) -> list[str]:
+    q = query or ""
+    names = []
+    for m in re.finditer(r"(?is)\b(?:from|join)\s+([A-Za-z_][\w.]*)", q):
+        nm = (m.group(1) or "").strip().strip('"')
+        if nm:
+            names.append(nm.split(".")[-1])
+    # ignore CTE names declared in WITH ...
+    cte_names = {
+        (m.group(1) or "").strip().lower()
+        for m in re.finditer(r"(?is)\bwith\s+([A-Za-z_]\w*)\s+as\s*\(", q)
+    }
+    out = []
+    seen = set()
+    for n in names:
+        k = n.lower()
+        if k in cte_names or k in seen:
+            continue
+        seen.add(k)
+        out.append(n)
+    return out
+
+
+def _extract_select_columns(query: str) -> list[str]:
+    m = re.search(r"(?is)\bselect\b\s+(.*?)\s+\bfrom\b", query or "")
+    if not m:
+        return []
+    part = (m.group(1) or "").strip()
+    if not part:
+        return []
+    # split select list by commas that are not inside parentheses
+    cols: list[str] = []
+    buf = []
+    depth = 0
+    for ch in part:
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(0, depth - 1)
+        if ch == "," and depth == 0:
+            cols.append("".join(buf).strip())
+            buf = []
+        else:
+            buf.append(ch)
+    if buf:
+        cols.append("".join(buf).strip())
+    return cols
+
+
+def _column_candidate_from_expr(expr: str) -> str:
+    e = (expr or "").strip()
+    # strip aliases
+    e = re.sub(r"(?is)\s+as\s+[A-Za-z_]\w*$", "", e).strip()
+    e = re.sub(r"(?is)\s+[A-Za-z_]\w*$", "", e).strip() if "(" not in e else e
+    # only plain identifier or table.identifier
+    m = re.match(r'^(?:"?([A-Za-z_]\w*)"?\.)?"?([A-Za-z_]\w*)"?$', e)
+    if not m:
+        return ""
+    return (m.group(2) or "").strip()
+
+
+def _validate_select_query(conn: sqlite3.Connection, query: str) -> tuple[bool, str]:
+    q = (query or "").strip()
+    if not q:
+        return False, "Empty query"
+    if not re.match(r"^(select|with)\b", q, flags=re.IGNORECASE):
+        return False, "Only SELECT/CTE queries are allowed"
+    if not re.search(r"\bselect\b", q, flags=re.IGNORECASE) or not re.search(r"\bfrom\b", q, flags=re.IGNORECASE):
+        return False, "Query must contain SELECT and FROM clauses"
+    # Enforce clause order sanity for common mistakes.
+    low = q.lower()
+    pos_group = low.find(" group by ")
+    pos_having = low.find(" having ")
+    if pos_having != -1 and pos_group == -1:
+        return False, "HAVING used without GROUP BY"
+    if pos_group != -1 and pos_having != -1 and pos_having < pos_group:
+        return False, "HAVING appears before GROUP BY"
+    # Block obvious write/DDL operations if leaked into a malformed query string.
+    if re.search(r"\b(insert|update|delete|drop|alter|create|attach|detach|pragma|vacuum|replace)\b", q, flags=re.IGNORECASE):
+        return False, "Query contains non-read-only SQL keywords"
+    schema = _sqlite_schema_snapshot(conn)
+    table_names = _extract_query_table_names(q)
+    if table_names and schema:
+        missing_tables = [t for t in table_names if t.lower() not in schema]
+        if missing_tables:
+            return False, f"Unknown table(s): {', '.join(missing_tables)}"
+        # For single-table simple selects, verify referenced column names.
+        if len(table_names) == 1:
+            cols_in_table = schema.get(table_names[0].lower(), set())
+            unknown_cols: list[str] = []
+            for expr in _extract_select_columns(q):
+                if expr.strip() == "*" or expr.strip().endswith(".*"):
+                    continue
+                cand = _column_candidate_from_expr(expr)
+                if cand and cand.lower() not in cols_in_table:
+                    unknown_cols.append(cand)
+            if unknown_cols:
+                return False, f"Unknown column(s) for table {table_names[0]}: {', '.join(sorted(set(unknown_cols)))}"
+    logger.debug(
+        "SQL parser diagnostics: tables=%s select_items=%s",
+        table_names,
+        len(_extract_select_columns(q)),
+    )
+    # Pre-validate syntax without executing data-returning query.
+    try:
+        conn.execute(f"EXPLAIN QUERY PLAN {q.rstrip(';')}")
+    except Exception as e:
+        return False, f"Syntax validation failed: {e}"
+    return True, ""
+
+
+def _execute_dataset_queries(
+    conn: sqlite3.Connection,
+    queries: list[str],
+    row_limit: int = 25,
+) -> list[dict[str, Any]]:
+    results: list[dict[str, Any]] = []
+    for raw_q in queries:
+        q = _normalize_sql_query(raw_q)
+        entry: dict[str, Any] = {"query": q, "explanation": _query_explanation_from_sql(q)}
+        ok, validation_msg = _validate_select_query(conn, q)
+        if not ok:
+            entry["error"] = validation_msg
+            results.append(entry)
+            logger.warning("SQL query rejected before execution: %s", validation_msg)
+            continue
+        try:
+            cur = conn.execute(q)
+            cols = [d[0] for d in (cur.description or [])]
+            rows = cur.fetchmany(row_limit)
+            entry["columns"] = cols
+            entry["rows"] = [list(map(lambda x: "" if x is None else str(x), r)) for r in rows]
+            entry["row_count_preview"] = len(rows)
+        except Exception as e:
+            entry["error"] = str(e)
+        results.append(entry)
+    return results
+
+
+def _query_explanation_from_sql(query: str) -> str:
+    q = (query or "").strip()
+    if not q:
+        return "This query reads data from the uploaded dataset."
+    # Keep explanation concise and directly tied to the query block.
+    tables = _extract_query_table_names(q)
+    table_text = ", ".join(tables) if tables else "the dataset"
+    low = q.lower()
+    if "group by" in low:
+        return f"This query summarizes records from {table_text} using GROUP BY."
+    if re.search(r"\b(count|sum|avg|min|max)\s*\(", low):
+        return f"This query computes aggregate values from {table_text}."
+    if " join " in low:
+        return f"This query combines related rows from {table_text} and returns matching records."
+    if " where " in low:
+        return f"This query filters rows from {table_text} based on the specified conditions."
+    return f"This query retrieves rows from {table_text}."
+
+
+def _format_query_results_markdown(results: list[dict[str, Any]]) -> str:
+    if not results:
+        return ""
+    out = ["### SQL Dataset Query Results"]
+    for idx, r in enumerate(results, start=1):
+        out.append(f"\n#### Question {idx}")
+        explanation = (r.get("explanation") or "").strip()
+        out.append("**Query Explanation**:")
+        out.append(explanation or "This query reads data from the uploaded dataset.")
+        out.append("")
+        out.append("**SQL Query**:")
+        out.append("```sql")
+        out.append((r.get("query") or "").strip())
+        out.append("```")
+        out.append("")
+        out.append("**Query Result Table**:")
+        if r.get("error"):
+            out.append(f"- Error: {r['error']}")
+            continue
+        cols = r.get("columns") or []
+        rows = r.get("rows") or []
+        if not cols:
+            out.append("- No tabular output returned.")
+            continue
+        safe_cols = [str(c).replace("|", "\\|") for c in cols]
+        out.append("| " + " | ".join(safe_cols) + " |")
+        out.append("| " + " | ".join("---" for _ in cols) + " |")
+        for row in rows:
+            vals = [str(v).replace("|", "\\|") for v in row[: len(cols)]]
+            if len(vals) < len(cols):
+                vals.extend([""] * (len(cols) - len(vals)))
+            out.append("| " + " | ".join(vals) + " |")
+        if not rows:
+            out.append("| " + " | ".join(["_(no rows)_"] + [""] * (len(cols) - 1)) + " |")
+    return "\n".join(out).strip()
+
+
+def _short_guidance_image_caption(text: str, max_len: int = 185) -> str:
+    """One-line caption for under-image display (plain text, will be HTML-escaped later)."""
+    if not (text or "").strip():
+        return ""
+    s = re.sub(r"\s+", " ", text.strip())
+    if len(s) <= max_len:
+        return s
+    cut = s[:max_len].rsplit(" ", 1)[0].rstrip(",;:")
+    return (cut or s[:max_len]) + "…"
+
+
+def _caption_heading_from_context(ctx: str) -> str:
+    """Use the nearest preceding markdown heading as a short caption."""
+    lines = [ln.strip() for ln in (ctx or "").splitlines() if ln.strip()]
+    for ln in reversed(lines[-18:]):
+        if ln.startswith("#"):
+            t = ln.lstrip("#").strip()
+            if t:
+                return _short_guidance_image_caption(t, 160)
+    return ""
+
+
+def _caption_from_tool_or_context(
+    filename: str,
+    diagram_caps: dict[str, str],
+    md_alts: dict[str, str],
+    context_before: str,
+) -> str:
+    cap = (diagram_caps.get(filename) or "").strip()
+    if cap:
+        return cap
+    alt = (md_alts.get(filename) or "").strip()
+    if len(alt) >= 6 and alt.lower() not in (
+        "image",
+        "diagram",
+        "figure",
+        "er diagram",
+        "erd",
+        "photo",
+    ):
+        return _short_guidance_image_caption(alt, 160)
+    head = _caption_heading_from_context(context_before)
+    if head:
+        return head
+    return "Illustration for the guidance section above."
+
+
+def _caption_line_after_image_ref(full_content: str, match_end: int) -> str:
+    """Use the first plain sentence after [IMAGE:...] as an under-image description (crew often puts it there)."""
+    tail = (full_content[match_end:] if full_content else "").lstrip("\n \t")
+    if not tail:
+        return ""
+    first_line = tail.split("\n", 1)[0].strip()
+    if not first_line or first_line.startswith("#") or first_line.startswith("!["):
+        return ""
+    if first_line.startswith(("- ", "* ", "• ")) or re.match(r"^\d+[\).]\s", first_line):
+        return ""
+    s = re.sub(r"\*\*([^*]+)\*\*", r"\1", first_line)
+    s = re.sub(r"`([^`]+)`", r"\1", s)
+    if len(s) < 10:
+        return ""
+    return _short_guidance_image_caption(s, 200)
+
+
+def _search_query_from_assignment(assignment_text: str) -> str:
+    t = re.sub(r"\s+", " ", (assignment_text or "").strip()[:900])
+    if len(t) < 24:
+        return "DBMS ER modeling normalization SQL tutorial documentation"
+    return (t[:400] + " DBMS ER SQL normalization documentation tutorial").strip()
+
+
+def _related_resources_section_is_weak(content: str) -> bool:
+    """True when we should server-append DuckDuckGo articles + YouTube links."""
+    s = content or ""
+    low = s.lower()
+    if "youtube.com" not in low and "youtu.be" not in low:
+        return True
+    if len(re.findall(r"\]\(https?://", s)) < 4:
+        return True
+    if "### related web resources" not in low:
+        return True
+    return False
+
+
+def _append_related_web_resources_block(content: str, search_markdown: str) -> str:
+    """
+    Append DuckDuckGo links at the end of the report.
+
+    Never splice out an existing \"### Related Web Resources\" region: the next `###`
+    heading may be thousands of lines away (many `##` sections in between), and replacing
+    that span would delete the whole guidance body—leaving only links in the UI.
+    """
+    block = (
+        "\n\n### Related Web Resources (auto)\n\n"
+        "_Additional documentation and video references:_\n\n"
+        f"{search_markdown.strip()}\n"
+    )
+    return (content or "").rstrip() + block
+
+
+def _ensure_related_web_resources_server_backfill(content: str, assignment_text: str) -> str:
+    if not (content or "").strip():
+        return content
+    if not _related_resources_section_is_weak(content):
+        return content
+    try:
+        from app.ca_guidance.tools.search_tool import duckduckgo_search
+
+        fn = getattr(duckduckgo_search, "func", None)
+        if not callable(fn):
+            return content
+        q = _search_query_from_assignment(assignment_text)
+        out = fn(query=q, max_results=6, max_youtube_results=4)
+        if not out or "no valid" in out.lower()[:120]:
+            return content
+        logger.info("Guidance: server backfill appended Related Web Resources (DuckDuckGo)")
+        return _append_related_web_resources_block(content, out)
+    except Exception as e:
+        logger.warning("Related Web Resources server backfill failed: %s", e)
+        return content
+
+
+def _deadline_like_context_near(assignment_text: str, fragment: str) -> bool:
+    low = (assignment_text or "").lower()
+    frag_l = (fragment or "").lower()
+    pos = low.find(frag_l)
+    if pos < 0:
+        frag_l = re.sub(r"\s+", " ", frag_l)
+        pos = low.find(frag_l)
+    if pos < 0:
+        return bool(re.search(r"\d{1,2}:\d{2}|am|pm", fragment or "", re.I))
+    window = low[max(0, pos - 200) : pos + len(frag_l) + 220]
+    return bool(
+        re.search(
+            r"deadline|due\s+date|due:|submit|submission|hand\s*-?\s*in|"
+            r"on\s+or\s+before|before\s+\d|closes?|last\s+day|end\s+of\s+day|"
+            r"11:59|23:59",
+            window,
+            re.I,
+        )
+    )
+
+
+def _merge_deadline_confirmation_paragraph(content: str, extra_md: str) -> str:
+    if not extra_md.strip():
+        return content
+    pat = re.compile(
+        r"(###\s*Deadline\s*/\s*Calendar\s*Confirmation\s*\n)([\s\S]*?)(?=\n###\s+[^\n#]|\Z)",
+        re.IGNORECASE,
+    )
+    m = pat.search(content or "")
+    if m:
+        body = (m.group(2) or "").rstrip()
+        if extra_md.strip() in body:
+            return content
+        new_body = (body + "\n\n" + extra_md.strip()).strip()
+        return content[: m.start(2)] + new_body + content[m.end(2) :]
+    return (content or "").rstrip() + "\n\n### Deadline / Calendar Confirmation\n\n" + extra_md.strip() + "\n"
+
+
+def _pop_last_section_block(content: str, heading_pattern: str) -> tuple[str, str]:
+    """
+    Remove all matching section blocks and return (content_without_sections, last_section_body).
+    Matching is case-insensitive and heading-level agnostic (# to ######).
+    """
+    text = content or ""
+    pat = re.compile(
+        rf"(?mis)^\s*#{1,6}\s*{heading_pattern}\s*\n([\s\S]*?)(?=^\s*#{1,6}\s+\S|\Z)"
+    )
+    matches = list(pat.finditer(text))
+    if not matches:
+        return text, ""
+    last_body = (matches[-1].group(1) or "").strip()
+    stripped = pat.sub("", text)
+    stripped = re.sub(r"\n{3,}", "\n\n", stripped).strip()
+    return stripped, last_body
+
+
+def _dedupe_guidance_terminal_sections(content: str, schedule_out: str = "") -> str:
+    """
+    Ensure Related Web Resources and Deadline sections appear once, at the end.
+    """
+    base = content or ""
+    base, related_body = _pop_last_section_block(base, r"Related\s+Web\s+Resources(?:\s*\(auto\))?")
+    base, deadline_body = _pop_last_section_block(base, r"Deadline\s*/\s*Calendar\s*Confirmation")
+
+    deadline_combined = "\n\n".join(
+        x for x in (deadline_body.strip(), (schedule_out or "").strip()) if x
+    ).strip()
+    # Lightweight dedupe of duplicated lines in merged deadline body.
+    if deadline_combined:
+        seen = set()
+        lines = []
+        for ln in deadline_combined.splitlines():
+            key = ln.strip().lower()
+            if key and key in seen:
+                continue
+            if key:
+                seen.add(key)
+            lines.append(ln)
+        deadline_combined = "\n".join(lines).strip()
+
+    out = base.rstrip()
+    if related_body:
+        out += "\n\n### Related Web Resources\n\n" + related_body
+    if deadline_combined:
+        out += "\n\n### Deadline / Calendar Confirmation\n\n" + deadline_combined
+    return re.sub(r"\n{3,}", "\n\n", out).strip()
+
+
+def _ensure_calendar_from_pdf_if_missed(result, assignment_text: str, access_token: Optional[str], content: str) -> str:
+    """
+    If the scheduling agent did not create an event but the PDF clearly contains a deadline,
+    parse the date server-side and call Google Calendar once.
+    """
+    if not (access_token or "").strip():
+        return content
+    low = (content or "").lower()
+    if "successfully scheduled" in low and "calendar" in low:
+        return content
+    tasks_output = getattr(result, "tasks_output", None)
+    if tasks_output and len(tasks_output) >= 2:
+        sched = _task_output_text(tasks_output[-2]).lower()
+        if "successfully scheduled" in sched:
+            return content
+
+    from app.ca_guidance.tools.calendar_tool import (
+        _extract_date_fragment,
+        create_calendar_event_with_token,
+    )
+
+    frag = _extract_date_fragment(assignment_text)
+    if not frag or not _deadline_like_context_near(assignment_text, frag):
+        return content
+
+    try:
+        msg = create_calendar_event_with_token(
+            access_token.strip(),
+            "Submit: CA assignment (deadline from document)",
+            frag,
+            duration_hours=1,
+        )
+    except Exception as e:
+        logger.warning("Calendar server fallback failed: %s", e)
+        return content
+
+    if "successfully scheduled" not in msg.lower():
+        logger.info("Calendar server fallback did not schedule: %s", msg[:200])
+        return content
+    logger.info("Guidance: calendar event created via server fallback from PDF text")
+    note = (
+        "**Calendar:** " + msg.strip()
+    )
+    return _merge_deadline_confirmation_paragraph(content, note)
+
+
+_DIAGRAM_REQUEST_RE = re.compile(
+    r"\b(draw|create|generate|design|sketch|construct|prepare|show|illustrate)\b.*\b(er\s*diagram|eerd?|entity\s*relationship|flowchart|diagram|schema|model)\b"
+    r"|\b(er\s*diagram|eerd?|entity\s*relationship|flowchart|schema|(?:conceptual|logical|relational)\s+schema|data\s+model|entity\s*relationship\s+model)\b",
+    re.IGNORECASE,
+)
+
+_CROW_FOOT_RE = re.compile(
+    r"erDiagram|\|\|--|--\|\||\}o--|--o\{|\}\|--|--\|\{|\}\|\.{2}|\.{2}\|\{",
+    re.IGNORECASE,
+)
 
 
 def _effective_audio_url(summary_doc: dict) -> Optional[str]:
@@ -47,41 +665,75 @@ def _effective_audio_url(summary_doc: dict) -> Optional[str]:
 
 
 def extract_and_replace_images(
-    content: str, 
+    content: str,
     base_url: str = "/api/images/",
     topic: Optional[str] = None,
     generate_explanations: bool = True,
-    context_text: Optional[str] = None
+    context_text: Optional[str] = None,
+    diagram_registry: Optional[list[tuple[str, str]]] = None,
 ) -> tuple[str, list[str]]:
     """
     Extract image references from markdown and replace with proper image tags.
-    Optionally generates explanations below each image.
+    Replaces each reference with a <figure> containing only an <img> (no captions).
     
     Args:
         content: Markdown content with [IMAGE:...] references
         base_url: Base URL for image paths
-        topic: Topic being summarized (for context-aware explanations)
-        generate_explanations: Whether to generate explanations for images
-        context_text: Optional context text from summary for better explanations
-        
+        topic: Unused (kept for API compatibility)
+        generate_explanations: Ignored; captions are not embedded in HTML output
+        context_text: Unused (kept for API compatibility)
+        diagram_registry: Optional list of (filename, description) from this guidance run's
+            ER tool calls, used to map hallucinated image names to the correct PNG.
+
     Returns:
-        Tuple of (cleaned_content with images and explanations, list_of_image_paths)
+        Tuple of (cleaned_content with inline images, list_of_image_paths)
     """
     if not content:
         return content, []
 
+    guidance_diagram_registry: list[tuple[str, str]] = (
+        list(diagram_registry) if diagram_registry else []
+    )
+    diagram_captions: dict[str, str] = {}
+    for fn, desc in guidance_diagram_registry:
+        if fn.startswith("guidance_er_diagram_") or fn.startswith(
+            ("guidance_flowchart_", "guidance_general_")
+        ):
+            diagram_captions[fn] = _short_guidance_image_caption(desc, 200)
+
+    preserved_markdown_alts: dict[str, str] = {}
+
     image_paths = []
-    image_counter = [0]  # Use list to allow modification in nested function
+
+    def _render_figure(
+        encoded_name: str,
+        display_name: str,
+        caption: Optional[str] = None,
+        *,
+        hide_on_error: bool = False,
+    ) -> str:
+        extra = ' onerror="this.style.display=\'none\'"' if hide_on_error else ""
+        alt_attr = html.escape(display_name, quote=True)
+        cap = (caption or "").strip()
+        figcap = ""
+        if cap:
+            figcap = f'\n<figcaption class="markdown-figcaption">{html.escape(cap)}</figcaption>'
+        return (
+            f'<figure>\n<img src="{base_url}{encoded_name}" alt="{alt_attr}" '
+            f'class="markdown-image"{extra} />{figcap}\n</figure>'
+        )
 
     # Normalize content: Handle [IMAGE:...], ![alt](IMAGE:...), and ![alt](filename.png) formats
     # Also handle cases where image names are split across lines
     def normalize_image_refs(text):
         # First, handle markdown image syntax: ![alt](IMAGE:filename) - handles multiline
         def fix_markdown_image(match):
-            alt_text = match.group(1) if match.group(1) else ""
+            alt_text = (match.group(1) or "").strip()
             img_content = match.group(2)
             # Remove newlines and normalize whitespace
             img_content = re.sub(r'\s+', '', img_content)
+            if img_content and len(alt_text) >= 4:
+                preserved_markdown_alts[img_content] = alt_text[:500]
             return f'[IMAGE:{img_content}]'
         
         # Replace ![alt](IMAGE:filename) with [IMAGE:filename] - handles multiline alt/text
@@ -132,10 +784,29 @@ def extract_and_replace_images(
                 return match.group(0)
 
             # Case 2: Local filename (has image extension, not a URL)
-            if (re.search(r'\.(png|jpg|jpeg|gif|webp)$', img_content, re.IGNORECASE) and
-                not img_content.startswith('/')):
+            if re.search(r'\.(png|jpg|jpeg|gif|webp)$', img_content, re.IGNORECASE) and not img_content.startswith(
+                "/"
+            ):
                 logger.info(f"Converting plain markdown image to [IMAGE:...]: {img_content[:50]}...")
+                if len(alt_text) >= 4:
+                    preserved_markdown_alts[img_content] = alt_text[:500]
                 return f'[IMAGE:{img_content}]'
+
+            # Case 3: App-relative paths like /api/images/x.png or /guidance/api/images/x.png
+            if re.search(r'\.(png|jpg|jpeg|gif|webp)$', img_content, re.IGNORECASE) and img_content.startswith(
+                "/"
+            ):
+                path = unquote(img_content.split("?", 1)[0].strip())
+                low = path.lower()
+                for prefix in ("/guidance/api/images/", "/api/images/"):
+                    if low.startswith(prefix):
+                        fname = path[len(prefix) :].lstrip("/")
+                        if fname and re.search(r"\.(png|jpg|jpeg|gif|webp)$", fname, re.IGNORECASE):
+                            logger.info(f"Converting path markdown image to [IMAGE:...]: {fname[:80]}...")
+                            if len(alt_text) >= 4:
+                                preserved_markdown_alts[fname] = alt_text[:500]
+                            return f'[IMAGE:{fname}]'
+                        break
             return match.group(0)
         
         # Match ALL markdown images first, then filter in the function
@@ -186,21 +857,256 @@ def extract_and_replace_images(
         logger.debug(f"Content preview (first 500 chars): {content[:500]}")
 
     available_images = {}
-    if IMAGE_OUTPUT_DIR.exists():
-        for img_file in IMAGE_OUTPUT_DIR.glob("*"):
-            if img_file.is_file() and img_file.suffix.lower() in ['.jpeg', '.jpg', '.png', '.gif']:
-                available_images[img_file.name] = img_file.name
-                available_images[img_file.name.lower()] = img_file.name
-        
-        logger.info(f"Found {len(available_images)} available image(s) in {IMAGE_OUTPUT_DIR}")
+    image_dirs = [GENERATED_IMAGE_OUTPUT_DIR, IMAGE_OUTPUT_DIR]
+    found_any_dir = False
+    for image_dir in image_dirs:
+        if image_dir.exists():
+            found_any_dir = True
+            for img_file in image_dir.glob("*"):
+                if img_file.is_file() and img_file.suffix.lower() in ['.jpeg', '.jpg', '.png', '.gif']:
+                    available_images[img_file.name] = img_file.name
+                    available_images[img_file.name.lower()] = img_file.name
+    if found_any_dir:
+        logger.info(f"Found {len(available_images)} available image(s) across generated/extracted image dirs")
         if image_matches and len(available_images) > 0:
             logger.info(f"Sample available images: {list(available_images.keys())[:5]}")
     else:
-        logger.warning(f"IMAGE_OUTPUT_DIR does not exist: {IMAGE_OUTPUT_DIR}")
+        logger.warning("No image directories found for generated/extracted images")
+
+    # LLM often emits fake names (er_diagram_1.png, er-diagram-books-and-authors.png) while
+    # the tool saves guidance_er_diagram_<hash>.png under generated_images.
+    _diagram_remap_slot = [0]
+    _hallucinated_er_cache: dict[str, str] = {}
+    _remap_used_real_names: set[str] = set()
+
+    def _is_server_generated_diagram_filename(name: str) -> bool:
+        n = (name or "").lower()
+        return bool(
+            re.match(r"^guidance_er_diagram_[a-z0-9]+\.png$", n)
+            or re.match(r"^guidance_(flowchart|general)_[a-z0-9_.-]+\.png$", n)
+            or n.startswith("extracted_")
+        )
+
+    def _looks_like_hallucinated_er_image_name(name: str) -> bool:
+        """True when basename is clearly not our saved tool output but looks ER-related."""
+        raw = (name or "").strip()
+        if not raw or _is_server_generated_diagram_filename(raw):
+            return False
+        stem = Path(raw).stem.lower()
+        if re.match(r"^er[_\s-]*diagram(?:[_\s-].*)?$", stem):
+            return True
+        if re.match(r"^eerd?[_\s-]", stem) or re.match(r"^eer[_\s-]", stem):
+            return True
+        if "entity" in stem and "relationship" in stem.replace("-", "_"):
+            return True
+        return False
+
+    def _should_remap_llm_invented_diagram_png(name: str) -> bool:
+        """
+        True for ER-ish hallucinations plus common placeholder / cardinality image names
+        (e.g. 1_N_relationship.png, filename.png) that should map to real guidance_er_diagram_*.png.
+        """
+        raw = (name or "").strip()
+        if not raw or not re.search(r"\.(png|jpe?g|gif|webp)$", raw, re.IGNORECASE):
+            return False
+        if _is_server_generated_diagram_filename(raw):
+            return False
+        if _looks_like_hallucinated_er_image_name(raw):
+            return True
+        stem = Path(raw).stem.lower()
+        if stem in (
+            "filename",
+            "image",
+            "diagram",
+            "placeholder",
+            "example",
+            "your_diagram_here",
+            "diagram_image",
+        ):
+            return True
+        if stem.endswith("relationship") or stem.endswith("relationship_diagram"):
+            return True
+        # e.g. 1_1, 1_n, m_n, m_n_relationship
+        base = re.sub(r"(_relationship|-relationship)(_diagram)?$", "", stem)
+        if re.match(r"^[01mn]+_[01mn]+$", base):
+            return True
+        return False
+
+    def _er_diagram_candidate_pool() -> list[Path]:
+        candidates: list[Path] = []
+        for image_dir in image_dirs:
+            if image_dir.exists():
+                candidates.extend(image_dir.glob("guidance_er_diagram_*.png"))
+        return sorted(set(candidates), key=lambda p: p.resolve())
+
+    def _slug_tokens_for_er_hallucination(raw: str) -> set[str]:
+        stem = Path(raw).stem.lower()
+        stem = re.sub(r"^er[_\s-]*diagram[_\s-]?", "", stem)
+        stem = re.sub(r"^eerd?[_\s-]+", "", stem)
+        parts = re.split(r"[_\s-]+", stem)
+        stop = {
+            "the", "and", "for", "with", "from", "into", "png", "img", "diagram",
+            "entity", "relationship", "model", "schema", "conceptual", "logical",
+        }
+        tokens = {p for p in parts if len(p) >= 3 and p not in stop}
+        # Cardinality placeholder filenames: 1_1_relationship, M_N_relationship, etc.
+        rel_stem = Path(raw).stem.lower()
+        rel_base = re.sub(r"(_relationship|-relationship)(_diagram)?$", "", rel_stem)
+        if re.match(r"^[01mn]+_[01mn]+$", rel_base):
+            for seg in re.findall(r"[01mn]+", rel_base):
+                if seg:
+                    tokens.add(seg)
+            if "m" in rel_base and "n" in rel_base:
+                tokens.update(("many-to-many", "many"))
+            if rel_base == "1_1":
+                tokens.add("one-to-one")
+            elif re.match(r"^1_[mn]$", rel_base):
+                tokens.add("one-to-many")
+        return tokens
+
+    def _ordered_er_candidates_for_remap(candidates: list[Path]) -> list[Path]:
+        """
+        Prefer diagrams from the current run: recent mtime window, oldest-first so slot order
+        matches typical generation order (question 1 -> question 2).
+        """
+        if not candidates:
+            return []
+        now = time.time()
+        recent_cutoff = now - 45 * 60  # 45 minutes
+        recent = [p for p in candidates if p.stat().st_mtime >= recent_cutoff]
+        pool = recent if len(recent) >= 1 else list(candidates)
+        return sorted(pool, key=lambda p: p.stat().st_mtime)
+
+    def _remap_hallucinated_er_diagram_from_registry(
+        raw: str, context_before: str
+    ) -> Optional[str]:
+        """
+        Prefer the PNG whose tool ``description`` matches the hallucinated slug / markdown context.
+        Falls back to the next unused file in tool-call order.
+        """
+        if not guidance_diagram_registry:
+            return None
+        ctx_l = (context_before or "").lower()
+        slug_tokens = _slug_tokens_for_er_hallucination(raw)
+        rows: list[tuple[str, str]] = []
+        for fn, desc in guidance_diagram_registry:
+            if not re.match(r"^guidance_er_diagram_", fn, re.IGNORECASE):
+                continue
+            if fn in available_images or (GENERATED_IMAGE_OUTPUT_DIR / fn).is_file():
+                rows.append((fn, desc))
+        if not rows:
+            return None
+        unused = [r for r in rows if r[0] not in _remap_used_real_names]
+        pool_rows = unused if unused else list(rows)
+
+        best_fn: Optional[str] = None
+        best_score = -1
+        best_idx = 10**9
+        for idx, (fn, desc) in enumerate(pool_rows):
+            dlow = (desc or "").lower()
+            sc = 0
+            for t in slug_tokens:
+                if len(t) < 2 and t not in ("m", "n", "1", "0"):
+                    continue
+                if len(t) == 1 and t not in ("m", "n", "1", "0"):
+                    continue
+                if t in dlow:
+                    sc += 5
+                if t in ctx_l:
+                    sc += 2
+            compact_ctx = re.sub(r"\s+", "", ctx_l)
+            compact_desc = re.sub(r"\s+", "", dlow)
+            for pat in ("1:1", "1:n", "n:1", "m:n", "n:m", "one-to-one", "one-to-many", "many-to-many"):
+                if pat in ctx_l or pat in compact_ctx:
+                    if pat in dlow or pat in compact_desc:
+                        sc += 4
+            if not slug_tokens:
+                for w in set(re.findall(r"[a-z]{4,}", dlow)[:60]):
+                    if len(w) < 4:
+                        continue
+                    if w in ctx_l:
+                        sc += 1
+            if sc > best_score or (sc == best_score and idx < best_idx):
+                best_score = sc
+                best_fn = fn
+                best_idx = idx
+
+        if not best_fn:
+            return None
+        if best_score <= 0:
+            best_fn = pool_rows[0][0]
+            logger.info("Registry ER remap (order): '%s' -> '%s'", raw, best_fn)
+        else:
+            logger.info(
+                "Registry ER remap (scored): '%s' -> '%s' score=%s",
+                raw,
+                best_fn,
+                best_score,
+            )
+        return best_fn
+
+    def _remap_hallucinated_er_diagram(
+        img_name: str, *, context_before: str = ""
+    ) -> Optional[str]:
+        """Map invented ER-ish filenames to real guidance_er_diagram_<hash>.png on disk."""
+        raw = (img_name or "").strip()
+        if not raw:
+            return None
+        if raw in _hallucinated_er_cache:
+            return _hallucinated_er_cache[raw]
+        if not _should_remap_llm_invented_diagram_png(raw):
+            return None
+        reg_name = _remap_hallucinated_er_diagram_from_registry(raw, context_before)
+        if reg_name:
+            _remap_used_real_names.add(reg_name)
+            _hallucinated_er_cache[raw] = reg_name
+            return reg_name
+        candidates = _er_diagram_candidate_pool()
+        if not candidates:
+            return None
+        ordered = _ordered_er_candidates_for_remap(candidates)
+        ctx = (context_before or "").lower()
+        slug_tokens = _slug_tokens_for_er_hallucination(raw)
+
+        prefer_unused = [p for p in ordered if p.name not in _remap_used_real_names]
+        pool = prefer_unused if prefer_unused else list(ordered)
+
+        picked: Optional[Path] = None
+        if slug_tokens and ctx:
+            best_score = 0
+            for p in pool:
+                sc = 0
+                for t in slug_tokens:
+                    if len(t) < 2 and t not in ("m", "n", "1", "0"):
+                        continue
+                    if t in ctx:
+                        sc += 2
+                if sc > best_score:
+                    best_score = sc
+                    picked = p
+            if picked is not None and best_score > 0:
+                logger.info(
+                    "Remapped ER diagram '%s' -> '%s' via slug/context overlap (score=%s)",
+                    raw,
+                    picked.name,
+                    best_score,
+                )
+
+        if picked is None:
+            slot = _diagram_remap_slot[0]
+            _diagram_remap_slot[0] += 1
+            picked = pool[min(slot, len(pool) - 1)]
+            logger.info(f"Remapped hallucinated ER diagram name '{raw}' -> '{picked.name}' (slot {slot})")
+
+        _remap_used_real_names.add(picked.name)
+        _hallucinated_er_cache[raw] = picked.name
+        return picked.name
 
     def replace_image(match):
         img_name = match.group(1).strip()
         logger.debug(f"Processing image reference: '{img_name[:80]}...'")
+        ctx_start = max(0, match.start() - 1400)
+        context_before = content[ctx_start : match.start()]
 
         actual_name = None
         # First try exact match
@@ -223,148 +1129,126 @@ def extract_and_replace_images(
                     actual_name = available_name
                     logger.info(f"Partial match found: '{img_name[:50]}...' -> '{actual_name}'")
                     break
+
+        if not actual_name:
+            remapped = _remap_hallucinated_er_diagram(img_name, context_before=context_before)
+            if remapped:
+                actual_name = remapped
+                available_images[actual_name] = actual_name
+                available_images[actual_name.lower()] = actual_name
         
         if actual_name:
+            if img_name != actual_name and img_name in preserved_markdown_alts:
+                preserved_markdown_alts.setdefault(actual_name, preserved_markdown_alts[img_name])
+            cap = _caption_from_tool_or_context(
+                actual_name, diagram_captions, preserved_markdown_alts, context_before
+            )
+            after_cap = _caption_line_after_image_ref(content, match.end())
+            generic = cap == "Illustration for the guidance section above."
+            if after_cap:
+                if not cap or len(cap) < 10 or generic:
+                    cap = after_cap
+                elif after_cap.lower() not in (cap or "").lower():
+                    cap = _short_guidance_image_caption(f"{cap} — {after_cap}", 220)
+            generic = cap == "Illustration for the guidance section above." or not (cap or "").strip()
+            an = actual_name.lower()
+            if generic:
+                if an.startswith("guidance_er_diagram_"):
+                    cap = "Conceptual ER diagram for this assignment section."
+                elif an.startswith(("guidance_flowchart_", "guidance_general_")):
+                    cap = "Diagram for this assignment section."
+                elif an.startswith("extracted_"):
+                    cap = "Figure from course materials."
             image_paths.append(actual_name)
             encoded_name = quote(actual_name)
-            image_markdown = f'![{actual_name}]({base_url}{encoded_name})'
             logger.info(f"Matched image '{img_name[:50]}...' -> '{actual_name}', URL: {base_url}{encoded_name}")
-            
-            # Generate explanation if enabled
-            logger.info(f"🔍 Explanation generation check: generate_explanations={generate_explanations} for image: {actual_name}")
-            if generate_explanations:
-                logger.info(f"✓ Explanation generation ENABLED - proceeding for image: {actual_name}")
-                try:
-                    from app.services.image_explanation_service import generate_image_explanation
-                    logger.info(f"📝 Calling generate_image_explanation for: {actual_name}")
-                    logger.info(f"   Image path: {actual_name}, Topic: {topic}, Context length: {len(context_text) if context_text else 0}")
-                    explanation = generate_image_explanation(
-                        image_path=actual_name,
-                        topic=topic,
-                        context_text=context_text
-                    )
-                    logger.info(f"📝 Explanation result for {actual_name}: {'SUCCESS' if explanation else 'EMPTY'} (length: {len(explanation) if explanation else 0})")
-                    if explanation:
-                        logger.info(f"   Explanation preview for {actual_name}: {explanation[:150]}...")
-                    else:
-                        logger.warning(f"   ⚠ No explanation generated for {actual_name} - will use basic caption")
-                    
-                    if explanation and explanation.strip():
-                        image_counter[0] += 1
-                        figure_num = image_counter[0]
-                        # Use HTML figure/caption with pure HTML img tag (not markdown syntax)
-                        logger.info(f"✓ Added explanation ({len(explanation)} chars) for image {figure_num}: {actual_name}")
-                        logger.debug(f"Explanation preview: {explanation[:100]}...")
-                        html_output = f'<figure>\n<img src="{base_url}{encoded_name}" alt="{actual_name}" class="markdown-image" />\n<figcaption><strong>Figure {figure_num}:</strong> {explanation}</figcaption>\n</figure>'
-                        logger.info(f"Generated HTML figure tag for image {figure_num} (length: {len(html_output)} chars)")
-                        return html_output
-                    else:
-                        logger.warning(f"✗ No explanation generated (empty result) for {actual_name} - using basic caption fallback")
-                        # ALWAYS show a caption - generate basic caption from filename
-                        image_counter[0] += 1
-                        figure_num = image_counter[0]
-                        # Generate a basic caption from filename if explanation failed
-                        basic_caption = actual_name.replace('_', ' ').replace('-', ' ').replace('.png', '').replace('.jpg', '').replace('.jpeg', '').title()
-                        basic_caption = ' '.join(basic_caption.split()[:10])  # Limit to first 10 words
-                        logger.info(f"Using basic caption for image {figure_num}: {basic_caption[:50]}...")
-                        html_output = f'<figure>\n<img src="{base_url}{encoded_name}" alt="{actual_name}" class="markdown-image" />\n<figcaption><strong>Figure {figure_num}:</strong> {basic_caption}</figcaption>\n</figure>'
-                        logger.info(f"Generated HTML figure tag with basic caption for image {figure_num} (length: {len(html_output)} chars)")
-                        return html_output
-                except Exception as e:
-                    error_msg = str(e)
-                    # Don't fail summary generation if image explanation fails due to network issues
-                    if "DNS" in error_msg or "timeout" in error_msg.lower() or "timed out" in error_msg.lower():
-                        logger.warning(f"Image explanation skipped due to network error for {actual_name}: {e}")
-                    else:
-                        logger.error(f"Failed to generate explanation for {actual_name}: {e}", exc_info=True)
-                    # ALWAYS return HTML figure tag with basic caption, even on error
-                    image_counter[0] += 1
-                    figure_num = image_counter[0]
-                    basic_caption = actual_name.replace('_', ' ').replace('-', ' ').replace('.png', '').replace('.jpg', '').replace('.jpeg', '').title()
-                    basic_caption = ' '.join(basic_caption.split()[:10])  # Limit to first 10 words
-                    logger.info(f"Using basic caption fallback for image {figure_num} after error: {basic_caption[:50]}...")
-                    html_output = f'<figure>\n<img src="{base_url}{encoded_name}" alt="{actual_name}" class="markdown-image" />\n<figcaption><strong>Figure {figure_num}:</strong> {basic_caption}</figcaption>\n</figure>'
-                    return html_output
-            else:
-                # Even when explanations are disabled, wrap in figure tag for consistency
-                image_counter[0] += 1
-                figure_num = image_counter[0]
-                basic_caption = actual_name.replace('_', ' ').replace('-', ' ').replace('.png', '').replace('.jpg', '').replace('.jpeg', '').title()
-                basic_caption = ' '.join(basic_caption.split()[:10])  # Limit to first 10 words
-                logger.info(f"Explanations disabled - using basic caption for image {figure_num}: {basic_caption[:50]}...")
-                html_output = f'<figure>\n<img src="{base_url}{encoded_name}" alt="{actual_name}" class="markdown-image" />\n<figcaption><strong>Figure {figure_num}:</strong> {basic_caption}</figcaption>\n</figure>'
-                return html_output
+            return _render_figure(encoded_name, actual_name, cap or None)
 
         logger.error(f"❌ Image '{img_name[:50]}...' NOT FOUND in available images!")
         logger.error(f"   Searched for: {img_name}")
         logger.error(f"   Available images ({len(available_images)}): {list(available_images.keys())[:10]}")
-        logger.warning(f"   Will generate HTML with placeholder - image may not display correctly")
-        # Still generate HTML figure tag even if image not found, so explanation can be shown
-        image_counter[0] += 1
-        figure_num = image_counter[0]
-        encoded_name = quote(img_name)
-        # Try to generate explanation even if image file not found (might work if path is slightly different)
-        explanation_text = f"Image: {img_name.replace('_', ' ').replace('-', ' ').title()}"
-        if generate_explanations:
+        logger.warning("   Attempting to auto-generate missing diagram image")
+
+        # Try generating a replacement diagram image when filename implies ER/schema/diagram.
+        if re.search(r"(er|eer|entity|relationship|schema|diagram|weak\s*entity)", img_name, re.IGNORECASE):
             try:
-                from app.services.image_explanation_service import generate_image_explanation
-                # Try with the img_name as-is, in case the file exists with a slightly different name
-                temp_explanation = generate_image_explanation(
-                    image_path=img_name,
-                    topic=topic,
-                    context_text=context_text
+                from app.ca_guidance.tools.diagram_image_tool import generate_assignment_diagram
+
+                tool_out = generate_assignment_diagram.run(
+                    diagram_type="er_diagram",
+                    description=f"Create conceptual ER diagram for: {img_name}",
                 )
-                if temp_explanation and temp_explanation.strip():
-                    explanation_text = temp_explanation
-                    logger.info(f"✓ Generated explanation for unmatched image: {img_name[:50]}...")
+                new_refs = re.findall(r"\[IMAGE:([^\]]+)\]", tool_out or "", flags=re.IGNORECASE)
+                if new_refs:
+                    new_name = new_refs[0].strip()
+                    if new_name:
+                        available_images[new_name] = new_name
+                        available_images[new_name.lower()] = new_name
+                        image_paths.append(new_name)
+                        encoded_name = quote(new_name)
+                        acap = _caption_from_tool_or_context(
+                            new_name, diagram_captions, preserved_markdown_alts, context_before
+                        ) or "Conceptual ER diagram generated for this section."
+                        return _render_figure(encoded_name, new_name, acap)
             except Exception as e:
-                logger.debug(f"Could not generate explanation for unmatched image: {e}")
-        html_output = f'<figure>\n<img src="{base_url}{encoded_name}" alt="{img_name}" class="markdown-image" onerror="this.style.display=\'none\'" />\n<figcaption><strong>Figure {figure_num}:</strong> {explanation_text}</figcaption>\n</figure>'
-        return html_output
+                logger.warning(f"   Auto-generation for missing image failed: {e}")
+
+        logger.warning("   Falling back to placeholder HTML - image may not display correctly")
+        encoded_name = quote(img_name)
+        return _render_figure(
+            encoded_name,
+            img_name,
+            "Image could not be loaded; see the written explanation nearby.",
+            hide_on_error=True,
+        )
 
     cleaned_content = re.sub(image_pattern, replace_image, content)
+
+    # Raw HTML <img src="/api/images/er_diagram_1.png"> (no [IMAGE:...]) — same hallucination remap
+    def _fix_html_img_er_src(m: re.Match) -> str:
+        pre, q, fname = m.group(1), m.group(2), m.group(3)
+        fname_dec = unquote(fname)
+        ctx_start = max(0, m.start() - 1400)
+        context_before = m.string[ctx_start : m.start()]
+        new_name = _remap_hallucinated_er_diagram(fname_dec, context_before=context_before)
+        if not new_name:
+            return m.group(0)
+        return f"<img{pre}src={q}{base_url}{quote(new_name)}{q}"
+
+    cleaned_content = re.sub(
+        r"<img([^>]*?)\s*src=([\"'])(?:(?:/guidance)?/api/images/)([^\"']+)\2",
+        _fix_html_img_er_src,
+        cleaned_content,
+        flags=re.IGNORECASE,
+    )
+
     final_image_paths = list(set(image_paths))
     logger.info(f"Image extraction complete: {len(final_image_paths)} image(s) processed: {final_image_paths[:3]}...")
     
     # Verify HTML figure tags are in the content
     figure_count = cleaned_content.count('<figure>')
-    figcaption_count = cleaned_content.count('<figcaption>')
     img_count = cleaned_content.count('<img')
-    logger.info(f"📊 HTML verification: Found {figure_count} <figure> tags, {figcaption_count} <figcaption> tags, and {img_count} <img> tags in final content")
-    
+    logger.info(
+        f"📊 HTML verification: Found {figure_count} <figure> tags and {img_count} <img> tags in final content"
+    )
+
     if figure_count > 0:
-        # Log a sample of the HTML to verify it's correct
         import re as re_module
-        figure_matches = re_module.findall(r'<figure>.*?</figure>', cleaned_content, flags=re_module.DOTALL)
+
+        figure_matches = re_module.findall(r"<figure>.*?</figure>", cleaned_content, flags=re_module.DOTALL)
         if figure_matches:
             logger.info(f"✅ Sample figure HTML (first 400 chars): {figure_matches[0][:400]}...")
-            # Check for explanations in figcaption
-            figcaption_matches = re_module.findall(r'<figcaption>.*?</figcaption>', cleaned_content, flags=re_module.DOTALL)
-            if figcaption_matches:
-                logger.info(f"✅ Found {len(figcaption_matches)} figcaption tags with descriptions")
-                for i, caption in enumerate(figcaption_matches[:3], 1):
-                    caption_text = re_module.sub(r'<[^>]+>', '', caption)  # Remove HTML tags for preview
-                    logger.info(f"   Caption {i} preview: {caption_text[:150]}...")
-            # Also check img src attributes
-            img_src_matches = re_module.findall(r'<img[^>]+src=["\']([^"\']+)["\']', cleaned_content)
-            if img_src_matches:
-                logger.info(f"✅ Found {len(img_src_matches)} img src attributes: {img_src_matches[:3]}")
-                # Verify all images have /api/images/ prefix
-                for src in img_src_matches:
-                    if not src.startswith('/api/images/'):
-                        logger.warning(f"⚠ Image src missing /api/images/ prefix: {src}")
-    else:
-        logger.warning(f"⚠ No figure tags found in content!")
-    
-    if figure_count == 0 and len(image_matches) > 0:
-        logger.error(f"❌ CRITICAL: {len(image_matches)} images were matched but NO figure tags were generated!")
+        img_src_matches = re_module.findall(r'<img[^>]+src=["\']([^"\']+)["\']', cleaned_content)
+        if img_src_matches:
+            logger.info(f"✅ Found {len(img_src_matches)} img src attributes: {img_src_matches[:3]}")
+            for src in img_src_matches:
+                if not src.startswith("/api/images/"):
+                    logger.warning(f"⚠ Image src missing /api/images/ prefix: {src}")
+    elif len(image_matches) > 0:
+        logger.error(
+            f"❌ CRITICAL: {len(image_matches)} images were matched but NO figure tags were generated!"
+        )
         logger.error(f"Content preview (first 1000 chars): {cleaned_content[:1000]}")
-    
-    if figure_count > 0 and figcaption_count == 0:
-        logger.warning(f"⚠ WARNING: Found {figure_count} figure tags but NO figcaption tags! Images may not have descriptions.")
-    
-    if figure_count != figcaption_count:
-        logger.warning(f"⚠ WARNING: Mismatch - {figure_count} figures but {figcaption_count} figcaptions!")
     
     return cleaned_content, final_image_paths
 
@@ -401,28 +1285,719 @@ def clean_markdown_response(content: str) -> str:
         cleaned_lines.append(line)
 
     content = '\n'.join(cleaned_lines)
+
+    # Strip multi-part LLM boilerplate ("Not found in this part") that leaks into user-facing reports
+    def _is_chunk_placeholder_line(line: str) -> bool:
+        raw = (line or "").strip()
+        if not raw or len(raw) > 200:
+            return False
+        # Heading or list item: normalize
+        t = re.sub(r"^#{1,6}\s*", "", raw)
+        t = re.sub(r"^[-*]\s+", "", t)
+        t = re.sub(r"^\*\*|\*\*$", "", t).strip()
+        low = t.lower()
+        stub_phrases = (
+            "not found in this part",
+            "not found in this portion",
+            "not in this part",
+            "no content in this part",
+            "nothing in this part",
+            "n/a for this part",
+            "not applicable to this part",
+            "not covered in this part",
+            "see other part",
+            "refer to other part",
+        )
+        return any(p in low for p in stub_phrases)
+
+    content = "\n".join(ln for ln in content.split("\n") if not _is_chunk_placeholder_line(ln))
+
+    # Remove legacy auto-generated diagram headings/metadata; keep actual image refs.
+    content = re.sub(r'^\s*#{2,6}\s*Auto-generated Diagram[^\n]*\n?', '', content, flags=re.IGNORECASE | re.MULTILINE)
+    content = re.sub(r'^\s*Source request:\s*[^\n]*\n?', '', content, flags=re.IGNORECASE | re.MULTILINE)
+    content = re.sub(r'^\s*\*\*Diagram for this question:\*\*\s*\n?', '', content, flags=re.IGNORECASE | re.MULTILINE)
     content = re.sub(r'\n{3,}', '\n\n', content)
     return content.strip()
+
+
+def _assistant_text_from_task_messages(task_output) -> str:
+    """Recover answer text from CrewAI TaskOutput.messages when raw is empty or tool-only."""
+    msgs = getattr(task_output, "messages", None) or []
+    chunks: list[str] = []
+    for msg in msgs:
+        if not isinstance(msg, dict):
+            continue
+        if msg.get("role") != "assistant":
+            continue
+        c = msg.get("content")
+        if isinstance(c, str) and len(c.strip()) > 120:
+            chunks.append(c.strip())
+        elif isinstance(c, list):
+            for part in c:
+                if not isinstance(part, dict):
+                    continue
+                if part.get("type") == "text":
+                    t = part.get("text") or ""
+                    if isinstance(t, str) and len(t.strip()) > 120:
+                        chunks.append(t.strip())
+    if not chunks:
+        return ""
+    # Prefer the longest assistant payload (final answer is usually last and longest).
+    return max(chunks, key=len)
+
+
+def _task_output_text(task_output) -> str:
+    """Best-effort plain text from a CrewAI task output object."""
+    if task_output is None:
+        return ""
+    raw = getattr(task_output, "raw", None)
+    raw_s = str(raw).strip() if raw is not None else ""
+    if len(raw_s) > 80:
+        return raw_s
+    # Tool-heavy turns sometimes leave raw short/empty; full markdown may live in messages.
+    msg_s = _assistant_text_from_task_messages(task_output)
+    if len(msg_s) > len(raw_s) + 200 and len(msg_s) > 200:
+        return msg_s
+    if raw_s:
+        return raw_s
+    if len(msg_s) > 80:
+        return msg_s
+    content = getattr(task_output, "content", None)
+    if content is not None and str(content).strip():
+        return str(content).strip()
+    # CrewAI TaskOutput: structured fields (raw may be empty while pydantic/json_dict holds the report)
+    pyd = getattr(task_output, "pydantic", None)
+    if pyd is not None:
+        try:
+            dumped = pyd.model_dump() if hasattr(pyd, "model_dump") else {}
+            for key in ("report", "guidance", "markdown", "markdown_report", "content", "body", "text"):
+                v = dumped.get(key) if isinstance(dumped, dict) else None
+                if isinstance(v, str) and len(v.strip()) > 80:
+                    return v.strip()
+        except Exception:
+            pass
+        try:
+            ps = str(pyd).strip()
+            if len(ps) > 80 and ps not in ("{}", "None"):
+                return ps
+        except Exception:
+            pass
+    jd = getattr(task_output, "json_dict", None)
+    if isinstance(jd, dict) and jd:
+        for key in ("report", "guidance", "markdown", "markdown_report", "content", "body", "text"):
+            v = jd.get(key)
+            if isinstance(v, str) and len(v.strip()) > 80:
+                return v.strip()
+    s = str(task_output).strip()
+    if len(s) > 80 and s not in ("{}", "None"):
+        return s
+    return ""
+
+
+def _merge_guidance_crew_task_outputs(result) -> Optional[str]:
+    """
+    Build the guidance report from per-part tasks when the finalize task truncates.
+
+    The finalize step often summarizes and drops questions. We only trust finalize
+    when it is almost as long as the stitched guidance parts and preserves structure
+    (headings, code fences, image refs). Otherwise we return every part verbatim plus
+    the scheduling footer so the full assignment is still shown.
+    """
+    tasks_output = getattr(result, "tasks_output", None)
+    if not tasks_output or len(tasks_output) < 2:
+        return None
+
+    if len(tasks_output) >= 3:
+        guidance_slice = tasks_output[:-2]
+        schedule_out = _task_output_text(tasks_output[-2])
+        finalize_out = _task_output_text(tasks_output[-1])
+    else:
+        guidance_slice = tasks_output[:-1]
+        schedule_out = ""
+        finalize_out = _task_output_text(tasks_output[-1])
+
+    parts_text = "\n\n".join(t for t in (_task_output_text(x) for x in guidance_slice) if t)
+    if not parts_text:
+        fb = _fallback_guidance_from_crew_result(result)
+        if fb:
+            parts_text = fb
+        else:
+            return finalize_out or None
+
+    lp = len(parts_text)
+    lf = len(finalize_out or "")
+    h_parts = len(re.findall(r"(?m)^###\s+[^\n#]", parts_text))
+    h_fin = len(re.findall(r"(?m)^###\s+[^\n#]", finalize_out or ""))
+
+    # Finalize almost always drops or shortens content. Always ship the stitched part outputs
+    # so every chunk of the assignment is represented in the UI; calendar comes from scheduling.
+    logger.info(
+        "Guidance merge: using full stitched part outputs (parts_len=%s, finalize_len=%s, h3_parts=%s h3_fin=%s)",
+        lp,
+        lf,
+        h_parts,
+        h_fin,
+    )
+    merged = _dedupe_guidance_terminal_sections(parts_text, schedule_out)
+    merged_h3 = len(re.findall(r"(?m)^###\s+[^\n#]", merged))
+    if merged_h3 < max(2, int(h_parts * 0.6)):
+        logger.warning(
+            "Guidance merge completeness warning: merged_h3=%s parts_h3=%s",
+            merged_h3,
+            h_parts,
+        )
+    if not re.search(r"(?im)^###\s*deadline\s*/\s*calendar\s*confirmation\s*$", merged):
+        merged = (
+            merged.rstrip()
+            + "\n\n### Deadline / Calendar Confirmation\n\n"
+            + (schedule_out or "_(No scheduling details returned.)_")
+        )
+    return merged
+
+
+def _norm_heading_key(s: str) -> str:
+    t = re.sub(r"\s+", " ", (s or "").strip().lower())
+    return re.sub(r"[^\w\s\d.():]", "", t).strip()
+
+
+def _markdown_headings_from_report(report: str) -> list[str]:
+    if not report:
+        return []
+    return re.findall(r"(?m)^#{1,4}\s+(.+?)\s*$", report)
+
+
+def _marker_likely_covered(marker: str, headings: list[str]) -> bool:
+    mk = _norm_heading_key(marker)
+    if not mk:
+        return True
+    for h in headings:
+        hk = _norm_heading_key(h)
+        if not hk:
+            continue
+        if mk in hk or hk in mk:
+            return True
+        m_tokens = [t for t in mk.split() if len(t) > 1][:6]
+        if len(m_tokens) >= 2 and sum(1 for t in m_tokens if t in hk) >= min(3, len(m_tokens)):
+            return True
+    return False
+
+
+def _missing_markers_for_report(assignment_text: str, report: str, limit: int = 120) -> list[str]:
+    markers = _extract_question_markers(assignment_text, limit=limit)
+    if not markers:
+        return []
+    headings = _markdown_headings_from_report(report)
+    return [m for m in markers if not _marker_likely_covered(m, headings)]
+
+
+def _assignment_snippet_for_marker(assignment_text: str, marker: str, window: int = 4800) -> str:
+    if not assignment_text:
+        return ""
+    low = assignment_text.lower()
+    key = (marker or "").strip().lower()[:72]
+    pos = low.find(key) if key else -1
+    if pos == -1 and marker:
+        first = marker.splitlines()[0].strip().lower()[:48]
+        pos = low.find(first) if first else -1
+    if pos == -1:
+        return assignment_text[:window]
+    start = max(0, pos - 500)
+    end = min(len(assignment_text), pos + window)
+    return assignment_text[start:end]
+
+
+def _log_guidance_crew_result_metrics(result, assignment_len: int) -> None:
+    tasks_output = getattr(result, "tasks_output", None) or []
+    total_out = 0
+    weak_tasks = 0
+    for i, t in enumerate(tasks_output):
+        txt = _task_output_text(t)
+        total_out += len(txt)
+        if len((txt or "").strip()) < 120:
+            weak_tasks += 1
+        logger.info(
+            "Guidance crew task[%s] output_chars=%s (assignment_chars=%s)",
+            i,
+            len(txt),
+            assignment_len,
+        )
+    logger.info("Guidance crew stitched task output_chars_total=%s", total_out)
+    if weak_tasks:
+        logger.warning(
+            "Guidance crew completion check: %s task(s) produced very short output (<120 chars)",
+            weak_tasks,
+        )
+    for attr in ("token_usage", "usage", "usage_metadata"):
+        u = getattr(result, attr, None)
+        if u is not None and u != {}:
+            logger.info("Guidance crew result.%s=%s", attr, u)
+    try:
+        if hasattr(result, "model_dump"):
+            d = result.model_dump()
+            for k in ("token_usage", "usage", "usage_metadata"):
+                if k in d and d[k]:
+                    logger.info("Guidance crew model_dump[%s]=%s", k, d[k])
+    except Exception:
+        pass
+
+
+async def _gap_fill_missing_guidance_sections(
+    assignment_text: str,
+    missing_markers: list[str],
+) -> str:
+    """Second pass: LLM answers only for markers not reflected in the merged report."""
+    if not missing_markers:
+        return ""
+    from langchain_core.messages import HumanMessage
+    from langchain_openai import ChatOpenAI
+
+    snippets = []
+    for m in missing_markers:
+        snippets.append(
+            f"### Assignment excerpt for: {m}\n{_assignment_snippet_for_marker(assignment_text, m)}"
+        )
+    joined = "\n\n".join(snippets)
+    labels = "\n".join(f"- {m}" for m in missing_markers)
+    prompt = (
+        "You are writing supplemental DBMS assignment guidance. The main report may have omitted "
+        "or truncated these items.\n\n"
+        "For EACH label below, output ONE markdown section:\n"
+        "- Start with `### ` followed by the label text (match assignment numbering).\n"
+        "- Then give complete DBMS-specific guidance (SQL, ER description, normalization steps, etc.) "
+        "grounded in the excerpt. No placeholders, no 'see above'.\n"
+        "- Do not add a Related Web Resources section.\n"
+        "- Output raw markdown only (no outer code fence).\n\n"
+        f"Labels to cover:\n{labels}\n\n"
+        f"Assignment excerpts:\n{joined}"
+    )
+    llm = ChatOpenAI(
+        model=settings.CA_GUIDANCE_MODEL,
+        api_key=settings.OPENAI_API_KEY,
+        max_tokens=min(settings.CA_GUIDANCE_MAX_OUTPUT_TOKENS, 32768),
+        temperature=0.2,
+    )
+    msg = await llm.ainvoke([HumanMessage(content=prompt)])
+    return (getattr(msg, "content", None) or "").strip()
+
+
+async def _ensure_guidance_full_coverage(
+    assignment_text: str,
+    report: str,
+    max_passes: int = 2,
+) -> tuple[str, list[str]]:
+    """
+    Detect markers without matching headings; run gap-fill; repeat until covered or max_passes.
+    Returns (possibly extended report, final missing list).
+    """
+    current = report
+    last_missing: list[str] = []
+    for pass_idx in range(max_passes):
+        last_missing = _missing_markers_for_report(assignment_text, current)
+        logger.info(
+            "Guidance coverage pass %s: missing_markers=%s (count=%s)",
+            pass_idx + 1,
+            last_missing[:12],
+            len(last_missing),
+        )
+        if not last_missing:
+            break
+        fill = await _gap_fill_missing_guidance_sections(assignment_text, last_missing)
+        if not fill or len(fill) < 40:
+            logger.warning(
+                "Guidance gap-fill pass %s returned little or no text; stopping coverage loop",
+                pass_idx + 1,
+            )
+            break
+        current = (
+            current.rstrip()
+            + "\n\n### Supplemental answers (coverage pass)\n\n"
+            + fill
+        )
+    final_missing = _missing_markers_for_report(assignment_text, current)
+    if final_missing:
+        logger.warning(
+            "Guidance coverage: after gap-fill, still unmatched markers (count=%s): %s",
+            len(final_missing),
+            final_missing[:15],
+        )
+    return current, final_missing
+
+
+def _fallback_guidance_from_crew_result(result) -> Optional[str]:
+    """Last-resort report body when merge heuristics cannot build from structured tasks."""
+    tasks_output = getattr(result, "tasks_output", None)
+    if tasks_output:
+        texts: list[str] = []
+        for t in tasks_output:
+            txt = _task_output_text(t)
+            if len(txt) > 200:
+                texts.append(txt)
+        if texts:
+            return "\n\n".join(texts).strip()
+    raw = getattr(result, "raw", None)
+    if raw is not None and len(str(raw).strip()) > 400:
+        return str(raw).strip()
+    return None
+
+
+def _extract_diagram_requests(assignment_text: str, limit: int = 18) -> list[str]:
+    """Extract candidate question snippets that appear to request a diagram."""
+    text = (assignment_text or "").strip()
+    if not text:
+        return []
+    chunks = re.split(r'[\n\r]+|(?<=[.?!])\s+', text)
+    requests: list[str] = []
+    seen = set()
+    for chunk in chunks:
+        c = chunk.strip()
+        if not c or len(c) < 12:
+            continue
+        if _DIAGRAM_REQUEST_RE.search(c):
+            key = c.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            requests.append(c[:600])
+            if len(requests) >= limit:
+                break
+    return requests
+
+
+def _infer_diagram_type(request_text: str) -> str:
+    low = (request_text or "").lower()
+    if "flowchart" in low or "flow chart" in low or "workflow" in low:
+        return "flowchart"
+    return "er_diagram"
+
+
+def _er_rule_hints(request_text: str) -> list[str]:
+    """Map question text to ER rule hints aligned with app/er schema concepts."""
+    low = (request_text or "").lower()
+    hints: list[str] = []
+    if "isa" in low or "inheritance" in low or "specialization" in low or "generalization" in low:
+        hints.append("Include ISA hierarchy: parent entity with child entities; indicate disjoint/overlap and total/partial if stated.")
+    if "weak entity" in low or "identifying relationship" in low or "dependent" in low:
+        hints.append("Include weak entity modeling: weak entity, identifying relationship, and strong owner entity.")
+    if "aggregation" in low or "whole-part" in low or "part of" in low:
+        hints.append(
+            "Include aggregation: whole entity plus part entities; inner binary relationship(s) with attributes inside the aggregate."
+        )
+    if "ternary" in low or "three-way" in low:
+        hints.append("Include ternary relationship structure with three participating entities.")
+    if "cardinality" in low or "1:n" in low or "m:n" in low or "one-to-many" in low or "many-to-many" in low:
+        hints.append("Ensure explicit cardinalities on each relationship edge.")
+    if "participation" in low or "total participation" in low or "partial participation" in low:
+        hints.append("Include participation constraints (total/partial) where specified.")
+    if "composite attribute" in low or "multivalued" in low:
+        hints.append("Model composite/multivalued attributes as separate attribute nodes connected to owner.")
+    if not hints:
+        hints.append(
+            "Use conceptual Chen-style ER from the CA text: rectangles (entities), diamonds (relationships), "
+            "ovals (attributes, PK underlined in output), cardinality on edges; multivalued and composite modeled explicitly."
+        )
+    return hints
+
+
+_DOT_FENCE_RE = re.compile(
+    r"```\s*(?:dot|graphviz|gv)\s*\n([\s\S]*?)```",
+    re.IGNORECASE,
+)
+
+
+def _looks_like_er_graphviz_dot(body: str) -> bool:
+    """True if fenced code looks like an ER-style Graphviz graph (not arbitrary dot)."""
+    b = (body or "").strip().lower()
+    if len(b) < 24:
+        return False
+    if not re.search(r"\bgraph\s+[a-zA-Z0-9_]+\s*\{", b):
+        return False
+    if "graph er" in b:
+        return True
+    if _CROW_FOOT_RE.search(b):
+        return False
+    markers = (
+        "graph er",
+        "shape=ellipse",
+        "shape=oval",
+        "shape=diamond",
+        "shape=box",
+        "shape=rectangle",
+        "rankdir",
+        "splines",
+        "node [shape",
+        "peripheries",
+        "subgraph cluster",
+        "--",
+        "[label=",
+    )
+    hits = sum(1 for m in markers if m in b)
+    return hits >= 2
+
+
+def _swap_er_graphviz_fences_for_images(assignment_text: str, content: str) -> str:
+    """
+    Replace ```dot / ```graphviz blocks that look like ER diagrams with PNG diagram tool output.
+    Prevents raw DOT from appearing in the UI when the model should have used the diagram tool.
+    """
+    if not content or "```" not in content:
+        return content
+    try:
+        from app.ca_guidance.tools.diagram_image_tool import generate_assignment_diagram
+    except Exception as e:
+        logger.warning("Diagram tool unavailable for DOT fence swap: %s", e)
+        return content
+
+    def _replace_block(match) -> str:
+        inner = (match.group(1) or "").strip()
+        if not _looks_like_er_graphviz_dot(inner):
+            return match.group(0)
+        base = (assignment_text or "").strip()[:9000]
+        desc_parts = [
+            "Build a validated conceptual Chen-style ER diagram for this CA assignment context.",
+            "Ignore informal node declarations; extract entities, attributes (PK, multivalued, composite), "
+            "relationships, and cardinalities from the assignment and from any draft hints below.",
+        ]
+        if base:
+            desc_parts.append("ASSIGNMENT EXCERPT:\n" + base)
+        desc_parts.append(
+            "DRAFT GRAPHVIZ FROM MODEL (hints only; do not copy invalid syntax):\n" + inner[:4500]
+        )
+        description = "\n\n".join(desc_parts)
+        try:
+            tool_out = generate_assignment_diagram.run(
+                diagram_type="er_diagram",
+                description=description,
+            )
+            refs = re.findall(r"\[IMAGE:[^\]]+\]", tool_out or "", flags=re.IGNORECASE)
+            if refs:
+                logger.info("Replaced ER Graphviz fence with %d diagram image ref(s)", len(refs))
+                return "\n\n" + "\n".join(refs) + "\n\n"
+        except Exception as ex:
+            logger.warning("ER diagram generation from DOT fence failed: %s", ex)
+        # Remove unreadable DOT; do not leave raw fence on screen.
+        return (
+            "\n\n> Conceptual ER diagram: draft Graphviz was replaced. "
+            "If no image appears above, re-run guidance or ask explicitly for an ER diagram.\n\n"
+        )
+
+    return _DOT_FENCE_RE.sub(_replace_block, content)
+
+
+def _strip_crow_foot_blocks(content: str) -> str:
+    """
+    Remove fenced code blocks that contain Crow's Foot notation so rendered output
+    does not show disallowed notation; Graphviz image sections are appended separately.
+    """
+    if not content:
+        return content
+
+    def _replace_block(match):
+        block = match.group(0)
+        if _CROW_FOOT_RE.search(block):
+            return "\n\n> Crow's Foot text diagram removed. Conceptual ER image generated instead.\n\n"
+        return block
+
+    return re.sub(r"```[\s\S]*?```", _replace_block, content)
+
+
+def _token_set(text: str) -> set[str]:
+    words = re.findall(r"[a-zA-Z][a-zA-Z0-9_]{2,}", (text or "").lower())
+    stop = {
+        "the", "and", "for", "with", "that", "this", "from", "into", "your", "their",
+        "question", "diagram", "draw", "create", "generate", "design", "schema", "erd",
+        "eer", "entity", "relationship",
+    }
+    return {w for w in words if w not in stop}
+
+
+def _find_best_insertion_line(content_lines: list[str], request_text: str) -> int | None:
+    req_tokens = _token_set(request_text)
+    if not req_tokens:
+        return None
+
+    best_idx = None
+    best_score = 0.0
+    for idx, line in enumerate(content_lines):
+        line_tokens = _token_set(line)
+        if not line_tokens:
+            continue
+        inter = len(req_tokens & line_tokens)
+        if inter == 0:
+            continue
+        union = len(req_tokens | line_tokens)
+        score = inter / union if union else 0.0
+        # Prefer heading/question-like lines when score ties.
+        if re.match(r"^\s{0,3}(#+\s+|Q\d+[:.)]|Question\s+\d+)", line, re.IGNORECASE):
+            score += 0.08
+        if score > best_score:
+            best_score = score
+            best_idx = idx
+
+    # Require a minimal relevance threshold.
+    if best_score < 0.08:
+        return None
+    return best_idx
+
+
+def _has_image_near_line(content_lines: list[str], idx: int, window: int = 12) -> bool:
+    start = max(0, idx)
+    end = min(len(content_lines), idx + window + 1)
+    snippet = "\n".join(content_lines[start:end])
+    return bool(re.search(r"\[IMAGE:[^\]]+\]|<img\s+[^>]*src=", snippet, flags=re.IGNORECASE))
+
+
+def _guidance_answer_context_after_anchor(
+    content_lines: list[str],
+    anchor_idx: int,
+    *,
+    max_lines: int = 48,
+    max_chars: int = 4000,
+) -> str:
+    """
+    Collect the guidance prose written under a question heading (until next ### or size cap).
+    Used to ground fallback ER generation in the same entities/relationships as the answer.
+    """
+    start = min(len(content_lines), max(0, anchor_idx + 1))
+    buf: list[str] = []
+    n = 0
+    for j in range(start, len(content_lines)):
+        if n >= max_lines:
+            break
+        line = content_lines[j]
+        if re.match(r"^\s{0,3}###\s+\S", line):
+            break
+        buf.append(line)
+        n += 1
+        if sum(len(x) + 1 for x in buf) >= max_chars:
+            break
+    return "\n".join(buf).strip()
+
+
+def _ensure_guidance_diagrams(
+    assignment_text: str,
+    cleaned_content: str,
+) -> str:
+    """
+    Safety net: if assignment asks for diagrams but guidance output has no [IMAGE:...],
+    invoke diagram generation tool directly and append generated image refs.
+    """
+    if not cleaned_content:
+        return cleaned_content
+    cleaned_content = _strip_crow_foot_blocks(cleaned_content)
+
+    requests = _extract_diagram_requests(assignment_text)
+    if not requests:
+        return cleaned_content
+
+    try:
+        from app.ca_guidance.tools.diagram_image_tool import generate_assignment_diagram
+    except Exception as e:
+        logger.warning(f"Could not import diagram generation tool for fallback: {e}")
+        return cleaned_content
+
+    content_lines = cleaned_content.splitlines()
+    inserts_made = 0
+
+    for idx, req in enumerate(requests, start=1):
+        anchor_idx = _find_best_insertion_line(content_lines, req)
+        if anchor_idx is None:
+            # Only insert when we can confidently map to a relevant question line.
+            continue
+        if _has_image_near_line(content_lines, anchor_idx):
+            # Already has an image near the relevant question.
+            continue
+
+        diagram_type = _infer_diagram_type(req)
+        try:
+            hints = _er_rule_hints(req) if diagram_type == "er_diagram" else []
+            answer_ctx = _guidance_answer_context_after_anchor(
+                content_lines, anchor_idx, max_lines=52, max_chars=4500
+            )
+            description = (
+                "\n"
+                + req.strip()
+                + "\n\n\n"
+                + (answer_ctx if answer_ctx else "(no guidance text yet under this heading—use the snippet only.)")
+            )
+            if hints:
+                description = description + "\n\nER RULE HINTS:\n- " + "\n- ".join(hints)
+            tool_output = generate_assignment_diagram.run(
+                diagram_type=diagram_type,
+                description=description,
+            )
+            image_refs = re.findall(r"\[IMAGE:[^\]]+\]", tool_output or "", flags=re.IGNORECASE)
+            if not image_refs:
+                continue
+            # Place strictly under best-matching question line.
+            insertion_block = ["", *image_refs, ""]
+            content_lines[anchor_idx + 1:anchor_idx + 1] = insertion_block
+            inserts_made += 1
+        except Exception as e:
+            logger.warning(f"Fallback diagram generation failed for request '{req[:80]}...': {e}")
+
+    new_content = "\n".join(content_lines).rstrip()
+    if inserts_made:
+        logger.info(f"Placed {inserts_made} diagram(s) under matched questions")
+    return new_content
 
 
 router = APIRouter(prefix="/protected", tags=["protected"])
 
 
+def _extract_text_from_pdf_doc(doc: fitz.Document) -> str:
+    """
+    Extract as much machine-readable text as possible (reading order + block fallback).
+    Some PDFs only populate text when using sort=True or block extraction.
+    """
+    page_texts: list[str] = []
+    for page in doc:
+        chunk = ""
+        try:
+            chunk = page.get_text("text", sort=True) or ""
+        except (TypeError, ValueError):
+            try:
+                chunk = page.get_text(sort=True) or ""
+            except (TypeError, ValueError):
+                chunk = ""
+        if not (chunk or "").strip():
+            chunk = page.get_text() or ""
+        page_texts.append((chunk or "").strip())
+
+    merged = "\n\n".join(t for t in page_texts if t).strip()
+    n_pages = len(page_texts) or 1
+    if len(merged) < 30 * n_pages:
+        block_lines: list[str] = []
+        for page in doc:
+            try:
+                blocks = page.get_text("blocks") or []
+            except Exception:
+                blocks = []
+            for b in blocks:
+                if isinstance(b, (list, tuple)) and len(b) > 4 and isinstance(b[4], str):
+                    t = b[4].strip()
+                    if t:
+                        block_lines.append(t)
+        alt = "\n\n".join(block_lines).strip()
+        if len(alt) > len(merged):
+            merged = alt
+    return merged
+
+
 @router.post("/run-guidance")
 async def run_guidance(
     user: UserInfo = Depends(get_current_user),
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
+    sql_dataset: Optional[list[UploadFile]] = File(None),
 ):
     logger.info("=== Starting guidance process ===")
 
     logger.info("Step 1: Extracting text from PDF")
     try:
         pdf_bytes = await file.read()
-        text = ""
         with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
-            for page in doc:
-                text += page.get_text()
-        logger.info(f"Extracted {len(text)} characters from PDF")
+            page_count = doc.page_count
+            text = _extract_text_from_pdf_doc(doc)
+        logger.info("Extracted %s characters from PDF (%s pages)", len(text), page_count)
 
         if not text.strip():
             raise HTTPException(
@@ -438,80 +2013,271 @@ async def run_guidance(
 
     logger.info("Step 2: Creating and running CrewAI crew")
     try:
-        crew = create_guidance_crew(
-            assignment_text=text,
-            access_token=user.access_token
+        dataset_files: list[tuple[str, bytes]] = []
+        if sql_dataset:
+            for ds in sql_dataset:
+                if ds is None or not (ds.filename or "").strip():
+                    continue
+                dataset_name = ds.filename or ""
+                lower = dataset_name.lower()
+                if not (lower.endswith(".sql") or lower.endswith(".csv")):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Each SQL dataset must be .sql or .csv",
+                    )
+                dataset_bytes = await ds.read()
+                if not dataset_bytes:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Uploaded SQL dataset file is empty: {dataset_name}",
+                    )
+                dataset_files.append((dataset_name, dataset_bytes))
+            if dataset_files:
+                logger.info(
+                    "Received optional SQL datasets for guidance: count=%s names=%s",
+                    len(dataset_files),
+                    [x[0] for x in dataset_files[:10]],
+                )
+
+        from app.ca_guidance.tools.guidance_diagram_registry import (
+            begin_guidance_diagram_registry,
+            end_guidance_diagram_registry,
+            get_guidance_diagram_registry,
         )
 
-        logger.info("Step 3: Executing crew tasks")
-        result = crew.kickoff()
-
-        logger.info("Step 4: Extracting markdown from crew result")
-        report_content = None
-
-        if hasattr(result, 'raw'):
-            report_content = result.raw
-        elif hasattr(result, 'content'):
-            report_content = result.content
-        elif hasattr(result, 'tasks_output'):
-            if result.tasks_output:
-                last_task_output = result.tasks_output[-1]
-                report_content = last_task_output.raw if hasattr(last_task_output, 'raw') else str(last_task_output)
-        elif isinstance(result, str):
-            report_content = result
-        else:
-            report_content = str(result)
-
-        if not report_content:
-            logger.error("Failed to extract markdown from crew result")
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to extract markdown report from crew result"
-            )
-
-        report_str = str(report_content)
-        cleaned_content = clean_markdown_response(report_str)
-
-        base_url = "/api/images/"
-        # For guidance, explanations are optional (set to False by default)
-        final_content, image_paths = extract_and_replace_images(
-            cleaned_content, 
-            base_url=base_url,
-            topic=None,  # Guidance doesn't have a specific topic
-            generate_explanations=False,  # Disable for guidance to keep it focused
-            context_text=None
-        )
-
-        logger.info(f"Successfully extracted markdown (length: {len(final_content)})")
-        logger.info(f"Found {len(image_paths)} image(s) in response")
-
-        # Store base guidance for reinforcement flow (same style as summarization)
+        begin_guidance_diagram_registry()
         try:
-            from app.services.guidance_reinforcement_service import GuidanceReinforcementService
-            svc = GuidanceReinforcementService()
-            guidance_id = svc.store_base_guidance(
-                report_text=final_content,
-                images=image_paths,
-                user_email=user.email,
+            crew = create_guidance_crew(
+                assignment_text=text,
+                access_token=user.access_token
             )
-            logger.info(f"Stored base guidance (id: {guidance_id})")
-        except Exception as store_err:
-            logger.warning(f"Failed to store base guidance for reinforcement: {store_err}")
-            guidance_id = None
 
-        logger.info("=== Guidance process completed ===")
+            logger.info("Step 3: Executing crew tasks")
+            result = crew.kickoff()
+            _log_guidance_crew_result_metrics(result, len(text))
 
-        return {
-            "report": final_content,
-            "images": image_paths,
-            "guidance_id": guidance_id,
-        }
+            logger.info("Step 4: Extracting markdown from crew result")
+            report_content = _merge_guidance_crew_task_outputs(result)
+            if not report_content:
+                report_content = _fallback_guidance_from_crew_result(result)
+
+            if not report_content:
+                if hasattr(result, 'raw'):
+                    report_content = result.raw
+                elif hasattr(result, 'content'):
+                    report_content = result.content
+                elif hasattr(result, 'tasks_output'):
+                    if result.tasks_output:
+                        last_task_output = result.tasks_output[-1]
+                        report_content = (
+                            last_task_output.raw
+                            if hasattr(last_task_output, 'raw')
+                            else str(last_task_output)
+                        )
+                elif isinstance(result, str):
+                    report_content = result
+                else:
+                    report_content = str(result)
+
+            if not report_content:
+                logger.error("Failed to extract markdown from crew result")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to extract markdown report from crew result"
+                )
+
+            report_str = str(report_content)
+            report_str, coverage_missing = await _ensure_guidance_full_coverage(text, report_str)
+            logger.info(
+                "Guidance post-merge: report_chars=%s coverage_missing_final=%s",
+                len(report_str),
+                len(coverage_missing),
+            )
+            cleaned_content = clean_markdown_response(report_str)
+            cleaned_content = _swap_er_graphviz_fences_for_images(text, cleaned_content)
+            cleaned_content = _ensure_guidance_diagrams(
+                assignment_text=text,
+                cleaned_content=cleaned_content,
+            )
+            cleaned_content = _ensure_related_web_resources_server_backfill(
+                cleaned_content, text
+            )
+            cleaned_content = _ensure_calendar_from_pdf_if_missed(
+                result, text, user.access_token, cleaned_content
+            )
+
+            base_url = "/api/images/"
+            diagram_registry = get_guidance_diagram_registry()
+            if diagram_registry:
+                logger.info(
+                    "Guidance diagram registry: %s ER file(s) for image remapping",
+                    len(diagram_registry),
+                )
+            # For guidance, explanations are optional (set to False by default)
+            final_content, image_paths = extract_and_replace_images(
+                cleaned_content,
+                base_url=base_url,
+                topic=None,  # Guidance doesn't have a specific topic
+                generate_explanations=False,  # Disable for guidance to keep it focused
+                context_text=None,
+                diagram_registry=diagram_registry,
+            )
+
+            logger.info(f"Successfully extracted markdown (length: {len(final_content)})")
+            logger.info(f"Found {len(image_paths)} image(s) in response")
+
+            query_results: list[dict[str, Any]] = []
+            if dataset_files:
+                try:
+                    conn = sqlite3.connect(":memory:")
+                    try:
+                        for ds_name, ds_bytes in dataset_files:
+                            if ds_name.lower().endswith(".sql"):
+                                script = ds_bytes.decode("utf-8", errors="replace")
+                                conn.executescript(script)
+                                logger.info(
+                                    "Merged SQL dataset script: name=%s bytes=%s",
+                                    ds_name,
+                                    len(ds_bytes),
+                                )
+                            else:
+                                # load CSV into shared in-memory DB table
+                                temp_conn = _load_dataset_into_sqlite(ds_name, ds_bytes)
+                                try:
+                                    for row in temp_conn.execute(
+                                        "SELECT name, sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+                                    ).fetchall():
+                                        t_name, t_sql = row[0], row[1]
+                                        if t_sql:
+                                            create_sql = re.sub(
+                                                r"(?is)^create\s+table\s+",
+                                                "CREATE TABLE IF NOT EXISTS ",
+                                                t_sql.strip(),
+                                            )
+                                            conn.execute(create_sql)
+                                        data_rows = temp_conn.execute(f'SELECT * FROM "{t_name}"').fetchall()
+                                        if data_rows:
+                                            placeholders = ", ".join("?" for _ in data_rows[0])
+                                            conn.executemany(
+                                                f'INSERT INTO "{t_name}" VALUES ({placeholders})',
+                                                data_rows,
+                                            )
+                                finally:
+                                    temp_conn.close()
+                        conn.commit()
+                        queries = _extract_sql_queries_from_guidance(final_content, limit=20)
+                        logger.info(
+                            "SQL dataset processing: extracted_queries=%s from guidance",
+                            len(queries),
+                        )
+                        query_results = _execute_dataset_queries(conn, queries, row_limit=25)
+                    finally:
+                        conn.close()
+                    if query_results:
+                        q_md = _format_query_results_markdown(query_results)
+                        if q_md:
+                            final_content = final_content.rstrip() + "\n\n" + q_md + "\n"
+                    logger.info(
+                        "SQL query pipeline: extracted=%s executed=%s errors=%s",
+                        len(queries),
+                        len(query_results),
+                        sum(1 for x in query_results if x.get("error")),
+                    )
+                except Exception as sql_err:
+                    logger.warning("SQL dataset processing failed: %s", sql_err, exc_info=True)
+                    query_results = [
+                        {
+                            "query": "",
+                            "error": f"SQL dataset processing failed: {sql_err}",
+                            "columns": [],
+                            "rows": [],
+                        }
+                    ]
+
+            # Store base guidance for reinforcement flow (same style as summarization)
+            try:
+                from app.services.guidance_reinforcement_service import GuidanceReinforcementService
+                svc = GuidanceReinforcementService()
+                guidance_id = svc.store_base_guidance(
+                    report_text=final_content,
+                    images=image_paths,
+                    user_email=user.email,
+                )
+                logger.info(f"Stored base guidance (id: {guidance_id})")
+            except Exception as store_err:
+                logger.warning(f"Failed to store base guidance for reinforcement: {store_err}")
+                guidance_id = None
+
+            logger.info("=== Guidance process completed ===")
+
+            return {
+                "report": final_content,
+                "images": image_paths,
+                "guidance_id": guidance_id,
+                "query_results": query_results,
+            }
+        finally:
+            end_guidance_diagram_registry()
 
     except Exception as e:
         logger.error(f"Error running guidance manager: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to run guidance: {e}"
+        )
+
+
+@router.post("/guidance/download-pdf")
+async def download_guidance_pdf(
+    request: GuidancePdfRequest,
+    user: UserInfo = Depends(get_current_user),
+):
+    report_content = (request.report_content or "").strip()
+    if not report_content:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Guidance content is required to generate a PDF.",
+        )
+
+    try:
+        from app.services.guidance_pdf_service import build_guidance_pdf, sanitize_download_filename
+
+        logger.info(
+            "Guidance PDF request: user=%s report_chars=%s images_in_request=%s title=%r file_name=%r",
+            user.email,
+            len(report_content),
+            len(request.images or []),
+            request.title,
+            request.file_name,
+        )
+        pdf_bytes = build_guidance_pdf(
+            report_content=report_content,
+            image_names=request.images or [],
+            query_results=request.query_results or [],
+            title=(request.title or "CA Guidance Report").strip() or "CA Guidance Report",
+        )
+        filename = sanitize_download_filename(request.file_name)
+        logger.info(
+            "Guidance PDF response: user=%s bytes=%s filename=%s",
+            user.email,
+            len(pdf_bytes),
+            filename,
+        )
+
+        return StreamingResponse(
+            io.BytesIO(pdf_bytes),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"',
+                "Cache-Control": "no-store",
+                "Content-Length": str(len(pdf_bytes)),
+            },
+        )
+    except Exception as e:
+        logger.error(f"Error generating guidance PDF for {user.email}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate guidance PDF: {e}",
         )
 
 
@@ -675,8 +2441,7 @@ async def summarize_topic(
         
         # Verify HTML is in the final content before storing
         figure_count = final_content.count('<figure>')
-        figcaption_count = final_content.count('<figcaption>')
-        logger.info(f"📊 Final content verification: {figure_count} <figure> tags, {figcaption_count} <figcaption> tags")
+        logger.info(f"📊 Final content verification: {figure_count} <figure> tags")
         if figure_count == 0 and len(image_paths) > 0:
             logger.warning(f"⚠ WARNING: {len(image_paths)} images found but NO figure tags in final content!")
             logger.warning(f"Content preview (first 500 chars): {final_content[:500]}")
@@ -1772,7 +3537,20 @@ async def reinforce_guidance(
                 deadline_section += "Sign in with Google to add this deadline to your calendar."
             reinforced_text = reinforced_text.rstrip() + deadline_section
             logger.info(f"Deadline section set to user-provided date: {user_provided_deadline!r}")
-        images = latest_source.get("images", [])  # preserve images from latest version
+        images = list(latest_source.get("images") or [])
+        reinforced_text = clean_markdown_response(reinforced_text)
+        reinforced_text = _swap_er_graphviz_fences_for_images("", reinforced_text)
+        final_reinforced, extra_paths = extract_and_replace_images(
+            reinforced_text,
+            base_url="/api/images/",
+            topic=None,
+            generate_explanations=False,
+            context_text=None,
+        )
+        reinforced_text = final_reinforced
+        for p in extra_paths or []:
+            if p and p not in images:
+                images.append(p)
         reinforced_id = service.store_reinforced_guidance(
             base_guidance_id=request.guidance_id,
             report_text=reinforced_text,

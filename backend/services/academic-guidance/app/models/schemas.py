@@ -107,3 +107,11 @@ class ReinforceGuidanceRequest(BaseModel):
     force: bool = False
     session_id: Optional[str] = None
 
+
+class GuidancePdfRequest(BaseModel):
+    report_content: str
+    images: List[str] = []
+    query_results: List[dict] = []
+    title: Optional[str] = None
+    file_name: Optional[str] = None
+

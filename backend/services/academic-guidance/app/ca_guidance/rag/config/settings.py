@@ -8,6 +8,8 @@ RAG_DIR = Path(__file__).parent.parent  # app/ca_guidance/rag/
 LECTURES_DIR = RAG_DIR / "lectures"  # folder with PDFs
 IMAGE_OUTPUT_DIR = RAG_DIR / "extracted_images"
 IMAGE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+GENERATED_IMAGE_OUTPUT_DIR = RAG_DIR / "generated_images"
+GENERATED_IMAGE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 VECTORSTORE_DIR = RAG_DIR / "vectorstore"  # folder to save/load FAISS vectorstore
 VECTORSTORE_DIR.mkdir(parents=True, exist_ok=True)
 
