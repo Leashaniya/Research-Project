@@ -35,7 +35,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/guidance';
 function GuidancePage() {
   const { user } = useAuth();
   const [assignmentFile, setAssignmentFile] = useState(null);
-  const [sqlDatasetFile, setSqlDatasetFile] = useState(null);
+  const [sqlDatasetFiles, setSqlDatasetFiles] = useState([]);
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
   const [summaryTopic, setSummaryTopic] = useState('');
@@ -307,8 +307,8 @@ function GuidancePage() {
 
     const formData = new FormData();
     formData.append('file', assignmentFile);
-    if (sqlDatasetFile) {
-      formData.append('sql_dataset', sqlDatasetFile);
+    if (Array.isArray(sqlDatasetFiles) && sqlDatasetFiles.length > 0) {
+      sqlDatasetFiles.forEach((f) => formData.append('sql_dataset', f));
     }
 
     try {
@@ -1260,7 +1260,7 @@ function GuidancePage() {
   const clearStateOnLogout = () => {
     setReport(null);
     setAssignmentFile(null);
-    setSqlDatasetFile(null);
+    setSqlDatasetFiles([]);
     if (assignmentFileInputRef.current) assignmentFileInputRef.current.value = '';
     if (sqlDatasetInputRef.current) sqlDatasetInputRef.current.value = '';
     setSummary(null);
@@ -1360,20 +1360,21 @@ function GuidancePage() {
                       ref={sqlDatasetInputRef}
                       id="sql-dataset-file"
                       type="file"
+                      multiple
                       accept=".sql,.csv,text/csv,application/sql"
-                      onChange={(e) => setSqlDatasetFile(e.target.files[0] || null)}
+                      onChange={(e) => setSqlDatasetFiles(Array.from(e.target.files || []))}
                       className="file-input"
                     />
-                    {sqlDatasetFile && (
+                    {sqlDatasetFiles.length > 0 && (
                       <div className="info-message file-selected-message" style={{ marginTop: '10px' }}>
-                        SQL Dataset: <strong>{sqlDatasetFile.name}</strong>
+                        SQL Datasets: <strong>{sqlDatasetFiles.map((f) => f.name).join(', ')}</strong>
                         <button
                           type="button"
                           className="file-clear-btn"
                           aria-label="Clear selected SQL dataset file"
                           title="Clear file"
                           onClick={() => {
-                            setSqlDatasetFile(null);
+                            setSqlDatasetFiles([]);
                             if (sqlDatasetInputRef.current) sqlDatasetInputRef.current.value = '';
                           }}
                         >

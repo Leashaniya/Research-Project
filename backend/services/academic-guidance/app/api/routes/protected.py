@@ -1987,7 +1987,7 @@ def _extract_text_from_pdf_doc(doc: fitz.Document) -> str:
 async def run_guidance(
     user: UserInfo = Depends(get_current_user),
     file: UploadFile = File(...),
-    sql_dataset: Optional[UploadFile] = File(None),
+    sql_dataset: Optional[list[UploadFile]] = File(None),
 ):
     logger.info("=== Starting guidance process ===")
 
@@ -2013,27 +2013,31 @@ async def run_guidance(
 
     logger.info("Step 2: Creating and running CrewAI crew")
     try:
-        dataset_bytes: bytes | None = None
-        dataset_name = ""
-        if sql_dataset is not None and (sql_dataset.filename or "").strip():
-            dataset_name = sql_dataset.filename or ""
-            lower = dataset_name.lower()
-            if not (lower.endswith(".sql") or lower.endswith(".csv")):
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="SQL dataset must be .sql or .csv",
+        dataset_files: list[tuple[str, bytes]] = []
+        if sql_dataset:
+            for ds in sql_dataset:
+                if ds is None or not (ds.filename or "").strip():
+                    continue
+                dataset_name = ds.filename or ""
+                lower = dataset_name.lower()
+                if not (lower.endswith(".sql") or lower.endswith(".csv")):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Each SQL dataset must be .sql or .csv",
+                    )
+                dataset_bytes = await ds.read()
+                if not dataset_bytes:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Uploaded SQL dataset file is empty: {dataset_name}",
+                    )
+                dataset_files.append((dataset_name, dataset_bytes))
+            if dataset_files:
+                logger.info(
+                    "Received optional SQL datasets for guidance: count=%s names=%s",
+                    len(dataset_files),
+                    [x[0] for x in dataset_files[:10]],
                 )
-            dataset_bytes = await sql_dataset.read()
-            if not dataset_bytes:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Uploaded SQL dataset file is empty.",
-                )
-            logger.info(
-                "Received optional SQL dataset for guidance: name=%s bytes=%s",
-                dataset_name,
-                len(dataset_bytes),
-            )
 
         from app.ca_guidance.tools.guidance_diagram_registry import (
             begin_guidance_diagram_registry,
@@ -2123,10 +2127,44 @@ async def run_guidance(
             logger.info(f"Found {len(image_paths)} image(s) in response")
 
             query_results: list[dict[str, Any]] = []
-            if dataset_bytes:
+            if dataset_files:
                 try:
-                    conn = _load_dataset_into_sqlite(dataset_name, dataset_bytes)
+                    conn = sqlite3.connect(":memory:")
                     try:
+                        for ds_name, ds_bytes in dataset_files:
+                            if ds_name.lower().endswith(".sql"):
+                                script = ds_bytes.decode("utf-8", errors="replace")
+                                conn.executescript(script)
+                                logger.info(
+                                    "Merged SQL dataset script: name=%s bytes=%s",
+                                    ds_name,
+                                    len(ds_bytes),
+                                )
+                            else:
+                                # load CSV into shared in-memory DB table
+                                temp_conn = _load_dataset_into_sqlite(ds_name, ds_bytes)
+                                try:
+                                    for row in temp_conn.execute(
+                                        "SELECT name, sql FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+                                    ).fetchall():
+                                        t_name, t_sql = row[0], row[1]
+                                        if t_sql:
+                                            create_sql = re.sub(
+                                                r"(?is)^create\s+table\s+",
+                                                "CREATE TABLE IF NOT EXISTS ",
+                                                t_sql.strip(),
+                                            )
+                                            conn.execute(create_sql)
+                                        data_rows = temp_conn.execute(f'SELECT * FROM "{t_name}"').fetchall()
+                                        if data_rows:
+                                            placeholders = ", ".join("?" for _ in data_rows[0])
+                                            conn.executemany(
+                                                f'INSERT INTO "{t_name}" VALUES ({placeholders})',
+                                                data_rows,
+                                            )
+                                finally:
+                                    temp_conn.close()
+                        conn.commit()
                         queries = _extract_sql_queries_from_guidance(final_content, limit=20)
                         logger.info(
                             "SQL dataset processing: extracted_queries=%s from guidance",
