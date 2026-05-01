@@ -4,6 +4,47 @@
 $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
+function Get-ListeningPidsByPort {
+    param([int]$Port)
+
+    $lines = netstat -ano | Select-String "LISTENING"
+    $pids = @()
+    foreach ($line in $lines) {
+        $text = [string]$line.Line
+        if ($text -match "^\s*TCP\s+\S+:$Port\s+\S+\s+LISTENING\s+(\d+)\s*$") {
+            $pids += [int]$matches[1]
+        }
+    }
+    return $pids | Sort-Object -Unique
+}
+
+function Stop-BackendPorts {
+    $portsToClear = @(8081, 8000, 8002, 8003, 80)
+    Write-Host "Stopping processes on ports: $($portsToClear -join ', ') ..."
+
+    foreach ($port in $portsToClear) {
+        $pids = Get-ListeningPidsByPort -Port $port
+        if (-not $pids -or $pids.Count -eq 0) {
+            Write-Host "  - Port ${port}: no LISTENING process."
+            continue
+        }
+
+        foreach ($targetPid in $pids) {
+            if ($targetPid -eq $PID) { continue }
+            Write-Host "  - Port ${port}: killing PID $targetPid"
+            try {
+                taskkill /PID $targetPid /F | Out-Null
+            } catch {
+                Write-Warning "Failed to kill PID $targetPid on port ${port}: $($_.Exception.Message)"
+            }
+        }
+    }
+
+    Start-Sleep -Seconds 1
+}
+
+Stop-BackendPorts
+
 Write-Host "Starting all backend services..."
 
 # 1. Academic Guidance (Port 8081)
