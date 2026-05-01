@@ -1,0 +1,90 @@
+{
+  "precision_at_3": 0.0,
+  "precision_at_5": 0.2,
+  "topic_coverage_score": 0.7805,
+  "recommendation_diversity": 1.0,
+  "generated_at": "2026-05-01T16:20:22.659658+00:00",
+  "retrieval_comparison_validation": {
+    "generated_at": "2026-05-01T16:52:32.858963+00:00",
+    "k": 10,
+    "weak_topics_count": 2,
+    "n_mcqs": 501,
+    "aggregate_metrics": {
+      "tfidf_cosine": {
+        "precision_at_10": 0.85,
+        "recall_at_10": 0.1152,
+        "mrr_at_10": 1.0,
+        "ndcg_at_10": 0.8861,
+        "diversity_unique_topics_at_10": 2.0,
+        "topics_evaluated": 2
+      },
+      "embedding_cosine": {
+        "precision_at_10": 0.85,
+        "recall_at_10": 0.1135,
+        "mrr_at_10": 1.0,
+        "ndcg_at_10": 0.8987,
+        "diversity_unique_topics_at_10": 2.0,
+        "topics_evaluated": 2
+      },
+      "hybrid": {
+        "precision_at_10": 0.9,
+        "recall_at_10": 0.1194,
+        "mrr_at_10": 1.0,
+        "ndcg_at_10": 0.929,
+        "diversity_unique_topics_at_10": 1.5,
+        "topics_evaluated": 2
+      }
+    },
+    "final_scores": {
+      "tfidf_cosine": 0.712825,
+      "embedding_cosine": 0.71555,
+      "hybrid": 0.7371
+    },
+    "is_tie": false,
+    "best_method": "hybrid",
+    "standardized_k10_metrics": [
+      {
+        "method": "tfidf_cosine",
+        "precision_at_10": 0.85,
+        "recall_at_10": 0.1152,
+        "mrr_at_10": 1.0,
+        "ndcg_at_10": 0.8861,
+        "final_score": 0.7128,
+        "k": 10,
+        "generated_at": "2026-05-01T16:52:32.694278+00:00"
+      },
+      {
+        "method": "embedding_cosine",
+        "precision_at_10": 0.85,
+        "recall_at_10": 0.1135,
+        "mrr_at_10": 1.0,
+        "ndcg_at_10": 0.8987,
+        "final_score": 0.7156,
+        "k": 10,
+        "generated_at": "2026-05-01T16:52:32.694278+00:00"
+      },
+      {
+        "method": "hybrid",
+        "precision_at_10": 0.9,
+        "recall_at_10": 0.1194,
+        "mrr_at_10": 1.0,
+        "ndcg_at_10": 0.929,
+        "final_score": 0.7371,
+        "k": 10,
+        "generated_at": "2026-05-01T16:52:32.694278+00:00"
+      }
+    ],
+    "artifacts": {
+      "retrieval_comparison_json": "C:\\Users\\Kajamalan\\Music\\Research-Project\\backend\\services\\mcq-studyplan-generation\\outputs\\retrieval_comparison.json",
+      "retrieval_comparison_summary_csv": "C:\\Users\\Kajamalan\\Music\\Research-Project\\backend\\services\\mcq-studyplan-generation\\outputs\\retrieval_comparison_summary.csv",
+      "retrieval_metrics_k10_json": "C:\\Users\\Kajamalan\\Music\\Research-Project\\backend\\services\\mcq-studyplan-generation\\outputs\\retrieval_metrics_k10.json",
+      "retrieval_metrics_k10_csv": "C:\\Users\\Kajamalan\\Music\\Research-Project\\backend\\services\\mcq-studyplan-generation\\outputs\\retrieval_metrics_k10.csv",
+      "retrieval_method_comparison_csv": "C:\\Users\\Kajamalan\\Music\\Research-Project\\backend\\services\\mcq-studyplan-generation\\outputs\\retrieval_method_comparison.csv",
+      "research_report_md": "C:\\Users\\Kajamalan\\Music\\Research-Project\\backend\\services\\mcq-studyplan-generation\\outputs\\research_report.md",
+      "explanation_log_md": "C:\\Users\\Kajamalan\\Music\\Research-Project\\backend\\services\\mcq-studyplan-generation\\outputs\\retrieval_explanations.md",
+      "evaluation_plot_png": "C:\\Users\\Kajamalan\\Music\\Research-Project\\backend\\services\\mcq-studyplan-generation\\outputs\\evaluation_results.png",
+      "retrieval_stratified_analysis_json": "C:\\Users\\Kajamalan\\Music\\Research-Project\\backend\\services\\mcq-studyplan-generation\\outputs\\retrieval_stratified_analysis.json",
+      "statistical_significance_report_md": "C:\\Users\\Kajamalan\\Music\\Research-Project\\backend\\services\\mcq-studyplan-generation\\outputs\\statistical_significance_report.md"
+    }
+  }
+}

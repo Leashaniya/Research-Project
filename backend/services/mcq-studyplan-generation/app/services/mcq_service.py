@@ -119,7 +119,8 @@ def run_analysis() -> tuple[bool, str]:
             plt.close()
 
         # Build graph (optional - skip if fails)
-        graph_path = os.path.join(OUTPUT_FOLDER, "lecture_recommendation_graph.html")
+        # Same filename as GraphRAG visualization so /api/graph/url serves student-friendly graph
+        graph_path = os.path.join(OUTPUT_FOLDER, "graphrag_visualization.html")
         if not mcq_df.empty and all_topics:
             try:
                 from mcq_utils import compute_similarities

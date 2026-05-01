@@ -1,6 +1,6 @@
 """MCQ API routes - all under /api for React mcqApi compatibility."""
 from fastapi import APIRouter
-from .endpoints import dashboard, study_plan, quiz, graph
+from .endpoints import dashboard, study_plan, quiz, graph, metrics
 
 router = APIRouter(prefix="/api")
 
@@ -16,3 +16,7 @@ router.include_router(quiz.router, prefix="/priority-questions", tags=["Priority
 router.include_router(quiz.router_quiz, prefix="/quiz", tags=["Quiz"])
 # Graph: /api/graph/
 router.include_router(graph.router, prefix="/graph", tags=["Graph"])
+# Weak topic RAG summary: /api/weak-topic-summary
+router.include_router(graph.router_weak, prefix="", tags=["Graph"])
+# Metrics: /api/metrics/evaluation
+router.include_router(metrics.router, prefix="/metrics", tags=["Metrics"])

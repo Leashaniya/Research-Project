@@ -1,0 +1,7 @@
+weak_topic,method,precision_at_10,recall_at_10,mrr_at_10,ndcg_at_10,diversity_unique_topics_at_10,relevant_in_top_10,total_relevant_in_pool,pool_size
+Relational Algebra,tfidf_cosine,0.8,0.0941,1.0,0.8572,2,8,85,501
+Relational Algebra,embedding_cosine,0.9,0.1059,1.0,0.9306,2,9,85,501
+Relational Algebra,hybrid,1.0,0.1176,1.0,1.0,1,10,85,501
+Keys and Constraints,tfidf_cosine,0.9,0.1364,1.0,0.9149,2,9,66,501
+Keys and Constraints,embedding_cosine,0.8,0.1212,1.0,0.8669,2,8,66,501
+Keys and Constraints,hybrid,0.8,0.1212,1.0,0.858,2,8,66,501

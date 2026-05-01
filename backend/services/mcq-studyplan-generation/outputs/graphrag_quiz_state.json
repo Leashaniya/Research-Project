@@ -1,0 +1,133 @@
+{
+  "topic_wise": {
+    "4": {
+      "correct": 3,
+      "total": 7,
+      "accuracy": 42.857142857142854
+    },
+    "2": {
+      "correct": 1,
+      "total": 7,
+      "accuracy": 14.285714285714285
+    },
+    "8": {
+      "correct": 5,
+      "total": 7,
+      "accuracy": 71.42857142857143
+    },
+    "5": {
+      "correct": 3,
+      "total": 7,
+      "accuracy": 42.857142857142854
+    },
+    "6": {
+      "correct": 3,
+      "total": 4,
+      "accuracy": 75.0
+    },
+    "7": {
+      "correct": 4,
+      "total": 4,
+      "accuracy": 100.0
+    },
+    "3": {
+      "correct": 2,
+      "total": 4,
+      "accuracy": 50.0
+    },
+    "1": {
+      "correct": 4,
+      "total": 4,
+      "accuracy": 100.0
+    }
+  },
+  "topic_wise_accuracy": {
+    "Aggregation (GROUP BY, COUNT, SUM)": {
+      "topic_name": "Aggregation (GROUP BY, COUNT, SUM)",
+      "correct": 2,
+      "total": 4,
+      "accuracy": 50.0,
+      "band": "moderate",
+      "status": "moderate",
+      "is_reliable": true
+    },
+    "Sql Queries": {
+      "topic_name": "Sql Queries",
+      "correct": 7,
+      "total": 8,
+      "accuracy": 87.5,
+      "band": "strong",
+      "status": "strong",
+      "is_reliable": true
+    },
+    "Relational Algebra": {
+      "topic_name": "Relational Algebra",
+      "correct": 0,
+      "total": 5,
+      "accuracy": 0.0,
+      "band": "weak",
+      "status": "weak",
+      "is_reliable": true
+    },
+    "Keys and Constraints": {
+      "topic_name": "Keys and Constraints",
+      "correct": 4,
+      "total": 9,
+      "accuracy": 44.44444444444444,
+      "band": "weak",
+      "status": "weak",
+      "is_reliable": true
+    },
+    "Database Access": {
+      "topic_name": "Database Access",
+      "correct": 3,
+      "total": 4,
+      "accuracy": 75.0,
+      "band": "strong",
+      "status": "strong",
+      "is_reliable": true
+    },
+    "Entity Relationships": {
+      "topic_name": "Entity Relationships",
+      "correct": 5,
+      "total": 9,
+      "accuracy": 55.55555555555556,
+      "band": "moderate",
+      "status": "moderate",
+      "is_reliable": true
+    },
+    "JDBC / Database Connectivity": {
+      "topic_name": "JDBC / Database Connectivity",
+      "correct": 2,
+      "total": 3,
+      "accuracy": 66.66666666666666,
+      "band": "moderate",
+      "status": "moderate",
+      "is_reliable": true
+    },
+    "Storage And File Organization": {
+      "topic_name": "Storage And File Organization",
+      "correct": 1,
+      "total": 1,
+      "accuracy": 100.0,
+      "band": "strong",
+      "status": "strong_low_evidence",
+      "is_reliable": false
+    },
+    "Database Design": {
+      "topic_name": "Database Design",
+      "correct": 1,
+      "total": 1,
+      "accuracy": 100.0,
+      "band": "strong",
+      "status": "strong_low_evidence",
+      "is_reliable": false
+    }
+  },
+  "weak_topics_confirmed": [
+    "Relational Algebra",
+    "Keys and Constraints"
+  ],
+  "overall_accuracy_pct": 56.81818181818182,
+  "saved_at": "2026-05-01T16:09:10.219321+00:00"
+}
