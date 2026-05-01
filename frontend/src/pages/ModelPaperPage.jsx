@@ -149,7 +149,7 @@ function ModelPaperPage() {
     const payload = {
       num_slots: numSlots,
       selected_papers: selectedPapers,
-      questions_only: true, // Paper B: question text only, no marks in API output / PDF
+      questions_only: true, // Paper B: question text only, no strict total-marks validation
     };
 
     try {

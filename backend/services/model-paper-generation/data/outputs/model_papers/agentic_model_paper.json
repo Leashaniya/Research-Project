@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-01 17:37:49",
+  "generated_at": "2026-05-01 22:25:27",
   "mode": "AGENTIC_V1",
   "num_questions": 6,
   "topic_distribution": {
@@ -25,7 +25,7 @@
   "questions": [
     {
       "question_no": "Q1",
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university is managing its academic departments and student enrollments in a database system. The university has several entities, including the 'Department', which has attributes such as 'DepartmentID', 'DepartmentName', and a composite attribute 'Location' that includes 'BuildingName' and 'RoomNumber'. Each department offers multiple 'Courses', characterized by attributes 'CourseID', 'CourseName', and 'Credits'. Students, captured in the 'Student' entity with attributes 'StudentID', 'FullName', and a multivalued attribute 'EmailAddresses', enroll in courses through an 'Enrollment' relationship, which records 'EnrollmentDate'. Additionally, the university categorizes students into subtypes based on their academic level; 'UndergraduateStudent' includes unique attributes like 'Major' and 'YearOfStudy', while 'GraduateStudent' has its own attributes, such as 'ThesisTitle' and 'AdvisorName'. The cardinality between 'Department' and 'Course' is (1,N), while 'Course' to 'Enrollment' is (1,N), and 'Student' to 'Enrollment' is (1,N)",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA library management system is designed to keep track of various entities involved in the library's operations. The primary entities are 'Book', 'Member', 'Loan', and 'Staff'. The 'Book' entity consists of attributes such as ISBN, Title, Author, and Genre. The 'Member' entity has MemberID, Name, ContactNumber, and Address. The 'Loan' entity tracks the loans made and includes attributes like LoanID, LoanDate, and ReturnDate. The 'Staff' entity contains StaffID, Name, and Position. The relationship between 'Member' and 'Loan' is one-to-many, indicating that a member can have multiple loans over time. Moreover, 'Staff' is responsible for managing 'Book' entries, which establishes a one-to-many relationship where each staff member can manage multiple books, while also having a composite attribute of Address with Street, City, and ZipCode",
       "subquestions": [
         {
           "label": "a",
@@ -39,8 +39,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69f496de64985c0b7c962237",
-      "original_semantic_description": "A university is managing its academic departments and student enrollments in a database system. The university has several entities, including the 'Department', which has attributes such as 'DepartmentID', 'DepartmentName', and a composite attribute 'Location' that includes 'BuildingName' and 'RoomNumber'. Each department offers multiple 'Courses', characterized by attributes 'CourseID', 'CourseName', and 'Credits'. Students, captured in the 'Student' entity with attributes 'StudentID', 'FullName', and a multivalued attribute 'EmailAddresses', enroll in courses through an 'Enrollment' relationship, which records 'EnrollmentDate'. Additionally, the university categorizes students into subtypes based on their academic level; 'UndergraduateStudent' includes unique attributes like 'Major' and 'YearOfStudy', while 'GraduateStudent' has its own attributes, such as 'ThesisTitle' and 'AdvisorName'. The cardinality between 'Department' and 'Course' is (1,N), while 'Course' to 'Enrollment' is (1,N), and 'Student' to 'Enrollment' is (1,N).",
+      "template_id": "69f4da2fcf9ea7763a8a6dbd",
+      "original_semantic_description": "A library management system is designed to keep track of various entities involved in the library's operations. The primary entities are 'Book', 'Member', 'Loan', and 'Staff'. The 'Book' entity consists of attributes such as ISBN, Title, Author, and Genre. The 'Member' entity has MemberID, Name, ContactNumber, and Address. The 'Loan' entity tracks the loans made and includes attributes like LoanID, LoanDate, and ReturnDate. The 'Staff' entity contains StaffID, Name, and Position. The relationship between 'Member' and 'Loan' is one-to-many, indicating that a member can have multiple loans over time. Moreover, 'Staff' is responsible for managing 'Book' entries, which establishes a one-to-many relationship where each staff member can manage multiple books, while also having a composite attribute of Address with Street, City, and ZipCode.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -50,7 +50,7 @@
     },
     {
       "question_no": "Q2",
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, C->D, DE->A, A->B, B->E}}. In this schema, A and B are composite keys representing entities The given functional dependencies show relationships between attributes that suggest complex dependencies, making normalization essential to achieve a proper database schema.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, A->D, C->B, DE->A, B->E}}. Analyze the relation based on the provided functional dependencies to determine unique keys and normal form compliance.",
       "subquestions": [
         {
           "label": "a",
@@ -68,7 +68,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69f496de64985c0b7c962238",
+      "template_id": "69f4da2fcf9ea7763a8a6dbe",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -77,7 +77,7 @@
     },
     {
       "question_no": "Q3",
-      "text": "A university is developing a comprehensive database system to manage its academic records. The system includes various entities such as Students, Courses, Instructors, and Enrollments. Each Student has attributes including student ID, name, age, and major. Courses have attributes like course ID, title, credit hours, and semester offered. Instructors possess attributes such as instructor ID, name, and department. An Enrollment records the relationship between Students and Courses with additional attributes for the grade received. The university wants to establish constraints to ensure data integrity and enforce business rules like 'A student can enroll in a maximum of five courses per semester.' The database should also cater to queries concerning student performance across semesters and aggregate data effectively.",
+      "text": "A healthcare organization is implementing an electronic health record (EHR) system to manage patient information efficiently. The system will store data regarding patients, doctors, appointments, and prescriptions. Each patient has a unique patient ID, name, date of birth, contact information, and medical history. Doctors have a unique doctor ID, specialization, and contact information. The appointments are time-stamped and linked to both patients and doctors, while prescriptions include details such as medication name, dosage, and refill information. The organization aims to ensure data integrity and privacy, necessitating database design that enforces constraints accordingly.",
       "subquestions": [
         {
           "label": "a",
@@ -97,7 +97,7 @@
         },
         {
           "label": "e",
-          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
+          "text": "The healthcare organization requires a robust mechanism to manage user roles in their EHR system. The roles include Data Managers, who oversee data privacy; Database Administrators, in charge of database maintenance; and Healthcare Providers, who input patient information. Describe how these roles can be implemented and managed within the SQL Server environment. Nathan is a database developer responsible for designing and implementing database schemas.. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance.. Emily is a junior database administrator managing specific databases within the system.. Michael is a data entry operator responsible for inputting data into the system..",
           "subquestions": [
             {
               "label": "i",
@@ -109,7 +109,7 @@
             },
             {
               "label": "iii",
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Appointments database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -117,7 +117,7 @@
             },
             {
               "label": "v",
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Patients and Appointments databases."
             }
           ]
         }
@@ -125,7 +125,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69f496de64985c0b7c962239",
+      "template_id": "69f4da2fcf9ea7763a8a6dbf",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -134,7 +134,7 @@
     },
     {
       "question_no": "Q4",
-      "text": "Consider the following schema of a database designed for a hospital management system: Patient (patientId: int, name: varchar(100), dob: date, address: varchar(150)), Doctor (doctorId: int, name: varchar(100), specialty: varchar(50), phone: varchar(15)), Appointment (appointmentId: int, patientId: int, doctorId: int, appointmentDate: date, status: varchar(20)). The 'Patient' table stores information about patients including personal details such as name, date of birth, and address. The 'Doctor' table contains records of doctors including their names, specialties, and contact number. The 'Appointment' table records the appointments made by patients with doctors, including the appointment status and date. Each patient can have multiple appointments with different doctors. The 'Appointment' table manages appointment records, tracking scheduled appointments between patients and doctors with dates and times. Fee (feeId: int, patientId: int, amount: real, paymentStatus: varchar(20)) The 'Fee' table stores fee/payment details including payable amount and payment status.",
+      "text": "Consider the following schema of a database designed for a hospital: Patient (patientId: int, name: varchar(100), dateOfBirth: date, contactNumber: varchar(15)) Doctor (doctorId: int, name: varchar(100), specialty: varchar(100), phoneNumber: varchar(15)) Appointment (appointmentId: int, patientId: int, doctorId: int, appointmentDate: date, status: varchar(20)) Fee (feeId: int, appointmentId: int, amount: real, paymentStatus: varchar(20)). This schema supports managing patient data, doctors' specialties, scheduled appointments, and associated fees. The 'Patient' table stores information about patients, including unique patient ID, name, date of birth, and contact details. The 'Doctor' table holds details about doctors, including unique doctor ID, name, specialization, and contact information. The 'Appointment' table manages appointment records, tracking scheduled appointments between patients and doctors with dates and times. The 'Fee' table contains relevant information for the database system.",
       "subquestions": [
         {
           "label": "a",
@@ -142,11 +142,11 @@
           "subquestions": [
             {
               "label": "i",
-              "text": "Find the name and phone number of the doctor who has the specialty 'Cardiology'."
+              "text": "Find the name and contact number of the patient who has an appointment scheduled for a given date."
             },
             {
               "label": "ii",
-              "text": "Find the patient with the highest aggregate value using GROUP BY on related appointment records."
+              "text": "Find the patient who has the highest total amount compared to all other patients. Find the patientId and name."
             },
             {
               "label": "iii",
@@ -166,7 +166,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69f496de64985c0b7c96223a",
+      "template_id": "69f4da2fcf9ea7763a8a6dc0",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -179,11 +179,11 @@
       "subquestions": [
         {
           "label": "a",
-          "text": "Display the titles of the books printed in 2019."
+          "text": "Write a relational algebra expression to retrieve the required tuples for the first query."
         },
         {
           "label": "b",
-          "text": "Display the titles of the books published in New York city."
+          "text": "Write a relational algebra expression using join, selection, and projection for the requirement."
         },
         {
           "label": "c",
@@ -195,10 +195,10 @@
         },
         {
           "label": "e",
-          "text": "Display the titles of books with most number of authors."
+          "text": "Translate one of the above relational algebra expressions into tuple relational calculus."
         }
       ],
-      "template_id": "69f496dd64985c0b7c962228",
+      "template_id": "69f4da2fcf9ea7763a8a6db1",
       "pattern_label": "RELATIONAL_ALGEBRA",
       "main_topic": "RELATIONAL_ALGEBRA",
       "intent": "RELATIONAL_ALGEBRA",
@@ -206,25 +206,25 @@
     },
     {
       "question_no": "Q6",
-      "text": "Consider a relation R(BookID, Title, AuthorID, AuthorName, PublisherID) with the following set of functional dependencies F = { BookID -> Title, AuthorID -> AuthorName, PublisherID -> PublisherName, AuthorID, PublisherID -> Title }. This schema represents a library database system managing book information, authors, and publishers, requiring normalization.",
+      "text": "Consider a relation R(OrderID, CustomerID, ProductID, Quantity, Price, OrderDate) with the following set of functional dependencies F={{OrderID->CustomerID, ProductID->Price, CustomerID->OrderDate, OrderID, ProductID->Quantity}}. This dataset relates to customer orders in an e-commerce platform and includes essential details about each order placed.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Identify the candidate key(s) for relation R and justify your answer."
+          "text": "Identify the candidate key(s) for the relation R and justify your answer."
         },
         {
           "label": "b",
-          "text": "Determine the highest normal form that relation R satisfies and explain your reasoning."
+          "text": "Normalize the relation R to the Second Normal Form (2NF) and explain the steps you followed."
         },
         {
           "label": "c",
-          "text": "Perform the normalization process on relation R up to third normal form (3NF) and provide the final decomposed relations."
+          "text": "Further normalize the relation R obtained in part 'b' to the Third Normal Form (3NF) and provide the final decomposition of the relation."
         }
       ],
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69f496dd64985c0b7c962220",
+      "template_id": "69f4da2fcf9ea7763a8a6da6",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,

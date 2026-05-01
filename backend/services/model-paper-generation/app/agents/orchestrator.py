@@ -446,10 +446,19 @@ class AgentOrchestrator:
         # Dominant topic first (frequency desc, then name asc).
         intent_counts: Dict[str, int] = {}
         for c in candidates:
-            intent = str(c.get("pattern_label") or "GENERAL_THEORY")
+            intent = self._infer_pattern_label_from_text(
+                c.get("full_text", ""),
+                fallback=str(c.get("pattern_label") or "GENERAL_THEORY"),
+            )
             intent_counts[intent] = intent_counts.get(intent, 0) + 1
         dominant_intent = sorted(intent_counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
-        filtered = [c for c in candidates if str(c.get("pattern_label") or "GENERAL_THEORY") == dominant_intent]
+        filtered = [
+            c for c in candidates
+            if self._infer_pattern_label_from_text(
+                c.get("full_text", ""),
+                fallback=str(c.get("pattern_label") or "GENERAL_THEORY"),
+            ) == dominant_intent
+        ]
         if not filtered:
             filtered = candidates
 
@@ -493,11 +502,15 @@ class AgentOrchestrator:
                     entry["nested_items"] = nested_items
             structure.append(entry)
 
+        chosen_intent = self._infer_pattern_label_from_text(
+            chosen.get("full_text", ""),
+            fallback=str(chosen.get("pattern_label") or "GENERAL_THEORY"),
+        )
         return {
             "_id": chosen.get("_id"),
             "position_id": f"Q{q_idx}",
-            "dominant_topic": chosen.get("pattern_label") or "GENERAL_THEORY",
-            "pattern_label": chosen.get("pattern_label") or "GENERAL_THEORY",
+            "dominant_topic": chosen_intent,
+            "pattern_label": chosen_intent,
             "source_paper": chosen.get("pdf_stem", "Unknown"),
             "source_question_id": str(chosen.get("question_id", q_idx)),
             "total_marks": int(chosen.get("marks") or marks or 0),
@@ -546,7 +559,13 @@ class AgentOrchestrator:
         if not broad:
             return None
 
-        non_banned = [d for d in broad if str(d.get("pattern_label") or "") not in banned]
+        non_banned = [
+            d for d in broad
+            if self._infer_pattern_label_from_text(
+                d.get("full_text", ""),
+                fallback=str(d.get("pattern_label") or "GENERAL_THEORY"),
+            ) not in banned
+        ]
         pool = non_banned or broad
 
         # 3) Deterministic choice: prefer non-general when possible, then recency.
@@ -556,7 +575,11 @@ class AgentOrchestrator:
             year = int(m.group(1)) if m else 0
             stem_upper = stem.upper()
             sem = 2 if re.search(r"\bII\b", stem_upper) else (1 if re.search(r"\bI\b", stem_upper) else 0)
-            is_general = 1 if str(doc.get("pattern_label") or "").upper() == "GENERAL_THEORY" else 0
+            inferred = self._infer_pattern_label_from_text(
+                doc.get("full_text", ""),
+                fallback=str(doc.get("pattern_label") or "GENERAL_THEORY"),
+            )
+            is_general = 1 if inferred.upper() == "GENERAL_THEORY" else 0
             return (is_general, -year, -sem, stem)
 
         return sorted(pool, key=_recency_key)[0]
@@ -1052,6 +1075,59 @@ class AgentOrchestrator:
         if isinstance(obj, dict):
             return {k: self._sanitize_generated_text_artifacts(v) for k, v in obj.items()}
         return obj
+
+    def _infer_pattern_label_from_text(self, text: str, fallback: Optional[str] = None) -> str:
+        """
+        Lightweight DBMS topic inference used for Paper B extra-slot template
+        recovery/ranking when raw labels are overly generic.
+        """
+        t = str(text or "").lower()
+        t = re.sub(r"\s+", " ", t).strip()
+        if not t:
+            return str(fallback or "GENERAL_THEORY")
+
+        if "relational algebra" in t or re.search(r"\bwrite.*relational algebra\b", t):
+            return "RELATIONAL_ALGEBRA"
+        if (
+            "functional dependenc" in t
+            or "attribute closure" in t
+            or "candidate key" in t
+            or "normal form" in t
+            or "1nf" in t
+            or "2nf" in t
+            or "3nf" in t
+            or "bcnf" in t
+            or "decompos" in t
+        ):
+            return "NORMALIZATION_FD_KEYS"
+        if "eer" in t or "er diagram" in t or "entity relationship" in t or "isa" in t or "aggregation" in t:
+            return "ER_EER_MODELING"
+        if (
+            "sql" in t
+            or "t-sql" in t
+            or "tsql" in t
+            or "jdbc" in t
+            or "preparedstatement" in t
+            or "resultset" in t
+            or "create table" in t
+            or "create view" in t
+            or "create trigger" in t
+            or "create function" in t
+            or "stored procedure" in t
+            or "grant" in t
+            or "revoke" in t
+            or "login" in t
+            or "server role" in t
+            or "authorization" in t
+            or "authentication" in t
+            or "query" in t
+        ):
+            return "SQL_DDL_DML"
+        if "serializ" in t or "schedule" in t or "transaction" in t or "locking" in t or "deadlock" in t:
+            return "TRANSACTIONS_CONCURRENCY"
+        if "b+ tree" in t or "b tree" in t or "index" in t or "hash index" in t:
+            return "INDEXING_STORAGE"
+        return str(fallback or "GENERAL_THEORY")
 
     def _enforce_rel_algebra_stem_phrase(self, draft: dict, pattern_label: Optional[str]) -> dict:
         """
@@ -2781,6 +2857,7 @@ class AgentOrchestrator:
             target_marks = int(slot.get("target_marks") or 0)
             q_idx_for_slot = self._question_index(q_no)
             is_paper_b_extra = bool(self.paper_b_mode and q_idx_for_slot and q_idx_for_slot > 4)
+            is_q6_extra = bool(is_paper_b_extra and q_idx_for_slot == 6)
 
             # Check if already in checkpoint
             # Robust check: handle "Q1" vs "1" or "None"
@@ -2890,6 +2967,17 @@ class AgentOrchestrator:
                     forced_topics_by_qno[str(q_no)] = str(forced_topic)
             
             # Build template dict for backward compatibility
+            # Q6 strict diversity pass: if canonical lands on an already-used intent,
+            # ignore canonical and force a fresh selection with banned intents.
+            if is_q6_extra and isinstance(canonical, dict):
+                c_intent = str(canonical.get("pattern_label") or canonical.get("dominant_topic") or "").strip()
+                if c_intent and c_intent in used_intents:
+                    print(
+                        f"    [INFO] Q6 strict diversity: canonical intent '{c_intent}' already used "
+                        "in Q1-Q5; searching alternative intent first."
+                    )
+                    canonical = None
+
             if isinstance(canonical, dict) and "subquestion_structure" in canonical:
                 # It's a canonical template (topic and structure from data analysis)
                 canonical_intent = canonical.get("pattern_label") or canonical.get("dominant_topic") or "GENERAL_THEORY"
@@ -2942,6 +3030,14 @@ class AgentOrchestrator:
                 )
             
             # Record the module choice
+            if is_paper_b_extra:
+                inferred_intent = self._infer_pattern_label_from_text(
+                    template.get("full_text", ""),
+                    fallback=str(template.get("pattern_label") or "GENERAL_THEORY"),
+                )
+                if inferred_intent and inferred_intent != str(template.get("pattern_label") or ""):
+                    template["pattern_label"] = inferred_intent
+
             current_module = self.classifier.classify(template.get("full_text", "")) if self.classifier else "General"
             used_modules.add(current_module)
 
@@ -3002,6 +3098,21 @@ class AgentOrchestrator:
                             f"    [INFO] Q5+ rescue selected concrete template: "
                             f"{template.get('pattern_label')} ({template.get('pdf_stem', 'unknown')})"
                         )
+                    elif is_q6_extra:
+                        # Q6 relaxed pass: allow previously used intents if strict diversity
+                        # produced no concrete template, but still require template-backed output.
+                        relaxed = await self._rescue_paper_b_extra_template(
+                            target_marks,
+                            preferred_pattern_label=forced_topic,
+                            used_template_ids=used_template_ids,
+                            banned_pattern_labels=None,
+                        )
+                        if relaxed and relaxed.get("_id"):
+                            template = relaxed
+                            print(
+                                f"    [INFO] Q6 relaxed diversity pass selected template: "
+                                f"{template.get('pattern_label')} ({template.get('pdf_stem', 'unknown')})"
+                            )
             
             # Log template selection for verification (BEFORE tracking)
             template_id = str(template.get("_id", ""))
