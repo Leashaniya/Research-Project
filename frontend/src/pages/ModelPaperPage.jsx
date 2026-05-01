@@ -18,7 +18,7 @@ function ModelPaperPage() {
   const [files, setFiles] = useState({ past_papers: [], lecture_slides: [] });
 
   // User-configurable generation parameters
-  const [numSlots, setNumSlots] = useState(4); // stepper: 1–8
+  const [numSlots, setNumSlots] = useState(6); // stepper: 1–6 (Paper B safe cap)
   const [paperFileSelection, setPaperFileSelection] = useState({}); // { [filename]: boolean } (default true)
 
   const parsePastPaper = (file) => {
@@ -351,8 +351,8 @@ function ModelPaperPage() {
                   <button
                     type="button"
                     className="StepperBtn"
-                    onClick={() => setNumSlots((n) => Math.min(8, n + 1))}
-                    disabled={processing || numSlots >= 8}
+                    onClick={() => setNumSlots((n) => Math.min(6, n + 1))}
+                    disabled={processing || numSlots >= 6}
                     aria-label="Increase number of questions"
                   >
                     +

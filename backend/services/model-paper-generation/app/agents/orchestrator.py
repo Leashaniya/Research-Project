@@ -68,6 +68,23 @@ def _is_er_or_eer_intent(intent_lower: str) -> bool:
     return False
 
 
+def _normalize_topic_label(label: Optional[str]) -> str:
+    """Normalize topic labels for case/spacing-insensitive matching."""
+    s = str(label or "").strip().upper()
+    s = re.sub(r"[\s\-\/]+", "_", s)
+    s = re.sub(r"_+", "_", s)
+    return s
+
+
+PAPER_B_EXTRA_SLOT_HARD_BAN = {
+    "GENERAL_THEORY",
+    "ER_EER_MODELING",
+    "NORMALIZATION_FD_KEYS",
+    "SQL_DDL_DML",
+    "RELATIONAL_ALGEBRA",
+}
+
+
 def _normalize_paper_for_presentation(paper: Dict[str, Any]) -> Dict[str, Any]:
     """
     Apply small, presentation-focused cleanups to the generated paper JSON
@@ -397,6 +414,153 @@ class AgentOrchestrator:
         print(f"⚠️ No canonical template for {q_no}, using fallback")
         return None
 
+    async def _get_paper_b_extra_canonical_template(self, q_no, marks: int):
+        """
+        Resolve canonical-like templates for Paper B extra slots (Q5+)
+        without changing Paper A canonical behavior (Q1-Q4 only).
+        """
+        q_str = str(q_no).replace("Q", "")
+        try:
+            q_idx = int(q_str)
+        except Exception:
+            return None
+
+        if q_idx <= 4:
+            return None
+
+        match: Dict[str, Any] = {
+            "question_id": str(q_idx),
+            "subquestions.0": {"$exists": True},
+        }
+        if (not self.questions_only) and marks:
+            match["marks"] = {"$gte": int(marks) - 5, "$lte": int(marks) + 5}
+
+        candidates = await self.db.templates.find(match).to_list(length=120)
+        if not candidates and "marks" in match:
+            # Retry without marks band as a soft fallback.
+            match.pop("marks", None)
+            candidates = await self.db.templates.find(match).to_list(length=120)
+        if not candidates:
+            return None
+
+        # Dominant topic first (frequency desc, then name asc).
+        intent_counts: Dict[str, int] = {}
+        for c in candidates:
+            intent = str(c.get("pattern_label") or "GENERAL_THEORY")
+            intent_counts[intent] = intent_counts.get(intent, 0) + 1
+        dominant_intent = sorted(intent_counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+        filtered = [c for c in candidates if str(c.get("pattern_label") or "GENERAL_THEORY") == dominant_intent]
+        if not filtered:
+            filtered = candidates
+
+        def _recency_key(doc: Dict[str, Any]):
+            stem = str(doc.get("pdf_stem") or "")
+            m = re.search(r"(20\d{2})", stem)
+            year = int(m.group(1)) if m else 0
+            stem_upper = stem.upper()
+            sem = 2 if re.search(r"\bII\b", stem_upper) else (1 if re.search(r"\bI\b", stem_upper) else 0)
+            return (year, sem, stem)
+
+        chosen = sorted(filtered, key=_recency_key, reverse=True)[0]
+        source_subqs = chosen.get("subquestions") or []
+
+        structure = []
+        for idx, sq in enumerate(source_subqs):
+            if not isinstance(sq, dict):
+                continue
+            label = sq.get("label") or string.ascii_lowercase[idx % 26]
+            entry: Dict[str, Any] = {
+                "label": label,
+                "marks": sq.get("marks"),
+                "type": "General",
+                "text": sq.get("text", "") or "",
+            }
+            nested = sq.get("subquestions") or []
+            if isinstance(nested, list) and nested:
+                nested_items = []
+                for j, nsq in enumerate(nested):
+                    if not isinstance(nsq, dict):
+                        continue
+                    nlabel = nsq.get("label") or f"{label}.{j+1}"
+                    nested_items.append({
+                        "label": nlabel,
+                        "marks": nsq.get("marks"),
+                        "text": nsq.get("text", "") or "",
+                        "type": "General",
+                    })
+                if nested_items:
+                    entry["nested"] = True
+                    entry["nested_items"] = nested_items
+            structure.append(entry)
+
+        return {
+            "_id": chosen.get("_id"),
+            "position_id": f"Q{q_idx}",
+            "dominant_topic": chosen.get("pattern_label") or "GENERAL_THEORY",
+            "pattern_label": chosen.get("pattern_label") or "GENERAL_THEORY",
+            "source_paper": chosen.get("pdf_stem", "Unknown"),
+            "source_question_id": str(chosen.get("question_id", q_idx)),
+            "total_marks": int(chosen.get("marks") or marks or 0),
+            "subquestion_count": len(structure),
+            "subquestion_structure": structure,
+        }
+
+    async def _rescue_paper_b_extra_template(
+        self,
+        marks: int,
+        *,
+        preferred_pattern_label: Optional[str] = None,
+        used_template_ids: Optional[Set[str]] = None,
+        banned_pattern_labels: Optional[Set[str]] = None,
+    ):
+        """
+        For Paper B Q5+, recover a concrete past-paper template when normal
+        selection ended in fallback (no _id). This guarantees template-backed text.
+        """
+        if used_template_ids is None:
+            used_template_ids = set()
+        banned = {str(x) for x in (banned_pattern_labels or set()) if x}
+
+        base_match: Dict[str, Any] = {"subquestions.0": {"$exists": True}}
+        if (not self.questions_only) and marks:
+            base_match["marks"] = {"$gte": int(marks) - 5, "$lte": int(marks) + 5}
+        if used_template_ids:
+            base_match["_id"] = {"$nin": list(used_template_ids)}
+
+        # 1) Prefer requested topic if available.
+        if preferred_pattern_label:
+            pref_match = dict(base_match)
+            pref_match["pattern_label"] = {
+                "$regex": f"^{re.escape(str(preferred_pattern_label))}$",
+                "$options": "i",
+            }
+            pref = await self.db.templates.find(pref_match).to_list(length=20)
+            if pref:
+                return pref[0]
+
+        # 2) Prefer non-banned intents.
+        broad = await self.db.templates.find(base_match).to_list(length=200)
+        if not broad and "marks" in base_match:
+            base_match.pop("marks", None)
+            broad = await self.db.templates.find(base_match).to_list(length=200)
+        if not broad:
+            return None
+
+        non_banned = [d for d in broad if str(d.get("pattern_label") or "") not in banned]
+        pool = non_banned or broad
+
+        # 3) Deterministic choice: prefer non-general when possible, then recency.
+        def _recency_key(doc: Dict[str, Any]):
+            stem = str(doc.get("pdf_stem") or "")
+            m = re.search(r"(20\d{2})", stem)
+            year = int(m.group(1)) if m else 0
+            stem_upper = stem.upper()
+            sem = 2 if re.search(r"\bII\b", stem_upper) else (1 if re.search(r"\bI\b", stem_upper) else 0)
+            is_general = 1 if str(doc.get("pattern_label") or "").upper() == "GENERAL_THEORY" else 0
+            return (is_general, -year, -sem, stem)
+
+        return sorted(pool, key=_recency_key)[0]
+
     async def _select_template(
         self,
         q_no,
@@ -407,6 +571,8 @@ class AgentOrchestrator:
         *,
         required_pattern_label: Optional[str] = None,
         banned_pattern_labels: Optional[Set[str]] = None,
+        apply_marks_filter: bool = True,
+        require_structure_backed: bool = False,
     ):
         """
         Smart Syllabus-Aware Template Selection with Diversity Enforcement.
@@ -428,20 +594,34 @@ class AgentOrchestrator:
         if used_template_ids is None:
             used_template_ids = set()
         
-        pipeline = [
-            { "$match": { "full_text": { "$exists": True, "$ne": "" } } }
-        ]
+        if require_structure_backed:
+            base_match: Dict[str, Any] = {
+                "subquestions.0": {"$exists": True},
+            }
+        else:
+            base_match = {
+                "$or": [
+                    {"full_text": {"$exists": True, "$ne": ""}},
+                    {"subquestions.0": {"$exists": True}},
+                ]
+            }
+        pipeline = [{ "$match": base_match }]
 
         # 0. Hard filter: required/banned pattern labels (topics)
         if required_pattern_label:
-            pipeline[0]["$match"]["pattern_label"] = required_pattern_label
+            pipeline[0]["$match"]["pattern_label"] = {
+                "$regex": f"^{re.escape(str(required_pattern_label))}$",
+                "$options": "i",
+            }
         elif banned_pattern_labels:
-            pipeline[0]["$match"]["pattern_label"] = { "$nin": list(banned_pattern_labels) }
+            pipeline[0]["$match"]["pattern_label"] = {
+                "$nin": list({str(x) for x in (banned_pattern_labels or set()) if x})
+            }
         
         # 1. Broad Filtering by Marks (within +/- 5 range)
         # Paper B strips marks only in the saved JSON/PDF; template selection still follows slot marks
         # so difficulty matches Paper A (same mark band as the blueprint slot).
-        if marks:
+        if apply_marks_filter and marks:
             pipeline[0]["$match"]["marks"] = { "$gte": int(marks)-5, "$lte": int(marks)+5 }
         
         # 2. Exclude already-used template IDs
@@ -463,9 +643,18 @@ class AgentOrchestrator:
                 # Try to find a template from a different position that matches the topic
                 # This helps when GENERAL_THEORY is required but no templates found for that position
                 alt_pipeline = [
-                    { "$match": { 
-                        "pattern_label": required_pattern_label,
-                        "full_text": { "$exists": True, "$ne": "" }
+                    { "$match": {
+                        "pattern_label": {
+                            "$regex": f"^{re.escape(str(required_pattern_label))}$",
+                            "$options": "i",
+                        },
+                        **({"subquestions.0": {"$exists": True}} if require_structure_backed else {}),
+                        **({} if require_structure_backed else {
+                            "$or": [
+                                {"full_text": {"$exists": True, "$ne": ""}},
+                                {"subquestions.0": {"$exists": True}},
+                            ]
+                        }),
                     }},
                     { "$sample": { "size": 1 } }
                 ]
@@ -2151,18 +2340,35 @@ class AgentOrchestrator:
             draft["subquestions"] = rewritten
         return draft
 
-    async def _count_templates_for_topic(self, marks: int, pattern_label: str) -> int:
+    async def _count_templates_for_topic(
+        self,
+        marks: int,
+        pattern_label: str,
+        *,
+        apply_marks_filter: bool = True,
+        require_structure_backed: bool = False,
+    ) -> int:
         """
         Count MongoDB templates matching a topic and approximate marks.
         Used to choose the best slot to force top_topic into.
         """
         if not pattern_label or not marks:
             return 0
-        match = {
-            "full_text": { "$exists": True, "$ne": "" },
-            "pattern_label": pattern_label,
-            "marks": { "$gte": int(marks) - 5, "$lte": int(marks) + 5 },
+        match: Dict[str, Any] = {
+            "pattern_label": {
+                "$regex": f"^{re.escape(str(pattern_label))}$",
+                "$options": "i",
+            },
         }
+        if require_structure_backed:
+            match["subquestions.0"] = {"$exists": True}
+        else:
+            match["$or"] = [
+                {"full_text": {"$exists": True, "$ne": ""}},
+                {"subquestions.0": {"$exists": True}},
+            ]
+        if apply_marks_filter:
+            match["marks"] = { "$gte": int(marks) - 5, "$lte": int(marks) + 5 }
         rows = await self.db.templates.aggregate([{ "$match": match }, { "$count": "n" }]).to_list(length=1)
         return int(rows[0]["n"]) if rows else 0
 
@@ -2180,7 +2386,14 @@ class AgentOrchestrator:
                 out[str(q_no)] = canonical.get("pattern_label") or canonical.get("dominant_topic") or "GENERAL_THEORY"
         return out
 
-    async def repair_model_paper(self, paper_json: dict, errors: List[str], *, top_topic: Optional[str] = None) -> dict:
+    async def repair_model_paper(
+        self,
+        paper_json: dict,
+        errors: List[str],
+        *,
+        top_topic: Optional[str] = None,
+        forced_topics_by_qno: Optional[Dict[str, str]] = None,
+    ) -> dict:
         """
         Repair ONLY what violates constraints.
         Uses existing Researcher/Writer/Critic (no new agents).
@@ -2207,6 +2420,10 @@ class AgentOrchestrator:
             q = questions[idx]
             q_no = q.get("question_no") or f"Q{idx+1}"
             target_marks = int(q.get("marks") or 0) or 25
+            q_idx = self._question_index(q_no)
+            forced_for_slot = (forced_topics_by_qno or {}).get(str(q_no))
+            if self.paper_b_mode and q_idx and q_idx > 4 and forced_for_slot:
+                required = forced_for_slot
 
             template = await self._select_template(
                 q_no,
@@ -2215,7 +2432,13 @@ class AgentOrchestrator:
                 used_intents=set(),
                 used_template_ids=set(),
                 required_pattern_label=required,
-                banned_pattern_labels=banned,
+                banned_pattern_labels=(
+                    (set(banned or set()) | {"GENERAL_THEORY", "ER_EER_MODELING"})
+                    if (self.paper_b_mode and q_idx and q_idx > 4)
+                    else banned
+                ),
+                apply_marks_filter=not bool(self.questions_only),
+                require_structure_backed=bool(self.paper_b_mode and q_idx and q_idx > 4),
             )
             # Context
             query = f"Model Paper {template.get('pattern_label','')}"
@@ -2249,6 +2472,8 @@ class AgentOrchestrator:
                 draft["marks"] = target_marks
                 draft["pattern_label"] = template.get("pattern_label")
                 draft["main_topic"] = template.get("pattern_label")
+                if template.get("_id"):
+                    draft["template_id"] = str(template.get("_id"))
 
                 review = await self.critic.run(
                     {
@@ -2275,6 +2500,8 @@ class AgentOrchestrator:
             )
             fallback["pattern_label"] = template.get("pattern_label")
             fallback["main_topic"] = template.get("pattern_label")
+            if template.get("_id"):
+                fallback["template_id"] = str(template.get("_id"))
             return fallback
 
         # If top topic missing, repair one slot to be top_topic
@@ -2426,7 +2653,7 @@ class AgentOrchestrator:
             trend = await self._load_lecture_slide_trend()
         else:
             trend = await self._load_trend_for_request()
-        top_topic = (trend or {}).get("top_topic") or "GENERAL_THEORY"
+        top_topic = None if self.paper_b_mode else ((trend or {}).get("top_topic") or "GENERAL_THEORY")
         recent_used = (trend or {}).get("recent_papers_used") or []
         print(f"📈 Trend summary: top_topic={top_topic} papers_used={len(recent_used)}")
 
@@ -2525,9 +2752,13 @@ class AgentOrchestrator:
                 slot["forced_pattern_label"] = desired_topics[i]
 
         # 2. LOOP through slots
+        q5plus_topic_counts: Dict[str, int] = {}
+        forced_topics_by_qno: Dict[str, str] = {}
         for slot in slots:
             q_no = slot.get("question_no") or slot.get("slot_id") or f"Q{slot.get('position', '?')}"
             target_marks = int(slot.get("target_marks") or 0)
+            q_idx_for_slot = self._question_index(q_no)
+            is_paper_b_extra = bool(self.paper_b_mode and q_idx_for_slot and q_idx_for_slot > 4)
 
             # Check if already in checkpoint
             # Robust check: handle "Q1" vs "1" or "None"
@@ -2552,6 +2783,8 @@ class AgentOrchestrator:
             # The canonical template contains the most frequent topic for this position from past papers.
             # If Q1 appears as ER in 60% of papers, it becomes ER. If SQL in 60%, it becomes SQL.
             canonical = await self._get_canonical_template(q_no)
+            if is_paper_b_extra:
+                canonical = await self._get_paper_b_extra_canonical_template(q_no, target_marks)
 
             # Hard topic constraints for this slot
             forced_topic = slot.get("forced_pattern_label")
@@ -2559,6 +2792,30 @@ class AgentOrchestrator:
             if self.paper_b_mode:
                 if forced_topic and str(forced_topic).upper() == "GENERAL_THEORY":
                     forced_topic = None
+                if is_paper_b_extra and forced_topic:
+                    if _normalize_topic_label(forced_topic) in PAPER_B_EXTRA_SLOT_HARD_BAN:
+                        forced_topic = None
+                if is_paper_b_extra and not forced_topic:
+                    freqs = (trend or {}).get("topic_frequencies") or {}
+                    items_asc = sorted(
+                        [(k, int(v or 0)) for k, v in freqs.items() if k],
+                        key=lambda kv: (kv[1], str(kv[0])),
+                    )
+                    for cand_topic, _ in items_asc:
+                        cand_norm = _normalize_topic_label(cand_topic)
+                        if cand_norm in PAPER_B_EXTRA_SLOT_HARD_BAN:
+                            continue
+                        if q5plus_topic_counts.get(cand_norm, 0) >= 1:
+                            continue
+                        cand_count = await self._count_templates_for_topic(
+                            target_marks,
+                            cand_topic,
+                            apply_marks_filter=not bool(self.questions_only),
+                            require_structure_backed=True,
+                        )
+                        if cand_count > 0:
+                            forced_topic = cand_topic
+                            break
                 if forced_topic:
                     # Allow explicitly planned topic for Q5+ even if seen before.
                     slot_banned_topics.discard(forced_topic)
@@ -2566,16 +2823,31 @@ class AgentOrchestrator:
                 # If forced topic has no available templates in the mark band, pick the best
                 # available non-general topic from trend frequencies for this slot.
                 if forced_topic:
-                    forced_topic_count = await self._count_templates_for_topic(target_marks, forced_topic)
+                    forced_topic_count = await self._count_templates_for_topic(
+                        target_marks,
+                        forced_topic,
+                        apply_marks_filter=not bool(self.questions_only),
+                        require_structure_backed=is_paper_b_extra,
+                    )
                     if forced_topic_count <= 0:
                         alt_forced_topic = None
                         freqs = (trend or {}).get("topic_frequencies") or {}
-                        items_desc = sorted(
+                        items_asc = sorted(
                             [(k, int(v or 0)) for k, v in freqs.items() if k and str(k).upper() != "GENERAL_THEORY"],
-                            key=lambda kv: (-kv[1], str(kv[0])),
+                            key=lambda kv: (kv[1], str(kv[0])),
                         )
-                        for cand_topic, _ in items_desc:
-                            cand_count = await self._count_templates_for_topic(target_marks, cand_topic)
+                        for cand_topic, _ in items_asc:
+                            cand_norm = _normalize_topic_label(cand_topic)
+                            if cand_norm in PAPER_B_EXTRA_SLOT_HARD_BAN:
+                                continue
+                            if is_paper_b_extra and q5plus_topic_counts.get(cand_norm, 0) >= 1:
+                                continue
+                            cand_count = await self._count_templates_for_topic(
+                                target_marks,
+                                cand_topic,
+                                apply_marks_filter=not bool(self.questions_only),
+                                require_structure_backed=is_paper_b_extra,
+                            )
                             if cand_count > 0:
                                 alt_forced_topic = cand_topic
                                 break
@@ -2591,6 +2863,9 @@ class AgentOrchestrator:
                                 "found for this mark band; using open template selection."
                             )
                             forced_topic = None
+                if is_paper_b_extra and forced_topic:
+                    slot["forced_pattern_label"] = forced_topic
+                    forced_topics_by_qno[str(q_no)] = str(forced_topic)
             
             # Build template dict for backward compatibility
             if isinstance(canonical, dict) and "subquestion_structure" in canonical:
@@ -2614,6 +2889,8 @@ class AgentOrchestrator:
                             (forced_topic if (forced_topic and forced_topic not in used_intents) else None)
                         ),
                         banned_pattern_labels=slot_banned_topics,
+                        apply_marks_filter=not bool(self.questions_only),
+                        require_structure_backed=is_paper_b_extra,
                     )
                 else:
                     template = {
@@ -2638,6 +2915,8 @@ class AgentOrchestrator:
                         (forced_topic if (forced_topic and forced_topic not in used_intents) else None)
                     ),
                     banned_pattern_labels=slot_banned_topics,
+                    apply_marks_filter=not bool(self.questions_only),
+                    require_structure_backed=is_paper_b_extra,
                 )
             
             # Record the module choice
@@ -2645,8 +2924,10 @@ class AgentOrchestrator:
             used_modules.add(current_module)
 
             # Paper B Q5+ must avoid GENERAL_THEORY unless absolutely unavoidable.
-            q_idx_for_slot = self._question_index(q_no)
-            if self.paper_b_mode and q_idx_for_slot and q_idx_for_slot > 4:
+            if is_paper_b_extra:
+                slot_banned_topics = slot_banned_topics | PAPER_B_EXTRA_SLOT_HARD_BAN
+                if forced_topic:
+                    slot_banned_topics.discard(str(forced_topic))
                 if str(template.get("pattern_label") or "").upper() == "GENERAL_THEORY":
                     print("    [INFO] Q5+ selected GENERAL_THEORY; trying non-general replacement template.")
                     replacement = await self._select_template(
@@ -2656,13 +2937,49 @@ class AgentOrchestrator:
                         used_intents,
                         used_template_ids,
                         required_pattern_label=None,
-                        banned_pattern_labels={"GENERAL_THEORY"},
+                        banned_pattern_labels=slot_banned_topics,
+                        apply_marks_filter=not bool(self.questions_only),
+                        require_structure_backed=True,
                     )
                     if replacement and str(replacement.get("pattern_label") or "").upper() != "GENERAL_THEORY":
                         template = replacement
                         current_module = self.classifier.classify(template.get("full_text", "")) if self.classifier else "General"
                         used_modules.add(current_module)
                         print(f"    [INFO] Replaced with non-general template intent: {template.get('pattern_label')}")
+                if forced_topic:
+                    selected_norm = _normalize_topic_label(template.get("pattern_label"))
+                    forced_norm = _normalize_topic_label(forced_topic)
+                    if selected_norm != forced_norm:
+                        corrected = await self._select_template(
+                            q_no,
+                            target_marks,
+                            used_modules,
+                            used_intents,
+                            used_template_ids,
+                            required_pattern_label=forced_topic,
+                            banned_pattern_labels=slot_banned_topics,
+                            apply_marks_filter=not bool(self.questions_only),
+                            require_structure_backed=True,
+                        )
+                        if corrected and _normalize_topic_label(corrected.get("pattern_label")) == forced_norm:
+                            template = corrected
+                            print(f"    [INFO] Enforced forced topic for {q_no}: {forced_topic}")
+
+                # Hard rescue: if Q5+ still has no concrete template ID, recover one
+                # from past-paper templates to avoid generic "DBMS scenario" fallbacks.
+                if not template.get("_id"):
+                    rescued = await self._rescue_paper_b_extra_template(
+                        target_marks,
+                        preferred_pattern_label=forced_topic,
+                        used_template_ids=used_template_ids,
+                        banned_pattern_labels=slot_banned_topics,
+                    )
+                    if rescued and rescued.get("_id"):
+                        template = rescued
+                        print(
+                            f"    [INFO] Q5+ rescue selected concrete template: "
+                            f"{template.get('pattern_label')} ({template.get('pdf_stem', 'unknown')})"
+                        )
             
             # Log template selection for verification (BEFORE tracking)
             template_id = str(template.get("_id", ""))
@@ -2682,6 +2999,9 @@ class AgentOrchestrator:
                 used_template_ids.add(template_id)
             if template_intent and template_intent not in used_intents:
                 used_intents.add(template_intent)
+            if is_paper_b_extra and template_intent:
+                norm_intent = _normalize_topic_label(template_intent)
+                q5plus_topic_counts[norm_intent] = q5plus_topic_counts.get(norm_intent, 0) + 1
             
             # 2a.2 TEMPLATE STRUCTURE ENFORCEMENT
             # CRITICAL: Do NOT simplify templates - use exact structure from template
@@ -4605,7 +4925,7 @@ class AgentOrchestrator:
             if not approved:
                 print("    ⚠️  Max Retries reached. Using safest fallback.")
                 # Fallback: Use template structure EXACTLY (preserves instruction patterns)
-                struct_source = template.get("required_structure") or []
+                struct_source = template.get("required_structure") or template.get("subquestions") or []
                 if not struct_source or len(struct_source) == 0:
                     # Try to get from canonical template if available
                     canonical = await self._get_canonical_template(q_no)
@@ -6265,7 +6585,12 @@ Note: The diagram uses (min, max) cardinality notation where:
                 print(f"   - {e}")
             if attempt >= MAX_PAPER_REPAIR_RETRIES:
                 raise RuntimeError(f"Model paper invalid after {MAX_PAPER_REPAIR_RETRIES} repairs: {errors}")
-            paper = await self.repair_model_paper(paper, errors, top_topic=top_topic)
+            paper = await self.repair_model_paper(
+                paper,
+                errors,
+                top_topic=top_topic,
+                forced_topics_by_qno=forced_topics_by_qno,
+            )
 
         # Required sanity checks (assert/log)
         final_topics = [q.get("pattern_label") or q.get("main_topic") for q in paper.get("questions", [])]
@@ -6284,7 +6609,7 @@ Note: The diagram uses (min, max) cardinality notation where:
         assert len(paper.get("questions", [])) == expected_q_count, "Sanity check failed: question count mismatch"
         assert max_occurrences <= 2, f"Sanity check failed: topic appears more than twice. Topic counts: {dict(topic_counts)}"
         # Only assert top_topic if not optional (when all questions have canonical templates)
-        if not top_topic_optional:
+        if top_topic and not top_topic_optional:
             assert top_topic in set(final_topics_filtered), "Sanity check failed: top_topic missing"
         else:
             print(f"    [INFO] Skipping top_topic assertion - all questions have canonical templates")

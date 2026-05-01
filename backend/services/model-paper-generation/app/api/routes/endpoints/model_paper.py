@@ -84,11 +84,11 @@ async def generate_paper(params: GeneratePaperRequest | None = None):
     options = params.dict(exclude_none=True) if params else {}
     # Paper B mode:
     # - Always use past-paper trend/topic signals (no lecture-based topic mining)
-    # - Default to 8 questions unless explicitly provided
+    # - Keep Paper B at 6 questions to avoid low-quality fallback slots
     options["paper_b_mode"] = True
     options["lecture_based_topics"] = False
-    if options.get("num_slots") is None:
-        options["num_slots"] = 8
+    requested_slots = int(options.get("num_slots") or 6)
+    options["num_slots"] = min(requested_slots, 6)
     res = await pipeline_service.run_full_pipeline(options=options)
     if res["status"] == "error":
         msg = res.get("message") or "Pipeline failed"

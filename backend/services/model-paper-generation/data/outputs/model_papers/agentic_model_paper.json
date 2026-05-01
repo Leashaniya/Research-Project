@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-30 19:18:18",
+  "generated_at": "2026-05-01 17:08:41",
   "mode": "AGENTIC_V1",
-  "num_questions": 4,
+  "num_questions": 6,
   "topic_distribution": {
     "Q1": {
       "topic": "ER_EER_MODELING"
@@ -14,12 +14,18 @@
     },
     "Q4": {
       "topic": "SQL_DDL_DML"
+    },
+    "Q5": {
+      "topic": "RELATIONAL_ALGEBRA"
+    },
+    "Q6": {
+      "topic": "General Theory"
     }
   },
   "questions": [
     {
       "question_no": "Q1",
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university is developing a database system to manage its academic programs. The main entities include 'Department', 'Professor', and 'Course'. Each department is characterized by a unique DepartmentID and DepartmentName. Professors are identified by ProfessorID and ProfessorName, and each course has a CourseID, CourseName, and can have multiple prerequisites. A department offers many courses, and each course is taught by one or more professors; additionally, professors can belong to multiple departments. Furthermore, some courses are specialized for graduate levels (GraduateCourse). Each relationship must account for applicable constraints such as cardinalities and participation",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA university is managing its academic courses and student enrollments through a comprehensive database. The core entities include 'Department', 'Course', 'Student', and 'Instructor'. Each 'Department' has a unique DepartmentID, Name, and Location. 'Course' entities are identified by CourseID, Title, Credits, and are related to specific departments. 'Student' encompasses attributes StudentID, Name, Address (which is a composite attribute composed of Street, City, and ZipCode), and EmailAddresses (a multivalued attribute). Each student may enroll in several courses, and this is managed by an 'Enrolls' relationship, which also includes attributes such as EnrollmentDate and FinalGrade. Instructors belong to a department and have attributes including InstructorID, Name, and OfficeLocation. It is important to note that each department may offer multiple courses, and a student can enroll in multiple courses taught by different instructors",
       "subquestions": [
         {
           "label": "a",
@@ -33,8 +39,8 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69f35d02ce7ce8e738a39667",
-      "original_semantic_description": "A university is developing a database system to manage its academic programs. The main entities include 'Department', 'Professor', and 'Course'. Each department is characterized by a unique DepartmentID and DepartmentName. Professors are identified by ProfessorID and ProfessorName, and each course has a CourseID, CourseName, and can have multiple prerequisites. A department offers many courses, and each course is taught by one or more professors; additionally, professors can belong to multiple departments. Furthermore, some courses are specialized for graduate levels (GraduateCourse). Each relationship must account for applicable constraints such as cardinalities and participation.",
+      "template_id": "69f49014289e0eba6a563269",
+      "original_semantic_description": "A university is managing its academic courses and student enrollments through a comprehensive database. The core entities include 'Department', 'Course', 'Student', and 'Instructor'. Each 'Department' has a unique DepartmentID, Name, and Location. 'Course' entities are identified by CourseID, Title, Credits, and are related to specific departments. 'Student' encompasses attributes StudentID, Name, Address (which is a composite attribute composed of Street, City, and ZipCode), and EmailAddresses (a multivalued attribute). Each student may enroll in several courses, and this is managed by an 'Enrolls' relationship, which also includes attributes such as EnrollmentDate and FinalGrade. Instructors belong to a department and have attributes including InstructorID, Name, and OfficeLocation. It is important to note that each department may offer multiple courses, and a student can enroll in multiple courses taught by different instructors.",
       "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
@@ -44,7 +50,7 @@
     },
     {
       "question_no": "Q2",
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, C->E, A->D, DE->B}}. This relation represents a product inventory system where attributes A and B represent product identifiers, C denotes product name, D shows the location in the warehouse, and E indicates the supplier of the product. Analyze the given relation in terms of its keys and normalization requirements based on the outlined functional dependencies.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, B->D, AC->E, D->B, E->A}}. In this relation, A represents a unique identifier for a product, B is a category, C denotes the product's price, D indicates availability status, and E captures the supplier identity. Analyze the keys and normalization issues present within this schema.",
       "subquestions": [
         {
           "label": "a",
@@ -62,7 +68,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69f35d02ce7ce8e738a39668",
+      "template_id": "69f49014289e0eba6a56326a",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -71,7 +77,7 @@
     },
     {
       "question_no": "Q3",
-      "text": "A university is developing a database system to manage its course offerings, student enrollments, and faculty assignments. The database design includes the following relations: `Courses(course_id: integer, course_name: string, credits: integer)`, `Students(student_id: integer, student_name: string, major: string)`, and `Enrollments(student_id: integer, course_id: integer, semester: string, grade: string)`. Each course can have multiple students enrolled, and a student can enroll in multiple courses. Moreover, a faculty member can teach multiple courses, and each course is assigned to one faculty member. The design must also include constraints such as primary keys, foreign keys, and any necessary rules to maintain integrity.",
+      "text": "A retail company, TechGadgets, is implementing a new database to manage its inventory, customers, and sales transactions. The company aims to streamline its operations by storing relevant information in a structured way. The database includes three entities: Products (with attributes ProductID, ProductName, Category, Price), Customers (with attributes CustomerID, CustomerName, Email, Phone), and Sales (with attributes SaleID, ProductID, CustomerID, SaleDate, Quantity). The Sales entity captures each transaction made by a customer, establishing a relationship with the Product and Customer entities. The company requires a well-defined schema to ensure data integrity and facilitate efficient data retrieval.",
       "subquestions": [
         {
           "label": "a",
@@ -87,11 +93,11 @@
         },
         {
           "label": "d",
-          "text": "Briefly explain the importance of foreign keys in the context of the `Enrollments` table and how they contribute to data integrity."
+          "text": "Briefly explain how foreign keys are used in the Sales table to maintain referential integrity."
         },
         {
           "label": "e",
-          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
+          "text": "An organization is establishing role-based access control for its database system. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the operational database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating transaction data.",
           "subquestions": [
             {
               "label": "i",
@@ -103,7 +109,7 @@
             },
             {
               "label": "iii",
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the operational database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -111,7 +117,7 @@
             },
             {
               "label": "v",
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the operational databases."
             }
           ]
         }
@@ -119,7 +125,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69f35d02ce7ce8e738a39669",
+      "template_id": "69f49014289e0eba6a56326b",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -128,7 +134,7 @@
     },
     {
       "question_no": "Q4",
-      "text": "Consider the following schema of a database designed for a Hospital: Patient (patientId: int, name: varchar(100), address: varchar(150), dob: date, phone: varchar(15)) Doctor (doctorId: int, name: varchar(100), specialty: varchar(50), phone: varchar(15)) Appointment (appointmentId: int, patientId: int, doctorId: int, appointmentDate: date, status: varchar(20)) Fee (feeId: int, appointmentId: int, amount: real, paymentStatus: varchar(20)) The 'Patient' table stores personal information about patients, the 'Doctor' table keeps records of doctors and their specialties, the 'Appointment' table contains details about scheduled appointments, and the 'Fee' table logs the fees corresponding to each appointment along with their payment status. The 'Doctor' table holds details about doctors, including unique doctor ID, name, specialization, and contact information. The 'Fee' table contains relevant information for the database system.",
+      "text": "Consider the following schema of a database designed for an E-commerce platform: Product (productId: int, name: varchar(100), price: real, stock: int) Order (orderId: int, orderDate: date, customerId: int, totalAmount: real) Customer (customerId: int, name: varchar(100), email: varchar(50), phone: varchar(15)) OrderItem (orderItemId: int, orderId: int, productId: int, quantity: int, itemPrice: real). The 'Product' table stores information about the products available on the platform, including unique product IDs, names, prices, and the amount of stock available. The 'Customer' table contains details of customers, including their names, emails, and phone numbers. The 'Order' table keeps track of customer orders, including the order date and total amount. The 'OrderItem' table maintains the relationship between orders and products, storing the quantity and price for each ordered item. The 'Order' table holds order records, tracking customer orders with order ID, customer ID, order date, and total amount. The 'OrderItem' table contains order records, tracking customer orders with order ID, customer ID, order date, and total amount.",
       "subquestions": [
         {
           "label": "a",
@@ -136,36 +142,101 @@
           "subquestions": [
             {
               "label": "i",
-              "text": "Find the name and phone number of the doctor who has an appointment scheduled on '2023-10-01'."
+              "text": "Find the names of customers who have placed an order with the product name 'Wireless Mouse'."
             },
             {
               "label": "ii",
-              "text": "Find the patient who has the highest total amount compared to all other patients. Find the patientId and name."
+              "text": "Find the customer who has the highest total totalamount compared to all other customers. Find the customerId and name."
             },
             {
               "label": "iii",
-              "text": "Find the name and name from Doctor, Patient, and Appointment where Appointment.appointmentDate is not null."
+              "text": "Find the name and name from Product, Customer, and Order where Order.orderDate is not null."
             }
           ]
         },
         {
           "label": "b",
-          "text": "b) Create a function to calculate the total fee amount for a given patient. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
+          "text": "b) Create a function to calculate the total amount for a given customer. This function should account for customer with a late penalty of 10% applied to those marked as 'overdue' payment status."
         },
         {
           "label": "c",
-          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each patient. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by patient. The patient pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
+          "text": "c) Create a trigger that automatically updates the 'totalAmount' column in the 'Order' table whenever a new order record is added, or an existing order record is updated. The 'totalAmount' column should contain the total amount for each customer. Ensure the trigger adjusts the 'totalAmount' column accurately to reflect any partial payments made by customer. The customer pays only 50% of the total amount as an initial payment when the payment status is marked as 'Partial'."
         }
       ],
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69f35d02ce7ce8e738a3966a",
+      "template_id": "69f49014289e0eba6a56326c",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
       "needs_diagram": false,
       "topic_label": "SQL_DDL_DML"
+    },
+    {
+      "question_no": "Q5",
+      "text": "Consider the database of a healthcare management system that tracks patients, doctors, and appointments with the following schema: Patients (patientID: int, name: varchar(50), dateOfBirth: date, phone: char(10)), Doctors (doctorID: int, name: varchar(50), specialty: varchar(30)), Appointments (appointmentID: int, patientID: int, doctorID: int, appointmentDate: date, reason: varchar(100)). The Patients table stores the unique patient ID (patientID), name, date of birth, and phone number of each patient. Doctors table keeps records of the doctor ID (doctorID), their name, and their area of medical specialty. The Appointments table maintains data about appointment ID (appointmentID), patient ID of the patient who made the appointment (patientID), doctor ID of the doctor assigned (doctorID), the date of the appointment (appointmentDate), and the reason for the appointment (reason). Write relational algebra statements to answer the following queries.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "List the names of all patients who have an appointment scheduled with any doctor."
+        },
+        {
+          "label": "b",
+          "text": "Find the names of doctors who have appointments scheduled for a specific date."
+        },
+        {
+          "label": "c",
+          "text": "Retrieve the appointment details for all patients who have a specific reason for their appointments, including their names and appointment dates."
+        },
+        {
+          "label": "d",
+          "text": "Identify all patients who have seen a particular doctor, along with the dates of their appointments."
+        },
+        {
+          "label": "e",
+          "text": "Count the number of appointments each doctor has scheduled, providing the doctor's name and the corresponding appointment count."
+        }
+      ],
+      "pattern_label": "RELATIONAL_ALGEBRA",
+      "main_topic": "RELATIONAL_ALGEBRA",
+      "intent": "RELATIONAL_ALGEBRA",
+      "template_id": "69f49014289e0eba6a56325b",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": false,
+      "topic_label": "RELATIONAL_ALGEBRA"
+    },
+    {
+      "question_no": "Q6",
+      "text": "Consider a database management system scenario.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Identify a suitable DBMS solution for the given scenario."
+        },
+        {
+          "label": "b",
+          "text": "Explain a suitable DBMS solution for the given scenario."
+        },
+        {
+          "label": "c",
+          "text": "Describe a suitable DBMS solution for the given scenario."
+        },
+        {
+          "label": "d",
+          "text": "Analyze a suitable DBMS solution for the given scenario."
+        },
+        {
+          "label": "e",
+          "text": "Design a suitable DBMS solution for the given scenario."
+        }
+      ],
+      "pattern_label": "General Theory",
+      "main_topic": "General Theory",
+      "intent": "General Theory",
+      "topic_label": "General Theory"
     }
   ]
 }
