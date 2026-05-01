@@ -52,7 +52,33 @@ const api = {
   startSession:  (diff)                          => request('/sessions/start',  { method: 'POST', body: { difficulty: diff || 'easy' } }),
   resetSession:  ()                              => request('/sessions/reset',  { method: 'POST', body: {} }),
   getQuestion:   (diff)                          => request('/questions/next',  { method: 'POST', body: { difficulty: diff || null } }),
-  submitAnswer:  (answer, question, difficulty)   => request('/answers/submit', { method: 'POST', body: { answer, question, difficulty } }),
+  submitAnswer:  (payload) => {
+    // Handle both individual and batch submissions
+    if (payload.batch_mode) {
+      // Batch submission
+      return request('/answers/submit', { 
+        method: 'POST', 
+        body: {
+          answers: payload.answers,
+          questions: payload.questions,
+          topic: payload.topic,
+          difficulty: payload.difficulty,
+          batch_mode: true
+        }
+      });
+    } else {
+      // Individual submission (backward compatibility)
+      return request('/answers/submit', { 
+        method: 'POST', 
+        body: { 
+          answer: payload.answer, 
+          question: payload.question, 
+          difficulty: payload.difficulty 
+        }
+      });
+    }
+  },
+  evaluatePracticeAnswers: (data)                => request('/practice/evaluate', { method: 'POST', body: data }),
   getStats:      ()                              => request('/stats'),
   checkPdfs:     ()                              => request('/pdfs/check'),
   getHistory:    ()                              => request('/history'),

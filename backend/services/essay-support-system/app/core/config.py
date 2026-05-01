@@ -22,7 +22,7 @@ class Settings:
     LOG_FILE: Path = SERVICE_ROOT / "attempt_log.csv"
     # EXTRACTION_LOG_FILE: Path = Path("C:/Users/PC/Videos/Research-Project/backend/services/essay-support-system/extracted_questions.log")
     EXTRACTION_LOG_FILE: Path = SERVICE_ROOT /"extracted_questions.log"
-    BLOOM_MODEL_PATH: Path = SERVICE_ROOT / "scripts" / "bloom_model.pkl"
+    BLOOM_MODEL_PATH: Path = SERVICE_ROOT / "bloom_model.pkl"
     LECTURE_DIR: Path = SERVICE_ROOT / "Data" / "Lecture_Notes"
 
     # ─── RL Hyperparameters ──────────────────────────────────────
@@ -31,7 +31,7 @@ class Settings:
 
     # ─── OpenAI ───────────────────────────────────────────────────
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+    OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o")
     BLOOM_CLASSIFIER_TEMPERATURE: float = float(os.getenv("BLOOM_CLASSIFIER_TEMPERATURE", "0.2"))
 
     # ─── Server ───────────────────────────────────────────────────
@@ -50,6 +50,9 @@ class Settings:
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000",
     ]
+
+    # ─── n8n Integration ───────────────────────────────────────────
+    N8N_WEBHOOK_URL: str = os.getenv("N8N_WEBHOOK_URL")
 
 
 settings = Settings()

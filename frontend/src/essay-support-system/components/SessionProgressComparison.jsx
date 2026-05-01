@@ -158,10 +158,7 @@ export default function SessionProgressComparison({ session }) {
 
   return (
     <div className="session-comparison-container">
-      <div className="comparison-header">
-        <h3>Session Progress Comparison</h3>
-        <p>Compare your recent performance with historical progress</p>
-      </div>
+      <h3 className="chart-title">Session Progress Comparison</h3>
 
       {/* Overall Trend */}
       <div className="overall-trend">
@@ -184,21 +181,13 @@ export default function SessionProgressComparison({ session }) {
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         }
 
-        .comparison-header {
-          margin-bottom: 2rem;
-        }
-
-        .comparison-header h3 {
-          margin: 0 0 0.5rem 0;
+        .chart-title {
           font-size: 1.5rem;
-          font-weight: 700;
-          color: #1f2937;
-        }
-
-        .comparison-header p {
-          margin: 0;
-          color: #6b7280;
-          font-size: 0.95rem;
+          font-weight: 600;
+          color: #001A35;
+          margin: 0 0 1.5rem 0;
+          line-height: 1.3;
+          text-align: center;
         }
 
         .overall-trend {

@@ -82,17 +82,24 @@ export default function Practice() {
     setPhase(PHASE.EVALUATING)
     setError(null)
     try {
-      const data = await api.submitAnswer(answer)
-      if (data.success) {
+      const data = await api.submitAnswer({
+        answer: answer,
+        question: question?.question,
+        difficulty: session.difficulty,
+        batch_mode: false
+      })
+      // Backend returns data directly, not with success field
+      if (data && data.feedback) {
         setFeedback(data)
         updateFromResult(data)
         setPhase(PHASE.FEEDBACK)
       } else {
-        setError(data.message || 'Evaluation failed.')
+        setError('Evaluation failed - invalid response')
         setPhase(PHASE.ANSWERING)
       }
     } catch (e) {
-      setError(e.message)
+      console.error('Submit answer error:', e)
+      setError(e.message || 'Evaluation failed.')
       setPhase(PHASE.ANSWERING)
     }
   }
@@ -192,66 +199,159 @@ export default function Practice() {
       )}
 
       <style>{`
+        /* High-End SaaS Practice Page Standards */
+        .practice-page {
+          font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+          background: #F8FAFC;
+          min-height: 100vh;
+          padding: 16px;
+        }
+
+        /* Clean White Question Cards */
+        .question-section {
+          max-width: 800px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 12px;
+          padding: 24px;
+          border: 1px solid #E2E8F0;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
         .question-section-header {
           display: flex;
           justify-content: flex-end;
           align-items: center;
-          margin-bottom: 0.25rem;
+          margin-bottom: 1rem;
         }
+
+        /* Modern Input Fields with 2px Blue Focus Ring */
+        textarea:focus, input:focus, select:focus {
+          outline: none;
+          border-color: #007bff;
+          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+          transition: all 0.3s ease;
+        }
+
+        textarea, input, select {
+          border: 1px solid #E2E8F0;
+          border-radius: 12px;
+          padding: 12px 16px;
+          font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-size: 1rem;
+          line-height: 1.6;
+          background: white;
+          transition: all 0.3s ease;
+        }
+
+        /* Enhanced Typography for Readability */
+        .question-section p, .question-section div {
+          line-height: 1.6;
+          font-size: 1.1rem;
+          color: #1a202c;
+          font-weight: 400;
+        }
+
+        /* Modern Submit Buttons */
+        .btn-primary {
+          background: #007bff;
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 12px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+          background: #0056b3;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 12px -1px rgba(0, 0, 0, 0.15);
+        }
+
         .diff-dropdown {
           position: relative;
         }
+
         .btn-text-link {
           background: none;
           border: none;
-          color: var(--text-muted);
-          font-size: 0.82rem;
+          color: #64748b;
+          font-size: 0.9rem;
           cursor: pointer;
-          padding: 4px 0;
-          transition: color 0.15s;
+          padding: 8px 12px;
+          border-radius: 12px;
+          transition: all 0.3s ease;
+          font-weight: 500;
         }
+
         .btn-text-link:hover {
-          color: var(--primary);
+          color: #007bff;
+          background: rgba(0, 123, 255, 0.1);
         }
+
         .diff-menu {
           position: absolute;
           right: 0;
-          top: calc(100% + 6px);
-          background: var(--surface);
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
-          padding: 6px 0;
+          top: calc(100% + 8px);
+          background: white;
+          border: 1px solid #E2E8F0;
+          border-radius: 12px;
+          padding: 8px 0;
           min-width: 150px;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
           z-index: 100;
         }
+
         .diff-menu-title {
           display: block;
-          padding: 6px 14px;
-          font-size: 0.7rem;
+          padding: 8px 16px;
+          font-size: 0.75rem;
           text-transform: uppercase;
-          color: var(--text-muted);
+          color: #6c757d;
           letter-spacing: 0.05em;
+          font-weight: 600;
         }
+
         .diff-menu-item {
           display: block;
           width: 100%;
           text-align: left;
-          padding: 8px 14px;
+          padding: 10px 16px;
           background: none;
           border: none;
-          color: var(--text);
-          font-size: 0.88rem;
+          color: #2c3e50;
+          font-size: 0.9rem;
           cursor: pointer;
-          transition: background 0.12s;
+          transition: all 0.3s ease;
         }
+
         .diff-menu-item:hover {
-          background: var(--primary-50);
-          color: var(--primary);
+          background: rgba(0, 123, 255, 0.1);
+          color: #007bff;
         }
+
         .diff-menu-item.active {
-          color: var(--primary);
+          background: rgba(0, 123, 255, 0.15);
+          color: #007bff;
           font-weight: 600;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .practice-page {
+            padding: 12px;
+          }
+
+          .question-section {
+            padding: 16px;
+            margin: 0 8px;
+          }
+
+          .question-section p, .question-section div {
+            font-size: 1rem;
+          }
         }
       `}</style>
     </div>

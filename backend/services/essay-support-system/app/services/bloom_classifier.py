@@ -53,11 +53,25 @@ def _classify_with_openai(question: str) -> str | None:
 
 
 def classify_bloom_level(question: str) -> str:
-    """Classify a question into Bloom's taxonomy level using OpenAI only."""
+    """Classify a question into difficulty using trained model first, OpenAI as fallback."""
+    # Try local trained model first
+    if _bloom_model is not None:
+        try:
+            # The trained model predicts difficulty directly (easy/medium/hard)
+            difficulty = _bloom_model.predict([question])[0]
+            print(f"✓ Local model classified as: {difficulty}")
+            return difficulty
+        except Exception as e:
+            print(f"✗ Local model prediction failed: {e}")
+    
+    # Fallback to OpenAI if local model fails or isn't available
+    print("⚠ Falling back to OpenAI for classification")
     llm_level = _classify_with_openai(question)
     if llm_level:
-        return llm_level
-    # Fallback if OpenAI is unavailable or returned nothing
+        # Convert OpenAI's Bloom level to difficulty
+        return map_bloom_to_difficulty(llm_level)
+    
+    # Final fallback
     return "medium"
 
 

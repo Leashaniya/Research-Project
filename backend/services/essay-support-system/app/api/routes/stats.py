@@ -22,6 +22,8 @@ async def get_stats(x_session_id: Optional[str] = Header(None)):
         "average_score": avg_score,
         "total_score": sess["total_score"],
         "score_history": sess["score_history"],
+        "batch_evaluations": sess.get("batch_evaluations", []),
+        "last_result": sess.get("last_result"),
         "rl_policy": rl_engine.get_dict(),
     }
 

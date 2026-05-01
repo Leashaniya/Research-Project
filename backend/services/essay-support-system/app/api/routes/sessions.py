@@ -22,6 +22,7 @@ def _new_session() -> dict:
         "attempt": 0,
         "total_score": 0,
         "current_question": None,
+        "batch_evaluations": [],
     }
 
 

@@ -13,7 +13,7 @@ import fitz
 
 from app.core.config import settings
 from app.services.evaluation_service import get_openai_client, detect_topic
-from app.services.bloom_classifier import classify_bloom_level, map_bloom_to_difficulty
+from app.services.bloom_classifier import classify_bloom_level
 from app.services.rl_engine import rl_engine
 
 
@@ -271,12 +271,11 @@ class QuestionBank:
                         qs = extract_questions_from_text(text)
                         print(f"Extracted {len(qs)} questions from page {page_num + 1}")
                         for q in qs:
-                            bloom_level = classify_bloom_level(q)
-                            difficulty = map_bloom_to_difficulty(bloom_level)
+                            difficulty = classify_bloom_level(q)
                             topic = detect_topic(q)
                             record = {
                                 "question": q,
-                                "bloom_level": bloom_level,
+                                "bloom_level": None,  # Local model doesn't provide Bloom levels
                                 "difficulty": difficulty,
                                 "topic": topic,
                                 "source": fname,
