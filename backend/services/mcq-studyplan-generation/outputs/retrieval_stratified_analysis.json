@@ -1,0 +1,133 @@
+{
+  "generated_at": "2026-05-01T16:52:32.854918+00:00",
+  "global": {
+    "best_method": "hybrid",
+    "is_tie": false
+  },
+  "stratified": {
+    "high_frequency": {
+      "topics": [
+        "Relational Algebra"
+      ],
+      "topics_count": 1,
+      "aggregate_metrics": {
+        "tfidf_cosine": {
+          "precision_at_10": 0.8,
+          "recall_at_10": 0.0941,
+          "mrr_at_10": 1.0,
+          "ndcg_at_10": 0.8572,
+          "diversity_unique_topics_at_10": 2.0,
+          "topics_evaluated": 1
+        },
+        "embedding_cosine": {
+          "precision_at_10": 0.9,
+          "recall_at_10": 0.1059,
+          "mrr_at_10": 1.0,
+          "ndcg_at_10": 0.9306,
+          "diversity_unique_topics_at_10": 2.0,
+          "topics_evaluated": 1
+        },
+        "hybrid": {
+          "precision_at_10": 1.0,
+          "recall_at_10": 0.1176,
+          "mrr_at_10": 1.0,
+          "ndcg_at_10": 1.0,
+          "diversity_unique_topics_at_10": 1.0,
+          "topics_evaluated": 1
+        }
+      },
+      "final_scores": {
+        "tfidf_cosine": 0.687825,
+        "embedding_cosine": 0.734125,
+        "hybrid": 0.7794
+      },
+      "best_method": "hybrid",
+      "is_tie": false
+    },
+    "medium_frequency": {
+      "topics": [],
+      "topics_count": 0,
+      "aggregate_metrics": {
+        "tfidf_cosine": {
+          "precision_at_10": 0.0,
+          "recall_at_10": 0.0,
+          "mrr_at_10": 0.0,
+          "ndcg_at_10": 0.0,
+          "topics_evaluated": 0
+        },
+        "embedding_cosine": {
+          "precision_at_10": 0.0,
+          "recall_at_10": 0.0,
+          "mrr_at_10": 0.0,
+          "ndcg_at_10": 0.0,
+          "topics_evaluated": 0
+        },
+        "hybrid": {
+          "precision_at_10": 0.0,
+          "recall_at_10": 0.0,
+          "mrr_at_10": 0.0,
+          "ndcg_at_10": 0.0,
+          "topics_evaluated": 0
+        }
+      },
+      "final_scores": {
+        "tfidf_cosine": 0.0,
+        "embedding_cosine": 0.0,
+        "hybrid": 0.0
+      },
+      "best_method": "tie",
+      "is_tie": true
+    },
+    "low_frequency": {
+      "topics": [
+        "Keys and Constraints"
+      ],
+      "topics_count": 1,
+      "aggregate_metrics": {
+        "tfidf_cosine": {
+          "precision_at_10": 0.9,
+          "recall_at_10": 0.1364,
+          "mrr_at_10": 1.0,
+          "ndcg_at_10": 0.9149,
+          "diversity_unique_topics_at_10": 2.0,
+          "topics_evaluated": 1
+        },
+        "embedding_cosine": {
+          "precision_at_10": 0.8,
+          "recall_at_10": 0.1212,
+          "mrr_at_10": 1.0,
+          "ndcg_at_10": 0.8669,
+          "diversity_unique_topics_at_10": 2.0,
+          "topics_evaluated": 1
+        },
+        "hybrid": {
+          "precision_at_10": 0.8,
+          "recall_at_10": 0.1212,
+          "mrr_at_10": 1.0,
+          "ndcg_at_10": 0.858,
+          "diversity_unique_topics_at_10": 2.0,
+          "topics_evaluated": 1
+        }
+      },
+      "final_scores": {
+        "tfidf_cosine": 0.737825,
+        "embedding_cosine": 0.697025,
+        "hybrid": 0.6948
+      },
+      "best_method": "tfidf_cosine",
+      "is_tie": false
+    }
+  },
+  "method_scores_per_topic": {
+    "Relational Algebra": {
+      "tfidf_cosine": 0.6878249999999999,
+      "embedding_cosine": 0.734125,
+      "hybrid": 0.7794
+    },
+    "Keys and Constraints": {
+      "tfidf_cosine": 0.737825,
+      "embedding_cosine": 0.697025,
+      "hybrid": 0.6948
+    }
+  }
+}

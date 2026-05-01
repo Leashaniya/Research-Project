@@ -99,6 +99,14 @@ export interface AdaptivePlanResponse {
   };
 }
 
+export interface WeakTopicSummaryItem {
+  topic: string;
+  simple_explanation: string;
+  key_points: string[];
+  common_mistakes: string[];
+  next_action: string;
+}
+
 /**
  * Health check / backend availability
  */
@@ -248,6 +256,67 @@ export async function getGraphUrl(): Promise<string | null> {
   return data.url ? `${API_BASE_URL}${data.url}` : null;
 }
 
+export interface GraphConceptLink {
+  from_weak: string;
+  related_concept: string;
+  link_type?: string;
+}
+
+export interface StudentLearningContext {
+  weak_topics_confirmed: string[];
+  topic_accuracy: Array<{
+    topic_name: string;
+    accuracy: number;
+    total: number;
+    band: string;
+  }>;
+  priority_lectures: string[];
+  related_topics: Array<{
+    weak_topic: string;
+    related_topic: string;
+    link_type?: string;
+  }>;
+  recommended_mcqs: Array<{
+    question_id: string;
+    score?: number;
+  }>;
+  study_plan_settings: {
+    total_hours: number | null;
+    study_days: number | null;
+    alpha?: number | null;
+    max_increase?: number | null;
+    max_decrease?: number | null;
+  };
+  quiz_accuracy_overall: number;
+  updated_at: string;
+}
+
+export interface GraphStudentContextResponse {
+  available: boolean;
+  student_learning_context?: StudentLearningContext;
+  weak_topics_confirmed?: string[];
+  related_concept_links?: GraphConceptLink[];
+  student_map_summary?: {
+    weak_topics?: string[];
+    related_concepts?: string[];
+    practice_count?: number;
+    uses_graphrag_topic_links?: boolean;
+  };
+  uses_confirmed_weak_topics?: boolean;
+  meta?: Record<string, unknown>;
+}
+
+/**
+ * Last saved GraphRAG summary (written when the learning-map HTML is built).
+ */
+export async function getGraphStudentContext(): Promise<GraphStudentContextResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/graph/student-context`);
+  if (!response.ok) {
+    return { available: false, meta: {}, related_concept_links: [] };
+  }
+  return response.json();
+}
+
 /**
  * Get lecture distribution (for charts)
  */
@@ -255,4 +324,11 @@ export async function getLectureDistribution(): Promise<PercentageRow[]> {
   const response = await fetch(`${API_BASE_URL}/api/dashboard/lecture-distribution`);
   if (!response.ok) return [];
   return response.json();
+}
+
+export async function getWeakTopicSummary(): Promise<WeakTopicSummaryItem[]> {
+  const response = await fetch(`${API_BASE_URL}/api/weak-topic-summary`);
+  if (!response.ok) return [];
+  const data = await response.json().catch(() => ({}));
+  return (data.weak_topic_summary || []) as WeakTopicSummaryItem[];
 }

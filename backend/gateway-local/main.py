@@ -34,6 +34,8 @@ FORWARD_SKIP_HEADERS = {"host", "connection", "content-length"}
 # Paper generation can take 15–30+ min (preprocessing + AI). Use longer timeout for /papers/.
 DEFAULT_PROXY_TIMEOUT = 300.0
 PAPERS_PROXY_TIMEOUT = float(os.getenv("PAPERS_PROXY_TIMEOUT", "1800"))  # 30 min
+# MCQ "Run Analysis" can be slow (many PDFs + embeddings + graph). Default higher than generic proxy.
+MCQ_PROXY_TIMEOUT = float(os.getenv("MCQ_PROXY_TIMEOUT", "1800"))
 
 
 @app.get("/health")
@@ -68,7 +70,7 @@ async def proxy_essay(request: Request, path: str):
 
 @app.api_route("/mcq/{path:path}", methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"])
 async def proxy_mcq(request: Request, path: str):
-    return await _proxy(request, MCQ_TARGET, "mcq", path)
+    return await _proxy(request, MCQ_TARGET, "mcq", path, timeout=MCQ_PROXY_TIMEOUT)
 
 
 async def _proxy(request: Request, target_base: str, prefix: str, path: str, timeout: float = None):
@@ -108,10 +110,19 @@ async def _proxy(request: Request, target_base: str, prefix: str, path: str, tim
                 content={"detail": f"Backend unreachable: {target_base}", "error": str(e)},
             )
         except httpx.TimeoutException as e:
-            return JSONResponse(
-                status_code=504,
-                content={"detail": "Paper generation timed out. The pipeline can take 15–30+ minutes. Try again or run it from the backend terminal (run_full_pipeline.py).", "error": str(e)},
-            )
+            detail = "Upstream request timed out."
+            if prefix == "papers":
+                detail = (
+                    "Paper generation timed out. The pipeline can take 15–30+ minutes. "
+                    "Try again or run it from the backend terminal (run_full_pipeline.py)."
+                )
+            elif prefix == "mcq":
+                detail = (
+                    "MCQ backend request timed out while waiting for a response. "
+                    "If this happened during /mcq/api/dashboard/analyze, the analysis may still be running; "
+                    f"increase MCQ_PROXY_TIMEOUT (current {timeout}s) or call the MCQ service directly on port 8003."
+                )
+            return JSONResponse(status_code=504, content={"detail": detail, "error": str(e)})
         except Exception as e:
             return JSONResponse(status_code=502, content={"detail": str(e)})
 

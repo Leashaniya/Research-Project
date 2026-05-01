@@ -1,9 +1,0 @@
-Priority,Lecture,Lecture_ID,Title,Question_Percentage,Question_Count,Baseline_Hours,GraphRAG_Hours,Delta_Hours,Concept_Count,Lecture_Weakness,Centrality_Score,Focus_Intensity,Connected_Concepts,Study_Focus
-4,4.pdf,4.pdf,DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - ...,20.81,108,4.0,4.0,0.0,0,4.5%,0.048,Low (GraphRAG Maintain),0,Focus on 0 key concepts
-2,2.pdf,2.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ...,18.88,98,4.0,4.0,0.0,0,9.3%,0.047,Low (GraphRAG Maintain),0,Focus on 0 key concepts
-8,8.pdf,8.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 –...,13.87,72,3.0,3.0,0.0,0,2.5%,0.044,Low (GraphRAG Maintain),0,Focus on 0 key concepts
-5,5.pdf,5.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 –...,11.95,62,2.5,2.5,0.0,0,1.2%,0.046,Low (GraphRAG Maintain),0,Focus on 0 key concepts
-6,6.pdf,6.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 06 –...,9.83,51,2.0,2.0,0.0,0,1.4%,0.042,Low (GraphRAG Maintain),0,Focus on 0 key concepts
-7,7.pdf,7.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 07 –...,9.83,51,2.0,2.0,0.0,0,3.9%,0.044,Low (GraphRAG Maintain),0,Focus on 0 key concepts
-3,3.pdf,3.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- ...,7.71,40,1.5,1.5,0.0,0,0.0%,0.048,Low (GraphRAG Maintain),0,Focus on 0 key concepts
-1,1.pdf,1.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- ...,7.13,37,1.5,1.5,0.0,0,20.1%,0.048,Low (GraphRAG Maintain),0,Focus on 0 key concepts

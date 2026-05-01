@@ -1,9 +1,9 @@
-Priority,Lecture,Title,Question_Percentage,Question_Count,Recommended_Hours,Focus_Intensity,Study_Focus
-4,4.pdf,DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - ...,20.81%,108,2.5,High,Focus on 108 key questions
-2,2.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ...,18.88%,98,2.0,Medium,Focus on 98 key questions
-8,8.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 –...,13.87%,72,1.5,Medium,Focus on 72 key questions
-5,5.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 –...,11.95%,62,1.5,Medium,Focus on 62 key questions
-6,6.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 06 –...,9.83%,51,1.0,Low,Focus on 51 key questions
-7,7.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 07 –...,9.83%,51,1.0,Low,Focus on 51 key questions
-3,3.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- ...,7.71%,40,1.0,Low,Focus on 40 key questions
-1,1.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- ...,7.13%,37,1.0,Low,Focus on 37 key questions
+Priority,Lecture,Title,Percentage_of_Total,Question_Percentage,Question_Count,Recommended_Hours,Focus_Intensity,Study_Focus
+4,4.pdf,DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - ...,20.81,20.81%,108,4.0,High,Focus on 108 key questions
+2,2.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ...,18.88,18.88%,98,4.0,Medium,Focus on 98 key questions
+8,8.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 –...,13.87,13.87%,72,3.0,Medium,Focus on 72 key questions
+5,5.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 –...,11.95,11.95%,62,2.5,Medium,Focus on 62 key questions
+6,6.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 06 –...,9.83,9.83%,51,2.0,Low,Focus on 51 key questions
+7,7.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 07 –...,9.83,9.83%,51,2.0,Low,Focus on 51 key questions
+3,3.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- ...,7.71,7.71%,40,1.5,Low,Focus on 40 key questions
+1,1.pdf,DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- ...,7.13,7.13%,37,1.5,Low,Focus on 37 key questions

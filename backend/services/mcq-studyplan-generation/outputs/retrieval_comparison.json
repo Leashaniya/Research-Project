@@ -1,0 +1,611 @@
+{
+  "generated_at": "2026-05-01T16:52:32.683277+00:00",
+  "n_mcqs": 501,
+  "weak_topics": [
+    "Relational Algebra",
+    "Keys and Constraints"
+  ],
+  "weak_topics_count": 2,
+  "methods": [
+    "tfidf_cosine",
+    "embedding_cosine",
+    "hybrid"
+  ],
+  "results_by_weak_topic": [
+    {
+      "weak_topic": "Relational Algebra",
+      "methods": {
+        "tfidf_cosine": {
+          "precision_at_10": 0.8,
+          "recall_at_10": 0.0941,
+          "mrr_at_10": 1.0,
+          "ndcg_at_10": 0.8572,
+          "diversity_unique_topics_at_10": 2,
+          "relevant_in_top_10": 8,
+          "total_relevant_in_pool": 85,
+          "pool_size": 501,
+          "top_10_mcqs": [
+            {
+              "rank": 1,
+              "question_id": "lec_2_Q74",
+              "question": "Consider relational schemes:",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.392195,
+              "is_relevant": true
+            },
+            {
+              "rank": 2,
+              "question_id": "lec_2_Q53",
+              "question": "Select the correct answer(s) about the 'Section' relation in the final relational model",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.215087,
+              "is_relevant": true
+            },
+            {
+              "rank": 3,
+              "question_id": "lec_2_Q44",
+              "question": "Select the correct answer(s) about the 'Section' relation in the final relational model",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.215087,
+              "is_relevant": true
+            },
+            {
+              "rank": 4,
+              "question_id": "lec_4_Q48",
+              "question": "Consider the following relational schema: Doctor (did, name, specialization) Patient (pid, pname, docId, diagnosis)",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.177926,
+              "is_relevant": true
+            },
+            {
+              "rank": 5,
+              "question_id": "lec_2_Q3",
+              "question": "In mapping a composite attribute \"Address\" (street, city, postal_code) to the relational model, what is the correct approach?",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.167809,
+              "is_relevant": true
+            },
+            {
+              "rank": 6,
+              "question_id": "lec_4_Q86",
+              "question": "Consider the following relational scheme with all atomic values: Academic_Staff(SID, FacultyID, FacultyLocation, FacultyPhone, StaffName, StaffPosition, HoursPerWeek) With the following functional dependencies: 1",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.149576,
+              "is_relevant": true
+            },
+            {
+              "rank": 7,
+              "question_id": "lec_4_Q43",
+              "question": "Consider the following table: Emp (eid, ename, designation, salary, did) Consider the following relational query on the Emp table: SELECT salary FROM Emp e1 WHERE 2 = ( SELECT COUNT(DISTINCT(e2",
+              "assigned_topic": "Aggregation",
+              "score": 0.1274,
+              "is_relevant": false
+            },
+            {
+              "rank": 8,
+              "question_id": "lec_4_Q64",
+              "question": "Consider the following table: Emp(eid, ename, designation, salary, did) Consider the following relational query on the Emp table: SELECT salary FROM Emp e1 WHERE 2 = ( SELECT COUNT(DISTINCT e2",
+              "assigned_topic": "Aggregation",
+              "score": 0.1274,
+              "is_relevant": false
+            },
+            {
+              "rank": 9,
+              "question_id": "lec_4_Q54",
+              "question": "Consider the following relational schema: Doctor(did, name, specialization) Patient(pid, pname, docId, diagnosis) docId is a foreign key referring to did of the Doctor relation",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.126107,
+              "is_relevant": true
+            },
+            {
+              "rank": 10,
+              "question_id": "lec_2_Q71",
+              "question": "Consider the following relational schemes: Car(Number, Owner, ChassisNo, Model, Year, Price) Registration(Number, Owner, ChassisNo) With the following functional dependencies: 1",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.125142,
+              "is_relevant": true
+            }
+          ]
+        },
+        "embedding_cosine": {
+          "precision_at_10": 0.9,
+          "recall_at_10": 0.1059,
+          "mrr_at_10": 1.0,
+          "ndcg_at_10": 0.9306,
+          "diversity_unique_topics_at_10": 2,
+          "relevant_in_top_10": 9,
+          "total_relevant_in_pool": 85,
+          "pool_size": 501,
+          "top_10_mcqs": [
+            {
+              "rank": 1,
+              "question_id": "lec_4_Q77",
+              "question": "Suppose relations:",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.663283,
+              "is_relevant": true
+            },
+            {
+              "rank": 2,
+              "question_id": "lec_2_Q80",
+              "question": "Relation R has eight attributes: R, U, S, Q, T, P",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.57338,
+              "is_relevant": true
+            },
+            {
+              "rank": 3,
+              "question_id": "lec_3_Q29",
+              "question": "A relation R(A, B, C,",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.565839,
+              "is_relevant": true
+            },
+            {
+              "rank": 4,
+              "question_id": "lec_4_Q48",
+              "question": "Consider the following relational schema: Doctor (did, name, specialization) Patient (pid, pname, docId, diagnosis)",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.561919,
+              "is_relevant": true
+            },
+            {
+              "rank": 5,
+              "question_id": "lec_2_Q70",
+              "question": "Consider a relation R with eight attributes: R, U, S, Q, T, P (atomic values only)",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.546603,
+              "is_relevant": true
+            },
+            {
+              "rank": 6,
+              "question_id": "lec_2_Q87",
+              "question": "Relation R(A, B, C,",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.54129,
+              "is_relevant": true
+            },
+            {
+              "rank": 7,
+              "question_id": "lec_2_Q76",
+              "question": "Relation R has eight attributes R(U, S, Q, T, P)",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.540681,
+              "is_relevant": true
+            },
+            {
+              "rank": 8,
+              "question_id": "lec_4_Q56",
+              "question": "Suppose the relations are as follows: R(A,",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.538673,
+              "is_relevant": false
+            },
+            {
+              "rank": 9,
+              "question_id": "lec_2_Q74",
+              "question": "Consider relational schemes:",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.533462,
+              "is_relevant": true
+            },
+            {
+              "rank": 10,
+              "question_id": "lec_4_Q54",
+              "question": "Consider the following relational schema: Doctor(did, name, specialization) Patient(pid, pname, docId, diagnosis) docId is a foreign key referring to did of the Doctor relation",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.52723,
+              "is_relevant": true
+            }
+          ]
+        },
+        "hybrid": {
+          "precision_at_10": 1.0,
+          "recall_at_10": 0.1176,
+          "mrr_at_10": 1.0,
+          "ndcg_at_10": 1.0,
+          "diversity_unique_topics_at_10": 1,
+          "relevant_in_top_10": 10,
+          "total_relevant_in_pool": 85,
+          "pool_size": 501,
+          "top_10_mcqs": [
+            {
+              "rank": 1,
+              "question_id": "lec_2_Q74",
+              "question": "Consider relational schemes:",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.89742,
+              "is_relevant": true
+            },
+            {
+              "rank": 2,
+              "question_id": "lec_4_Q48",
+              "question": "Consider the following relational schema: Doctor (did, name, specialization) Patient (pid, pname, docId, diagnosis)",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.701372,
+              "is_relevant": true
+            },
+            {
+              "rank": 3,
+              "question_id": "lec_4_Q54",
+              "question": "Consider the following relational schema: Doctor(did, name, specialization) Patient(pid, pname, docId, diagnosis) docId is a foreign key referring to did of the Doctor relation",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.621113,
+              "is_relevant": true
+            },
+            {
+              "rank": 4,
+              "question_id": "lec_2_Q44",
+              "question": "Select the correct answer(s) about the 'Section' relation in the final relational model",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.618972,
+              "is_relevant": true
+            },
+            {
+              "rank": 5,
+              "question_id": "lec_2_Q53",
+              "question": "Select the correct answer(s) about the 'Section' relation in the final relational model",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.618972,
+              "is_relevant": true
+            },
+            {
+              "rank": 6,
+              "question_id": "lec_4_Q86",
+              "question": "Consider the following relational scheme with all atomic values: Academic_Staff(SID, FacultyID, FacultyLocation, FacultyPhone, StaffName, StaffPosition, HoursPerWeek) With the following functional dependencies: 1",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.617665,
+              "is_relevant": true
+            },
+            {
+              "rank": 7,
+              "question_id": "lec_4_Q77",
+              "question": "Suppose relations:",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.6,
+              "is_relevant": true
+            },
+            {
+              "rank": 8,
+              "question_id": "lec_2_Q63",
+              "question": "Consider the following relational schemes: Car(Number, Owner, ChassisNo, Model, Year, Price) Registration(Number, Owner, ChassisNo) With the following functional dependencies: 1",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.594892,
+              "is_relevant": true
+            },
+            {
+              "rank": 9,
+              "question_id": "lec_2_Q71",
+              "question": "Consider the following relational schemes: Car(Number, Owner, ChassisNo, Model, Year, Price) Registration(Number, Owner, ChassisNo) With the following functional dependencies: 1",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.594892,
+              "is_relevant": true
+            },
+            {
+              "rank": 10,
+              "question_id": "lec_2_Q46",
+              "question": "Consider the following relational schemes: Car(Number, Owner, ChassisNo, Model, Year, Price) Registration(Number, Owner, ChassisNo) With the following functional dependencies: 1",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.594892,
+              "is_relevant": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "weak_topic": "Keys and Constraints",
+      "methods": {
+        "tfidf_cosine": {
+          "precision_at_10": 0.9,
+          "recall_at_10": 0.1364,
+          "mrr_at_10": 1.0,
+          "ndcg_at_10": 0.9149,
+          "diversity_unique_topics_at_10": 2,
+          "relevant_in_top_10": 9,
+          "total_relevant_in_pool": 66,
+          "pool_size": 501,
+          "top_10_mcqs": [
+            {
+              "rank": 1,
+              "question_id": "lec_5_Q51",
+              "question": "Which of the following statements are true related to constraints? (Select one or more)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.247906,
+              "is_relevant": true
+            },
+            {
+              "rank": 2,
+              "question_id": "lec_5_Q55",
+              "question": "Which of the following statements are true related to constraints? (Select one or more)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.247906,
+              "is_relevant": true
+            },
+            {
+              "rank": 3,
+              "question_id": "lec_5_Q56",
+              "question": "Which of the following statements are TRUE related to constraints? (Select one or more)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.247906,
+              "is_relevant": true
+            },
+            {
+              "rank": 4,
+              "question_id": "lec_2_Q27",
+              "question": "CHECK constraints can be used to enforce: (Select all that apply)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.213987,
+              "is_relevant": true
+            },
+            {
+              "rank": 5,
+              "question_id": "lec_1_Q21",
+              "question": "In EER modeling, ISA relationships can have which constraints? (Select all that apply)",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.20462,
+              "is_relevant": false
+            },
+            {
+              "rank": 6,
+              "question_id": "lec_4_Q22",
+              "question": "Which constraints can be defined at the column level in CREATE TABLE? (Select all that apply)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.190737,
+              "is_relevant": true
+            },
+            {
+              "rank": 7,
+              "question_id": "lec_2_Q86",
+              "question": "Candidate keys \u2013 Relation R(F1\u2013F5) Relation R(F1, F2, F3, F4, F5), FDs: F = {F2F3 -> F1F4F5, F4 -> F2} Candidate keys:",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.186183,
+              "is_relevant": true
+            },
+            {
+              "rank": 8,
+              "question_id": "lec_2_Q78",
+              "question": "Relation R(R, M, N, O, P, Q) with FDs: F = {N -> M, M -> O, NO -> P, MO -> NQ} Identify the candidate keys:",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.184028,
+              "is_relevant": true
+            },
+            {
+              "rank": 9,
+              "question_id": "lec_2_Q92",
+              "question": "Candidate keys \u2013 Relation R(F1\u2013F4) Relation R(F1, F2, F3, F4), FDs: F = {F3F4 -> F2, F2 -> F1, F1 -> F3} Candidate keys:",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.160806,
+              "is_relevant": true
+            },
+            {
+              "rank": 10,
+              "question_id": "lec_2_Q52",
+              "question": "Candidate keys \u2013 CustomerSales CustomerSales(CustNo, SalesDate, SalesAmount, SalesRepNo, Location) FDs:",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.141068,
+              "is_relevant": true
+            }
+          ]
+        },
+        "embedding_cosine": {
+          "precision_at_10": 0.8,
+          "recall_at_10": 0.1212,
+          "mrr_at_10": 1.0,
+          "ndcg_at_10": 0.8669,
+          "diversity_unique_topics_at_10": 2,
+          "relevant_in_top_10": 8,
+          "total_relevant_in_pool": 66,
+          "pool_size": 501,
+          "top_10_mcqs": [
+            {
+              "rank": 1,
+              "question_id": "lec_4_Q28",
+              "question": "Which are true about PRIMARY KEY constraint? (Select all that apply)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.597595,
+              "is_relevant": true
+            },
+            {
+              "rank": 2,
+              "question_id": "lec_5_Q56",
+              "question": "Which of the following statements are TRUE related to constraints? (Select one or more)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.592681,
+              "is_relevant": true
+            },
+            {
+              "rank": 3,
+              "question_id": "lec_5_Q55",
+              "question": "Which of the following statements are true related to constraints? (Select one or more)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.592681,
+              "is_relevant": true
+            },
+            {
+              "rank": 4,
+              "question_id": "lec_5_Q51",
+              "question": "Which of the following statements are true related to constraints? (Select one or more)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.592681,
+              "is_relevant": true
+            },
+            {
+              "rank": 5,
+              "question_id": "lec_4_Q22",
+              "question": "Which constraints can be defined at the column level in CREATE TABLE? (Select all that apply)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.509723,
+              "is_relevant": true
+            },
+            {
+              "rank": 6,
+              "question_id": "lec_4_Q19",
+              "question": "What constraint type is violated if you try to insert duplicate values in a PRIMARY KEY column?",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.486842,
+              "is_relevant": true
+            },
+            {
+              "rank": 7,
+              "question_id": "lec_5_Q52",
+              "question": "Consider the following table definition: CREATE TABLE Product ( pid CHAR(4) PRIMARY KEY, pname VARCHAR(30), manufactureDate DATETIME DEFAULT GETDATE(), qty INT, CONSTRAINT pid_chk CHECK (pid LIKE 'PSTO-510-5[0-5]-577'), CONSTRAINT qty_chk CHECK (qty >= 0) ); Which of the following statements are true related to the above definition? (Select one or more)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.479601,
+              "is_relevant": true
+            },
+            {
+              "rank": 8,
+              "question_id": "lec_1_Q21",
+              "question": "In EER modeling, ISA relationships can have which constraints? (Select all that apply)",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.471092,
+              "is_relevant": false
+            },
+            {
+              "rank": 9,
+              "question_id": "lec_2_Q15",
+              "question": "A candidate key that is NOT chosen as the primary key is called:",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.461461,
+              "is_relevant": true
+            },
+            {
+              "rank": 10,
+              "question_id": "lec_2_Q73",
+              "question": "Consider relation R(A, C, E, G, I, K, L, N, P, Q) with functional dependencies: F = { ACE \u2192 A, A \u2192 G, CK \u2192 K, K \u2192 LN, G \u2192 PQ } Identify candidate keys in the relation R",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.46043,
+              "is_relevant": false
+            }
+          ]
+        },
+        "hybrid": {
+          "precision_at_10": 0.8,
+          "recall_at_10": 0.1212,
+          "mrr_at_10": 1.0,
+          "ndcg_at_10": 0.858,
+          "diversity_unique_topics_at_10": 2,
+          "relevant_in_top_10": 8,
+          "total_relevant_in_pool": 66,
+          "pool_size": 501,
+          "top_10_mcqs": [
+            {
+              "rank": 1,
+              "question_id": "lec_5_Q56",
+              "question": "Which of the following statements are TRUE related to constraints? (Select one or more)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.995545,
+              "is_relevant": true
+            },
+            {
+              "rank": 2,
+              "question_id": "lec_5_Q51",
+              "question": "Which of the following statements are true related to constraints? (Select one or more)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.995545,
+              "is_relevant": true
+            },
+            {
+              "rank": 3,
+              "question_id": "lec_5_Q55",
+              "question": "Which of the following statements are true related to constraints? (Select one or more)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.995545,
+              "is_relevant": true
+            },
+            {
+              "rank": 4,
+              "question_id": "lec_4_Q22",
+              "question": "Which constraints can be defined at the column level in CREATE TABLE? (Select all that apply)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.828099,
+              "is_relevant": true
+            },
+            {
+              "rank": 5,
+              "question_id": "lec_2_Q27",
+              "question": "CHECK constraints can be used to enforce: (Select all that apply)",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.817197,
+              "is_relevant": true
+            },
+            {
+              "rank": 6,
+              "question_id": "lec_1_Q21",
+              "question": "In EER modeling, ISA relationships can have which constraints? (Select all that apply)",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.81548,
+              "is_relevant": false
+            },
+            {
+              "rank": 7,
+              "question_id": "lec_2_Q86",
+              "question": "Candidate keys \u2013 Relation R(F1\u2013F5) Relation R(F1, F2, F3, F4, F5), FDs: F = {F2F3 -> F1F4F5, F4 -> F2} Candidate keys:",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.764045,
+              "is_relevant": true
+            },
+            {
+              "rank": 8,
+              "question_id": "lec_2_Q78",
+              "question": "Relation R(R, M, N, O, P, Q) with FDs: F = {N -> M, M -> O, NO -> P, MO -> NQ} Identify the candidate keys:",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.744219,
+              "is_relevant": true
+            },
+            {
+              "rank": 9,
+              "question_id": "lec_2_Q92",
+              "question": "Candidate keys \u2013 Relation R(F1\u2013F4) Relation R(F1, F2, F3, F4), FDs: F = {F3F4 -> F2, F2 -> F1, F1 -> F3} Candidate keys:",
+              "assigned_topic": "Keys and Constraints",
+              "score": 0.726086,
+              "is_relevant": true
+            },
+            {
+              "rank": 10,
+              "question_id": "lec_2_Q73",
+              "question": "Consider relation R(A, C, E, G, I, K, L, N, P, Q) with functional dependencies: F = { ACE \u2192 A, A \u2192 G, CK \u2192 K, K \u2192 LN, G \u2192 PQ } Identify candidate keys in the relation R",
+              "assigned_topic": "Relational Algebra",
+              "score": 0.701449,
+              "is_relevant": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "tfidf_cosine": {
+      "precision_at_10": 0.85,
+      "recall_at_10": 0.1152,
+      "mrr_at_10": 1.0,
+      "ndcg_at_10": 0.8861,
+      "diversity_unique_topics_at_10": 2.0,
+      "topics_evaluated": 2
+    },
+    "embedding_cosine": {
+      "precision_at_10": 0.85,
+      "recall_at_10": 0.1135,
+      "mrr_at_10": 1.0,
+      "ndcg_at_10": 0.8987,
+      "diversity_unique_topics_at_10": 2.0,
+      "topics_evaluated": 2
+    },
+    "hybrid": {
+      "precision_at_10": 0.9,
+      "recall_at_10": 0.1194,
+      "mrr_at_10": 1.0,
+      "ndcg_at_10": 0.929,
+      "diversity_unique_topics_at_10": 1.5,
+      "topics_evaluated": 2
+    }
+  },
+  "final_scores": {
+    "tfidf_cosine": 0.712825,
+    "embedding_cosine": 0.71555,
+    "hybrid": 0.7371
+  },
+  "is_tie": false,
+  "best_method": "hybrid"
+}
