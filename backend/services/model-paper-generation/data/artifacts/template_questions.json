@@ -106,6 +106,78 @@
   },
   {
     "pdf_stem": "2023",
+    "question_id": "2",
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "relation",
+      "set",
+      "functional",
+      "dependencies",
+      "over",
+      "deptno",
+      "deptname",
+      "projectname"
+    ],
+    "marks": 15,
+    "full_text": "Consider a relation R (P, Q, R, S, T) with the following set of functional dependencies over R: F = {PR->Q, R->S, P->T}",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "Find all the keys in relation R using attribute closure method.",
+        "marks": 4
+      },
+      {
+        "text": "Is R in 3NF? Give reasons for your conclusion.",
+        "marks": 3
+      },
+      {
+        "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+        "marks": 8
+      }
+    ],
+    "pattern_label": "NORMALIZATION_FD_KEYS"
+  },
+  {
+    "pdf_stem": "2019",
+    "question_id": "2",
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "relation",
+      "set",
+      "functional",
+      "dependencies",
+      "over",
+      "deptno",
+      "deptname",
+      "projectname"
+    ],
+    "marks": 15,
+    "full_text": "Consider a relation R (A, B, C, D, E) with the following set of functional dependencies over R: F={B->D,D>E,AB~>C,B~>E}",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 2.1,
+        "marks": 6,
+        "text": "Find all the keys that follow from the given FDs using attribute closure.",
+        "subquestions": []
+      },
+      {
+        "question_id": 2.2,
+        "marks": 3,
+        "text": "Is R in 3NF? Give reasons for your conclusion.",
+        "subquestions": []
+      },
+      {
+        "question_id": 2.3,
+        "marks": 6,
+        "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "NORMALIZATION_FD_KEYS"
+  },
+  {
+    "pdf_stem": "2023",
     "question_id": "4",
     "cluster": 5,
     "cluster_label_keywords": [
@@ -238,6 +310,57 @@
         "question_id": 3.5,
         "marks": 8,
         "text": "e) Find the title and publisher of the CD which is rented the most.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "RELATIONAL_ALGEBRA"
+  },
+  {
+    "pdf_stem": "2019 II",
+    "question_id": "3",
+    "cluster": 5,
+    "cluster_label_keywords": [
+      "varchar",
+      "int",
+      "book",
+      "table",
+      "date",
+      "name",
+      "number",
+      "member"
+    ],
+    "marks": 25,
+    "full_text": "Consider the database of a printing company, which prints books according to the requests of authors with the following schema:  Book table stores the book ID, title, publisher of each book and the year the book is published. Author table stores the author ID, first name and last name of all authors. WrittenBy table stores the author ID of the author, book ID of the book and the position of the author (such as first author, second author) for each book written. Publisher table stores the name of the publisher and country and the city the book is published. Write relational algebra statements to answer the following queries",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 3.1,
+        "marks": 2,
+        "text": "a) Display the titles of the books printed in 2019.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.2,
+        "marks": 4,
+        "text": "b) Display the titles of the books published in New York city.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.3,
+        "marks": 5,
+        "text": "c) Display the name of the publisher who published both Fundamentals of Database systems and Database Applications in America.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.4,
+        "marks": 5,
+        "text": "d) Display the first name and last name of authors who are only first authors.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.5,
+        "marks": 9,
+        "text": "e) Display the titles of books with most number of authors.",
         "subquestions": []
       }
     ],
@@ -402,6 +525,52 @@
       }
     ],
     "pattern_label": "RELATIONAL_ALGEBRA"
+  },
+  {
+    "pdf_stem": "2023 II",
+    "question_id": "4",
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "int",
+      "relation",
+      "varchar",
+      "char",
+      "name",
+      "module",
+      "stores",
+      "has"
+    ],
+    "marks": 40,
+    "full_text": "Consider the following schema of a database designed for a university: Students (studentId: int, name: varchar(40), email: varchar(30), dob: date, specialization: int, GPA: real) Courses (courseId: int, name: varchar(40), credits: int) Offer (specialization: int, courseId: int, acYear: int, semester: int) Grades (studentId: int, courseId: int, acYear: int, calYear: int, semester: int, status: varchar(10), CAMarks: int, finalMark: int, grade: char(1)) GradePoints (grade: char(1), gradePoint: real) Enrollment (studentId: int, courseId: int, calYear: int, semester: int, basis: varchar(30))",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "Write SQL Queries to perform the following:",
+        "subquestions": [
+          {
+            "text": "Display the course id, name, and credits of courses offered in semester 1 in year 2023 for students following Data Science Specialization.",
+            "marks": 4
+          },
+          {
+            "text": "Find the course IDs and names of modules offered in year 2 semester 1 to more than one specializations.",
+            "marks": 6
+          },
+          {
+            "text": "Find the ID, name, specialization and gpa of students in the Dean's list for year 2022 semester 2. Note that a student is in a Dean's List if for a particular semester in a year he has completed all modules and has an overall GPA over 3.7.",
+            "marks": 7
+          }
+        ]
+      },
+      {
+        "text": "Create a function to calculate the GPA of a given student for a given semester and year.",
+        "marks": 11
+      },
+      {
+        "text": "Create a trigger to set the grade of basis pro-rata or repeat students to C if he/she passes the module. Assume that CA marks and Final Marks are given by 100 and a student passes the module if the overall mark is above 45. Overall Mark = (CA + Final Marks)/2.",
+        "marks": 12
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
   },
   {
     "pdf_stem": "2024",

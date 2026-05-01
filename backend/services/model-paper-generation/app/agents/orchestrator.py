@@ -1053,6 +1053,27 @@ class AgentOrchestrator:
             return {k: self._sanitize_generated_text_artifacts(v) for k, v in obj.items()}
         return obj
 
+    def _enforce_rel_algebra_stem_phrase(self, draft: dict, pattern_label: Optional[str]) -> dict:
+        """
+        Ensure relational algebra stems keep the canonical instruction sentence.
+        """
+        if not isinstance(draft, dict):
+            return draft
+        intent = str(pattern_label or "").upper()
+        if intent != "RELATIONAL_ALGEBRA":
+            return draft
+
+        required_line = "Write relational algebra statements to answer the following queries."
+        stem = str(draft.get("text") or "").strip()
+        if not stem:
+            draft["text"] = required_line
+            return draft
+
+        if required_line.lower() not in stem.lower():
+            separator = "\n\n" if "\n" in stem else " "
+            draft["text"] = f"{stem.rstrip('. ')}.{separator}{required_line}"
+        return draft
+
     def _extract_schema_metadata(self, schema_text: str) -> Tuple[Dict[str, str], Dict[str, List[str]]]:
         """
         Extract table names and column names from schema text.
@@ -2468,6 +2489,7 @@ class AgentOrchestrator:
                 }
                 draft = await self.writer.run(writer_input)
                 draft = self._sanitize_generated_text_artifacts(draft)
+                draft = self._enforce_rel_algebra_stem_phrase(draft, template.get("pattern_label"))
                 draft["question_no"] = q_no
                 draft["marks"] = target_marks
                 draft["pattern_label"] = template.get("pattern_label")
@@ -3159,6 +3181,7 @@ class AgentOrchestrator:
                     
                     draft = await self.writer.run(writer_input)
                     draft = self._sanitize_generated_text_artifacts(draft)
+                    draft = self._enforce_rel_algebra_stem_phrase(draft, template_intent)
                     # Force stable topic label onto draft (single source of truth for validators)
                     draft["pattern_label"] = template_intent
                     draft["main_topic"] = template_intent

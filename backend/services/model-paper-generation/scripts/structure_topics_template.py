@@ -49,7 +49,10 @@ OUT_ROOT.mkdir(parents=True, exist_ok=True)
 EXPECTED_TOTAL_MARKS = 100
 NUM_CLUSTERS = 7
 TOP_K_CLUSTERS = 7
-TEMPLATES_PER_CLUSTER = 3
+TEMPLATES_PER_CLUSTER = 5
+# Ensure each detected position (including Q5/Q6 when present in source papers)
+# has enough entries in template_questions.json for Paper B extra-slot selection.
+MIN_TEMPLATES_PER_POSITION = 4
 
 MIN_WORDS_QUESTION_TEXT = 5
 
@@ -679,7 +682,7 @@ def main():
                 "pattern_label": classify_pattern(full_text),
             })
 
-    # 2. Position-based selection (to ensure Q1-Q5 representation)
+    # 2. Position-based selection (to ensure Q1-Q5/Q6 representation when available)
     # ENSURE: Prioritize recent papers for each position
     unique_positions = sorted(topic_df["question_id"].unique())
     recent_paper_stems = set(p["pdf_stem"] for p in recent_papers)
@@ -687,11 +690,12 @@ def main():
     for pos in unique_positions:
         # If we don't already have enough samples for this position, snag some
         current_count = sum(1 for t in templates if str(t["question_id"]) == str(pos))
-        if current_count < 2:
+        if current_count < MIN_TEMPLATES_PER_POSITION:
+            needed = max(0, MIN_TEMPLATES_PER_POSITION - current_count)
             # Prioritize recent papers: sort by recent first, then by text length
             sub = topic_df[topic_df["question_id"] == str(pos)].copy()
             sub["is_recent"] = sub["pdf_stem"].apply(lambda x: x in recent_paper_stems)
-            sub = sub.sort_values(["is_recent", "text_len"], ascending=[False, False]).head(2)
+            sub = sub.sort_values(["is_recent", "text_len"], ascending=[False, False]).head(needed)
             for _, row in sub.iterrows():
                 # Avoid duplicates
                 if any(t["pdf_stem"] == row["pdf_stem"] and str(t["question_id"]) == str(row["question_id"]) for t in templates):
