@@ -33,39 +33,6 @@ ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to
 - 4.pdf | 4.pdf::chunk_4 | score=0.5375 | 
 - 3.pdf | 3.pdf::chunk_5 | score=0.5622 | 
 
-## Entity Relationships
-### Definition
-Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout...
-
-### Key Concepts
-- Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...
-- for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS...
-- ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions...
-- ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...
-
-### Why it is important in exams
-- Exams often test conceptual differences in Entity Relationships.
-- Focus on scenario based interpretation, not memorization.
-
-### MCQ Patterns
-- Definition vs application MCQs for Entity Relationships.
-- Compare two close options and eliminate by constraint/condition.
-
-### Quick revision checklist
-- State one-line definition of Entity Relationships
-- List 2-3 key rules/conditions
-- Solve at least 3 topic-focused MCQs
-
-### Common Mistakes
-- Memorizing terms without knowing when to apply them.
-- Skipping MCQ practice after revision.
-
-### Retrieval Trace
-- 2.pdf | 2.pdf::chunk_2 | score=0.5788 | 
-- 1.pdf | 1.pdf::chunk_5 | score=0.5712 | 
-- 1.pdf | 1.pdf::chunk_2 | score=0.5623 | 
-- 2.pdf | 2.pdf::chunk_0 | score=0.5642 | 
-
 ## Keys and Constraints
 ### Definition
 Referential integrity constraints Key constraints Other constraints INTEGRITY CONSTRAINTS (CONTD.) Domain Constraint Domain constraint specifies that the values that appear in...
@@ -98,6 +65,39 @@ Referential integrity constraints Key constraints Other constraints INTEGRITY CO
 - 2.pdf | 2.pdf::chunk_2 | score=0.6059 | 
 - 1.pdf | 1.pdf::chunk_1 | score=0.5472 | 
 - 4.pdf | 4.pdf::chunk_1 | score=0.55 | 
+
+## Entity Relationships
+### Definition
+Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout...
+
+### Key Concepts
+- Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...
+- for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS...
+- ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions...
+- ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...
+
+### Why it is important in exams
+- Exams often test conceptual differences in Entity Relationships.
+- Focus on scenario based interpretation, not memorization.
+
+### MCQ Patterns
+- Definition vs application MCQs for Entity Relationships.
+- Compare two close options and eliminate by constraint/condition.
+
+### Quick revision checklist
+- State one-line definition of Entity Relationships
+- List 2-3 key rules/conditions
+- Solve at least 3 topic-focused MCQs
+
+### Common Mistakes
+- Memorizing terms without knowing when to apply them.
+- Skipping MCQ practice after revision.
+
+### Retrieval Trace
+- 2.pdf | 2.pdf::chunk_2 | score=0.5788 | 
+- 1.pdf | 1.pdf::chunk_5 | score=0.5712 | 
+- 1.pdf | 1.pdf::chunk_2 | score=0.5623 | 
+- 2.pdf | 2.pdf::chunk_0 | score=0.5642 | 
 
 ## Aggregation (GROUP BY, COUNT, SUM)
 ### Definition
@@ -193,10 +193,10 @@ JAVA DATABASE CONNECTIVITY JDBC . Even though SQL was standardized, still differ
 - Not closing ResultSet/Statement/Connection properly.
 
 ### Retrieval Trace
-- 6.pdf | 6.pdf::chunk_0 | score=0.6684 | 
-- 6.pdf | 6.pdf::chunk_1 | score=0.6016 | 
-- 2.pdf | 2.pdf::chunk_0 | score=0.5826 | 
-- 8.pdf | 8.pdf::chunk_0 | score=0.5699 | 
+- 6.pdf | 6.pdf::chunk_0 | score=0.6834 | 
+- 6.pdf | 6.pdf::chunk_1 | score=0.6166 | 
+- 2.pdf | 2.pdf::chunk_0 | score=0.5976 | 
+- 8.pdf | 8.pdf::chunk_0 | score=0.5849 | 
 
 ## Sql Queries
 ### Definition
@@ -226,7 +226,7 @@ given permission to access the database only through a small set of views that c
 - Skipping MCQ practice after revision.
 
 ### Retrieval Trace
-- 5.pdf | 5.pdf::chunk_1 | score=0.5828 | 
-- 4.pdf | 4.pdf::chunk_4 | score=0.5762 | 
-- 5.pdf | 5.pdf::chunk_4 | score=0.5503 | 
-- 4.pdf | 4.pdf::chunk_0 | score=0.5665 |
+- 5.pdf | 5.pdf::chunk_1 | score=0.4928 | 
+- 4.pdf | 4.pdf::chunk_4 | score=0.4862 | 
+- 5.pdf | 5.pdf::chunk_4 | score=0.4603 | 
+- 4.pdf | 4.pdf::chunk_0 | score=0.4765 |

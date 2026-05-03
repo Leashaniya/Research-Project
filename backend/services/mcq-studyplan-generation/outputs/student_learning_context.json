@@ -87,7 +87,7 @@
     },
     {
       "weak_topic": "Relational Algebra",
-      "related_topic": "Database Security",
+      "related_topic": "SQL Joins",
       "link_type": "Supporting topic (high exam share)"
     },
     {
@@ -97,14 +97,58 @@
     },
     {
       "weak_topic": "Relational Algebra",
-      "related_topic": "Transactions",
+      "related_topic": "Set",
       "link_type": "Supporting topic (high exam share)"
     }
   ],
   "recommended_mcqs": [
     {
-      "question_id": "lec_1_Q23",
-      "score": 58.68,
+      "question_id": "lec_1_Q36",
+      "score": 52.35,
+      "reason_trace": {
+        "supports_weak_topic": "Keys and Constraints",
+        "related_concept": "Functional Dependency",
+        "high_frequency_exam": true,
+        "why_useful_now": "Recommended for targeted revision.",
+        "lines": [
+          "Supports weak topic: Keys and Constraints",
+          "Connected concept: Functional Dependency",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme"
+        ],
+        "weak_signal": "topic scored 100% in quiz",
+        "exam_frequency": "appears in 7.4% of past paper questions",
+        "prerequisite_path": [],
+        "similarity_score": 0.357,
+        "recommendation_rank": 115,
+        "action": "Review core concept and practice recommended MCQs."
+      }
+    },
+    {
+      "question_id": "lec_1_Q11",
+      "score": 48.29,
+      "reason_trace": {
+        "supports_weak_topic": "Aggregation (GROUP BY, COUNT, SUM)",
+        "related_concept": "Drawn",
+        "high_frequency_exam": true,
+        "why_useful_now": "Recommended for targeted revision.",
+        "lines": [
+          "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+          "Connected concept: Drawn",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme"
+        ],
+        "weak_signal": "topic scored 100% in quiz",
+        "exam_frequency": "appears in 7.4% of past paper questions",
+        "prerequisite_path": [],
+        "similarity_score": 0.3325,
+        "recommendation_rank": 113,
+        "action": "Review core concept and practice recommended MCQs."
+      }
+    },
+    {
+      "question_id": "lec_1_Q21",
+      "score": 60.51,
       "reason_trace": {
         "supports_weak_topic": "Relational Algebra",
         "related_concept": "Normalization",
@@ -119,102 +163,80 @@
         "weak_signal": "topic scored 100% in quiz",
         "exam_frequency": "appears in 7.4% of past paper questions",
         "prerequisite_path": [],
-        "similarity_score": 0.5357,
-        "recommendation_rank": 69,
+        "similarity_score": 0.655,
+        "recommendation_rank": 37,
         "action": "Review core concept and practice recommended MCQs."
       }
     },
     {
-      "question_id": "lec_1_Q36",
-      "score": 54.99,
+      "question_id": "lec_1_Q4",
+      "score": 58.27,
       "reason_trace": {
-        "supports_weak_topic": "Keys and Constraints",
-        "related_concept": "Normalization",
+        "supports_weak_topic": "Relational Algebra",
+        "related_concept": "Database Design",
         "high_frequency_exam": true,
         "why_useful_now": "Recommended for targeted revision.",
         "lines": [
-          "Supports weak topic: Keys and Constraints",
-          "Connected concept: Normalization",
+          "Supports weak topic: Relational Algebra",
+          "Connected concept: Database Design",
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme"
         ],
         "weak_signal": "topic scored 100% in quiz",
         "exam_frequency": "appears in 7.4% of past paper questions",
         "prerequisite_path": [],
-        "similarity_score": 0.4269,
-        "recommendation_rank": 114,
-        "action": "Review core concept and practice recommended MCQs."
-      }
-    },
-    {
-      "question_id": "lec_2_Q15",
-      "score": 96.68,
-      "reason_trace": {
-        "supports_weak_topic": "Keys and Constraints",
-        "related_concept": "Normalization",
-        "high_frequency_exam": true,
-        "why_useful_now": "Recommended for targeted revision.",
-        "lines": [
-          "Supports weak topic: Keys and Constraints",
-          "Connected concept: Normalization",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme"
-        ],
-        "weak_signal": "topic scored 14% in quiz",
-        "exam_frequency": "appears in 18.6% of past paper questions",
-        "prerequisite_path": [],
-        "similarity_score": 0.5901,
-        "recommendation_rank": 63,
-        "action": "Review core concept and practice recommended MCQs."
-      }
-    },
-    {
-      "question_id": "lec_8_Q15",
-      "score": 72.0,
-      "reason_trace": {
-        "supports_weak_topic": "Sql Queries",
-        "related_concept": "Database Security",
-        "high_frequency_exam": true,
-        "why_useful_now": "Recommended for targeted revision.",
-        "lines": [
-          "Supports weak topic: Sql Queries",
-          "Connected concept: Database Security",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme"
-        ],
-        "weak_signal": "topic scored 71% in quiz",
-        "exam_frequency": "appears in 14.4% of past paper questions",
-        "prerequisite_path": [],
-        "similarity_score": 0.7678,
+        "similarity_score": 0.6322,
         "recommendation_rank": 30,
         "action": "Review core concept and practice recommended MCQs."
       }
     },
     {
-      "question_id": "lec_6_Q18",
-      "score": 60.2,
+      "question_id": "lec_6_Q9",
+      "score": 60.47,
       "reason_trace": {
-        "supports_weak_topic": "Entity Relationships",
-        "related_concept": "Variables",
+        "supports_weak_topic": "JDBC / Database Connectivity",
+        "related_concept": "Database Design",
         "high_frequency_exam": true,
         "why_useful_now": "Recommended for targeted revision.",
         "lines": [
-          "Supports weak topic: Entity Relationships",
-          "Connected concept: Variables",
+          "Supports weak topic: JDBC / Database Connectivity",
+          "Connected concept: Database Design",
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme"
         ],
         "weak_signal": "topic scored 75% in quiz",
         "exam_frequency": "appears in 10.0% of past paper questions",
         "prerequisite_path": [],
-        "similarity_score": 0.5921,
-        "recommendation_rank": 60,
+        "similarity_score": 0.6734,
+        "recommendation_rank": 54,
         "action": "Review core concept and practice recommended MCQs."
       }
     },
     {
-      "question_id": "lec_8_Q62",
-      "score": 72.0,
+      "question_id": "lec_3_Q13",
+      "score": 100.0,
+      "reason_trace": {
+        "supports_weak_topic": "Relational Algebra",
+        "related_concept": "SQL Joins",
+        "high_frequency_exam": true,
+        "why_useful_now": "Recommended for targeted revision.",
+        "lines": [
+          "Supports weak topic: Relational Algebra",
+          "Connected concept: SQL Joins",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme"
+        ],
+        "weak_signal": "topic scored 50% in quiz",
+        "exam_frequency": "appears in 8.0% of past paper questions",
+        "prerequisite_path": [],
+        "similarity_score": 0.656,
+        "recommendation_rank": 13,
+        "action": "Review core concept and practice recommended MCQs."
+      }
+    },
+    {
+      "question_id": "lec_8_Q37",
+      "score": 71.55,
       "reason_trace": {
         "supports_weak_topic": "Database Access",
         "related_concept": "Database Design",
@@ -229,96 +251,74 @@
         "weak_signal": "topic scored 71% in quiz",
         "exam_frequency": "appears in 14.4% of past paper questions",
         "prerequisite_path": [],
-        "similarity_score": 0.6083,
-        "recommendation_rank": 45,
+        "similarity_score": 0.7548,
+        "recommendation_rank": 7,
         "action": "Review core concept and practice recommended MCQs."
       }
     },
     {
-      "question_id": "lec_7_Q23",
-      "score": 55.78,
+      "question_id": "lec_6_Q13",
+      "score": 54.66,
       "reason_trace": {
-        "supports_weak_topic": "Aggregation (GROUP BY, COUNT, SUM)",
-        "related_concept": "Variables",
+        "supports_weak_topic": "Sql Queries",
+        "related_concept": "Set",
         "high_frequency_exam": true,
         "why_useful_now": "Recommended for targeted revision.",
         "lines": [
-          "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
-          "Connected concept: Variables",
+          "Supports weak topic: Sql Queries",
+          "Connected concept: Set",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme"
+        ],
+        "weak_signal": "topic scored 75% in quiz",
+        "exam_frequency": "appears in 10.0% of past paper questions",
+        "prerequisite_path": [],
+        "similarity_score": 0.4787,
+        "recommendation_rank": 91,
+        "action": "Review core concept and practice recommended MCQs."
+      }
+    },
+    {
+      "question_id": "lec_7_Q31",
+      "score": 64.0,
+      "reason_trace": {
+        "supports_weak_topic": "Entity Relationships",
+        "related_concept": "Schedule",
+        "high_frequency_exam": true,
+        "why_useful_now": "Recommended for targeted revision.",
+        "lines": [
+          "Supports weak topic: Entity Relationships",
+          "Connected concept: Schedule",
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme"
         ],
         "weak_signal": "topic scored 100% in quiz",
         "exam_frequency": "appears in 10.0% of past paper questions",
         "prerequisite_path": [],
-        "similarity_score": 0.4309,
-        "recommendation_rank": 108,
+        "similarity_score": 0.6231,
+        "recommendation_rank": 31,
         "action": "Review core concept and practice recommended MCQs."
       }
     },
     {
-      "question_id": "lec_2_Q19",
-      "score": 77.57,
+      "question_id": "lec_8_Q10",
+      "score": 70.77,
       "reason_trace": {
         "supports_weak_topic": "Entity Relationships",
-        "related_concept": "Surani",
+        "related_concept": "Database Design",
         "high_frequency_exam": true,
         "why_useful_now": "Recommended for targeted revision.",
         "lines": [
           "Supports weak topic: Entity Relationships",
-          "Connected concept: Surani",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme"
-        ],
-        "weak_signal": "topic scored 14% in quiz",
-        "exam_frequency": "appears in 18.6% of past paper questions",
-        "prerequisite_path": [],
-        "similarity_score": 0.263,
-        "recommendation_rank": 115,
-        "action": "Review core concept and practice recommended MCQs."
-      }
-    },
-    {
-      "question_id": "lec_8_Q30",
-      "score": 72.0,
-      "reason_trace": {
-        "supports_weak_topic": "Entity Relationships",
-        "related_concept": "Database Security",
-        "high_frequency_exam": true,
-        "why_useful_now": "Recommended for targeted revision.",
-        "lines": [
-          "Supports weak topic: Entity Relationships",
-          "Connected concept: Database Security",
+          "Connected concept: Database Design",
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme"
         ],
         "weak_signal": "topic scored 71% in quiz",
         "exam_frequency": "appears in 14.4% of past paper questions",
         "prerequisite_path": [],
-        "similarity_score": 0.6284,
-        "recommendation_rank": 28,
-        "action": "Review core concept and practice recommended MCQs."
-      }
-    },
-    {
-      "question_id": "lec_8_Q23",
-      "score": 69.63,
-      "reason_trace": {
-        "supports_weak_topic": "Entity Relationships",
-        "related_concept": "Database Security",
-        "high_frequency_exam": true,
-        "why_useful_now": "Recommended for targeted revision.",
-        "lines": [
-          "Supports weak topic: Entity Relationships",
-          "Connected concept: Database Security",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme"
-        ],
-        "weak_signal": "topic scored 71% in quiz",
-        "exam_frequency": "appears in 14.4% of past paper questions",
-        "prerequisite_path": [],
-        "similarity_score": 0.5936,
-        "recommendation_rank": 86,
+        "similarity_score": 0.707,
+        "recommendation_rank": 17,
         "action": "Review core concept and practice recommended MCQs."
       }
     }
@@ -331,5 +331,5 @@
     "max_decrease": null
   },
   "quiz_accuracy_overall": 56.81818181818182,
-  "updated_at": "2026-05-01T16:52:27.720294+00:00"
+  "updated_at": "2026-05-03T20:21:50.624015+00:00"
 }

@@ -125,130 +125,6 @@
       "next_action": "State one-line definition of Relational Algebra"
     },
     {
-      "topic": "Entity Relationships",
-      "revision_notes": {
-        "concept_definition": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout...",
-        "definition": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout...",
-        "why_it_is_important_in_exams": [
-          "Exams often test conceptual differences in Entity Relationships.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "exam_focus": [
-          "Exams often test conceptual differences in Entity Relationships.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "key_points_to_remember": [
-          "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
-          "for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS...",
-          "ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions...",
-          "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then..."
-        ],
-        "key_points": [
-          "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
-          "for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS...",
-          "ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions...",
-          "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then..."
-        ],
-        "common_mistakes": [
-          "Memorizing terms without knowing when to apply them.",
-          "Skipping MCQ practice after revision."
-        ],
-        "mcq_patterns": [
-          "Definition vs application MCQs for Entity Relationships.",
-          "Compare two close options and eliminate by constraint/condition."
-        ],
-        "quick_revision_checklist": [
-          "State one-line definition of Entity Relationships",
-          "List 2-3 key rules/conditions",
-          "Solve at least 3 topic-focused MCQs"
-        ]
-      },
-      "source_trace": [
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_2",
-          "similarity_score": 0.4471,
-          "used_text_snippet": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout..."
-        },
-        {
-          "lecture_id": "1.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
-          "chunk_id": "1.pdf::chunk_5",
-          "similarity_score": 0.4279,
-          "used_text_snippet": "for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS There are several different \"modeling traps\" (called..."
-        },
-        {
-          "lecture_id": "1.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
-          "chunk_id": "1.pdf::chunk_2",
-          "similarity_score": 0.4058,
-          "used_text_snippet": "ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions must hold with relevance to weak entities The owner entity set..."
-        },
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_0",
-          "similarity_score": 0.4105,
-          "used_text_snippet": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen..."
-        }
-      ],
-      "retrieval_trace": [
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_2",
-          "score": 0.5788,
-          "similarity_score": 0.4471,
-          "embedding_similarity": 0.4471,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "1.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
-          "chunk_id": "1.pdf::chunk_5",
-          "score": 0.5712,
-          "similarity_score": 0.4279,
-          "embedding_similarity": 0.4279,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "1.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
-          "chunk_id": "1.pdf::chunk_2",
-          "score": 0.5623,
-          "similarity_score": 0.4058,
-          "embedding_similarity": 0.4058,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_0",
-          "score": 0.5642,
-          "similarity_score": 0.4105,
-          "embedding_similarity": 0.4105,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        }
-      ],
-      "simple_explanation": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout...",
-      "key_points": [
-        "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
-        "for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS...",
-        "ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions...",
-        "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then..."
-      ],
-      "common_mistakes": [
-        "Memorizing terms without knowing when to apply them.",
-        "Skipping MCQ practice after revision."
-      ],
-      "next_action": "State one-line definition of Entity Relationships"
-    },
-    {
       "topic": "Keys and Constraints",
       "revision_notes": {
         "concept_definition": "Referential integrity constraints Key constraints Other constraints INTEGRITY CONSTRAINTS (CONTD.) Domain Constraint Domain constraint specifies that the values that appear in...",
@@ -371,6 +247,130 @@
         "Not checking referential integrity when using foreign keys."
       ],
       "next_action": "State one-line definition of Keys and Constraints"
+    },
+    {
+      "topic": "Entity Relationships",
+      "revision_notes": {
+        "concept_definition": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout...",
+        "definition": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout...",
+        "why_it_is_important_in_exams": [
+          "Exams often test conceptual differences in Entity Relationships.",
+          "Focus on scenario based interpretation, not memorization."
+        ],
+        "exam_focus": [
+          "Exams often test conceptual differences in Entity Relationships.",
+          "Focus on scenario based interpretation, not memorization."
+        ],
+        "key_points_to_remember": [
+          "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
+          "for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS...",
+          "ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions...",
+          "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then..."
+        ],
+        "key_points": [
+          "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
+          "for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS...",
+          "ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions...",
+          "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then..."
+        ],
+        "common_mistakes": [
+          "Memorizing terms without knowing when to apply them.",
+          "Skipping MCQ practice after revision."
+        ],
+        "mcq_patterns": [
+          "Definition vs application MCQs for Entity Relationships.",
+          "Compare two close options and eliminate by constraint/condition."
+        ],
+        "quick_revision_checklist": [
+          "State one-line definition of Entity Relationships",
+          "List 2-3 key rules/conditions",
+          "Solve at least 3 topic-focused MCQs"
+        ]
+      },
+      "source_trace": [
+        {
+          "lecture_id": "2.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
+          "chunk_id": "2.pdf::chunk_2",
+          "similarity_score": 0.4471,
+          "used_text_snippet": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout..."
+        },
+        {
+          "lecture_id": "1.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
+          "chunk_id": "1.pdf::chunk_5",
+          "similarity_score": 0.4279,
+          "used_text_snippet": "for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS There are several different \"modeling traps\" (called..."
+        },
+        {
+          "lecture_id": "1.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
+          "chunk_id": "1.pdf::chunk_2",
+          "similarity_score": 0.4058,
+          "used_text_snippet": "ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions must hold with relevance to weak entities The owner entity set..."
+        },
+        {
+          "lecture_id": "2.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
+          "chunk_id": "2.pdf::chunk_0",
+          "similarity_score": 0.4105,
+          "used_text_snippet": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen..."
+        }
+      ],
+      "retrieval_trace": [
+        {
+          "lecture_id": "2.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
+          "chunk_id": "2.pdf::chunk_2",
+          "score": 0.5788,
+          "similarity_score": 0.4471,
+          "embedding_similarity": 0.4471,
+          "weak_topic_importance": 1.0,
+          "student_history_gap": 1.0
+        },
+        {
+          "lecture_id": "1.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
+          "chunk_id": "1.pdf::chunk_5",
+          "score": 0.5712,
+          "similarity_score": 0.4279,
+          "embedding_similarity": 0.4279,
+          "weak_topic_importance": 1.0,
+          "student_history_gap": 1.0
+        },
+        {
+          "lecture_id": "1.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
+          "chunk_id": "1.pdf::chunk_2",
+          "score": 0.5623,
+          "similarity_score": 0.4058,
+          "embedding_similarity": 0.4058,
+          "weak_topic_importance": 1.0,
+          "student_history_gap": 1.0
+        },
+        {
+          "lecture_id": "2.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
+          "chunk_id": "2.pdf::chunk_0",
+          "score": 0.5642,
+          "similarity_score": 0.4105,
+          "embedding_similarity": 0.4105,
+          "weak_topic_importance": 1.0,
+          "student_history_gap": 1.0
+        }
+      ],
+      "simple_explanation": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout...",
+      "key_points": [
+        "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
+        "for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS...",
+        "ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions...",
+        "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then..."
+      ],
+      "common_mistakes": [
+        "Memorizing terms without knowing when to apply them.",
+        "Skipping MCQ practice after revision."
+      ],
+      "next_action": "State one-line definition of Entity Relationships"
     },
     {
       "topic": "Aggregation (GROUP BY, COUNT, SUM)",
@@ -694,41 +694,41 @@
           "lecture_id": "6.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 06 \u2013 JAVA DATABASE CONNECTIVITY",
           "chunk_id": "6.pdf::chunk_0",
-          "score": 0.6684,
+          "score": 0.6834,
           "similarity_score": 0.7335,
           "embedding_similarity": 0.7335,
           "weak_topic_importance": 1.0,
-          "student_history_gap": 0.75
+          "student_history_gap": 0.9
         },
         {
           "lecture_id": "6.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 06 \u2013 JAVA DATABASE CONNECTIVITY",
           "chunk_id": "6.pdf::chunk_1",
-          "score": 0.6016,
+          "score": 0.6166,
           "similarity_score": 0.5664,
           "embedding_similarity": 0.5664,
           "weak_topic_importance": 1.0,
-          "student_history_gap": 0.75
+          "student_history_gap": 0.9
         },
         {
           "lecture_id": "2.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
           "chunk_id": "2.pdf::chunk_0",
-          "score": 0.5826,
+          "score": 0.5976,
           "similarity_score": 0.4891,
           "embedding_similarity": 0.4891,
           "weak_topic_importance": 1.0,
-          "student_history_gap": 0.75
+          "student_history_gap": 0.9
         },
         {
           "lecture_id": "8.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
           "chunk_id": "8.pdf::chunk_0",
-          "score": 0.5699,
+          "score": 0.5849,
           "similarity_score": 0.4874,
           "embedding_similarity": 0.4874,
           "weak_topic_importance": 1.0,
-          "student_history_gap": 0.75
+          "student_history_gap": 0.9
         }
       ],
       "simple_explanation": "JAVA DATABASE CONNECTIVITY JDBC . Even though SQL was standardized, still different applications was needed to be developed to access different DBMSs. A common way for an...",
@@ -818,41 +818,41 @@
           "lecture_id": "5.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
           "chunk_id": "5.pdf::chunk_1",
-          "score": 0.5828,
+          "score": 0.4928,
           "similarity_score": 0.4571,
           "embedding_similarity": 0.4571,
           "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
+          "student_history_gap": 0.1
         },
         {
           "lecture_id": "4.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
           "chunk_id": "4.pdf::chunk_4",
-          "score": 0.5762,
+          "score": 0.4862,
           "similarity_score": 0.4406,
           "embedding_similarity": 0.4406,
           "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
+          "student_history_gap": 0.1
         },
         {
           "lecture_id": "5.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
           "chunk_id": "5.pdf::chunk_4",
-          "score": 0.5503,
+          "score": 0.4603,
           "similarity_score": 0.3757,
           "embedding_similarity": 0.3757,
           "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
+          "student_history_gap": 0.1
         },
         {
           "lecture_id": "4.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
           "chunk_id": "4.pdf::chunk_0",
-          "score": 0.5665,
+          "score": 0.4765,
           "similarity_score": 0.4163,
           "embedding_similarity": 0.4163,
           "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
+          "student_history_gap": 0.1
         }
       ],
       "simple_explanation": "given permission to access the database only through a small set of views that contain the specific data the user is authorized to see, thus restricting the user's access to...",
