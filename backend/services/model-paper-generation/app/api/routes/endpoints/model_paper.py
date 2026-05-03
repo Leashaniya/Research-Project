@@ -78,10 +78,34 @@ async def generate_paper_a():
         raise HTTPException(status_code=500, detail=detail)
     return res
 
+def _count_valid_selected_papers(selected) -> int:
+    """Paper B: each entry must be a dict with a non-empty file name."""
+    if not selected:
+        return 0
+    n = 0
+    for item in selected:
+        if isinstance(item, dict) and str(item.get("file") or "").strip():
+            n += 1
+    return n
+
+
 @router.post("/generate-paper")
 async def generate_paper(params: GeneratePaperRequest | None = None):
-    """Runs the COMPLETE pipeline: Extraction -> Blueprinting -> AI Generation."""
+    """Runs the COMPLETE pipeline: Extraction -> Blueprinting -> AI Generation (Paper B)."""
     options = params.dict(exclude_none=True) if params else {}
+
+    # Paper B: require at least two selected past papers so trend/template signals are not
+    # derived from a single paper (e.g. cannot reliably scale to 6 slots from one 5-question paper).
+    sel = options.get("selected_papers")
+    if _count_valid_selected_papers(sel) < 2:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Paper B requires at least 2 past papers to be selected. "
+                "Upload two or more PDFs and include them in selected_papers (each with a non-empty file name)."
+            ),
+        )
+
     # Paper B mode:
     # - Always use past-paper trend/topic signals (no lecture-based topic mining)
     # - Keep Paper B at 6 questions to avoid low-quality fallback slots
