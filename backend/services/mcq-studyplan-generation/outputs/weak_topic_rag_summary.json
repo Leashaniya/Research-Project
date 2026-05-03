@@ -1,872 +1,367 @@
 {
   "weak_topic_summary": [
     {
-      "topic": "Relational Algebra",
-      "revision_notes": {
-        "concept_definition": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen...",
-        "definition": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen...",
-        "why_it_is_important_in_exams": [
-          "Exams often test conceptual differences in Relational Algebra.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "exam_focus": [
-          "Exams often test conceptual differences in Relational Algebra.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "key_points_to_remember": [
-          "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...",
-          "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
-          "IT200 C From Student s Where EXISTS ( Select * Name Amal from grades g Nimali Where g.SID=s.SID and g.Grade=\u2018A\u2019)...",
-          "Decomposition into BCNF: Consider relation R with FDs F. If X Y violates BCNF, decompose R A C D A B C D D B..."
-        ],
-        "key_points": [
-          "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...",
-          "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
-          "IT200 C From Student s Where EXISTS ( Select * Name Amal from grades g Nimali Where g.SID=s.SID and g.Grade=\u2018A\u2019)...",
-          "Decomposition into BCNF: Consider relation R with FDs F. If X Y violates BCNF, decompose R A C D A B C D D B..."
-        ],
-        "common_mistakes": [
-          "Memorizing terms without knowing when to apply them.",
-          "Skipping MCQ practice after revision."
-        ],
-        "mcq_patterns": [
-          "Definition vs application MCQs for Relational Algebra.",
-          "Compare two close options and eliminate by constraint/condition."
-        ],
-        "quick_revision_checklist": [
-          "State one-line definition of Relational Algebra",
-          "List 2-3 key rules/conditions",
-          "Solve at least 3 topic-focused MCQs"
-        ]
-      },
+      "topic": "Aggregation (GROUP BY, COUNT, SUM)",
+      "simple_explanation": "IT200 C From Student s Where EXISTS ( Select * Name Amal from grades g Nimali Where g.SID=s.SID and g.Grade=\u2018A\u2019) COMPARISON OPERATORS WITH SOME, ANY & ALL Comparison operators...",
+      "key_points": [
+        "student sub class or the faculty member sub class? Probably not. Therefore, there is no covering constraint...",
+        "on a values in a given field When using group by Each item in the SELECT list must be single valued per group....",
+        "NIC name age gpa salary student faculty belongs to ISA Primary key of the superclass Boolean attributes becomes..."
+      ],
+      "common_mistakes": [
+        "Using columns in SELECT that are not in GROUP BY or an aggregate."
+      ],
+      "next_action": "Reread the retrieved lecture extracts for Aggregation (GROUP BY, COUNT, SUM), then verify you can explain them in your own words.",
       "source_trace": [
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_0",
-          "similarity_score": 0.4614,
-          "used_text_snippet": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen..."
-        },
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_2",
-          "similarity_score": 0.3876,
-          "used_text_snippet": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout..."
-        },
         {
           "lecture_id": "4.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
           "chunk_id": "4.pdf::chunk_4",
-          "similarity_score": 0.3437,
+          "similarity_score": 0.1738,
           "used_text_snippet": "IT200 C From Student s Where EXISTS ( Select * Name Amal from grades g Nimali Where g.SID=s.SID and g.Grade=\u2018A\u2019) COMPARISON OPERATORS WITH SOME, ANY & ALL Comparison operators..."
         },
-        {
-          "lecture_id": "3.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- SCHEMA REFINEMENT",
-          "chunk_id": "3.pdf::chunk_5",
-          "similarity_score": 0.4054,
-          "used_text_snippet": "Decomposition into BCNF: Consider relation R with FDs F. If X Y violates BCNF, decompose R A C D A B C D D B ACTIVITY Consider the following relational schema for R: R(A,..."
-        }
-      ],
-      "retrieval_trace": [
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_0",
-          "score": 0.5846,
-          "similarity_score": 0.4614,
-          "embedding_similarity": 0.4614,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_2",
-          "score": 0.555,
-          "similarity_score": 0.3876,
-          "embedding_similarity": 0.3876,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "4.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
-          "chunk_id": "4.pdf::chunk_4",
-          "score": 0.5375,
-          "similarity_score": 0.3437,
-          "embedding_similarity": 0.3437,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "3.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- SCHEMA REFINEMENT",
-          "chunk_id": "3.pdf::chunk_5",
-          "score": 0.5622,
-          "similarity_score": 0.4054,
-          "embedding_similarity": 0.4054,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        }
-      ],
-      "simple_explanation": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen...",
-      "key_points": [
-        "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...",
-        "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
-        "IT200 C From Student s Where EXISTS ( Select * Name Amal from grades g Nimali Where g.SID=s.SID and g.Grade=\u2018A\u2019)...",
-        "Decomposition into BCNF: Consider relation R with FDs F. If X Y violates BCNF, decompose R A C D A B C D D B..."
-      ],
-      "common_mistakes": [
-        "Memorizing terms without knowing when to apply them.",
-        "Skipping MCQ practice after revision."
-      ],
-      "next_action": "State one-line definition of Relational Algebra"
-    },
-    {
-      "topic": "Keys and Constraints",
-      "revision_notes": {
-        "concept_definition": "Referential integrity constraints Key constraints Other constraints INTEGRITY CONSTRAINTS (CONTD.) Domain Constraint Domain constraint specifies that the values that appear in...",
-        "definition": "Referential integrity constraints Key constraints Other constraints INTEGRITY CONSTRAINTS (CONTD.) Domain Constraint Domain constraint specifies that the values that appear in...",
-        "why_it_is_important_in_exams": [
-          "Exams often test conceptual differences in Keys and Constraints.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "exam_focus": [
-          "Exams often test conceptual differences in Keys and Constraints.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "key_points_to_remember": [
-          "Referential integrity constraints Key constraints Other constraints INTEGRITY CONSTRAINTS (CONTD.) Domain Constraint...",
-          "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
-          "users DATABASE DESIGN PROCESS There are six main phases of the process to develop a database Requirement collection...",
-          "Adding a new constraint to a column ALTER TABLE student ADD CONSTRAINT chk_age CHECK (age > 18) Ex : removing a..."
-        ],
-        "key_points": [
-          "Referential integrity constraints Key constraints Other constraints INTEGRITY CONSTRAINTS (CONTD.) Domain Constraint...",
-          "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
-          "users DATABASE DESIGN PROCESS There are six main phases of the process to develop a database Requirement collection...",
-          "Adding a new constraint to a column ALTER TABLE student ADD CONSTRAINT chk_age CHECK (age > 18) Ex : removing a..."
-        ],
-        "common_mistakes": [
-          "Confusing candidate key vs primary key.",
-          "Not checking referential integrity when using foreign keys."
-        ],
-        "mcq_patterns": [
-          "Definition vs application MCQs for Keys and Constraints.",
-          "Compare two close options and eliminate by constraint/condition."
-        ],
-        "quick_revision_checklist": [
-          "State one-line definition of Keys and Constraints",
-          "List 2-3 key rules/conditions",
-          "Solve at least 3 topic-focused MCQs"
-        ]
-      },
-      "source_trace": [
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_1",
-          "similarity_score": 0.5742,
-          "used_text_snippet": "Referential integrity constraints Key constraints Other constraints INTEGRITY CONSTRAINTS (CONTD.) Domain Constraint Domain constraint specifies that the values that appear in..."
-        },
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_2",
-          "similarity_score": 0.4549,
-          "used_text_snippet": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout..."
-        },
-        {
-          "lecture_id": "1.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
-          "chunk_id": "1.pdf::chunk_1",
-          "similarity_score": 0.368,
-          "used_text_snippet": "users DATABASE DESIGN PROCESS There are six main phases of the process to develop a database Requirement collection and analysis Schema refinement Physical database design..."
-        },
-        {
-          "lecture_id": "4.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
-          "chunk_id": "4.pdf::chunk_1",
-          "similarity_score": 0.375,
-          "used_text_snippet": "Adding a new constraint to a column ALTER TABLE student ADD CONSTRAINT chk_age CHECK (age > 18) Ex : removing a column from a table ALTER TABLE student DROP COLUMN age DROP..."
-        }
-      ],
-      "retrieval_trace": [
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_1",
-          "score": 0.6657,
-          "similarity_score": 0.5742,
-          "embedding_similarity": 0.5742,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_2",
-          "score": 0.6059,
-          "similarity_score": 0.4549,
-          "embedding_similarity": 0.4549,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "1.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
-          "chunk_id": "1.pdf::chunk_1",
-          "score": 0.5472,
-          "similarity_score": 0.368,
-          "embedding_similarity": 0.368,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "4.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
-          "chunk_id": "4.pdf::chunk_1",
-          "score": 0.55,
-          "similarity_score": 0.375,
-          "embedding_similarity": 0.375,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        }
-      ],
-      "simple_explanation": "Referential integrity constraints Key constraints Other constraints INTEGRITY CONSTRAINTS (CONTD.) Domain Constraint Domain constraint specifies that the values that appear in...",
-      "key_points": [
-        "Referential integrity constraints Key constraints Other constraints INTEGRITY CONSTRAINTS (CONTD.) Domain Constraint...",
-        "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
-        "users DATABASE DESIGN PROCESS There are six main phases of the process to develop a database Requirement collection...",
-        "Adding a new constraint to a column ALTER TABLE student ADD CONSTRAINT chk_age CHECK (age > 18) Ex : removing a..."
-      ],
-      "common_mistakes": [
-        "Confusing candidate key vs primary key.",
-        "Not checking referential integrity when using foreign keys."
-      ],
-      "next_action": "State one-line definition of Keys and Constraints"
-    },
-    {
-      "topic": "Entity Relationships",
-      "revision_notes": {
-        "concept_definition": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout...",
-        "definition": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout...",
-        "why_it_is_important_in_exams": [
-          "Exams often test conceptual differences in Entity Relationships.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "exam_focus": [
-          "Exams often test conceptual differences in Entity Relationships.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "key_points_to_remember": [
-          "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
-          "for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS...",
-          "ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions...",
-          "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then..."
-        ],
-        "key_points": [
-          "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
-          "for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS...",
-          "ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions...",
-          "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then..."
-        ],
-        "common_mistakes": [
-          "Memorizing terms without knowing when to apply them.",
-          "Skipping MCQ practice after revision."
-        ],
-        "mcq_patterns": [
-          "Definition vs application MCQs for Entity Relationships.",
-          "Compare two close options and eliminate by constraint/condition."
-        ],
-        "quick_revision_checklist": [
-          "State one-line definition of Entity Relationships",
-          "List 2-3 key rules/conditions",
-          "Solve at least 3 topic-focused MCQs"
-        ]
-      },
-      "source_trace": [
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_2",
-          "similarity_score": 0.4471,
-          "used_text_snippet": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout..."
-        },
-        {
-          "lecture_id": "1.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
-          "chunk_id": "1.pdf::chunk_5",
-          "similarity_score": 0.4279,
-          "used_text_snippet": "for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS There are several different \"modeling traps\" (called..."
-        },
-        {
-          "lecture_id": "1.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
-          "chunk_id": "1.pdf::chunk_2",
-          "similarity_score": 0.4058,
-          "used_text_snippet": "ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions must hold with relevance to weak entities The owner entity set..."
-        },
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_0",
-          "similarity_score": 0.4105,
-          "used_text_snippet": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen..."
-        }
-      ],
-      "retrieval_trace": [
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_2",
-          "score": 0.5788,
-          "similarity_score": 0.4471,
-          "embedding_similarity": 0.4471,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "1.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
-          "chunk_id": "1.pdf::chunk_5",
-          "score": 0.5712,
-          "similarity_score": 0.4279,
-          "embedding_similarity": 0.4279,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "1.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
-          "chunk_id": "1.pdf::chunk_2",
-          "score": 0.5623,
-          "similarity_score": 0.4058,
-          "embedding_similarity": 0.4058,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_0",
-          "score": 0.5642,
-          "similarity_score": 0.4105,
-          "embedding_similarity": 0.4105,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        }
-      ],
-      "simple_explanation": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout...",
-      "key_points": [
-        "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...",
-        "for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS...",
-        "ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions...",
-        "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then..."
-      ],
-      "common_mistakes": [
-        "Memorizing terms without knowing when to apply them.",
-        "Skipping MCQ practice after revision."
-      ],
-      "next_action": "State one-line definition of Entity Relationships"
-    },
-    {
-      "topic": "Aggregation (GROUP BY, COUNT, SUM)",
-      "revision_notes": {
-        "concept_definition": "student sub class or the faculty member sub class? Probably not. Therefore, there is no covering constraint associated with the hierarchy. Existence of a covering constraint is...",
-        "definition": "student sub class or the faculty member sub class? Probably not. Therefore, there is no covering constraint associated with the hierarchy. Existence of a covering constraint is...",
-        "why_it_is_important_in_exams": [
-          "Exams often test conceptual differences in Aggregation (GROUP BY, COUNT, SUM).",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "exam_focus": [
-          "Exams often test conceptual differences in Aggregation (GROUP BY, COUNT, SUM).",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "key_points_to_remember": [
-          "student sub class or the faculty member sub class? Probably not. Therefore, there is no covering constraint...",
-          "on a values in a given field When using group by Each item in the SELECT list must be single valued per group....",
-          "\u2018Inside the IF statement\u2019 PRINT \u2018There are lesser than 1000 employees \u2019 END ELSE PRINT \u2018There are more than 1000...",
-          "INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS Introduction to databases, DBMS and their benefits Database design..."
-        ],
-        "key_points": [
-          "student sub class or the faculty member sub class? Probably not. Therefore, there is no covering constraint...",
-          "on a values in a given field When using group by Each item in the SELECT list must be single valued per group....",
-          "\u2018Inside the IF statement\u2019 PRINT \u2018There are lesser than 1000 employees \u2019 END ELSE PRINT \u2018There are more than 1000...",
-          "INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS Introduction to databases, DBMS and their benefits Database design..."
-        ],
-        "common_mistakes": [
-          "Using columns in SELECT that are not in GROUP BY or an aggregate.",
-          "Confusing WHERE vs HAVING conditions."
-        ],
-        "mcq_patterns": [
-          "Definition vs application MCQs for Aggregation (GROUP BY, COUNT, SUM).",
-          "Compare two close options and eliminate by constraint/condition."
-        ],
-        "quick_revision_checklist": [
-          "State one-line definition of Aggregation (GROUP BY, COUNT, SUM)",
-          "List 2-3 key rules/conditions",
-          "Solve at least 3 topic-focused MCQs"
-        ]
-      },
-      "source_trace": [
         {
           "lecture_id": "1.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
           "chunk_id": "1.pdf::chunk_4",
-          "similarity_score": 0.3159,
+          "similarity_score": 0.2604,
           "used_text_snippet": "student sub class or the faculty member sub class? Probably not. Therefore, there is no covering constraint associated with the hierarchy. Existence of a covering constraint is..."
         },
         {
           "lecture_id": "4.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
           "chunk_id": "4.pdf::chunk_5",
-          "similarity_score": 0.4006,
+          "similarity_score": 0.4356,
           "used_text_snippet": "on a values in a given field When using group by Each item in the SELECT list must be single valued per group. SELECT clause may only contain Columns names, aggregate function,..."
         },
         {
-          "lecture_id": "5.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
-          "chunk_id": "5.pdf::chunk_2",
-          "similarity_score": 0.192,
-          "used_text_snippet": "\u2018Inside the IF statement\u2019 PRINT \u2018There are lesser than 1000 employees \u2019 END ELSE PRINT \u2018There are more than 1000 emloyees ! ' T SQL: WHILE STATEMENT Sets a condition for the..."
-        },
-        {
-          "lecture_id": "1.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
-          "chunk_id": "1.pdf::chunk_0",
-          "similarity_score": 0.1922,
-          "used_text_snippet": "INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS Introduction to databases, DBMS and their benefits Database design process Requirement analysis Conceptual modelling using EER..."
+          "lecture_id": "2.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
+          "chunk_id": "2.pdf::chunk_4",
+          "similarity_score": 0.3006,
+          "used_text_snippet": "NIC name age gpa salary student faculty belongs to ISA Primary key of the superclass Boolean attributes becomes primary key of the relation. This relation allows overlapping..."
         }
       ],
       "retrieval_trace": [
         {
+          "lecture_id": "4.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
+          "chunk_id": "4.pdf::chunk_4",
+          "score": 0.4323,
+          "similarity_score": 0.1738,
+          "embedding_similarity": 0.1738,
+          "weak_topic_relevance": 0.725
+        },
+        {
           "lecture_id": "1.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
           "chunk_id": "1.pdf::chunk_4",
-          "score": 0.5944,
-          "similarity_score": 0.3159,
-          "embedding_similarity": 0.3159,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
+          "score": 0.3269,
+          "similarity_score": 0.2604,
+          "embedding_similarity": 0.2604,
+          "weak_topic_relevance": 0.3875
         },
         {
           "lecture_id": "4.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
           "chunk_id": "4.pdf::chunk_5",
-          "score": 0.5602,
-          "similarity_score": 0.4006,
-          "embedding_similarity": 0.4006,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
+          "score": 0.3212,
+          "similarity_score": 0.4356,
+          "embedding_similarity": 0.4356,
+          "weak_topic_relevance": 0.3375
         },
         {
-          "lecture_id": "5.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
-          "chunk_id": "5.pdf::chunk_2",
-          "score": 0.4768,
-          "similarity_score": 0.192,
-          "embedding_similarity": 0.192,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
+          "lecture_id": "2.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
+          "chunk_id": "2.pdf::chunk_4",
+          "score": 0.308,
+          "similarity_score": 0.3006,
+          "embedding_similarity": 0.3006,
+          "weak_topic_relevance": 0.3875
+        }
+      ]
+    },
+    {
+      "topic": "Relational Algebra",
+      "simple_explanation": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen...",
+      "key_points": [
+        "X YZ, then X Y and X Z COMPUTING KEYS USING AMSTRONG AXIOMS (CONTD.) Consider a relation R (A, B, C, D), with the...",
+        "to be part of the formal definition of a relation in the relational model since it allows only atomic values and...",
+        "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?..."
+      ],
+      "common_mistakes": [],
+      "next_action": "Reread the retrieved lecture extracts for Relational Algebra, then verify you can explain them in your own words.",
+      "source_trace": [
+        {
+          "lecture_id": "2.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
+          "chunk_id": "2.pdf::chunk_0",
+          "similarity_score": 0.4979,
+          "used_text_snippet": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen..."
         },
         {
-          "lecture_id": "1.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
-          "chunk_id": "1.pdf::chunk_0",
-          "score": 0.4769,
-          "similarity_score": 0.1922,
-          "embedding_similarity": 0.1922,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
+          "lecture_id": "3.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- SCHEMA REFINEMENT",
+          "chunk_id": "3.pdf::chunk_3",
+          "similarity_score": 0.4869,
+          "used_text_snippet": "X YZ, then X Y and X Z COMPUTING KEYS USING AMSTRONG AXIOMS (CONTD.) Consider a relation R (A, B, C, D), with the following set of functional dependencies over R: F = { A \u2192 B,..."
+        },
+        {
+          "lecture_id": "3.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- SCHEMA REFINEMENT",
+          "chunk_id": "3.pdf::chunk_4",
+          "similarity_score": 0.4363,
+          "used_text_snippet": "to be part of the formal definition of a relation in the relational model since it allows only atomic values and disallows multivalued attributes and composite attributes. 2ND..."
+        },
+        {
+          "lecture_id": "2.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
+          "chunk_id": "2.pdf::chunk_2",
+          "similarity_score": 0.4185,
+          "used_text_snippet": "Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout..."
         }
       ],
-      "simple_explanation": "student sub class or the faculty member sub class? Probably not. Therefore, there is no covering constraint associated with the hierarchy. Existence of a covering constraint is...",
-      "key_points": [
-        "student sub class or the faculty member sub class? Probably not. Therefore, there is no covering constraint...",
-        "on a values in a given field When using group by Each item in the SELECT list must be single valued per group....",
-        "\u2018Inside the IF statement\u2019 PRINT \u2018There are lesser than 1000 employees \u2019 END ELSE PRINT \u2018There are more than 1000...",
-        "INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS Introduction to databases, DBMS and their benefits Database design..."
-      ],
-      "common_mistakes": [
-        "Using columns in SELECT that are not in GROUP BY or an aggregate.",
-        "Confusing WHERE vs HAVING conditions."
-      ],
-      "next_action": "State one-line definition of Aggregation (GROUP BY, COUNT, SUM)"
+      "retrieval_trace": [
+        {
+          "lecture_id": "2.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
+          "chunk_id": "2.pdf::chunk_0",
+          "score": 0.2867,
+          "similarity_score": 0.4979,
+          "embedding_similarity": 0.4979,
+          "weak_topic_relevance": 0.225
+        },
+        {
+          "lecture_id": "3.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- SCHEMA REFINEMENT",
+          "chunk_id": "3.pdf::chunk_3",
+          "score": 0.2829,
+          "similarity_score": 0.4869,
+          "embedding_similarity": 0.4869,
+          "weak_topic_relevance": 0.225
+        },
+        {
+          "lecture_id": "3.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- SCHEMA REFINEMENT",
+          "chunk_id": "3.pdf::chunk_4",
+          "score": 0.2652,
+          "similarity_score": 0.4363,
+          "embedding_similarity": 0.4363,
+          "weak_topic_relevance": 0.225
+        },
+        {
+          "lecture_id": "2.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
+          "chunk_id": "2.pdf::chunk_2",
+          "score": 0.259,
+          "similarity_score": 0.4185,
+          "embedding_similarity": 0.4185,
+          "weak_topic_relevance": 0.225
+        }
+      ]
     },
     {
       "topic": "Database Access",
-      "revision_notes": {
-        "concept_definition": "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to ensure privacy and to control access to data that must not be...",
-        "definition": "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to ensure privacy and to control access to data that must not be...",
-        "why_it_is_important_in_exams": [
-          "Exams often test conceptual differences in Database Access.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "exam_focus": [
-          "Exams often test conceptual differences in Database Access.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "key_points_to_remember": [
-          "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to...",
-          "INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS Introduction to databases, DBMS and their benefits Database design...",
-          "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...",
-          "given permission to access the database only through a small set of views that contain the specific data the user is..."
-        ],
-        "key_points": [
-          "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to...",
-          "INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS Introduction to databases, DBMS and their benefits Database design...",
-          "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...",
-          "given permission to access the database only through a small set of views that contain the specific data the user is..."
-        ],
-        "common_mistakes": [
-          "Memorizing terms without knowing when to apply them.",
-          "Skipping MCQ practice after revision."
-        ],
-        "mcq_patterns": [
-          "Definition vs application MCQs for Database Access.",
-          "Compare two close options and eliminate by constraint/condition."
-        ],
-        "quick_revision_checklist": [
-          "State one-line definition of Database Access",
-          "List 2-3 key rules/conditions",
-          "Solve at least 3 topic-focused MCQs"
-        ]
-      },
+      "simple_explanation": "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to ensure privacy and to control access to data that must not be...",
+      "key_points": [
+        "A privilege allows a user to access some data object in a certain manner (e.g., to read or to modify). A user who...",
+        "given permission to access the database only through a small set of views that contain the specific data the user is...",
+        "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then..."
+      ],
+      "common_mistakes": [],
+      "next_action": "Reread the retrieved lecture extracts for Database Access, then verify you can explain them in your own words.",
       "source_trace": [
         {
           "lecture_id": "8.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
           "chunk_id": "8.pdf::chunk_0",
-          "similarity_score": 0.5803,
+          "similarity_score": 0.672,
           "used_text_snippet": "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to ensure privacy and to control access to data that must not be..."
         },
+        {
+          "lecture_id": "8.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
+          "chunk_id": "8.pdf::chunk_1",
+          "similarity_score": 0.5663,
+          "used_text_snippet": "A privilege allows a user to access some data object in a certain manner (e.g., to read or to modify). A user who creates a database object such as a table or a view..."
+        },
+        {
+          "lecture_id": "5.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
+          "chunk_id": "5.pdf::chunk_1",
+          "similarity_score": 0.4454,
+          "used_text_snippet": "given permission to access the database only through a small set of views that contain the specific data the user is authorized to see, thus restricting the user's access to..."
+        },
+        {
+          "lecture_id": "2.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
+          "chunk_id": "2.pdf::chunk_0",
+          "similarity_score": 0.4684,
+          "used_text_snippet": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen..."
+        }
+      ],
+      "retrieval_trace": [
+        {
+          "lecture_id": "8.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
+          "chunk_id": "8.pdf::chunk_0",
+          "score": 0.538,
+          "similarity_score": 0.672,
+          "embedding_similarity": 0.672,
+          "weak_topic_relevance": 0.5875
+        },
+        {
+          "lecture_id": "8.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
+          "chunk_id": "8.pdf::chunk_1",
+          "score": 0.4232,
+          "similarity_score": 0.5663,
+          "embedding_similarity": 0.5663,
+          "weak_topic_relevance": 0.45
+        },
+        {
+          "lecture_id": "5.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
+          "chunk_id": "5.pdf::chunk_1",
+          "score": 0.3809,
+          "similarity_score": 0.4454,
+          "embedding_similarity": 0.4454,
+          "weak_topic_relevance": 0.45
+        },
+        {
+          "lecture_id": "2.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
+          "chunk_id": "2.pdf::chunk_0",
+          "score": 0.2854,
+          "similarity_score": 0.4684,
+          "embedding_similarity": 0.4684,
+          "weak_topic_relevance": 0.225
+        }
+      ]
+    },
+    {
+      "topic": "Storage And File Organization",
+      "simple_explanation": "INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS Introduction to databases, DBMS and their benefits Database design process Requirement analysis Conceptual modelling using EER...",
+      "key_points": [
+        "SQL Introduction to SQL Data definition language Data manipulation language At the end of this lecture students...",
+        "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to...",
+        "name attribute of student table because if we know the student id we can tell the student name associated with it...."
+      ],
+      "common_mistakes": [],
+      "next_action": "Reread the retrieved lecture extracts for Storage And File Organization, then verify you can explain them in your own words.",
+      "source_trace": [
         {
           "lecture_id": "1.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
           "chunk_id": "1.pdf::chunk_0",
-          "similarity_score": 0.5341,
+          "similarity_score": 0.4664,
           "used_text_snippet": "INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS Introduction to databases, DBMS and their benefits Database design process Requirement analysis Conceptual modelling using EER..."
         },
         {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_0",
-          "similarity_score": 0.5325,
-          "used_text_snippet": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen..."
+          "lecture_id": "4.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
+          "chunk_id": "4.pdf::chunk_0",
+          "similarity_score": 0.2578,
+          "used_text_snippet": "SQL Introduction to SQL Data definition language Data manipulation language At the end of this lecture students should be able to Write syntactically correct SQL statements to..."
         },
-        {
-          "lecture_id": "5.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
-          "chunk_id": "5.pdf::chunk_1",
-          "similarity_score": 0.482,
-          "used_text_snippet": "given permission to access the database only through a small set of views that contain the specific data the user is authorized to see, thus restricting the user's access to..."
-        }
-      ],
-      "retrieval_trace": [
         {
           "lecture_id": "8.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
           "chunk_id": "8.pdf::chunk_0",
-          "score": 0.6321,
-          "similarity_score": 0.5803,
-          "embedding_similarity": 0.5803,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
+          "similarity_score": 0.2956,
+          "used_text_snippet": "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to ensure privacy and to control access to data that must not be..."
         },
+        {
+          "lecture_id": "3.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- SCHEMA REFINEMENT",
+          "chunk_id": "3.pdf::chunk_2",
+          "similarity_score": 0.2505,
+          "used_text_snippet": "name attribute of student table because if we know the student id we can tell the student name associated with it. This is known as functional dependency and can be written as..."
+        }
+      ],
+      "retrieval_trace": [
         {
           "lecture_id": "1.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 01- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS",
           "chunk_id": "1.pdf::chunk_0",
-          "score": 0.6257,
-          "similarity_score": 0.5341,
-          "embedding_similarity": 0.5341,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_0",
-          "score": 0.625,
-          "similarity_score": 0.5325,
-          "embedding_similarity": 0.5325,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        },
-        {
-          "lecture_id": "5.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
-          "chunk_id": "5.pdf::chunk_1",
-          "score": 0.5928,
-          "similarity_score": 0.482,
-          "embedding_similarity": 0.482,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 1.0
-        }
-      ],
-      "simple_explanation": "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to ensure privacy and to control access to data that must not be...",
-      "key_points": [
-        "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to...",
-        "INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS Introduction to databases, DBMS and their benefits Database design...",
-        "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...",
-        "given permission to access the database only through a small set of views that contain the specific data the user is..."
-      ],
-      "common_mistakes": [
-        "Memorizing terms without knowing when to apply them.",
-        "Skipping MCQ practice after revision."
-      ],
-      "next_action": "State one-line definition of Database Access"
-    },
-    {
-      "topic": "JDBC / Database Connectivity",
-      "revision_notes": {
-        "concept_definition": "JAVA DATABASE CONNECTIVITY JDBC . Even though SQL was standardized, still different applications was needed to be developed to access different DBMSs. A common way for an...",
-        "definition": "JAVA DATABASE CONNECTIVITY JDBC . Even though SQL was standardized, still different applications was needed to be developed to access different DBMSs. A common way for an...",
-        "why_it_is_important_in_exams": [
-          "Exams often test conceptual differences in JDBC / Database Connectivity.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "exam_focus": [
-          "Exams often test conceptual differences in JDBC / Database Connectivity.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "key_points_to_remember": [
-          "JAVA DATABASE CONNECTIVITY JDBC . Even though SQL was standardized, still different applications was needed to be...",
-          "These drivers are typically provided by the database vendors and used in the same manner as the JDBC ODBC Bridge....",
-          "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...",
-          "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to..."
-        ],
-        "key_points": [
-          "JAVA DATABASE CONNECTIVITY JDBC . Even though SQL was standardized, still different applications was needed to be...",
-          "These drivers are typically provided by the database vendors and used in the same manner as the JDBC ODBC Bridge....",
-          "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...",
-          "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to..."
-        ],
-        "common_mistakes": [
-          "Forgetting to load/register the driver or connection string details.",
-          "Not closing ResultSet/Statement/Connection properly."
-        ],
-        "mcq_patterns": [
-          "Definition vs application MCQs for JDBC / Database Connectivity.",
-          "Compare two close options and eliminate by constraint/condition."
-        ],
-        "quick_revision_checklist": [
-          "State one-line definition of JDBC / Database Connectivity",
-          "List 2-3 key rules/conditions",
-          "Solve at least 3 topic-focused MCQs"
-        ]
-      },
-      "source_trace": [
-        {
-          "lecture_id": "6.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 06 \u2013 JAVA DATABASE CONNECTIVITY",
-          "chunk_id": "6.pdf::chunk_0",
-          "similarity_score": 0.7335,
-          "used_text_snippet": "JAVA DATABASE CONNECTIVITY JDBC . Even though SQL was standardized, still different applications was needed to be developed to access different DBMSs. A common way for an..."
-        },
-        {
-          "lecture_id": "6.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 06 \u2013 JAVA DATABASE CONNECTIVITY",
-          "chunk_id": "6.pdf::chunk_1",
-          "similarity_score": 0.5664,
-          "used_text_snippet": "These drivers are typically provided by the database vendors and used in the same manner as the JDBC ODBC Bridge. The vendor specific driver must be installed on each client..."
-        },
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_0",
-          "similarity_score": 0.4891,
-          "used_text_snippet": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen..."
-        },
-        {
-          "lecture_id": "8.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
-          "chunk_id": "8.pdf::chunk_0",
-          "similarity_score": 0.4874,
-          "used_text_snippet": "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to ensure privacy and to control access to data that must not be..."
-        }
-      ],
-      "retrieval_trace": [
-        {
-          "lecture_id": "6.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 06 \u2013 JAVA DATABASE CONNECTIVITY",
-          "chunk_id": "6.pdf::chunk_0",
-          "score": 0.6834,
-          "similarity_score": 0.7335,
-          "embedding_similarity": 0.7335,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 0.9
-        },
-        {
-          "lecture_id": "6.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 06 \u2013 JAVA DATABASE CONNECTIVITY",
-          "chunk_id": "6.pdf::chunk_1",
-          "score": 0.6166,
-          "similarity_score": 0.5664,
-          "embedding_similarity": 0.5664,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 0.9
-        },
-        {
-          "lecture_id": "2.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
-          "chunk_id": "2.pdf::chunk_0",
-          "score": 0.5976,
-          "similarity_score": 0.4891,
-          "embedding_similarity": 0.4891,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 0.9
-        },
-        {
-          "lecture_id": "8.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
-          "chunk_id": "8.pdf::chunk_0",
-          "score": 0.5849,
-          "similarity_score": 0.4874,
-          "embedding_similarity": 0.4874,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 0.9
-        }
-      ],
-      "simple_explanation": "JAVA DATABASE CONNECTIVITY JDBC . Even though SQL was standardized, still different applications was needed to be developed to access different DBMSs. A common way for an...",
-      "key_points": [
-        "JAVA DATABASE CONNECTIVITY JDBC . Even though SQL was standardized, still different applications was needed to be...",
-        "These drivers are typically provided by the database vendors and used in the same manner as the JDBC ODBC Bridge....",
-        "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...",
-        "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to..."
-      ],
-      "common_mistakes": [
-        "Forgetting to load/register the driver or connection string details.",
-        "Not closing ResultSet/Statement/Connection properly."
-      ],
-      "next_action": "State one-line definition of JDBC / Database Connectivity"
-    },
-    {
-      "topic": "Sql Queries",
-      "revision_notes": {
-        "concept_definition": "given permission to access the database only through a small set of views that contain the specific data the user is authorized to see, thus restricting the user's access to...",
-        "definition": "given permission to access the database only through a small set of views that contain the specific data the user is authorized to see, thus restricting the user's access to...",
-        "why_it_is_important_in_exams": [
-          "Exams often test conceptual differences in Sql Queries.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "exam_focus": [
-          "Exams often test conceptual differences in Sql Queries.",
-          "Focus on scenario based interpretation, not memorization."
-        ],
-        "key_points_to_remember": [
-          "given permission to access the database only through a small set of views that contain the specific data the user is...",
-          "IT200 C From Student s Where EXISTS ( Select * Name Amal from grades g Nimali Where g.SID=s.SID and g.Grade=\u2018A\u2019)...",
-          "is executed instead of the triggering SQL statement, thus overriding the actions of the triggering statements....",
-          "SQL Introduction to SQL Data definition language Data manipulation language At the end of this lecture students..."
-        ],
-        "key_points": [
-          "given permission to access the database only through a small set of views that contain the specific data the user is...",
-          "IT200 C From Student s Where EXISTS ( Select * Name Amal from grades g Nimali Where g.SID=s.SID and g.Grade=\u2018A\u2019)...",
-          "is executed instead of the triggering SQL statement, thus overriding the actions of the triggering statements....",
-          "SQL Introduction to SQL Data definition language Data manipulation language At the end of this lecture students..."
-        ],
-        "common_mistakes": [
-          "Memorizing terms without knowing when to apply them.",
-          "Skipping MCQ practice after revision."
-        ],
-        "mcq_patterns": [
-          "Definition vs application MCQs for Sql Queries.",
-          "Compare two close options and eliminate by constraint/condition."
-        ],
-        "quick_revision_checklist": [
-          "State one-line definition of Sql Queries",
-          "List 2-3 key rules/conditions",
-          "Solve at least 3 topic-focused MCQs"
-        ]
-      },
-      "source_trace": [
-        {
-          "lecture_id": "5.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
-          "chunk_id": "5.pdf::chunk_1",
-          "similarity_score": 0.4571,
-          "used_text_snippet": "given permission to access the database only through a small set of views that contain the specific data the user is authorized to see, thus restricting the user's access to..."
-        },
-        {
-          "lecture_id": "4.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
-          "chunk_id": "4.pdf::chunk_4",
-          "similarity_score": 0.4406,
-          "used_text_snippet": "IT200 C From Student s Where EXISTS ( Select * Name Amal from grades g Nimali Where g.SID=s.SID and g.Grade=\u2018A\u2019) COMPARISON OPERATORS WITH SOME, ANY & ALL Comparison operators..."
-        },
-        {
-          "lecture_id": "5.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
-          "chunk_id": "5.pdf::chunk_4",
-          "similarity_score": 0.3757,
-          "used_text_snippet": "is executed instead of the triggering SQL statement, thus overriding the actions of the triggering statements. Specifies At most, one INSTEAD OF trigger per INSERT, UPDATE, or..."
+          "score": 0.2757,
+          "similarity_score": 0.4664,
+          "embedding_similarity": 0.4664,
+          "weak_topic_relevance": 0.225
         },
         {
           "lecture_id": "4.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
           "chunk_id": "4.pdf::chunk_0",
-          "similarity_score": 0.4163,
-          "used_text_snippet": "SQL Introduction to SQL Data definition language Data manipulation language At the end of this lecture students should be able to Write syntactically correct SQL statements to..."
+          "score": 0.2027,
+          "similarity_score": 0.2578,
+          "embedding_similarity": 0.2578,
+          "weak_topic_relevance": 0.225
+        },
+        {
+          "lecture_id": "8.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
+          "chunk_id": "8.pdf::chunk_0",
+          "score": 0.1597,
+          "similarity_score": 0.2956,
+          "embedding_similarity": 0.2956,
+          "weak_topic_relevance": 0.1125
+        },
+        {
+          "lecture_id": "3.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- SCHEMA REFINEMENT",
+          "chunk_id": "3.pdf::chunk_2",
+          "score": 0.1439,
+          "similarity_score": 0.2505,
+          "embedding_similarity": 0.2505,
+          "weak_topic_relevance": 0.1125
+        }
+      ]
+    },
+    {
+      "topic": "Job",
+      "simple_explanation": "by a variety of failures. TYPES OF BACKUPS Full Backups : Full database backup takes a copy of the entire database including the part of the transaction log file. Differential...",
+      "key_points": [
+        "DATABASE UTILITIES Transferring data between different sources Backup and restore of data Jobs and job schedules..."
+      ],
+      "common_mistakes": [],
+      "next_action": "Reread the retrieved lecture extracts for Job, then verify you can explain them in your own words.",
+      "source_trace": [
+        {
+          "lecture_id": "7.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 07 \u2013 DATABASE UTILITIES",
+          "chunk_id": "7.pdf::chunk_3",
+          "similarity_score": 0.1474,
+          "used_text_snippet": "by a variety of failures. TYPES OF BACKUPS Full Backups : Full database backup takes a copy of the entire database including the part of the transaction log file. Differential..."
+        },
+        {
+          "lecture_id": "7.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 07 \u2013 DATABASE UTILITIES",
+          "chunk_id": "7.pdf::chunk_0",
+          "similarity_score": 0.0589,
+          "used_text_snippet": "DATABASE UTILITIES Transferring data between different sources Backup and restore of data Jobs and job schedules Database maintenance plans . SQL server provides many types of..."
         }
       ],
       "retrieval_trace": [
         {
-          "lecture_id": "5.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
-          "chunk_id": "5.pdf::chunk_1",
-          "score": 0.4928,
-          "similarity_score": 0.4571,
-          "embedding_similarity": 0.4571,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 0.1
+          "lecture_id": "7.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 07 \u2013 DATABASE UTILITIES",
+          "chunk_id": "7.pdf::chunk_3",
+          "score": 0.5516,
+          "similarity_score": 0.1474,
+          "embedding_similarity": 0.1474,
+          "weak_topic_relevance": 1.0
         },
         {
-          "lecture_id": "4.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
-          "chunk_id": "4.pdf::chunk_4",
-          "score": 0.4862,
-          "similarity_score": 0.4406,
-          "embedding_similarity": 0.4406,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 0.1
-        },
-        {
-          "lecture_id": "5.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
-          "chunk_id": "5.pdf::chunk_4",
-          "score": 0.4603,
-          "similarity_score": 0.3757,
-          "embedding_similarity": 0.3757,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 0.1
-        },
-        {
-          "lecture_id": "4.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT2040) LECTURE 04 - SQL",
-          "chunk_id": "4.pdf::chunk_0",
-          "score": 0.4765,
-          "similarity_score": 0.4163,
-          "embedding_similarity": 0.4163,
-          "weak_topic_importance": 1.0,
-          "student_history_gap": 0.1
+          "lecture_id": "7.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 07 \u2013 DATABASE UTILITIES",
+          "chunk_id": "7.pdf::chunk_0",
+          "score": 0.5206,
+          "similarity_score": 0.0589,
+          "embedding_similarity": 0.0589,
+          "weak_topic_relevance": 1.0
         }
-      ],
-      "simple_explanation": "given permission to access the database only through a small set of views that contain the specific data the user is authorized to see, thus restricting the user's access to...",
-      "key_points": [
-        "given permission to access the database only through a small set of views that contain the specific data the user is...",
-        "IT200 C From Student s Where EXISTS ( Select * Name Amal from grades g Nimali Where g.SID=s.SID and g.Grade=\u2018A\u2019)...",
-        "is executed instead of the triggering SQL statement, thus overriding the actions of the triggering statements....",
-        "SQL Introduction to SQL Data definition language Data manipulation language At the end of this lecture students..."
-      ],
-      "common_mistakes": [
-        "Memorizing terms without knowing when to apply them.",
-        "Skipping MCQ practice after revision."
-      ],
-      "next_action": "State one-line definition of Sql Queries"
+      ]
     }
   ]
 }

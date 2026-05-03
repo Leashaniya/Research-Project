@@ -17,8 +17,13 @@ async def upload_lecture_slide(file: UploadFile):
             detail="Only PDF format is allowed for lecture slides. Please upload a .pdf file."
         )
 
+    # Ensure the directory for storing files exists.
     os.makedirs(SLIDES_DIR, exist_ok=True)
+
+    # Define the path where the file will be saved.
     saved_path = os.path.join(str(SLIDES_DIR), file.filename)
+
+    # Save the uploaded file to the specified path.
     with open(saved_path, "wb") as f:
         f.write(await file.read())
 

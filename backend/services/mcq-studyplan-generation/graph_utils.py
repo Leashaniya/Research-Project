@@ -8,6 +8,7 @@ import base64
 import html as html_module
 from datetime import datetime, timezone
 import numpy as np
+import pandas as pd
 
 from analysis_utils import classify_quiz_accuracy_band
 from topic_labels import clean_topic_display_name
@@ -608,23 +609,6 @@ def _inject_mcq_click_panel(html_path: str, mcq_click_data: dict, intro_html: st
                           lines.push("<p style='margin:0;color:#334155;line-height:1.5;'>" + esc(d.lecture_source) + "</p>");
                           lines.push("</div>");
                         }
-                        if (d.graph_reasoning && d.graph_reasoning.length) {
-                          lines.push("<div style='margin:0 0 14px;'>");
-                          lines.push("<p style='margin:0 0 8px;color:#475569;font-size:12px;font-weight:700;text-transform:uppercase;'>Why this was selected</p>");
-                          lines.push("<ul style='margin:0 0 0 18px;padding:0;color:#334155;line-height:1.5;'>");
-                          for (var i = 0; i < d.graph_reasoning.length; i++) {
-                            lines.push("<li>" + esc(d.graph_reasoning[i]) + "</li>");
-                          }
-                          lines.push("</ul>");
-                          lines.push("</div>");
-                        }
-                        lines.push("<div style='margin-top:18px;padding:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;'>");
-                        lines.push("<p style='margin:0 0 6px;color:#475569;font-size:12px;font-weight:700;text-transform:uppercase;'>Next step</p>");
-                        lines.push("<p style='margin:0 0 10px;color:#0f172a;font-weight:600;'>" + esc(d.kind === "mcq" ? "Practice this question, then review the weak topic again." : "Revise this concept and then attempt linked practice MCQs.") + "</p>");
-                        if (d.kind === "mcq") {
-                          lines.push("<button type='button' style='border:none;background:#2563eb;color:#fff;padding:8px 12px;border-radius:8px;font-weight:700;cursor:pointer;'>Attempt this Question</button>");
-                        }
-                        lines.push("</div>");
                         body.innerHTML = lines.join("");
                         if (overlay) overlay.style.display = "block";
                         panel.style.display = "block";
@@ -666,6 +650,9 @@ def build_pyvis_graph(
     Full retrieval scores still saved to graphrag_recommendations.json.
     """
     from pyvis.network import Network
+
+    if isinstance(mcq_data, pd.DataFrame) and mcq_data.columns.duplicated(keep="first").any():
+        mcq_data = mcq_data.loc[:, ~mcq_data.columns.duplicated(keep="first")].copy()
 
     sims_arr = np.asarray(sims) if sims is not None else np.array([])
 
@@ -830,9 +817,11 @@ def build_pyvis_graph(
                 x_pos = -20
                 y_pos = -220 + (related_idx * 90)
                 related_idx += 1
+            # Legend already indicates weak/related; show topic title only on the node.
+            node_display_label = shorten(topic_name or kind_label, 42)
             net.add_node(
                 tid,
-                label=shorten(kind_label, 42),
+                label=node_display_label,
                 title=tooltip,
                 shape="ellipse",
                 size=node_size,
@@ -918,7 +907,6 @@ def build_pyvis_graph(
             topic_id,
             qid,
             title="Practice this question for this topic",
-            label="practice recommendation",
             color="#93c5fd",
             width=2.5,
             arrows="to",
@@ -1055,7 +1043,6 @@ def build_pyvis_graph(
                 w_tid,
                 qid,
                 title="Practice this question for weak topic",
-                label="practice recommendation",
                 color="#93c5fd",
                 width=2.5,
                 arrows="to",

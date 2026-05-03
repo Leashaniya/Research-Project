@@ -1,10 +1,16 @@
 {
-  "generated_at": "2026-05-03 16:01:51",
+  "generated_at": "2026-05-01 22:25:27",
   "mode": "AGENTIC_V1",
-  "num_questions": 1,
+  "num_questions": 6,
   "topic_distribution": {
     "Q1": {
       "topic": "ER_EER_MODELING"
+    },
+    "Q2": {
+      "topic": "NORMALIZATION_FD_KEYS"
+    },
+    "Q3": {
+      "topic": "SQL_DDL_DML"
     }
   },
   "questions": [
@@ -24,14 +30,98 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69f7710e5ec588e0c72866b2",
-      "original_semantic_description": "Consider a library management system that tracks books, authors, patrons, and loans. The 'Book' entity has attributes: BookID, Title, ISBN, and Genre. The 'Author' entity includes AuthorID, Name, and Nationality. Each book can have multiple authors, resulting in a many-to-many relationship between 'Book' and 'Author'. The 'Patron' entity has PatronID, Name, and MembershipDate. Patrons can check out multiple books, but each loan is associated with only one book and one patron, which forms a one-to-many relationship from 'Patron' to 'Loan'. The 'Loan' entity has attributes: LoanID and LoanDate. Additionally, introduce an ISA hierarchy where the 'Patron' can be classified into 'StudentPatron' with an attribute: SchoolName, and 'AdultPatron' with an attribute: EmploymentStatus.",
-      "diagram_image_path": "C:\\Users\\leasha\\Desktop\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
+      "template_id": "69f4da2fcf9ea7763a8a6dbd",
+      "original_semantic_description": "A library management system is designed to keep track of various entities involved in the library's operations. The primary entities are 'Book', 'Member', 'Loan', and 'Staff'. The 'Book' entity consists of attributes such as ISBN, Title, Author, and Genre. The 'Member' entity has MemberID, Name, ContactNumber, and Address. The 'Loan' entity tracks the loans made and includes attributes like LoanID, LoanDate, and ReturnDate. The 'Staff' entity contains StaffID, Name, and Position. The relationship between 'Member' and 'Loan' is one-to-many, indicating that a member can have multiple loans over time. Moreover, 'Staff' is responsible for managing 'Book' entries, which establishes a one-to-many relationship where each staff member can manage multiple books, while also having a composite attribute of Address with Street, City, and ZipCode.",
+      "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
       "diagram_source": "semantic_description",
       "topic_label": "ER_EER_MODELING"
+    },
+    {
+      "question_no": "Q2",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, C->D, CD->E, B->A, E->B}}. In this scenario, each attribute has a specific role in a logistics management system where A represents the ShipmentID, B is the CarrierID, C is the Destination, D is the DepartureDate, and E is the DeliveryDate. You are required to analyze this relation for normalization.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Find all the keys in relation R using the attribute closure method."
+        },
+        {
+          "label": "b",
+          "text": "Is R in 3NF? Give reasons for your conclusion."
+        },
+        {
+          "label": "c",
+          "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations."
+        }
+      ],
+      "pattern_label": "NORMALIZATION_FD_KEYS",
+      "main_topic": "NORMALIZATION_FD_KEYS",
+      "intent": "NORMALIZATION_FD_KEYS",
+      "template_id": "69f737aad80542684bc06778",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": false,
+      "topic_label": "NORMALIZATION_FD_KEYS"
+    },
+    {
+      "question_no": "Q3",
+      "text": "A healthcare organization is designing a comprehensive database system to manage patient information, appointments, and medical records. The system consists of various entities, including Patients, Appointments, and Medical_Records. Each patient has a unique Patient_ID, personal details, and a medical history linked to their records. The database will support functionalities such as scheduling appointments and maintaining records of medical treatments administered. Different roles are assigned to various team members for database management and access control. Jenna is the chief database administrator responsible for overseeing the entire database system's architecture and management. Liam and Zoe are junior database administrators working under Jenna's guidance, responsible for different modules like patients and records. Ethan is a database developer under Liam and Zoe, tasked with building and modifying the database schema. Natalie and Oliver are data entry operators responsible for inputting patient information and updating medical records in the system.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Write SQL queries to in the context of jdbc, the code segment provided utilizes a type 4 driver for database connectivity. accept or refute the above statement justifying your answer."
+        },
+        {
+          "label": "b",
+          "text": "String sql = \"SELECT * FROM employees WHERE department = ?\";\nPreparedStatement pstmt = connection.prepareStatement(sql);\npstmt.setString(1, \"IT\");\nResultSet rs = pstmt.executeQuery();\n\nThere are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used."
+        },
+        {
+          "label": "c",
+          "text": "Briefly explain the options available for transferring data between different sources, such as between tables and external data files in the database system."
+        },
+        {
+          "label": "d",
+          "text": "Briefly explain how authentication and authorization are achieved in a SQL Server environment."
+        },
+        {
+          "label": "e",
+          "text": "A hospital is establishing role-based access control for its database system that manages Patients, Doctors, and Appointments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Appointments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating patient appointment data.",
+          "subquestions": [
+            {
+              "label": "i",
+              "text": "i. Write a T-SQL statement to create a login to Sarah with windows authentication."
+            },
+            {
+              "label": "ii",
+              "text": "ii. Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role."
+            },
+            {
+              "label": "iii",
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Loans database using a user-defined server role."
+            },
+            {
+              "label": "iv",
+              "text": "iv. Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases."
+            },
+            {
+              "label": "v",
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Members and Loans databases."
+            }
+          ]
+        }
+      ],
+      "pattern_label": "SQL_DDL_DML",
+      "main_topic": "SQL_DDL_DML",
+      "intent": "SQL_DDL_DML",
+      "template_id": "69f737aad80542684bc06779",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": false,
+      "topic_label": "SQL_DDL_DML"
     }
   ]
 }
