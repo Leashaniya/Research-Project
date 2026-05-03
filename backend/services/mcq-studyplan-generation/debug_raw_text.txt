@@ -1,33 +1,25 @@
 DATABASE MANAGEMENT SYSTEMS (IT 2040) Question 1
-What are the three main objectives of database security? • A) Confidentiality, Integrity, Authentication • B) Secrecy, Integrity, Availability • C) Privacy, Security, Accessibility • D) Authorization, Authentication, Auditing Answer: B Question 2
-Which security objective ensures that information should not be disclosed to unauthorized users? • A) Integrity • B) Availability • C) Secrecy • D) Authentication Answer: C Question 3
-Which security objective ensures that only authorized users can modify data? • A) Secrecy • B) Integrity • C) Availability • D) Confidentiality Answer: B Question 4
-Which security objective ensures that authorized users are not denied access? • A) Secrecy • B) Integrity • C) Availability
-• D) Reliability Answer: C Question 5
-What is a security policy? • A) A backup strategy • B) A document specifying who is authorized to do what • C) A database design document • D) A disaster recovery plan Answer: B Question 6
-What are the two main access control mechanisms in DBMS? • A) User control and Admin control • B) Discretionary access control and Mandatory access control • C) Role-based and Permission-based control • D) Public and Private access control Answer: B Question 7
-What is Discretionary Access Control (DAC) based on? • A) User roles only • B) Security clearance levels • C) Access rights or privileges • D) Time-based access Answer: C Question 8
-What is authentication in SQL Server security? • A) Granting permissions to users • B) Verifying the identities of users trying to connect C) Creating user accounts • •
-Answer: B D) Monitoring user activities Question 9
-What is authorization in SQL Server? • A) Creating user logins • B) Verifying user identity • C) Determining which resources authorized users can access and what actions they can take • D) Encrypting data Answer: C Question 10
-What are Principals in SQL Server security? • A) Database objects like tables • B) Individuals, groups, or processes granted access to SQL Server • C) Types of permissions • D) Server configurations Answer: B Question 11
-What are server-level principals? • A) Database users and roles • B) Tables and views • C) Logins and server roles • D) Stored procedures Answer: C Question 12
-What are database-level principals? • A) Logins and server roles • B) Users and database roles • C) Tables and views • D) Schemas and catalogs
-Answer: B Question 13
-What are Securables in SQL Server? • A) Users and logins • B) Objects that make up the server and database environment • C) Permissions granted to users • D) Authentication methods Answer: B Question 14
-What are the three hierarchical levels of securables? • A) User, Group, Admin • B) Read, Write, Execute • C) Server, Database, Schema • D) Public, Private, Protected Answer: C Question 15
-What are Permissions in SQL Server? • A) User accounts • B) Types of access permitted to principals on specific securables • C) Database objects • D) Server configurations Answer: B Question 16
-What is a Login in SQL Server? • A) A database-level user account • •
-Answer: B • B) A server-level individual user account for logging into SQL Server instance C) A permission type D) A database object Question 17
-How many authentication modes does SQL Server support? • A) 1 • B) 2 • C) 3 • D) 4 Answer: B Question 18
-Which authentication mode uses Windows user or group accounts? • A) SQL Server Authentication • B) Windows Authentication • C) Mixed Authentication • D) Certificate Authentication Answer: B Question 19
-What is the syntax to create a Windows Authentication login? • A) CREATE LOGIN [username] FROM WINDOWS • B) CREATE LOGIN [username] WITH PASSWORD • C) CREATE WINDOWS LOGIN [username] • D) ADD LOGIN [username] WINDOWS Answer: A • •
-Answer: B Question 20
-What is required when creating a SQL Server Authentication login? • A) Windows domain name • B) Password C) Email address D) Security certificate Question 21
-What does MUST_CHANGE option do when creating a login? • A) User must change password every month • B) User must change password on first login • C) Password changes automatically • D) User cannot change password Answer: B Question 22
-What is the difference between a Login and a User? • A) No difference, they are synonyms • B) Login is server-level for connection, User is database-level for permissions • C) Login is for admins, User is for regular users • D) Login is temporary, User is permanent Answer: B Question 23
-What is a server role? • A) A database user • •
-Answer: B • B) A group of logins that share common server-level permissions • C) A type of securable • D) A permission type Answer: B Question 24
-What is the difference between fixed and user-defined server roles? A) No difference B) Fixed roles have predefined permissions (can't change), user-defined roles have customizable permissions • •
-• C) Fixed roles are temporary • D) User-defined roles require more memory Answer: B Question 25
-Which fixed server role can perform any
+What is a Database Management System (DBMS)? • A) A collection of related data • B) A general-purpose software system that facilitates defining, constructing, manipulating, and sharing databases • C) A file processing system for storing data • D) A programming language for creating databases Answer: B Question 2
+Which of the following is NOT an advantage of the database approach over file processing systems? • A) Data independence • B) Enforcing integrity constraints • C) Simpler implementation for small-scale applications • D) Concurrent access by multiple users Answer: C Question 3
+In the database design process, what is the FIRST phase? • A) Conceptual database design • B) Logical database design • C) Requirement collection and analysis • D) Physical database design Answer: C Question 4
+What type of entity cannot be uniquely identified alone in a domain? • A) Strong entity B) Weak entity
+• • C) Composite entity • D) Abstract entity Answer: B Question 5
+In an ISA relationship hierarchy, what does "disjoint" mean? • A) All entities in subclasses are also in the superclass • B) An entity cannot belong to more than one subclass simultaneously • C) An entity must belong to at least one subclass • D) Subclasses share all attributes with the superclass Answer: B Question 6
+What is a fan trap in ER modeling? • A) A missing relationship between entity types • B) An ambiguous pathway between certain entity instances due to multiple one- tomany relationships fanning out from the same entity • C) A relationship that connects more than three entities • D) An entity with too many attributes Answer: B Question 7
+Which constraint determines whether entities in subclasses collectively include all entities in the superclass? • A) Overlapping constraint B) Participation constraint C) Covering constraint • D) Cardinality constraint •
+• Answer: C Question 8
+What is the identifying relationship set requirement for weak entities? • A) Many-to-many relationship with the owner entity • B) One-to-one relationship with the owner entity • C) One-to-many relationship where the weak entity has total participation • D) Optional participation in any relationship Answer: C Question 9
+When should a ternary relationship be used instead of binary relationships? • A) When you need to connect exactly three entities • B) When there is a common attribute that needs all three entities together • C) When binary relationships are too complex • D) When you want to simplify the ER diagram Answer: B Question 10
+What does aggregation in EER modeling allow you to do? • A) Combine multiple entities into one • B) Indicate that a relationship set participates in another relationship set • C) Create subclasses from a superclass • D) Define composite attributes Answer: B Question 11
+A chasm trap occurs when: • A) Too many relationships fan out from one entity • B) A model suggests a relationship should exist but it doesn't actually exist C) An entity has no primary key D) Multiple entities share the same attributes •
+• Answer: B Question 12
+In the conceptual database design phase, which model is commonly used? • A) Relational model • B) Object-oriented model • C) Entity-Relationship (ER) model • D) Hierarchical model Answer: C Question 13
+What does "total specialization" mean in an ISA hierarchy? • A) All subclasses overlap with each other • B) Every entity in the superclass must belong to at least one subclass (covering constraint exists) • C) Subclasses cannot share entities • D) All attributes must be specialized Answer: B Question 14
+Which of the following is an aspect to consider during requirement analysis? • A) Database normalization rules • B) Hardware specifications • C) What data is to be stored in the database • D) Network topology Answer: C Question 15
+What is the main difference between specialization and generalization? • A) Specialization is top-down (defining subclasses), generalization is bottom-up (identifying commonalities) B) Specialization uses ternary relationships, generalization uses binary •
+• C) Specialization is for weak entities, generalization is for strong entities • D) There is no difference, they are the same concept Answer: A 
+SECTION SECTION B:
+ MULTIPLE ANSWER QUESTIONS (Select ALL that apply) Question 16
+Which of the following are advantages of the database approach? (Select all that apply) • A) Data independence • B) Efficient data access • C) Lower initial development cost than file systems • D) Enforcing integrity constraints • E) Restricting unauthorized access • F) Providing backup and recovery Answers: A, B, D, E, F Question 17
+During requirement collection and analysis, what should database developers do? (Select all that apply) • A) Interview clients • B) Analyze documents and reports • C) Design the physical database schema • D) Identify unclear or incomplete requirements • E) Eliminate redundant information Answers: A, B, D, E Question 18
+Which of the following a

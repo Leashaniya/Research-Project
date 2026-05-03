@@ -2,23 +2,20 @@
   "students": {
     "default_student": {
       "weak_topics": [
-        "Relational Algebra",
-        "Keys and Constraints",
-        "Entity Relationships",
-        "Aggregation (GROUP BY, COUNT, SUM)",
         "Database Access",
-        "JDBC / Database Connectivity",
-        "Sql Queries"
+        "Aggregation (GROUP BY, COUNT, SUM)",
+        "Relational Algebra",
+        "Entity Relationships",
+        "Sql Queries",
+        "Keys and Constraints",
+        "JDBC / Database Connectivity"
       ],
       "strong_topics": [
-        "Sql Queries",
-        "Database Access",
-        "Storage And File Organization",
+        "Database Security",
+        "Transactions",
         "Database Design"
       ],
-      "mastered_topics": [
-        "Sql Queries"
-      ],
+      "mastered_topics": [],
       "quiz_history": [
         {
           "attempted_at": "2026-04-30T16:04:52.040366+00:00",
@@ -157,21 +154,232 @@
             "JDBC / Database Connectivity",
             "Sql Queries"
           ]
+        },
+        {
+          "attempted_at": "2026-05-01T18:03:39.945286+00:00",
+          "total_attempted": 44,
+          "correct_count": 20,
+          "wrong_count": 24,
+          "accuracy": 45.45454545454545,
+          "weak_topics": [
+            "JDBC / Database Connectivity",
+            "Keys and Constraints",
+            "Relational Algebra",
+            "Entity Relationships",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "Database Access",
+            "Sql Queries"
+          ]
+        },
+        {
+          "attempted_at": "2026-05-01T18:46:15.814220+00:00",
+          "total_attempted": 44,
+          "correct_count": 23,
+          "wrong_count": 21,
+          "accuracy": 52.27272727272727,
+          "weak_topics": [
+            "Relational Algebra",
+            "Keys and Constraints",
+            "JDBC / Database Connectivity",
+            "Entity Relationships",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "Database Access",
+            "Sql Queries"
+          ]
+        },
+        {
+          "attempted_at": "2026-05-02T03:06:26.866799+00:00",
+          "total_attempted": 44,
+          "correct_count": 23,
+          "wrong_count": 21,
+          "accuracy": 52.27272727272727,
+          "weak_topics": [
+            "JDBC / Database Connectivity",
+            "Relational Algebra",
+            "Keys and Constraints",
+            "Entity Relationships",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "Database Access",
+            "Sql Queries"
+          ]
+        },
+        {
+          "attempted_at": "2026-05-02T04:24:15.951630+00:00",
+          "total_attempted": 44,
+          "correct_count": 25,
+          "wrong_count": 19,
+          "accuracy": 56.81818181818182,
+          "weak_topics": [
+            "Relational Algebra",
+            "JDBC / Database Connectivity",
+            "Keys and Constraints",
+            "Entity Relationships",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "Database Access",
+            "Sql Queries"
+          ]
+        },
+        {
+          "attempted_at": "2026-05-02T05:02:28.289959+00:00",
+          "total_attempted": 44,
+          "correct_count": 22,
+          "wrong_count": 22,
+          "accuracy": 50.0,
+          "weak_topics": [
+            "Relational Algebra",
+            "JDBC / Database Connectivity",
+            "Keys and Constraints",
+            "Entity Relationships",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "Database Access",
+            "Sql Queries"
+          ]
+        },
+        {
+          "attempted_at": "2026-05-02T08:07:08.348389+00:00",
+          "total_attempted": 44,
+          "correct_count": 23,
+          "wrong_count": 21,
+          "accuracy": 52.27272727272727,
+          "weak_topics": [
+            "Keys and Constraints",
+            "Relational Algebra",
+            "JDBC / Database Connectivity",
+            "Entity Relationships",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "Database Access",
+            "Sql Queries"
+          ]
+        },
+        {
+          "attempted_at": "2026-05-02T16:22:28.750801+00:00",
+          "total_attempted": 44,
+          "correct_count": 27,
+          "wrong_count": 17,
+          "accuracy": 61.36363636363637,
+          "weak_topics": [
+            "Relational Algebra",
+            "Keys and Constraints",
+            "JDBC / Database Connectivity",
+            "Entity Relationships",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "Database Access",
+            "Sql Queries"
+          ]
+        },
+        {
+          "attempted_at": "2026-05-02T16:41:25.716486+00:00",
+          "total_attempted": 44,
+          "correct_count": 22,
+          "wrong_count": 22,
+          "accuracy": 50.0,
+          "weak_topics": [
+            "Entity Relationships",
+            "JDBC / Database Connectivity",
+            "Relational Algebra",
+            "Keys and Constraints",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "Database Access",
+            "Sql Queries"
+          ]
+        },
+        {
+          "attempted_at": "2026-05-02T16:44:11.655499+00:00",
+          "total_attempted": 44,
+          "correct_count": 18,
+          "wrong_count": 26,
+          "accuracy": 40.909090909090914,
+          "weak_topics": [
+            "Entity Relationships",
+            "Database Access",
+            "JDBC / Database Connectivity",
+            "Relational Algebra",
+            "Keys and Constraints",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "Sql Queries"
+          ]
+        },
+        {
+          "attempted_at": "2026-05-02T19:14:27.209883+00:00",
+          "total_attempted": 44,
+          "correct_count": 18,
+          "wrong_count": 26,
+          "accuracy": 40.909090909090914,
+          "weak_topics": [
+            "Entity Relationships",
+            "Database Access",
+            "JDBC / Database Connectivity",
+            "Relational Algebra",
+            "Keys and Constraints",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "Sql Queries"
+          ]
+        },
+        {
+          "attempted_at": "2026-05-03T03:06:53.634034+00:00",
+          "total_attempted": 44,
+          "correct_count": 10,
+          "wrong_count": 34,
+          "accuracy": 22.727272727272727,
+          "weak_topics": [
+            "Sql Queries",
+            "Relational Algebra",
+            "Entity Relationships",
+            "Keys and Constraints",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "JDBC / Database Connectivity",
+            "Database Access"
+          ]
+        },
+        {
+          "attempted_at": "2026-05-03T03:35:54.433610+00:00",
+          "total_attempted": 44,
+          "correct_count": 15,
+          "wrong_count": 29,
+          "accuracy": 34.090909090909086,
+          "weak_topics": [
+            "Entity Relationships",
+            "Sql Queries",
+            "Keys and Constraints",
+            "Relational Algebra",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "JDBC / Database Connectivity",
+            "Database Access"
+          ]
+        },
+        {
+          "attempted_at": "2026-05-03T05:11:25.952446+00:00",
+          "total_attempted": 44,
+          "correct_count": 17,
+          "wrong_count": 27,
+          "accuracy": 38.63636363636363,
+          "weak_topics": [
+            "Database Access",
+            "Aggregation (GROUP BY, COUNT, SUM)",
+            "Relational Algebra",
+            "Entity Relationships",
+            "Sql Queries",
+            "Keys and Constraints",
+            "JDBC / Database Connectivity"
+          ]
         }
       ],
       "confidence_score": {
-        "Aggregation (GROUP BY, COUNT, SUM)": 0.635,
-        "Sql Queries": 0.9313,
-        "Relational Algebra": 0.45,
-        "Keys and Constraints": 0.6944,
-        "Database Access": 0.7725,
-        "Entity Relationships": 0.7556,
+        "Aggregation (GROUP BY, COUNT, SUM)": 0.5875,
+        "Sql Queries": 0.725,
+        "Relational Algebra": 0.6071,
+        "Keys and Constraints": 0.635,
+        "Database Access": 0.5417,
+        "Entity Relationships": 0.6367,
         "Jdbc": 0.27,
-        "Storage And File Organization": 0.64,
+        "Storage And File Organization": 0.09,
         "Database Design": 0.64,
-        "JDBC / Database Connectivity": 0.6367
+        "JDBC / Database Connectivity": 0.6367,
+        "Database Security": 0.64,
+        "Transactions": 0.73,
+        "Job": 0.09
       },
-      "updated_at": "2026-05-01T16:20:22.650655+00:00"
+      "updated_at": "2026-05-03T05:11:25.952446+00:00"
     }
   }
 }

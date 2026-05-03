@@ -17,6 +17,7 @@ except Exception:  # pragma: no cover
 from learning_state import get_learning_state
 from mcq_utils import embedder
 from pdf_utils import extract_text_from_pdf
+from topic_labels import clean_topic_display_name
 
 OUTPUT_JSON = Path("outputs") / "weak_topic_rag_summary.json"
 OUTPUT_MD = Path("outputs") / "weak_topic_rag_summary.md"
@@ -26,6 +27,14 @@ CHUNK_WORDS = 400
 CHUNK_OVERLAP_WORDS = 50
 TOP_K_CHUNKS = 4
 LA_CANDIDATE_MULTIPLIER = 4
+
+# Current weak-topic policy (aligned with evaluation_utils bands: weak < 50%, moderate 50–70%, strong > 70%).
+WEAK_ACCURACY_THRESHOLD = 0.5
+# Chunk must look related to the weak topic (lexical + embedding gate).
+MIN_WEAK_TOPIC_RELEVANCE = 0.10
+MIN_EMBEDDING_SIM_WEAK = 0.18
+MIN_COMBINED_GATE = 0.17
+INSUFFICIENT_MESSAGE = "insufficient_data_from_lectures"
 
 TOPIC_SYNONYMS: Dict[str, List[str]] = {
     "normalization": ["1nf", "2nf", "3nf", "functional dependency"],
@@ -243,6 +252,143 @@ def _norm_text_key(text: str) -> str:
     return " ".join(str(text or "").strip().lower().split())
 
 
+def _norm_topic_key(topic: str) -> str:
+    return clean_topic_display_name(str(topic or "").strip()).lower()
+
+
+def _find_twa_row(topic: str, topic_wise_accuracy: Dict[str, Any]) -> Dict[str, Any] | None:
+    """Match topic display name to topic_wise_accuracy keys (case/format tolerant)."""
+    if not topic_wise_accuracy:
+        return None
+    want = _norm_topic_key(topic)
+    for k, row in topic_wise_accuracy.items():
+        if _norm_topic_key(str(k)) == want:
+            return row if isinstance(row, dict) else {}
+    return None
+
+
+def _band_base(band: str) -> str:
+    b = str(band or "").lower().strip()
+    if b.endswith("_low_evidence"):
+        b = b[: -len("_low_evidence")].strip()
+    return b
+
+
+def _accuracy_fraction(row: Dict[str, Any]) -> float:
+    acc = float(row.get("accuracy", 0.0) or 0.0)
+    return acc / 100.0 if acc > 1.0 else acc
+
+
+def _is_current_strict_weak(row: Dict[str, Any]) -> bool:
+    """True only for weak performance: exclude strong and moderate."""
+    if not row:
+        return False
+    acc_frac = _accuracy_fraction(row)
+    band_raw = str(row.get("band") or row.get("status") or "")
+    band = _band_base(band_raw)
+    if band in ("strong", "moderate"):
+        return False
+    if acc_frac >= WEAK_ACCURACY_THRESHOLD:
+        return False
+    if band == "weak":
+        return True
+    if acc_frac < WEAK_ACCURACY_THRESHOLD:
+        return True
+    return False
+
+
+def _filter_strict_weak_topics(
+    learning_weak_topics: List[str],
+    topic_wise_accuracy: Dict[str, Any],
+) -> List[str]:
+    """
+    Only topics with a **current** topic_wise_accuracy row that is strictly weak
+    (not strong/moderate; accuracy below WEAK_ACCURACY_THRESHOLD).
+
+    Include if label matches EITHER branch:
+    - appears in learning_state weak_topics, OR
+    - appears only in topic_wise_accuracy as weak (quiz-native OR branch).
+
+    Strong/moderate topics are never included.
+    """
+    if not topic_wise_accuracy:
+        return []
+
+    ls_norm = {_norm_topic_key(x) for x in learning_weak_topics if str(x).strip()}
+    priority: List[str] = []
+    extra: List[str] = []
+    seen: set[str] = set()
+
+    for k, row in topic_wise_accuracy.items():
+        if not isinstance(row, dict):
+            continue
+        if not _is_current_strict_weak(row):
+            continue
+        disp = clean_topic_display_name(str(k))
+        nk = _norm_topic_key(disp)
+        if nk in seen:
+            continue
+        seen.add(nk)
+        if nk in ls_norm:
+            priority.append(disp)
+        else:
+            extra.append(disp)
+
+    ordered = priority + extra
+    return list(dict.fromkeys(ordered))
+
+
+def _chunk_weak_topic_relevance(
+    chunk: Dict[str, Any], topic: str, expansion_terms: List[str]
+) -> float:
+    """Lexical relevance of chunk to the weak topic (0..1)."""
+    text = _norm_text_key(_clean_chunk_text(chunk.get("text", "")))
+    if not text:
+        return 0.0
+    hits = 0
+    checked = 0
+    for term in expansion_terms:
+        t = term.strip().lower()
+        if len(t) < 3:
+            continue
+        checked += 1
+        if t in text:
+            hits += 1
+    lex = (hits / checked) if checked else 0.0
+    tw = {x for x in re.findall(r"[a-zA-Z]+", topic.lower()) if len(x) >= 3}
+    overlap = sum(1 for x in tw if x in text) if tw else 0
+    tok_score = min(1.0, overlap / max(1, len(tw)))
+    return float(min(1.0, 0.55 * lex + 0.45 * tok_score))
+
+
+def _merge_overlapping_snippets(snippets: List[str], jaccard_min: float = 0.65) -> List[str]:
+    """Drop near-duplicate chunk snippets (Jaccard on word sets)."""
+    if len(snippets) <= 1:
+        return snippets
+
+    def _words(s: str) -> set:
+        return {w for w in re.findall(r"[a-zA-Z0-9]+", s.lower()) if len(w) > 2}
+
+    kept: List[str] = []
+    for s in snippets:
+        ws = _words(s)
+        if not ws:
+            continue
+        dup = False
+        for prev in kept:
+            pw = _words(prev)
+            if not pw:
+                continue
+            inter = len(ws & pw)
+            union = len(ws | pw) or 1
+            if inter / union >= jaccard_min:
+                dup = True
+                break
+        if not dup:
+            kept.append(s)
+    return kept
+
+
 def _topic_common_mistakes(topic: str) -> List[str]:
     t = (topic or "").lower()
     if "join" in t:
@@ -284,7 +430,6 @@ def _expanded_query_terms(topic: str, lecture_data: List[Dict[str, Any]]) -> Lis
         if key in low or low in key:
             terms.extend(vals)
     terms.extend(_derive_prerequisite_terms(topic, lecture_data))
-    terms.extend(EXAM_PHRASE_PATTERNS[:3])
     return list(dict.fromkeys([t for t in terms if t]))
 
 
@@ -658,39 +803,72 @@ def _ground_llm_notes(llm_row: Dict[str, Any], snippets: List[str]) -> Dict[str,
     }
 
 
+def _lecture_grounded_notes(topic: str, snippets: List[str]) -> Dict[str, Any] | None:
+    """Revision fields derived only from lecture snippets (plus mistakes only if grounded)."""
+    if not snippets:
+        return None
+    definition = _shorten_sentence(snippets[0], 200)
+    kps = [_shorten_sentence(s, 120) for s in snippets[1:5] if s]
+    kps = [k for k in kps if k and k != definition]
+    mistakes: List[str] = []
+    for m in _topic_common_mistakes(topic):
+        if m and _grounded_text(m, snippets):
+            mistakes.append(m)
+        if len(mistakes) >= 2:
+            break
+    return {
+        "concept_definition": definition,
+        "key_points": kps[:4],
+        "common_mistakes": mistakes,
+        "quick_revision_checklist": [
+            f"Reread the retrieved lecture extracts for {topic}, then verify you can explain them in your own words.",
+        ],
+    }
+
+
+def _strict_summary_row(
+    topic: str,
+    simple_explanation: str,
+    key_points: List[str],
+    common_mistakes: List[str],
+    next_action: str,
+) -> Dict[str, Any]:
+    return {
+        "topic": clean_topic_display_name(topic),
+        "simple_explanation": simple_explanation,
+        "key_points": list(key_points or [])[:8],
+        "common_mistakes": list(common_mistakes or [])[:6],
+        "next_action": str(next_action or "")[:500],
+    }
+
+
 def _save_outputs(rows: List[Dict[str, Any]]) -> None:
     try:
         OUTPUT_JSON.parent.mkdir(parents=True, exist_ok=True)
         with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
             json.dump({"weak_topic_summary": rows}, f, indent=2)
-        md_lines = ["# Weak Topic RAG Summary", ""]
+        md_lines = ["# Weak Topic RAG Summary (current weak topics only, lecture-grounded)", ""]
         for r in rows:
-            md_lines.append(f"## {r['topic']}")
+            md_lines.append(f"## {r.get('topic', '')}")
             notes = r.get("revision_notes") or {}
-            md_lines.append("### Definition")
-            md_lines.append(str(notes.get("concept_definition") or notes.get("Definition") or ""))
+            expl = str(r.get("simple_explanation") or notes.get("concept_definition") or "")
+            kps = r.get("key_points") or notes.get("key_points") or []
+            cms = r.get("common_mistakes") or notes.get("common_mistakes") or []
+            md_lines.append("### Summary (lecture-based)")
+            md_lines.append(expl)
             md_lines.append("")
-            md_lines.append("### Key Concepts")
-            for kp in (notes.get("key_points_to_remember") or notes.get("key_points") or notes.get("Key Concepts") or []):
+            md_lines.append("### Key points")
+            for kp in kps:
                 md_lines.append(f"- {kp}")
             md_lines.append("")
-            md_lines.append("### Why it is important in exams")
-            for cm in (notes.get("why_it_is_important_in_exams") or notes.get("exam_focus") or []):
-                md_lines.append(f"- {cm}")
-            md_lines.append("")
-            md_lines.append("### MCQ Patterns")
-            for ex in (notes.get("mcq_patterns") or []):
-                md_lines.append(f"- {ex}")
-            md_lines.append("")
-            md_lines.append("### Quick revision checklist")
-            for tip in (notes.get("quick_revision_checklist") or []):
-                md_lines.append(f"- {tip}")
-            md_lines.append("")
-            md_lines.append("### Common Mistakes")
-            for m in (notes.get("common_mistakes") or notes.get("Common Mistakes") or []):
+            md_lines.append("### Common mistakes (only if grounded in lecture text)")
+            for m in cms:
                 md_lines.append(f"- {m}")
             md_lines.append("")
-            md_lines.append("### Retrieval Trace")
+            md_lines.append("### Next action")
+            md_lines.append(str(r.get("next_action") or ""))
+            md_lines.append("")
+            md_lines.append("### Retrieval trace (internal)")
             for tr in (r.get("retrieval_trace") or r.get("source_trace") or []):
                 md_lines.append(
                     f"- {tr.get('lecture_id','')} | {tr.get('chunk_id','')} | score={tr.get('score', tr.get('similarity_score', 0))} | {tr.get('used_text_snippet','')}"
@@ -703,74 +881,87 @@ def _save_outputs(rows: List[Dict[str, Any]]) -> None:
 
 
 def generate_weak_topic_rag_summary(lecture_data: List[Dict[str, Any]]) -> Dict[str, Any]:
-    weak_topics: List[str] = []
+    """
+    Lecture-grounded revision summaries only for **current** weak topics:
+    learning_state weak_topics intersected with topic_wise_accuracy rows that are
+    strictly weak (not strong/moderate; accuracy < WEAK_ACCURACY_THRESHOLD).
+    """
     ls = get_learning_state()
     quiz_state_local: Dict[str, Any] = {}
-    weak_topics = [str(t).strip() for t in (ls.get("weak_topics") or []) if str(t).strip()]
     if QUIZ_STATE_JSON.exists():
         try:
             with open(QUIZ_STATE_JSON, "r", encoding="utf-8") as f:
-                st = json.load(f) or {}
-            quiz_state_local = st
-            if not weak_topics:
-                weak_topics = [str(t).strip() for t in (st.get("weak_topics_confirmed") or []) if str(t).strip()]
+                quiz_state_local = json.load(f) or {}
         except (json.JSONDecodeError, OSError):
-            pass
+            quiz_state_local = {}
+
+    twa = quiz_state_local.get("topic_wise_accuracy") or {}
+    learning_weak = [str(t).strip() for t in (ls.get("weak_topics") or []) if str(t).strip()]
+    weak_topics = _filter_strict_weak_topics(learning_weak, twa)
+
     if not weak_topics:
+        print("[weak_topic_rag] No topics after strict weak filter (requires learning_state + quiz topic_wise_accuracy weak).")
         return {"weak_topic_summary": []}
 
     chunks, chunk_embs = _ensure_chunk_index(lecture_data)
     if not chunks or chunk_embs is None or len(chunks) == 0:
         return {"weak_topic_summary": []}
 
-    out_rows = []
-    seen_topics = set()
+    out_rows: List[Dict[str, Any]] = []
+    save_rows: List[Dict[str, Any]] = []
+    seen_topics: set[str] = set()
+
     for topic in weak_topics:
         tnorm = topic.lower()
         if tnorm in seen_topics:
             continue
         seen_topics.add(tnorm)
 
+        topic_perf = _find_twa_row(topic, twa) or {}
+
         expansion_terms = _expanded_query_terms(topic, lecture_data)
         q_text = " ".join(expansion_terms)
         q_vec = embedder.encode([q_text], show_progress_bar=False, convert_to_numpy=True)[0]
         sim_scores = _cosine_scores(q_vec, chunk_embs)
         if sim_scores.size == 0:
-            out_rows.append(
-                {
-                    "topic": topic,
-                    "revision_notes": "Insufficient lecture context available",
-                    "source_trace": [],
-                    "retrieval_trace": [],
-                }
-            )
+            row = _strict_summary_row(topic, INSUFFICIENT_MESSAGE, [], [], "Retake the quiz after uploading complete lecture PDFs.")
+            out_rows.append(row)
+            save_rows.append({**row, "source_trace": [], "retrieval_trace": []})
             continue
 
-        weak_importance = _weak_topic_importance(topic, ls)
-        history_gap = _student_history_gap(topic, ls)
-        final_scores = np.zeros_like(sim_scores, dtype=np.float64)
-        for i in range(len(chunks)):
-            ex_weight = _exam_relevance_weight(chunks[i], expansion_terms)
-            final_scores[i] = (
-                0.4 * float(sim_scores[i]) +
-                0.3 * weak_importance +
-                0.2 * ex_weight +
-                0.1 * history_gap
-            )
+        weak_rel = np.array(
+            [_chunk_weak_topic_relevance(chunks[i], topic, expansion_terms) for i in range(len(chunks))],
+            dtype=np.float64,
+        )
+        exam_w = np.array(
+            [_exam_relevance_weight(chunks[i], expansion_terms) for i in range(len(chunks))],
+            dtype=np.float64,
+        )
+        gate = 0.55 * weak_rel + 0.45 * sim_scores
+        discard = gate < MIN_COMBINED_GATE
+        final_scores = (
+            0.50 * weak_rel + 0.35 * sim_scores + 0.15 * exam_w
+        )
+        final_scores = np.where(discard, -1.0, final_scores)
 
         candidate_idx = np.argsort(final_scores)[::-1][: max(TOP_K_CHUNKS * LA_CANDIDATE_MULTIPLIER, 8)]
+        candidate_idx = np.array(
+            [i for i in candidate_idx.flatten().tolist() if final_scores[int(i)] >= 0],
+            dtype=int,
+        )
+        if candidate_idx.size == 0:
+            row = _strict_summary_row(topic, INSUFFICIENT_MESSAGE, [], [], "No lecture chunks passed weak-topic relevance gates.")
+            out_rows.append(row)
+            save_rows.append({**row, "source_trace": [], "retrieval_trace": []})
+            continue
+
         candidate_idx = np.array(_deduplicate_ranked_indices(candidate_idx, chunks), dtype=int)
         if candidate_idx.size == 0:
-            out_rows.append(
-                {
-                    "topic": topic,
-                    "revision_notes": "Insufficient lecture context available",
-                    "source_trace": [],
-                    "retrieval_trace": [],
-                }
-            )
+            row = _strict_summary_row(topic, INSUFFICIENT_MESSAGE, [], [], "No deduplicated chunks available.")
+            out_rows.append(row)
+            save_rows.append({**row, "source_trace": [], "retrieval_trace": []})
             continue
-        # Importance-aware reranking among already retrieved candidates.
+
         importance_scores = np.array(
             [_high_information_rank(_clean_chunk_text(chunks[int(i)]["text"]), topic) for i in candidate_idx],
             dtype=np.float64,
@@ -791,23 +982,16 @@ def generate_weak_topic_rag_summary(lecture_data: List[Dict[str, Any]]) -> Dict[
                 selected_rows.append((int(i), ch))
         selected_rows = selected_rows[:TOP_K_CHUNKS]
 
-        if not selected_rows:
-            out_rows.append(
-                {
-                    "topic": topic,
-                    "revision_notes": "Insufficient lecture context available",
-                    "source_trace": [],
-                    "retrieval_trace": [],
-                }
-            )
-            continue
-
-        snippets = []
-        source_trace = []
-        retrieval_trace = []
+        snippets: List[str] = []
+        source_trace: List[Dict[str, Any]] = []
+        retrieval_trace: List[Dict[str, Any]] = []
         for idx, ch in selected_rows:
             txt = _clean_chunk_text(ch.get("text", ""))
             if not txt:
+                continue
+            wr = _chunk_weak_topic_relevance(ch, topic, expansion_terms)
+            sv = float(sim_scores[idx]) if idx < len(sim_scores) else 0.0
+            if wr < MIN_WEAK_TOPIC_RELEVANCE and sv < MIN_EMBEDDING_SIM_WEAK:
                 continue
             snippet = _shorten_sentence(txt, 180)
             snippets.append(snippet)
@@ -830,50 +1014,57 @@ def generate_weak_topic_rag_summary(lecture_data: List[Dict[str, Any]]) -> Dict[
                     "score": round(final_val, 4),
                     "similarity_score": round(sim_val, 4),
                     "embedding_similarity": round(sim_val, 4),
-                    "weak_topic_importance": round(float(weak_importance), 4),
-                    "student_history_gap": round(float(history_gap), 4),
+                    "weak_topic_relevance": round(float(wr), 4),
                 }
             )
+
+        snippets = _merge_overlapping_snippets(snippets)
         if not snippets:
-            out_rows.append(
-                {
-                    "topic": topic,
-                    "revision_notes": "Insufficient lecture context available",
-                    "source_trace": [],
-                    "retrieval_trace": [],
-                }
-            )
+            row = _strict_summary_row(topic, INSUFFICIENT_MESSAGE, [], [], "No chunks remained after weak-topic grounding filters.")
+            out_rows.append(row)
+            save_rows.append({**row, "source_trace": [], "retrieval_trace": []})
             continue
 
-        common_mistakes = _topic_common_mistakes(topic)[:2]
-        notes = _deterministic_learning_notes(topic, snippets, common_mistakes)
-        topic_perf = {}
-        for t_name, row in ((quiz_state_local.get("topic_wise_accuracy") or {}).items()):
-            if str(t_name).strip().lower() == topic.lower():
-                topic_perf = row or {}
-                break
+        notes_core = _lecture_grounded_notes(topic, snippets)
         llm_row = _llm_guidance_if_available(topic, [x[1] for x in selected_rows], topic_performance=topic_perf)
         grounded_llm = _ground_llm_notes(llm_row, snippets) if llm_row else {}
+
         if grounded_llm:
-            notes = grounded_llm.get("revision_notes") or notes
-        out_rows.append(
-            {
-                "topic": topic,
-                "revision_notes": notes if notes else "Insufficient lecture context available",
-                "source_trace": source_trace,
-                "retrieval_trace": retrieval_trace,
-                # Backward-compatible fields for existing UI.
-                "simple_explanation": notes.get("concept_definition", snippets[0] if snippets else ""),
-                "key_points": notes.get("key_points", snippets[:3]),
-                "common_mistakes": notes.get("common_mistakes", common_mistakes),
-                "next_action": (
-                    (notes.get("quick_revision_checklist") or ["Revise this topic, then practice the recommended MCQs."])[0]
-                ),
-            }
-        )
+            gn = grounded_llm.get("revision_notes") or {}
+            simple = str(grounded_llm.get("simple_explanation") or gn.get("concept_definition") or "").strip()
+            kps = list(gn.get("key_points") or [])[:8]
+            cms = list(gn.get("common_mistakes") or [])[:6]
+            nxt = str(grounded_llm.get("next_action") or (gn.get("quick_revision_checklist") or [""])[0] or "").strip()
+            if not simple or not _grounded_text(simple, snippets):
+                notes_core = _lecture_grounded_notes(topic, snippets)
+                if notes_core:
+                    row = _strict_summary_row(
+                        topic,
+                        notes_core["concept_definition"],
+                        notes_core["key_points"],
+                        notes_core["common_mistakes"],
+                        notes_core["quick_revision_checklist"][0],
+                    )
+                else:
+                    row = _strict_summary_row(topic, INSUFFICIENT_MESSAGE, [], [], "Expand lecture coverage for this topic.")
+            else:
+                row = _strict_summary_row(topic, simple, kps, cms, nxt or "Review the retrieved lecture excerpts.")
+        elif notes_core:
+            row = _strict_summary_row(
+                topic,
+                notes_core["concept_definition"],
+                notes_core["key_points"],
+                notes_core["common_mistakes"],
+                notes_core["quick_revision_checklist"][0],
+            )
+        else:
+            row = _strict_summary_row(topic, INSUFFICIENT_MESSAGE, [], [], "Could not build lecture-only summary.")
+
+        out_rows.append(row)
+        save_rows.append({**row, "source_trace": source_trace, "retrieval_trace": retrieval_trace})
 
     if not out_rows:
         return {"weak_topic_summary": []}
-    _save_outputs(out_rows)
+    _save_outputs(save_rows)
     return {"weak_topic_summary": out_rows}
 
