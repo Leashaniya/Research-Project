@@ -65,11 +65,15 @@ app = FastAPI(
 app.mount("/audio", StaticFiles(directory=str(AUDIO_OUTPUT_DIR)), name="audio")
 
 # Add session middleware for OAuth (state is stored in session for CSRF check on callback)
+cookie_same_site = "none" if settings.SESSION_COOKIE_SECURE else "lax"
 app.add_middleware(
     SessionMiddleware,
     secret_key=settings.SECRET_KEY,
+    session_cookie=settings.SESSION_COOKIE_NAME,
     path="/",
-    same_site="lax",
+    same_site=cookie_same_site,
+    https_only=settings.SESSION_COOKIE_SECURE,
+    domain=settings.SESSION_COOKIE_DOMAIN,
     max_age=14 * 24 * 60 * 60,
 )
 
@@ -77,8 +81,7 @@ app.add_middleware(
 # Allow both production and development frontend URLs
 allowed_origins = [
     settings.FRONTEND_URL,
-    "http://ca.vuedapt.com",
-    "https://ca.vuedapt.com",
+    "http://20.196.136.226:5173",
     "http://localhost:3000",
     "http://localhost:3333",  # Vite dev server port
     "http://localhost:5173",  # Vite default dev server port

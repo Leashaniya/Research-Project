@@ -20,5 +20,5 @@ event_scheduler_agent = Agent(
     tools=[create_calendar_event],
     verbose=True,
     allow_delegation=False,
-    llm="gpt-4o",
+    llm="gpt-4o-mini",
 )

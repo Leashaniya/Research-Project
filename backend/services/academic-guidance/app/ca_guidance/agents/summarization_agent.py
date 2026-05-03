@@ -29,6 +29,6 @@ summarization_agent = Agent(
     tools=[summarize_lecture_materials],
     verbose=True,
     allow_delegation=False,
-    llm="gpt-4o",
+    llm="gpt-4o-mini",
 )
 

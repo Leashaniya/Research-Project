@@ -19,6 +19,7 @@ pip install -q --upgrade pip
 pip install -q -e .
 
 $Port = if ($env:PORT) { $env:PORT } else { "8081" }
+$Workers = if ($env:ACADEMIC_GUIDANCE_WORKERS) { $env:ACADEMIC_GUIDANCE_WORKERS } else { "2" }
 $env:PORT = $Port
-Write-Host "Starting Academic Guidance on port $Port ..."
-python main.py
+Write-Host "Starting Academic Guidance on port $Port with $Workers worker(s) ..."
+python -m uvicorn app.main:app --host 0.0.0.0 --port $Port --workers $Workers

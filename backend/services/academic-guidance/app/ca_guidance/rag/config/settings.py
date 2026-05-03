@@ -33,5 +33,5 @@ MIN_FILE_SIZE = 5000  # Minimum file size in bytes
 
 # Image captioning configuration (for content-based naming)
 USE_CONTENT_BASED_NAMING = True  # Enable content-based image naming
-OPENAI_VISION_MODEL = "gpt-4o"  # OpenAI vision model for image analysis (requires OPENAI_API_KEY)
+OPENAI_VISION_MODEL = "gpt-4o-mini"  # OpenAI vision model for image analysis (requires OPENAI_API_KEY)
 

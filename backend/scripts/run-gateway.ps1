@@ -6,7 +6,11 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $GatewayRoot = Resolve-Path (Join-Path $ScriptDir "..\gateway-local")
 Set-Location $GatewayRoot
 
-$Port = if ($env:PORT) { $env:PORT } else { "80" }
+$Port = if ($env:PORT) { $env:PORT } else { "7777" }
+$env:DEFAULT_PROXY_TIMEOUT = if ($env:DEFAULT_PROXY_TIMEOUT) { $env:DEFAULT_PROXY_TIMEOUT } else { "86400" }
+$env:GUIDANCE_PROXY_TIMEOUT = if ($env:GUIDANCE_PROXY_TIMEOUT) { $env:GUIDANCE_PROXY_TIMEOUT } else { "86400" }
+$env:PAPERS_PROXY_TIMEOUT = if ($env:PAPERS_PROXY_TIMEOUT) { $env:PAPERS_PROXY_TIMEOUT } else { "86400" }
+$env:MCQ_PROXY_TIMEOUT = if ($env:MCQ_PROXY_TIMEOUT) { $env:MCQ_PROXY_TIMEOUT } else { "86400" }
 
 # If port is in use (e.g. previous gateway), try to free it so we can bind without changing port
 $existing = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique

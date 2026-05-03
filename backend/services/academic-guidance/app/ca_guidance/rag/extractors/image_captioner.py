@@ -9,12 +9,12 @@ from typing import Optional, List
 class ImageCaptioner:
     """Image captioner using OpenAI Vision API for generating descriptive captions."""
     
-    def __init__(self, openai_model: str = "gpt-4o", api_key: Optional[str] = None):
+    def __init__(self, openai_model: str = "gpt-4o-mini", api_key: Optional[str] = None):
         """
         Initialize the image captioner.
         
         Args:
-            openai_model: OpenAI vision model to use (e.g., "gpt-4o", "gpt-4-vision-preview")
+            openai_model: OpenAI vision model to use (e.g., "gpt-4o-mini", "gpt-4-vision-preview")
             api_key: Optional OpenAI API key. If not provided, will use environment variable.
         """
         self.openai_model = openai_model
