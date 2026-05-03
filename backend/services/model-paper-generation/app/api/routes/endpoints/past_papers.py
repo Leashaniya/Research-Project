@@ -17,8 +17,13 @@ async def upload_past_paper(file: UploadFile):
             detail="Only PDF format is allowed for past papers. Please upload a .pdf file."
         )
 
+    # Ensure the directory for storing files exists.
     os.makedirs(PAST_PAPERS_DIR, exist_ok=True)
+
+    # Define the path where the file will be saved.
     saved_path = os.path.join(str(PAST_PAPERS_DIR), file.filename)
+
+    # Save the uploaded file to the specified path.
     with open(saved_path, "wb") as f:
         f.write(await file.read())
 

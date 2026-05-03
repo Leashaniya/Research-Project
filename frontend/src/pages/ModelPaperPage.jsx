@@ -140,11 +140,15 @@ function ModelPaperPage() {
   };
 
   const generatePaper = async () => {
+    const selectedPapers = computeSelectedPapers().map(({ year, sem, file }) => ({ year, sem, file }));
+    if (selectedPapers.length < 2) {
+      showNotification("Paper B needs at least 2 past papers.");
+      return;
+    }
+
     setProcessing(true);
     setStatus("Running End-to-End Pipeline...");
     addLog("Analyzing documents and deploying AI Agents...");
-
-    const selectedPapers = computeSelectedPapers().map(({ year, sem, file }) => ({ year, sem, file }));
 
     const payload = {
       num_slots: numSlots,

@@ -4,11 +4,7 @@ from app.core.config import settings
 def get_llm_client():
     """
     Returns an initialized OpenAI client.
-    Always uses standard OpenAI API (Azure is not supported).
-    
-    - Uses OpenAI API directly
-    - Does NOT use deployment names, api_version, or Azure endpoints
-    - Only sets base_url if explicitly provided (for local LLMs like Ollama)
+    Always uses standard OpenAI API 
     """
     # Always use OpenAI (Azure is not used)
     if not settings.OPENAI_API_KEY:
