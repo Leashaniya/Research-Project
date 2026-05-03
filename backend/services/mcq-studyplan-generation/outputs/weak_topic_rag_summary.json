@@ -164,9 +164,9 @@
       "topic": "Database Access",
       "simple_explanation": "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to ensure privacy and to control access to data that must not be...",
       "key_points": [
-        "A privilege allows a user to access some data object in a certain manner (e.g., to read or to modify). A user who...",
         "given permission to access the database only through a small set of views that contain the specific data the user is...",
-        "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then..."
+        "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...",
+        "created by the project manager Project manager could create the login of Senior DBA and Senior DBA could create the..."
       ],
       "common_mistakes": [],
       "next_action": "Reread the retrieved lecture extracts for Database Access, then verify you can explain them in your own words.",
@@ -175,29 +175,29 @@
           "lecture_id": "8.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
           "chunk_id": "8.pdf::chunk_0",
-          "similarity_score": 0.672,
+          "similarity_score": 0.5937,
           "used_text_snippet": "DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to ensure privacy and to control access to data that must not be..."
-        },
-        {
-          "lecture_id": "8.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
-          "chunk_id": "8.pdf::chunk_1",
-          "similarity_score": 0.5663,
-          "used_text_snippet": "A privilege allows a user to access some data object in a certain manner (e.g., to read or to modify). A user who creates a database object such as a table or a view..."
         },
         {
           "lecture_id": "5.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
           "chunk_id": "5.pdf::chunk_1",
-          "similarity_score": 0.4454,
+          "similarity_score": 0.5024,
           "used_text_snippet": "given permission to access the database only through a small set of views that contain the specific data the user is authorized to see, thus restricting the user's access to..."
         },
         {
           "lecture_id": "2.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
           "chunk_id": "2.pdf::chunk_0",
-          "similarity_score": 0.4684,
+          "similarity_score": 0.5045,
           "used_text_snippet": "ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen..."
+        },
+        {
+          "lecture_id": "8.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
+          "chunk_id": "8.pdf::chunk_4",
+          "similarity_score": 0.4633,
+          "used_text_snippet": "created by the project manager Project manager could create the login of Senior DBA and Senior DBA could create the other logins. (we will use this approach) REVISIT TO..."
         }
       ],
       "retrieval_trace": [
@@ -205,36 +205,36 @@
           "lecture_id": "8.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
           "chunk_id": "8.pdf::chunk_0",
-          "score": 0.538,
-          "similarity_score": 0.672,
-          "embedding_similarity": 0.672,
-          "weak_topic_relevance": 0.5875
-        },
-        {
-          "lecture_id": "8.pdf",
-          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
-          "chunk_id": "8.pdf::chunk_1",
-          "score": 0.4232,
-          "similarity_score": 0.5663,
-          "embedding_similarity": 0.5663,
+          "score": 0.4328,
+          "similarity_score": 0.5937,
+          "embedding_similarity": 0.5937,
           "weak_topic_relevance": 0.45
         },
         {
           "lecture_id": "5.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 \u2013 DATABASE PROGRAMMING",
           "chunk_id": "5.pdf::chunk_1",
-          "score": 0.3809,
-          "similarity_score": 0.4454,
-          "embedding_similarity": 0.4454,
+          "score": 0.4008,
+          "similarity_score": 0.5024,
+          "embedding_similarity": 0.5024,
           "weak_topic_relevance": 0.45
         },
         {
           "lecture_id": "2.pdf",
           "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- ER AND EER TO RELATIONAL MODEL MAPPING",
           "chunk_id": "2.pdf::chunk_0",
-          "score": 0.2854,
-          "similarity_score": 0.4684,
-          "embedding_similarity": 0.4684,
+          "score": 0.2981,
+          "similarity_score": 0.5045,
+          "embedding_similarity": 0.5045,
+          "weak_topic_relevance": 0.225
+        },
+        {
+          "lecture_id": "8.pdf",
+          "lecture_name": "DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 \u2013 DATABASE SECURITY",
+          "chunk_id": "8.pdf::chunk_4",
+          "score": 0.2747,
+          "similarity_score": 0.4633,
+          "embedding_similarity": 0.4633,
           "weak_topic_relevance": 0.225
         }
       ]

@@ -57,6 +57,8 @@ function GuidancePage() {
   const [summary, setSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [summaryAudio, setSummaryAudio] = useState(null);
+  const [summaryAudioObjectUrl, setSummaryAudioObjectUrl] = useState(null);
+  const [summaryAudioError, setSummaryAudioError] = useState(null);
   const [flashcardTopic, setFlashcardTopic] = useState('');
   const [flashcards, setFlashcards] = useState(null);
   const [flashLoading, setFlashLoading] = useState(false);
@@ -223,6 +225,21 @@ function GuidancePage() {
     return `![${alt}](${src})`;
   };
 
+  const normalizeMalformedImageTags = (text) =>
+    String(text || '')
+      .replace(/<imgsrc=/gi, '<img src=')
+      .replace(/<img\/src=/gi, '<img src=')
+      .replace(/<img\s+src=/gi, '<img src=');
+
+  const unwrapRenderableImageFences = (text) =>
+    String(text || '').replace(/```(?:markdown|md|html)?\s*\n([\s\S]*?)\n```/gi, (block, body) => {
+      const hasRenderableImage =
+        /<figure\b/i.test(body) ||
+        /<img\s/i.test(normalizeMalformedImageTags(body)) ||
+        /\[IMAGE:\s*[^\]]+\]/i.test(body);
+      return hasRenderableImage ? body.trim() : block;
+    });
+
   const escapeUnsafeHtmlishSegment = (segment) =>
     String(segment || '')
       .replace(/<!--[\s\S]*?-->/g, '')
@@ -232,11 +249,11 @@ function GuidancePage() {
   // Guidance report: expand [IMAGE:file] to real markdown images; normalize HTML figures/images
   const prepareGuidanceMarkdown = (text) => {
     if (!text || typeof text !== 'string') return text;
-    let out = unwrapMarkdownFromCodeBlock(text);
+    let out = normalizeMalformedImageTags(unwrapRenderableImageFences(unwrapMarkdownFromCodeBlock(text)));
     const base = String(API_URL || '').replace(/\/$/, '');
 
     const applyFigureImgAndImageTokens = (segment) => {
-      let s = segment;
+      let s = normalizeMalformedImageTags(segment);
       s = s.replace(/<figure>[\s\S]*?<\/figure>/gi, (block) => figureHtmlToGuidanceMarkdown(block, base));
       s = s.replace(/<img\b[^>]*\/?>/gi, (tag) => standaloneImgHtmlToMarkdown(tag, base));
       s = s.replace(/\[IMAGE:\s*([^\]]+)\]/gi, (_, raw) => {
@@ -247,10 +264,6 @@ function GuidancePage() {
         const url = base ? `${base}${path}` : path;
         return `![Diagram](${url})`;
       });
-      s = s
-        .replace(/<imgsrc=/gi, '<img src=')
-        .replace(/<img\/src=/gi, '<img src=')
-        .replace(/<img\s+src=/gi, '<img src=');
       return s;
     };
 
@@ -311,6 +324,44 @@ function GuidancePage() {
     const rem = total % 60;
     return `${m}:${String(rem).padStart(2, '0')}`;
   };
+
+  useEffect(() => {
+    let cancelled = false;
+    let objectUrl = null;
+
+    setSummaryAudioError(null);
+    setSummaryAudioObjectUrl(null);
+
+    if (!summaryAudio) return undefined;
+
+    const loadProtectedAudio = async () => {
+      try {
+        const response = await authFetch(summaryAudio, {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (!response.ok) {
+          throw new Error(`Audio request failed with status ${response.status}`);
+        }
+        const blob = await response.blob();
+        if (cancelled) return;
+        objectUrl = URL.createObjectURL(blob);
+        setSummaryAudioObjectUrl(objectUrl);
+      } catch (error) {
+        if (!cancelled) {
+          console.error('Error loading summary audio:', error);
+          setSummaryAudioError('Audio is available, but it could not be loaded with your current session.');
+        }
+      }
+    };
+
+    loadProtectedAudio();
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [summaryAudio]);
 
   const markdownAllowedElements = [
     'a', 'blockquote', 'br', 'code', 'del', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -1880,68 +1931,32 @@ function GuidancePage() {
                     ) : summary.content ? (
                       <div>
                         <div className="report-content">
-                          {(() => {
-                            const content = ensureLinksInMarkdown(unwrapMarkdownFromCodeBlock(summary.content));
-                            // Debug: Check if HTML figure tags are present
-                            if (content.includes('<figure>')) {
-                              console.log('✅ HTML figure tags detected in summary content');
-                              const figureCount = (content.match(/<figure>/g) || []).length;
-                              const figcaptionCount = (content.match(/<figcaption>/g) || []).length;
-                              const imgCount = (content.match(/<img/g) || []).length;
-                              console.log(`📊 Found ${figureCount} <figure> tags, ${figcaptionCount} <figcaption> tags, and ${imgCount} <img> tags`);
-                              
-                              // Extract and log sample captions
-                              const figcaptionMatches = content.match(/<figcaption>.*?<\/figcaption>/gs);
-                              if (figcaptionMatches) {
-                                console.log(`✅ Found ${figcaptionMatches.length} image descriptions:`);
-                                figcaptionMatches.slice(0, 3).forEach((caption, idx) => {
-                                  const textOnly = caption.replace(/<[^>]+>/g, '').substring(0, 100);
-                                  console.log(`   Image ${idx + 1} description: ${textOnly}...`);
-                                });
-                              }
-                              
-                              // Check image sources
-                              const imgSrcMatches = content.match(/<img[^>]+src=["']([^"']+)["']/g);
-                              if (imgSrcMatches) {
-                                console.log(`✅ Found ${imgSrcMatches.length} image sources:`);
-                                imgSrcMatches.slice(0, 3).forEach((src, idx) => {
-                                  const srcMatch = src.match(/src=["']([^"']+)["']/);
-                                  if (srcMatch) {
-                                    console.log(`   Image ${idx + 1} src: ${srcMatch[1]}`);
-                                  }
-                                });
-                              }
-                            } else {
-                              console.warn('⚠ No HTML figure tags found in summary content');
-                              console.log('Content preview (first 500 chars):', content.substring(0, 500));
-                              // Check if there are [IMAGE:...] references that weren't converted
-                              const imageRefs = content.match(/\[IMAGE:[^\]]+\]/g);
-                              if (imageRefs) {
-                                console.warn(`⚠ Found ${imageRefs.length} [IMAGE:...] references that weren't converted to HTML!`);
-                                console.log('Image references:', imageRefs.slice(0, 3));
-                              }
-                            }
-                            return (
-                              <SafeMarkdown>
-                                {content}
-                              </SafeMarkdown>
-                            );
-                          })()}
+                          <SafeMarkdown>{prepareGuidanceMarkdown(summary.content)}</SafeMarkdown>
                         </div>
 
                         <div style={{ marginTop: '14px' }}>
                           <strong>Listen to the Audio of the summarization: </strong>
                           {summaryAudio ? (
                             <div style={{ marginTop: '8px' }}>
-                              <audio
-                                key={summaryAudio}
-                                controls
-                                src={summaryAudio}
-                                preload="auto"
-                                style={{ width: '100%' }}
-                              >
-                                Your browser does not support the audio element.
-                              </audio>
+                              {summaryAudioObjectUrl ? (
+                                <audio
+                                  key={summaryAudioObjectUrl}
+                                  controls
+                                  src={summaryAudioObjectUrl}
+                                  preload="auto"
+                                  style={{ width: '100%' }}
+                                >
+                                  Your browser does not support the audio element.
+                                </audio>
+                              ) : summaryAudioError ? (
+                                <div className="error-message" style={{ marginTop: '8px' }}>
+                                  {summaryAudioError}
+                                </div>
+                              ) : (
+                                <div className="info-message" style={{ marginTop: '8px' }}>
+                                  Loading audio...
+                                </div>
+                              )}
                             </div>
                           ) : (
                             <div className="info-message" style={{ marginTop: '8px' }}>

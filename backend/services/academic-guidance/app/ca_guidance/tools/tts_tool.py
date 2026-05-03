@@ -84,6 +84,17 @@ def text_to_speech_wav(text: str) -> Optional[str]:
     if not Path(piper_exe).exists():
         _log.warning("TTS skipped: Piper binary not found at %s", piper_exe)
         return None
+    model_path = Path(piper_model)
+    if not model_path.exists():
+        _log.warning("TTS skipped: Piper model not found at %s", piper_model)
+        return None
+    config_path = Path(f"{piper_model}.json")
+    if not config_path.exists():
+        raise RuntimeError(
+            "Piper model config file is missing. Expected "
+            f"{config_path}. Download the matching .onnx.json file for this voice "
+            "or set PIPER_MODEL to a model that has its companion JSON file."
+        )
 
     # Clean markdown BEFORE sending to Piper
     clean_text = _strip_markdown_for_tts(text)
@@ -94,14 +105,22 @@ def text_to_speech_wav(text: str) -> Optional[str]:
     filename = f"summary_{datetime.now().strftime('%Y%m%d_%H%M%S')}.wav"
     out_path = OUTPUT_DIR / filename
 
+    cmd = [piper_exe, "--model", piper_model, "--config", str(config_path), "--output_file", str(out_path)]
+    espeak_data = Path(piper_exe).parent / "espeak-ng-data"
+    if espeak_data.exists():
+        cmd.extend(["--espeak_data", str(espeak_data)])
+
     proc = subprocess.run(
-        [piper_exe, "--model", piper_model, "--output_file", str(out_path)],
+        cmd,
         input=clean_text,
         text=True,
         capture_output=True,
     )
 
     if proc.returncode != 0:
-        raise RuntimeError(f"Piper failed: {proc.stderr}")
+        details = (proc.stderr or proc.stdout or "").strip()
+        if not details:
+            details = f"exit code {proc.returncode}"
+        raise RuntimeError(f"Piper failed: {details}")
 
     return str(out_path).replace("\\", "/")

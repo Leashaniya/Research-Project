@@ -1,544 +1,11 @@
 {
   "recommendations": [
     {
-      "question_id": "lec_2_Q27",
-      "score": 96.42,
-      "reasons": [
-        "Supports weak topic: Keys and Constraints",
-        "Connected concept: Variables",
-        "Frequently tested in exams",
-        "Useful bridge from a weak area to an important exam theme",
-        "Recommended for targeted revision.",
-        "Weak area: lower quiz score on this lecture",
-        "High exam frequency (important in your materials)",
-        "Same or very close topic as your weak quiz area (GraphRAG match)",
-        "Related or supporting concept linked through topic similarity (GraphRAG)"
-      ],
-      "reason_trace": {
-        "supports_weak_topic": "Keys and Constraints",
-        "related_concept": "Variables",
-        "high_frequency_exam": true,
-        "why_useful_now": "Recommended for targeted revision.",
-        "lines": [
-          "Supports weak topic: Keys and Constraints",
-          "Connected concept: Variables",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme"
-        ],
-        "weak_signal": "topic scored 14% in quiz",
-        "exam_frequency": "appears in 18.6% of past paper questions",
-        "prerequisite_path": [],
-        "similarity_score": 0.6264,
-        "recommendation_rank": 50,
-        "action": "Review core concept and practice recommended MCQs."
-      },
-      "recommended_topic": "Variables",
-      "row_index": 63,
-      "tfidf_score": 0.082696,
-      "embedding_score": 0.626356,
-      "hybrid_score": 0.486862,
-      "ranking_explanation": {
-        "contribution": {
-          "lexical_tfidf": 0.082696,
-          "semantic_embedding": 0.626356,
-          "soft_weak_boost": 0.0,
-          "hybrid_used": true
-        },
-        "confidence": "medium",
-        "query_expansion": {
-          "base_terms": [
-            "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-            "relational algebra",
-            "keys and constraints",
-            "entity relationships",
-            "aggregation (group by, count, sum)",
-            "database access",
-            "jdbc / database connectivity",
-            "sql queries"
-          ],
-          "synonym_terms": [
-            "database connectivity",
-            "driver manager",
-            "sql connection",
-            "primary key",
-            "foreign key",
-            "constraints"
-          ],
-          "graph_neighbor_terms": [
-            "database design",
-            "normalization",
-            "sql joins",
-            "variables",
-            "set",
-            "sliit",
-            "transactions",
-            "schedule",
-            "functional dependency",
-            "storage and file organization",
-            "drawn"
-          ],
-          "lecture_context_terms": [
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8"
-          ]
-        }
-      },
-      "why_selected": [
-        "Supports weak topic: Keys and Constraints",
-        "Connected concept: Variables",
-        "Frequently tested in exams"
-      ],
-      "weak_topic_link": "Keys and Constraints",
-      "related_concept": "Variables",
-      "difficulty_level": "Easy",
-      "reasoning_trace": {
-        "ranking_reasons": [
-          "Supports weak topic: Keys and Constraints",
-          "Connected concept: Variables",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme",
-          "Recommended for targeted revision.",
-          "Weak area: lower quiz score on this lecture"
-        ],
-        "graph_reason_trace": {
-          "supports_weak_topic": "Keys and Constraints",
-          "related_concept": "Variables",
-          "high_frequency_exam": true,
-          "why_useful_now": "Recommended for targeted revision.",
-          "lines": [
-            "Supports weak topic: Keys and Constraints",
-            "Connected concept: Variables",
-            "Frequently tested in exams",
-            "Useful bridge from a weak area to an important exam theme"
-          ],
-          "weak_signal": "topic scored 14% in quiz",
-          "exam_frequency": "appears in 18.6% of past paper questions",
-          "prerequisite_path": [],
-          "similarity_score": 0.6264,
-          "recommendation_rank": 50,
-          "action": "Review core concept and practice recommended MCQs."
-        },
-        "ranking_explanation": {
-          "contribution": {
-            "lexical_tfidf": 0.082696,
-            "semantic_embedding": 0.626356,
-            "soft_weak_boost": 0.0,
-            "hybrid_used": true
-          },
-          "confidence": "medium",
-          "query_expansion": {
-            "base_terms": [
-              "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-              "relational algebra",
-              "keys and constraints",
-              "entity relationships",
-              "aggregation (group by, count, sum)",
-              "database access",
-              "jdbc / database connectivity",
-              "sql queries"
-            ],
-            "synonym_terms": [
-              "database connectivity",
-              "driver manager",
-              "sql connection",
-              "primary key",
-              "foreign key",
-              "constraints"
-            ],
-            "graph_neighbor_terms": [
-              "database design",
-              "normalization",
-              "sql joins",
-              "variables",
-              "set",
-              "sliit",
-              "transactions",
-              "schedule",
-              "functional dependency",
-              "storage and file organization",
-              "drawn"
-            ],
-            "lecture_context_terms": [
-              "1",
-              "2",
-              "3",
-              "4",
-              "5",
-              "6",
-              "7",
-              "8"
-            ]
-          }
-        }
-      }
-    },
-    {
-      "question_id": "lec_6_Q39",
-      "score": 64.0,
-      "reasons": [
-        "Supports weak topic: Entity Relationships",
-        "Connected concept: Set",
-        "Frequently tested in exams",
-        "Useful bridge from a weak area to an important exam theme",
-        "Recommended for targeted revision.",
-        "High exam frequency (important in your materials)",
-        "Same or very close topic as your weak quiz area (GraphRAG match)",
-        "Related or supporting concept linked through topic similarity (GraphRAG)"
-      ],
-      "reason_trace": {
-        "supports_weak_topic": "Entity Relationships",
-        "related_concept": "Set",
-        "high_frequency_exam": true,
-        "why_useful_now": "Recommended for targeted revision.",
-        "lines": [
-          "Supports weak topic: Entity Relationships",
-          "Connected concept: Set",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme"
-        ],
-        "weak_signal": "topic scored 75% in quiz",
-        "exam_frequency": "appears in 10.0% of past paper questions",
-        "prerequisite_path": [],
-        "similarity_score": 0.5725,
-        "recommendation_rank": 66,
-        "action": "Review core concept and practice recommended MCQs."
-      },
-      "recommended_topic": "Set",
-      "row_index": 367,
-      "tfidf_score": 0.093982,
-      "embedding_score": 0.572499,
-      "hybrid_score": 0.451703,
-      "ranking_explanation": {
-        "contribution": {
-          "lexical_tfidf": 0.093982,
-          "semantic_embedding": 0.572499,
-          "soft_weak_boost": 0.0,
-          "hybrid_used": true
-        },
-        "confidence": "medium",
-        "query_expansion": {
-          "base_terms": [
-            "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-            "relational algebra",
-            "keys and constraints",
-            "entity relationships",
-            "aggregation (group by, count, sum)",
-            "database access",
-            "jdbc / database connectivity",
-            "sql queries"
-          ],
-          "synonym_terms": [
-            "database connectivity",
-            "driver manager",
-            "sql connection",
-            "primary key",
-            "foreign key",
-            "constraints"
-          ],
-          "graph_neighbor_terms": [
-            "database design",
-            "normalization",
-            "sql joins",
-            "variables",
-            "set",
-            "sliit",
-            "transactions",
-            "schedule",
-            "functional dependency",
-            "storage and file organization",
-            "drawn"
-          ],
-          "lecture_context_terms": [
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8"
-          ]
-        }
-      },
-      "why_selected": [
-        "Supports weak topic: Entity Relationships",
-        "Connected concept: Set",
-        "Frequently tested in exams"
-      ],
-      "weak_topic_link": "Entity Relationships",
-      "related_concept": "Set",
-      "difficulty_level": "Medium",
-      "reasoning_trace": {
-        "ranking_reasons": [
-          "Supports weak topic: Entity Relationships",
-          "Connected concept: Set",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme",
-          "Recommended for targeted revision.",
-          "High exam frequency (important in your materials)"
-        ],
-        "graph_reason_trace": {
-          "supports_weak_topic": "Entity Relationships",
-          "related_concept": "Set",
-          "high_frequency_exam": true,
-          "why_useful_now": "Recommended for targeted revision.",
-          "lines": [
-            "Supports weak topic: Entity Relationships",
-            "Connected concept: Set",
-            "Frequently tested in exams",
-            "Useful bridge from a weak area to an important exam theme"
-          ],
-          "weak_signal": "topic scored 75% in quiz",
-          "exam_frequency": "appears in 10.0% of past paper questions",
-          "prerequisite_path": [],
-          "similarity_score": 0.5725,
-          "recommendation_rank": 66,
-          "action": "Review core concept and practice recommended MCQs."
-        },
-        "ranking_explanation": {
-          "contribution": {
-            "lexical_tfidf": 0.093982,
-            "semantic_embedding": 0.572499,
-            "soft_weak_boost": 0.0,
-            "hybrid_used": true
-          },
-          "confidence": "medium",
-          "query_expansion": {
-            "base_terms": [
-              "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-              "relational algebra",
-              "keys and constraints",
-              "entity relationships",
-              "aggregation (group by, count, sum)",
-              "database access",
-              "jdbc / database connectivity",
-              "sql queries"
-            ],
-            "synonym_terms": [
-              "database connectivity",
-              "driver manager",
-              "sql connection",
-              "primary key",
-              "foreign key",
-              "constraints"
-            ],
-            "graph_neighbor_terms": [
-              "database design",
-              "normalization",
-              "sql joins",
-              "variables",
-              "set",
-              "sliit",
-              "transactions",
-              "schedule",
-              "functional dependency",
-              "storage and file organization",
-              "drawn"
-            ],
-            "lecture_context_terms": [
-              "1",
-              "2",
-              "3",
-              "4",
-              "5",
-              "6",
-              "7",
-              "8"
-            ]
-          }
-        }
-      }
-    },
-    {
-      "question_id": "lec_8_Q72",
-      "score": 72.0,
-      "reasons": [
-        "Supports weak topic: Database Access",
-        "Connected concept: Database Design",
-        "Frequently tested in exams",
-        "Useful bridge from a weak area to an important exam theme",
-        "Recommended for targeted revision.",
-        "Mixed performance \u2014 worth reviewing",
-        "High exam frequency (important in your materials)",
-        "Same or very close topic as your weak quiz area (GraphRAG match)",
-        "Related or supporting concept linked through topic similarity (GraphRAG)"
-      ],
-      "reason_trace": {
-        "supports_weak_topic": "Database Access",
-        "related_concept": "Database Design",
-        "high_frequency_exam": true,
-        "why_useful_now": "Recommended for targeted revision.",
-        "lines": [
-          "Supports weak topic: Database Access",
-          "Connected concept: Database Design",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme"
-        ],
-        "weak_signal": "topic scored 71% in quiz",
-        "exam_frequency": "appears in 14.4% of past paper questions",
-        "prerequisite_path": [],
-        "similarity_score": 0.6169,
-        "recommendation_rank": 89,
-        "action": "Review core concept and practice recommended MCQs."
-      },
-      "recommended_topic": "Database Design",
-      "row_index": 500,
-      "tfidf_score": 0.122008,
-      "embedding_score": 0.616877,
-      "hybrid_score": 0.536142,
-      "ranking_explanation": {
-        "contribution": {
-          "lexical_tfidf": 0.122008,
-          "semantic_embedding": 0.616877,
-          "soft_weak_boost": 0.0,
-          "hybrid_used": true
-        },
-        "confidence": "medium",
-        "query_expansion": {
-          "base_terms": [
-            "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-            "relational algebra",
-            "keys and constraints",
-            "entity relationships",
-            "aggregation (group by, count, sum)",
-            "database access",
-            "jdbc / database connectivity",
-            "sql queries"
-          ],
-          "synonym_terms": [
-            "database connectivity",
-            "driver manager",
-            "sql connection",
-            "primary key",
-            "foreign key",
-            "constraints"
-          ],
-          "graph_neighbor_terms": [
-            "database design",
-            "normalization",
-            "sql joins",
-            "variables",
-            "set",
-            "sliit",
-            "transactions",
-            "schedule",
-            "functional dependency",
-            "storage and file organization",
-            "drawn"
-          ],
-          "lecture_context_terms": [
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8"
-          ]
-        }
-      },
-      "why_selected": [
-        "Supports weak topic: Database Access",
-        "Connected concept: Database Design",
-        "Frequently tested in exams"
-      ],
-      "weak_topic_link": "Database Access",
-      "related_concept": "Database Design",
-      "difficulty_level": "Medium",
-      "reasoning_trace": {
-        "ranking_reasons": [
-          "Supports weak topic: Database Access",
-          "Connected concept: Database Design",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme",
-          "Recommended for targeted revision.",
-          "Mixed performance \u2014 worth reviewing"
-        ],
-        "graph_reason_trace": {
-          "supports_weak_topic": "Database Access",
-          "related_concept": "Database Design",
-          "high_frequency_exam": true,
-          "why_useful_now": "Recommended for targeted revision.",
-          "lines": [
-            "Supports weak topic: Database Access",
-            "Connected concept: Database Design",
-            "Frequently tested in exams",
-            "Useful bridge from a weak area to an important exam theme"
-          ],
-          "weak_signal": "topic scored 71% in quiz",
-          "exam_frequency": "appears in 14.4% of past paper questions",
-          "prerequisite_path": [],
-          "similarity_score": 0.6169,
-          "recommendation_rank": 89,
-          "action": "Review core concept and practice recommended MCQs."
-        },
-        "ranking_explanation": {
-          "contribution": {
-            "lexical_tfidf": 0.122008,
-            "semantic_embedding": 0.616877,
-            "soft_weak_boost": 0.0,
-            "hybrid_used": true
-          },
-          "confidence": "medium",
-          "query_expansion": {
-            "base_terms": [
-              "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-              "relational algebra",
-              "keys and constraints",
-              "entity relationships",
-              "aggregation (group by, count, sum)",
-              "database access",
-              "jdbc / database connectivity",
-              "sql queries"
-            ],
-            "synonym_terms": [
-              "database connectivity",
-              "driver manager",
-              "sql connection",
-              "primary key",
-              "foreign key",
-              "constraints"
-            ],
-            "graph_neighbor_terms": [
-              "database design",
-              "normalization",
-              "sql joins",
-              "variables",
-              "set",
-              "sliit",
-              "transactions",
-              "schedule",
-              "functional dependency",
-              "storage and file organization",
-              "drawn"
-            ],
-            "lecture_context_terms": [
-              "1",
-              "2",
-              "3",
-              "4",
-              "5",
-              "6",
-              "7",
-              "8"
-            ]
-          }
-        }
-      }
-    },
-    {
-      "question_id": "lec_1_Q6",
-      "score": 54.86,
+      "question_id": "lec_1_Q21",
+      "score": 60.51,
       "reasons": [
         "Supports weak topic: Relational Algebra",
-        "Connected concept: Drawn",
+        "Connected concept: Normalization",
         "Frequently tested in exams",
         "Useful bridge from a weak area to an important exam theme",
         "Recommended for targeted revision.",
@@ -548,45 +15,45 @@
       ],
       "reason_trace": {
         "supports_weak_topic": "Relational Algebra",
-        "related_concept": "Drawn",
+        "related_concept": "Normalization",
         "high_frequency_exam": true,
         "why_useful_now": "Recommended for targeted revision.",
         "lines": [
           "Supports weak topic: Relational Algebra",
-          "Connected concept: Drawn",
+          "Connected concept: Normalization",
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme"
         ],
-        "weak_signal": "topic scored 100% in quiz",
+        "weak_signal": "topic scored 75% in quiz",
         "exam_frequency": "appears in 7.4% of past paper questions",
         "prerequisite_path": [],
-        "similarity_score": 0.431,
-        "recommendation_rank": 103,
+        "similarity_score": 0.655,
+        "recommendation_rank": 37,
         "action": "Review core concept and practice recommended MCQs."
       },
-      "recommended_topic": "Drawn",
-      "row_index": 5,
-      "tfidf_score": 0.090854,
-      "embedding_score": 0.43098,
-      "hybrid_score": 0.310596,
+      "recommended_topic": "Normalization",
+      "row_index": 20,
+      "tfidf_score": 0.112951,
+      "embedding_score": 0.654957,
+      "hybrid_score": 0.559402,
       "ranking_explanation": {
         "contribution": {
-          "lexical_tfidf": 0.090854,
-          "semantic_embedding": 0.43098,
+          "lexical_tfidf": 0.112951,
+          "semantic_embedding": 0.654957,
           "soft_weak_boost": 0.0,
           "hybrid_used": true
         },
-        "confidence": "low",
+        "confidence": "medium",
         "query_expansion": {
           "base_terms": [
-            "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-            "relational algebra",
-            "keys and constraints",
-            "entity relationships",
-            "aggregation (group by, count, sum)",
+            "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
             "database access",
-            "jdbc / database connectivity",
-            "sql queries"
+            "aggregation (group by, count, sum)",
+            "relational algebra",
+            "entity relationships",
+            "sql queries",
+            "keys and constraints",
+            "jdbc / database connectivity"
           ],
           "synonym_terms": [
             "database connectivity",
@@ -598,15 +65,15 @@
           ],
           "graph_neighbor_terms": [
             "database design",
-            "normalization",
             "sql joins",
+            "normalization",
             "variables",
             "set",
             "sliit",
             "transactions",
             "schedule",
-            "functional dependency",
             "storage and file organization",
+            "functional dependency",
             "drawn"
           ],
           "lecture_context_terms": [
@@ -623,16 +90,16 @@
       },
       "why_selected": [
         "Supports weak topic: Relational Algebra",
-        "Connected concept: Drawn",
+        "Connected concept: Normalization",
         "Frequently tested in exams"
       ],
       "weak_topic_link": "Relational Algebra",
-      "related_concept": "Drawn",
-      "difficulty_level": "Hard",
+      "related_concept": "Normalization",
+      "difficulty_level": "Medium",
       "reasoning_trace": {
         "ranking_reasons": [
           "Supports weak topic: Relational Algebra",
-          "Connected concept: Drawn",
+          "Connected concept: Normalization",
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme",
           "Recommended for targeted revision.",
@@ -640,217 +107,40 @@
         ],
         "graph_reason_trace": {
           "supports_weak_topic": "Relational Algebra",
-          "related_concept": "Drawn",
+          "related_concept": "Normalization",
           "high_frequency_exam": true,
           "why_useful_now": "Recommended for targeted revision.",
           "lines": [
             "Supports weak topic: Relational Algebra",
-            "Connected concept: Drawn",
+            "Connected concept: Normalization",
             "Frequently tested in exams",
             "Useful bridge from a weak area to an important exam theme"
           ],
-          "weak_signal": "topic scored 100% in quiz",
+          "weak_signal": "topic scored 75% in quiz",
           "exam_frequency": "appears in 7.4% of past paper questions",
           "prerequisite_path": [],
-          "similarity_score": 0.431,
-          "recommendation_rank": 103,
+          "similarity_score": 0.655,
+          "recommendation_rank": 37,
           "action": "Review core concept and practice recommended MCQs."
         },
         "ranking_explanation": {
           "contribution": {
-            "lexical_tfidf": 0.090854,
-            "semantic_embedding": 0.43098,
-            "soft_weak_boost": 0.0,
-            "hybrid_used": true
-          },
-          "confidence": "low",
-          "query_expansion": {
-            "base_terms": [
-              "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-              "relational algebra",
-              "keys and constraints",
-              "entity relationships",
-              "aggregation (group by, count, sum)",
-              "database access",
-              "jdbc / database connectivity",
-              "sql queries"
-            ],
-            "synonym_terms": [
-              "database connectivity",
-              "driver manager",
-              "sql connection",
-              "primary key",
-              "foreign key",
-              "constraints"
-            ],
-            "graph_neighbor_terms": [
-              "database design",
-              "normalization",
-              "sql joins",
-              "variables",
-              "set",
-              "sliit",
-              "transactions",
-              "schedule",
-              "functional dependency",
-              "storage and file organization",
-              "drawn"
-            ],
-            "lecture_context_terms": [
-              "1",
-              "2",
-              "3",
-              "4",
-              "5",
-              "6",
-              "7",
-              "8"
-            ]
-          }
-        }
-      }
-    },
-    {
-      "question_id": "lec_7_Q1",
-      "score": 64.0,
-      "reasons": [
-        "Supports weak topic: Sql Queries",
-        "Connected concept: Database Design",
-        "Frequently tested in exams",
-        "Useful bridge from a weak area to an important exam theme",
-        "Recommended for targeted revision.",
-        "High exam frequency (important in your materials)",
-        "Same or very close topic as your weak quiz area (GraphRAG match)",
-        "Related or supporting concept linked through topic similarity (GraphRAG)"
-      ],
-      "reason_trace": {
-        "supports_weak_topic": "Sql Queries",
-        "related_concept": "Database Design",
-        "high_frequency_exam": true,
-        "why_useful_now": "Recommended for targeted revision.",
-        "lines": [
-          "Supports weak topic: Sql Queries",
-          "Connected concept: Database Design",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme"
-        ],
-        "weak_signal": "topic scored 100% in quiz",
-        "exam_frequency": "appears in 10.0% of past paper questions",
-        "prerequisite_path": [],
-        "similarity_score": 0.691,
-        "recommendation_rank": 11,
-        "action": "Review core concept and practice recommended MCQs."
-      },
-      "recommended_topic": "Database Design",
-      "row_index": 379,
-      "tfidf_score": 0.151422,
-      "embedding_score": 0.691047,
-      "hybrid_score": 0.65137,
-      "ranking_explanation": {
-        "contribution": {
-          "lexical_tfidf": 0.151422,
-          "semantic_embedding": 0.691047,
-          "soft_weak_boost": 0.0,
-          "hybrid_used": true
-        },
-        "confidence": "medium",
-        "query_expansion": {
-          "base_terms": [
-            "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-            "relational algebra",
-            "keys and constraints",
-            "entity relationships",
-            "aggregation (group by, count, sum)",
-            "database access",
-            "jdbc / database connectivity",
-            "sql queries"
-          ],
-          "synonym_terms": [
-            "database connectivity",
-            "driver manager",
-            "sql connection",
-            "primary key",
-            "foreign key",
-            "constraints"
-          ],
-          "graph_neighbor_terms": [
-            "database design",
-            "normalization",
-            "sql joins",
-            "variables",
-            "set",
-            "sliit",
-            "transactions",
-            "schedule",
-            "functional dependency",
-            "storage and file organization",
-            "drawn"
-          ],
-          "lecture_context_terms": [
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8"
-          ]
-        }
-      },
-      "why_selected": [
-        "Supports weak topic: Sql Queries",
-        "Connected concept: Database Design",
-        "Frequently tested in exams"
-      ],
-      "weak_topic_link": "Sql Queries",
-      "related_concept": "Database Design",
-      "difficulty_level": "Medium",
-      "reasoning_trace": {
-        "ranking_reasons": [
-          "Supports weak topic: Sql Queries",
-          "Connected concept: Database Design",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme",
-          "Recommended for targeted revision.",
-          "High exam frequency (important in your materials)"
-        ],
-        "graph_reason_trace": {
-          "supports_weak_topic": "Sql Queries",
-          "related_concept": "Database Design",
-          "high_frequency_exam": true,
-          "why_useful_now": "Recommended for targeted revision.",
-          "lines": [
-            "Supports weak topic: Sql Queries",
-            "Connected concept: Database Design",
-            "Frequently tested in exams",
-            "Useful bridge from a weak area to an important exam theme"
-          ],
-          "weak_signal": "topic scored 100% in quiz",
-          "exam_frequency": "appears in 10.0% of past paper questions",
-          "prerequisite_path": [],
-          "similarity_score": 0.691,
-          "recommendation_rank": 11,
-          "action": "Review core concept and practice recommended MCQs."
-        },
-        "ranking_explanation": {
-          "contribution": {
-            "lexical_tfidf": 0.151422,
-            "semantic_embedding": 0.691047,
+            "lexical_tfidf": 0.112951,
+            "semantic_embedding": 0.654957,
             "soft_weak_boost": 0.0,
             "hybrid_used": true
           },
           "confidence": "medium",
           "query_expansion": {
             "base_terms": [
-              "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-              "relational algebra",
-              "keys and constraints",
-              "entity relationships",
-              "aggregation (group by, count, sum)",
+              "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
               "database access",
-              "jdbc / database connectivity",
-              "sql queries"
+              "aggregation (group by, count, sum)",
+              "relational algebra",
+              "entity relationships",
+              "sql queries",
+              "keys and constraints",
+              "jdbc / database connectivity"
             ],
             "synonym_terms": [
               "database connectivity",
@@ -862,15 +152,15 @@
             ],
             "graph_neighbor_terms": [
               "database design",
-              "normalization",
               "sql joins",
+              "normalization",
               "variables",
               "set",
               "sliit",
               "transactions",
               "schedule",
-              "functional dependency",
               "storage and file organization",
+              "functional dependency",
               "drawn"
             ],
             "lecture_context_terms": [
@@ -888,14 +178,15 @@
       }
     },
     {
-      "question_id": "lec_6_Q2",
-      "score": 64.0,
+      "question_id": "lec_6_Q9",
+      "score": 98.47,
       "reasons": [
         "Supports weak topic: JDBC / Database Connectivity",
         "Connected concept: Database Design",
         "Frequently tested in exams",
         "Useful bridge from a weak area to an important exam theme",
         "Recommended for targeted revision.",
+        "Weak area: lower quiz score on this lecture",
         "High exam frequency (important in your materials)",
         "Same or very close topic as your weak quiz area (GraphRAG match)",
         "Related or supporting concept linked through topic similarity (GraphRAG)"
@@ -911,36 +202,36 @@
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme"
         ],
-        "weak_signal": "topic scored 75% in quiz",
+        "weak_signal": "topic scored 25% in quiz",
         "exam_frequency": "appears in 10.0% of past paper questions",
         "prerequisite_path": [],
-        "similarity_score": 0.7436,
-        "recommendation_rank": 10,
+        "similarity_score": 0.6734,
+        "recommendation_rank": 54,
         "action": "Review core concept and practice recommended MCQs."
       },
       "recommended_topic": "Database Design",
-      "row_index": 330,
-      "tfidf_score": 0.13584,
-      "embedding_score": 0.743583,
-      "hybrid_score": 0.678872,
+      "row_index": 337,
+      "tfidf_score": 0.070066,
+      "embedding_score": 0.67338,
+      "hybrid_score": 0.513436,
       "ranking_explanation": {
         "contribution": {
-          "lexical_tfidf": 0.13584,
-          "semantic_embedding": 0.743583,
+          "lexical_tfidf": 0.070066,
+          "semantic_embedding": 0.67338,
           "soft_weak_boost": 0.0,
           "hybrid_used": true
         },
         "confidence": "medium",
         "query_expansion": {
           "base_terms": [
-            "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-            "relational algebra",
-            "keys and constraints",
-            "entity relationships",
-            "aggregation (group by, count, sum)",
+            "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
             "database access",
-            "jdbc / database connectivity",
-            "sql queries"
+            "aggregation (group by, count, sum)",
+            "relational algebra",
+            "entity relationships",
+            "sql queries",
+            "keys and constraints",
+            "jdbc / database connectivity"
           ],
           "synonym_terms": [
             "database connectivity",
@@ -952,15 +243,15 @@
           ],
           "graph_neighbor_terms": [
             "database design",
-            "normalization",
             "sql joins",
+            "normalization",
             "variables",
             "set",
             "sliit",
             "transactions",
             "schedule",
-            "functional dependency",
             "storage and file organization",
+            "functional dependency",
             "drawn"
           ],
           "lecture_context_terms": [
@@ -982,7 +273,7 @@
       ],
       "weak_topic_link": "JDBC / Database Connectivity",
       "related_concept": "Database Design",
-      "difficulty_level": "Medium",
+      "difficulty_level": "Easy",
       "reasoning_trace": {
         "ranking_reasons": [
           "Supports weak topic: JDBC / Database Connectivity",
@@ -990,7 +281,7 @@
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme",
           "Recommended for targeted revision.",
-          "High exam frequency (important in your materials)"
+          "Weak area: lower quiz score on this lecture"
         ],
         "graph_reason_trace": {
           "supports_weak_topic": "JDBC / Database Connectivity",
@@ -1003,31 +294,31 @@
             "Frequently tested in exams",
             "Useful bridge from a weak area to an important exam theme"
           ],
-          "weak_signal": "topic scored 75% in quiz",
+          "weak_signal": "topic scored 25% in quiz",
           "exam_frequency": "appears in 10.0% of past paper questions",
           "prerequisite_path": [],
-          "similarity_score": 0.7436,
-          "recommendation_rank": 10,
+          "similarity_score": 0.6734,
+          "recommendation_rank": 54,
           "action": "Review core concept and practice recommended MCQs."
         },
         "ranking_explanation": {
           "contribution": {
-            "lexical_tfidf": 0.13584,
-            "semantic_embedding": 0.743583,
+            "lexical_tfidf": 0.070066,
+            "semantic_embedding": 0.67338,
             "soft_weak_boost": 0.0,
             "hybrid_used": true
           },
           "confidence": "medium",
           "query_expansion": {
             "base_terms": [
-              "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-              "relational algebra",
-              "keys and constraints",
-              "entity relationships",
-              "aggregation (group by, count, sum)",
+              "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
               "database access",
-              "jdbc / database connectivity",
-              "sql queries"
+              "aggregation (group by, count, sum)",
+              "relational algebra",
+              "entity relationships",
+              "sql queries",
+              "keys and constraints",
+              "jdbc / database connectivity"
             ],
             "synonym_terms": [
               "database connectivity",
@@ -1039,15 +330,15 @@
             ],
             "graph_neighbor_terms": [
               "database design",
-              "normalization",
               "sql joins",
+              "normalization",
               "variables",
               "set",
               "sliit",
               "transactions",
               "schedule",
-              "functional dependency",
               "storage and file organization",
+              "functional dependency",
               "drawn"
             ],
             "lecture_context_terms": [
@@ -1065,11 +356,11 @@
       }
     },
     {
-      "question_id": "lec_4_Q28",
-      "score": 97.25,
+      "question_id": "lec_4_Q15",
+      "score": 91.46,
       "reasons": [
-        "Supports weak topic: Keys and Constraints",
-        "Connected concept: Normalization",
+        "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+        "Connected concept: Set",
         "Frequently tested in exams",
         "Useful bridge from a weak area to an important exam theme",
         "Recommended for targeted revision.",
@@ -1079,46 +370,46 @@
         "Related or supporting concept linked through topic similarity (GraphRAG)"
       ],
       "reason_trace": {
-        "supports_weak_topic": "Keys and Constraints",
-        "related_concept": "Normalization",
+        "supports_weak_topic": "Aggregation (GROUP BY, COUNT, SUM)",
+        "related_concept": "Set",
         "high_frequency_exam": true,
         "why_useful_now": "Recommended for targeted revision.",
         "lines": [
-          "Supports weak topic: Keys and Constraints",
-          "Connected concept: Normalization",
+          "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+          "Connected concept: Set",
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme"
         ],
-        "weak_signal": "topic scored 43% in quiz",
+        "weak_signal": "topic scored 14% in quiz",
         "exam_frequency": "appears in 20.4% of past paper questions",
         "prerequisite_path": [],
-        "similarity_score": 0.559,
-        "recommendation_rank": 73,
+        "similarity_score": 0.3848,
+        "recommendation_rank": 104,
         "action": "Review core concept and practice recommended MCQs."
       },
-      "recommended_topic": "Normalization",
-      "row_index": 197,
-      "tfidf_score": 0.093542,
-      "embedding_score": 0.559028,
-      "hybrid_score": 0.438059,
+      "recommended_topic": "Set",
+      "row_index": 184,
+      "tfidf_score": 0.092403,
+      "embedding_score": 0.384806,
+      "hybrid_score": 0.268374,
       "ranking_explanation": {
         "contribution": {
-          "lexical_tfidf": 0.093542,
-          "semantic_embedding": 0.559028,
+          "lexical_tfidf": 0.092403,
+          "semantic_embedding": 0.384806,
           "soft_weak_boost": 0.0,
           "hybrid_used": true
         },
         "confidence": "low",
         "query_expansion": {
           "base_terms": [
-            "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-            "relational algebra",
-            "keys and constraints",
-            "entity relationships",
-            "aggregation (group by, count, sum)",
+            "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
             "database access",
-            "jdbc / database connectivity",
-            "sql queries"
+            "aggregation (group by, count, sum)",
+            "relational algebra",
+            "entity relationships",
+            "sql queries",
+            "keys and constraints",
+            "jdbc / database connectivity"
           ],
           "synonym_terms": [
             "database connectivity",
@@ -1130,15 +421,15 @@
           ],
           "graph_neighbor_terms": [
             "database design",
-            "normalization",
             "sql joins",
+            "normalization",
             "variables",
             "set",
             "sliit",
             "transactions",
             "schedule",
-            "functional dependency",
             "storage and file organization",
+            "functional dependency",
             "drawn"
           ],
           "lecture_context_terms": [
@@ -1154,58 +445,58 @@
         }
       },
       "why_selected": [
-        "Supports weak topic: Keys and Constraints",
-        "Connected concept: Normalization",
+        "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+        "Connected concept: Set",
         "Frequently tested in exams"
       ],
-      "weak_topic_link": "Keys and Constraints",
-      "related_concept": "Normalization",
+      "weak_topic_link": "Aggregation (GROUP BY, COUNT, SUM)",
+      "related_concept": "Set",
       "difficulty_level": "Easy",
       "reasoning_trace": {
         "ranking_reasons": [
-          "Supports weak topic: Keys and Constraints",
-          "Connected concept: Normalization",
+          "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+          "Connected concept: Set",
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme",
           "Recommended for targeted revision.",
           "Weak area: lower quiz score on this lecture"
         ],
         "graph_reason_trace": {
-          "supports_weak_topic": "Keys and Constraints",
-          "related_concept": "Normalization",
+          "supports_weak_topic": "Aggregation (GROUP BY, COUNT, SUM)",
+          "related_concept": "Set",
           "high_frequency_exam": true,
           "why_useful_now": "Recommended for targeted revision.",
           "lines": [
-            "Supports weak topic: Keys and Constraints",
-            "Connected concept: Normalization",
+            "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+            "Connected concept: Set",
             "Frequently tested in exams",
             "Useful bridge from a weak area to an important exam theme"
           ],
-          "weak_signal": "topic scored 43% in quiz",
+          "weak_signal": "topic scored 14% in quiz",
           "exam_frequency": "appears in 20.4% of past paper questions",
           "prerequisite_path": [],
-          "similarity_score": 0.559,
-          "recommendation_rank": 73,
+          "similarity_score": 0.3848,
+          "recommendation_rank": 104,
           "action": "Review core concept and practice recommended MCQs."
         },
         "ranking_explanation": {
           "contribution": {
-            "lexical_tfidf": 0.093542,
-            "semantic_embedding": 0.559028,
+            "lexical_tfidf": 0.092403,
+            "semantic_embedding": 0.384806,
             "soft_weak_boost": 0.0,
             "hybrid_used": true
           },
           "confidence": "low",
           "query_expansion": {
             "base_terms": [
-              "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-              "relational algebra",
-              "keys and constraints",
-              "entity relationships",
-              "aggregation (group by, count, sum)",
+              "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
               "database access",
-              "jdbc / database connectivity",
-              "sql queries"
+              "aggregation (group by, count, sum)",
+              "relational algebra",
+              "entity relationships",
+              "sql queries",
+              "keys and constraints",
+              "jdbc / database connectivity"
             ],
             "synonym_terms": [
               "database connectivity",
@@ -1217,15 +508,15 @@
             ],
             "graph_neighbor_terms": [
               "database design",
-              "normalization",
               "sql joins",
+              "normalization",
               "variables",
               "set",
               "sliit",
               "transactions",
               "schedule",
-              "functional dependency",
               "storage and file organization",
+              "functional dependency",
               "drawn"
             ],
             "lecture_context_terms": [
@@ -1243,193 +534,15 @@
       }
     },
     {
-      "question_id": "lec_8_Q64",
-      "score": 71.16,
-      "reasons": [
-        "Supports weak topic: Relational Algebra",
-        "Connected concept: Database Design",
-        "Frequently tested in exams",
-        "Useful bridge from a weak area to an important exam theme",
-        "Recommended for targeted revision.",
-        "Mixed performance \u2014 worth reviewing",
-        "High exam frequency (important in your materials)",
-        "Same or very close topic as your weak quiz area (GraphRAG match)",
-        "Related or supporting concept linked through topic similarity (GraphRAG)"
-      ],
-      "reason_trace": {
-        "supports_weak_topic": "Relational Algebra",
-        "related_concept": "Database Design",
-        "high_frequency_exam": true,
-        "why_useful_now": "Recommended for targeted revision.",
-        "lines": [
-          "Supports weak topic: Relational Algebra",
-          "Connected concept: Database Design",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme"
-        ],
-        "weak_signal": "topic scored 71% in quiz",
-        "exam_frequency": "appears in 14.4% of past paper questions",
-        "prerequisite_path": [],
-        "similarity_score": 0.6629,
-        "recommendation_rank": 28,
-        "action": "Review core concept and practice recommended MCQs."
-      },
-      "recommended_topic": "Database Design",
-      "row_index": 492,
-      "tfidf_score": 0.165494,
-      "embedding_score": 0.662858,
-      "hybrid_score": 0.6451,
-      "ranking_explanation": {
-        "contribution": {
-          "lexical_tfidf": 0.165494,
-          "semantic_embedding": 0.662858,
-          "soft_weak_boost": 0.0,
-          "hybrid_used": true
-        },
-        "confidence": "medium",
-        "query_expansion": {
-          "base_terms": [
-            "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-            "relational algebra",
-            "keys and constraints",
-            "entity relationships",
-            "aggregation (group by, count, sum)",
-            "database access",
-            "jdbc / database connectivity",
-            "sql queries"
-          ],
-          "synonym_terms": [
-            "database connectivity",
-            "driver manager",
-            "sql connection",
-            "primary key",
-            "foreign key",
-            "constraints"
-          ],
-          "graph_neighbor_terms": [
-            "database design",
-            "normalization",
-            "sql joins",
-            "variables",
-            "set",
-            "sliit",
-            "transactions",
-            "schedule",
-            "functional dependency",
-            "storage and file organization",
-            "drawn"
-          ],
-          "lecture_context_terms": [
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8"
-          ]
-        }
-      },
-      "why_selected": [
-        "Supports weak topic: Relational Algebra",
-        "Connected concept: Database Design",
-        "Frequently tested in exams"
-      ],
-      "weak_topic_link": "Relational Algebra",
-      "related_concept": "Database Design",
-      "difficulty_level": "Medium",
-      "reasoning_trace": {
-        "ranking_reasons": [
-          "Supports weak topic: Relational Algebra",
-          "Connected concept: Database Design",
-          "Frequently tested in exams",
-          "Useful bridge from a weak area to an important exam theme",
-          "Recommended for targeted revision.",
-          "Mixed performance \u2014 worth reviewing"
-        ],
-        "graph_reason_trace": {
-          "supports_weak_topic": "Relational Algebra",
-          "related_concept": "Database Design",
-          "high_frequency_exam": true,
-          "why_useful_now": "Recommended for targeted revision.",
-          "lines": [
-            "Supports weak topic: Relational Algebra",
-            "Connected concept: Database Design",
-            "Frequently tested in exams",
-            "Useful bridge from a weak area to an important exam theme"
-          ],
-          "weak_signal": "topic scored 71% in quiz",
-          "exam_frequency": "appears in 14.4% of past paper questions",
-          "prerequisite_path": [],
-          "similarity_score": 0.6629,
-          "recommendation_rank": 28,
-          "action": "Review core concept and practice recommended MCQs."
-        },
-        "ranking_explanation": {
-          "contribution": {
-            "lexical_tfidf": 0.165494,
-            "semantic_embedding": 0.662858,
-            "soft_weak_boost": 0.0,
-            "hybrid_used": true
-          },
-          "confidence": "medium",
-          "query_expansion": {
-            "base_terms": [
-              "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-              "relational algebra",
-              "keys and constraints",
-              "entity relationships",
-              "aggregation (group by, count, sum)",
-              "database access",
-              "jdbc / database connectivity",
-              "sql queries"
-            ],
-            "synonym_terms": [
-              "database connectivity",
-              "driver manager",
-              "sql connection",
-              "primary key",
-              "foreign key",
-              "constraints"
-            ],
-            "graph_neighbor_terms": [
-              "database design",
-              "normalization",
-              "sql joins",
-              "variables",
-              "set",
-              "sliit",
-              "transactions",
-              "schedule",
-              "functional dependency",
-              "storage and file organization",
-              "drawn"
-            ],
-            "lecture_context_terms": [
-              "1",
-              "2",
-              "3",
-              "4",
-              "5",
-              "6",
-              "7",
-              "8"
-            ]
-          }
-        }
-      }
-    },
-    {
-      "question_id": "lec_8_Q59",
-      "score": 70.4,
+      "question_id": "lec_8_Q30",
+      "score": 100.0,
       "reasons": [
         "Supports weak topic: Database Access",
         "Connected concept: Database Design",
         "Frequently tested in exams",
         "Useful bridge from a weak area to an important exam theme",
         "Recommended for targeted revision.",
-        "Mixed performance \u2014 worth reviewing",
+        "Weak area: lower quiz score on this lecture",
         "High exam frequency (important in your materials)",
         "Same or very close topic as your weak quiz area (GraphRAG match)",
         "Related or supporting concept linked through topic similarity (GraphRAG)"
@@ -1445,36 +558,36 @@
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme"
         ],
-        "weak_signal": "topic scored 71% in quiz",
+        "weak_signal": "topic scored 57% in quiz",
         "exam_frequency": "appears in 14.4% of past paper questions",
         "prerequisite_path": [],
-        "similarity_score": 0.5945,
-        "recommendation_rank": 33,
+        "similarity_score": 0.6651,
+        "recommendation_rank": 20,
         "action": "Review core concept and practice recommended MCQs."
       },
       "recommended_topic": "Database Design",
-      "row_index": 487,
-      "tfidf_score": 0.141534,
-      "embedding_score": 0.59454,
-      "hybrid_score": 0.543621,
+      "row_index": 458,
+      "tfidf_score": 0.145439,
+      "embedding_score": 0.665077,
+      "hybrid_score": 0.617437,
       "ranking_explanation": {
         "contribution": {
-          "lexical_tfidf": 0.141534,
-          "semantic_embedding": 0.59454,
+          "lexical_tfidf": 0.145439,
+          "semantic_embedding": 0.665077,
           "soft_weak_boost": 0.0,
           "hybrid_used": true
         },
         "confidence": "medium",
         "query_expansion": {
           "base_terms": [
-            "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-            "relational algebra",
-            "keys and constraints",
-            "entity relationships",
-            "aggregation (group by, count, sum)",
+            "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
             "database access",
-            "jdbc / database connectivity",
-            "sql queries"
+            "aggregation (group by, count, sum)",
+            "relational algebra",
+            "entity relationships",
+            "sql queries",
+            "keys and constraints",
+            "jdbc / database connectivity"
           ],
           "synonym_terms": [
             "database connectivity",
@@ -1486,15 +599,15 @@
           ],
           "graph_neighbor_terms": [
             "database design",
-            "normalization",
             "sql joins",
+            "normalization",
             "variables",
             "set",
             "sliit",
             "transactions",
             "schedule",
-            "functional dependency",
             "storage and file organization",
+            "functional dependency",
             "drawn"
           ],
           "lecture_context_terms": [
@@ -1516,7 +629,7 @@
       ],
       "weak_topic_link": "Database Access",
       "related_concept": "Database Design",
-      "difficulty_level": "Medium",
+      "difficulty_level": "Easy",
       "reasoning_trace": {
         "ranking_reasons": [
           "Supports weak topic: Database Access",
@@ -1524,7 +637,7 @@
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme",
           "Recommended for targeted revision.",
-          "Mixed performance \u2014 worth reviewing"
+          "Weak area: lower quiz score on this lecture"
         ],
         "graph_reason_trace": {
           "supports_weak_topic": "Database Access",
@@ -1537,31 +650,31 @@
             "Frequently tested in exams",
             "Useful bridge from a weak area to an important exam theme"
           ],
-          "weak_signal": "topic scored 71% in quiz",
+          "weak_signal": "topic scored 57% in quiz",
           "exam_frequency": "appears in 14.4% of past paper questions",
           "prerequisite_path": [],
-          "similarity_score": 0.5945,
-          "recommendation_rank": 33,
+          "similarity_score": 0.6651,
+          "recommendation_rank": 20,
           "action": "Review core concept and practice recommended MCQs."
         },
         "ranking_explanation": {
           "contribution": {
-            "lexical_tfidf": 0.141534,
-            "semantic_embedding": 0.59454,
+            "lexical_tfidf": 0.145439,
+            "semantic_embedding": 0.665077,
             "soft_weak_boost": 0.0,
             "hybrid_used": true
           },
           "confidence": "medium",
           "query_expansion": {
             "base_terms": [
-              "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-              "relational algebra",
-              "keys and constraints",
-              "entity relationships",
-              "aggregation (group by, count, sum)",
+              "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
               "database access",
-              "jdbc / database connectivity",
-              "sql queries"
+              "aggregation (group by, count, sum)",
+              "relational algebra",
+              "entity relationships",
+              "sql queries",
+              "keys and constraints",
+              "jdbc / database connectivity"
             ],
             "synonym_terms": [
               "database connectivity",
@@ -1573,15 +686,370 @@
             ],
             "graph_neighbor_terms": [
               "database design",
-              "normalization",
               "sql joins",
+              "normalization",
               "variables",
               "set",
               "sliit",
               "transactions",
               "schedule",
-              "functional dependency",
               "storage and file organization",
+              "functional dependency",
+              "drawn"
+            ],
+            "lecture_context_terms": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "question_id": "lec_1_Q36",
+      "score": 52.35,
+      "reasons": [
+        "Supports weak topic: Keys and Constraints",
+        "Connected concept: Functional Dependency",
+        "Frequently tested in exams",
+        "Useful bridge from a weak area to an important exam theme",
+        "Recommended for targeted revision.",
+        "High exam frequency (important in your materials)",
+        "Same or very close topic as your weak quiz area (GraphRAG match)",
+        "Related or supporting concept linked through topic similarity (GraphRAG)"
+      ],
+      "reason_trace": {
+        "supports_weak_topic": "Keys and Constraints",
+        "related_concept": "Functional Dependency",
+        "high_frequency_exam": true,
+        "why_useful_now": "Recommended for targeted revision.",
+        "lines": [
+          "Supports weak topic: Keys and Constraints",
+          "Connected concept: Functional Dependency",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme"
+        ],
+        "weak_signal": "topic scored 75% in quiz",
+        "exam_frequency": "appears in 7.4% of past paper questions",
+        "prerequisite_path": [],
+        "similarity_score": 0.357,
+        "recommendation_rank": 115,
+        "action": "Review core concept and practice recommended MCQs."
+      },
+      "recommended_topic": "Functional Dependency",
+      "row_index": 35,
+      "tfidf_score": 0.070669,
+      "embedding_score": 0.357032,
+      "hybrid_score": 0.209296,
+      "ranking_explanation": {
+        "contribution": {
+          "lexical_tfidf": 0.070669,
+          "semantic_embedding": 0.357032,
+          "soft_weak_boost": 0.0,
+          "hybrid_used": true
+        },
+        "confidence": "low",
+        "query_expansion": {
+          "base_terms": [
+            "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
+            "database access",
+            "aggregation (group by, count, sum)",
+            "relational algebra",
+            "entity relationships",
+            "sql queries",
+            "keys and constraints",
+            "jdbc / database connectivity"
+          ],
+          "synonym_terms": [
+            "database connectivity",
+            "driver manager",
+            "sql connection",
+            "primary key",
+            "foreign key",
+            "constraints"
+          ],
+          "graph_neighbor_terms": [
+            "database design",
+            "sql joins",
+            "normalization",
+            "variables",
+            "set",
+            "sliit",
+            "transactions",
+            "schedule",
+            "storage and file organization",
+            "functional dependency",
+            "drawn"
+          ],
+          "lecture_context_terms": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ]
+        }
+      },
+      "why_selected": [
+        "Supports weak topic: Keys and Constraints",
+        "Connected concept: Functional Dependency",
+        "Frequently tested in exams"
+      ],
+      "weak_topic_link": "Keys and Constraints",
+      "related_concept": "Functional Dependency",
+      "difficulty_level": "Hard",
+      "reasoning_trace": {
+        "ranking_reasons": [
+          "Supports weak topic: Keys and Constraints",
+          "Connected concept: Functional Dependency",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme",
+          "Recommended for targeted revision.",
+          "High exam frequency (important in your materials)"
+        ],
+        "graph_reason_trace": {
+          "supports_weak_topic": "Keys and Constraints",
+          "related_concept": "Functional Dependency",
+          "high_frequency_exam": true,
+          "why_useful_now": "Recommended for targeted revision.",
+          "lines": [
+            "Supports weak topic: Keys and Constraints",
+            "Connected concept: Functional Dependency",
+            "Frequently tested in exams",
+            "Useful bridge from a weak area to an important exam theme"
+          ],
+          "weak_signal": "topic scored 75% in quiz",
+          "exam_frequency": "appears in 7.4% of past paper questions",
+          "prerequisite_path": [],
+          "similarity_score": 0.357,
+          "recommendation_rank": 115,
+          "action": "Review core concept and practice recommended MCQs."
+        },
+        "ranking_explanation": {
+          "contribution": {
+            "lexical_tfidf": 0.070669,
+            "semantic_embedding": 0.357032,
+            "soft_weak_boost": 0.0,
+            "hybrid_used": true
+          },
+          "confidence": "low",
+          "query_expansion": {
+            "base_terms": [
+              "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
+              "database access",
+              "aggregation (group by, count, sum)",
+              "relational algebra",
+              "entity relationships",
+              "sql queries",
+              "keys and constraints",
+              "jdbc / database connectivity"
+            ],
+            "synonym_terms": [
+              "database connectivity",
+              "driver manager",
+              "sql connection",
+              "primary key",
+              "foreign key",
+              "constraints"
+            ],
+            "graph_neighbor_terms": [
+              "database design",
+              "sql joins",
+              "normalization",
+              "variables",
+              "set",
+              "sliit",
+              "transactions",
+              "schedule",
+              "storage and file organization",
+              "functional dependency",
+              "drawn"
+            ],
+            "lecture_context_terms": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "question_id": "lec_8_Q47",
+      "score": 94.82,
+      "reasons": [
+        "Supports weak topic: Entity Relationships",
+        "Connected concept: Database Design",
+        "Frequently tested in exams",
+        "Useful bridge from a weak area to an important exam theme",
+        "Recommended for targeted revision.",
+        "Weak area: lower quiz score on this lecture",
+        "High exam frequency (important in your materials)",
+        "Same or very close topic as your weak quiz area (GraphRAG match)",
+        "Related or supporting concept linked through topic similarity (GraphRAG)"
+      ],
+      "reason_trace": {
+        "supports_weak_topic": "Entity Relationships",
+        "related_concept": "Database Design",
+        "high_frequency_exam": true,
+        "why_useful_now": "Recommended for targeted revision.",
+        "lines": [
+          "Supports weak topic: Entity Relationships",
+          "Connected concept: Database Design",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme"
+        ],
+        "weak_signal": "topic scored 57% in quiz",
+        "exam_frequency": "appears in 14.4% of past paper questions",
+        "prerequisite_path": [],
+        "similarity_score": 0.4856,
+        "recommendation_rank": 93,
+        "action": "Review core concept and practice recommended MCQs."
+      },
+      "recommended_topic": "Database Design",
+      "row_index": 475,
+      "tfidf_score": 0.09876,
+      "embedding_score": 0.485608,
+      "hybrid_score": 0.375018,
+      "ranking_explanation": {
+        "contribution": {
+          "lexical_tfidf": 0.09876,
+          "semantic_embedding": 0.485608,
+          "soft_weak_boost": 0.0,
+          "hybrid_used": true
+        },
+        "confidence": "low",
+        "query_expansion": {
+          "base_terms": [
+            "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
+            "database access",
+            "aggregation (group by, count, sum)",
+            "relational algebra",
+            "entity relationships",
+            "sql queries",
+            "keys and constraints",
+            "jdbc / database connectivity"
+          ],
+          "synonym_terms": [
+            "database connectivity",
+            "driver manager",
+            "sql connection",
+            "primary key",
+            "foreign key",
+            "constraints"
+          ],
+          "graph_neighbor_terms": [
+            "database design",
+            "sql joins",
+            "normalization",
+            "variables",
+            "set",
+            "sliit",
+            "transactions",
+            "schedule",
+            "storage and file organization",
+            "functional dependency",
+            "drawn"
+          ],
+          "lecture_context_terms": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ]
+        }
+      },
+      "why_selected": [
+        "Supports weak topic: Entity Relationships",
+        "Connected concept: Database Design",
+        "Frequently tested in exams"
+      ],
+      "weak_topic_link": "Entity Relationships",
+      "related_concept": "Database Design",
+      "difficulty_level": "Easy",
+      "reasoning_trace": {
+        "ranking_reasons": [
+          "Supports weak topic: Entity Relationships",
+          "Connected concept: Database Design",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme",
+          "Recommended for targeted revision.",
+          "Weak area: lower quiz score on this lecture"
+        ],
+        "graph_reason_trace": {
+          "supports_weak_topic": "Entity Relationships",
+          "related_concept": "Database Design",
+          "high_frequency_exam": true,
+          "why_useful_now": "Recommended for targeted revision.",
+          "lines": [
+            "Supports weak topic: Entity Relationships",
+            "Connected concept: Database Design",
+            "Frequently tested in exams",
+            "Useful bridge from a weak area to an important exam theme"
+          ],
+          "weak_signal": "topic scored 57% in quiz",
+          "exam_frequency": "appears in 14.4% of past paper questions",
+          "prerequisite_path": [],
+          "similarity_score": 0.4856,
+          "recommendation_rank": 93,
+          "action": "Review core concept and practice recommended MCQs."
+        },
+        "ranking_explanation": {
+          "contribution": {
+            "lexical_tfidf": 0.09876,
+            "semantic_embedding": 0.485608,
+            "soft_weak_boost": 0.0,
+            "hybrid_used": true
+          },
+          "confidence": "low",
+          "query_expansion": {
+            "base_terms": [
+              "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
+              "database access",
+              "aggregation (group by, count, sum)",
+              "relational algebra",
+              "entity relationships",
+              "sql queries",
+              "keys and constraints",
+              "jdbc / database connectivity"
+            ],
+            "synonym_terms": [
+              "database connectivity",
+              "driver manager",
+              "sql connection",
+              "primary key",
+              "foreign key",
+              "constraints"
+            ],
+            "graph_neighbor_terms": [
+              "database design",
+              "sql joins",
+              "normalization",
+              "variables",
+              "set",
+              "sliit",
+              "transactions",
+              "schedule",
+              "storage and file organization",
+              "functional dependency",
               "drawn"
             ],
             "lecture_context_terms": [
@@ -1622,7 +1090,7 @@
           "Frequently tested in exams",
           "Useful bridge from a weak area to an important exam theme"
         ],
-        "weak_signal": "topic scored 100% in quiz",
+        "weak_signal": "topic scored 75% in quiz",
         "exam_frequency": "appears in 7.4% of past paper questions",
         "prerequisite_path": [],
         "similarity_score": 0.624,
@@ -1644,14 +1112,14 @@
         "confidence": "medium",
         "query_expansion": {
           "base_terms": [
-            "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-            "relational algebra",
-            "keys and constraints",
-            "entity relationships",
-            "aggregation (group by, count, sum)",
+            "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
             "database access",
-            "jdbc / database connectivity",
-            "sql queries"
+            "aggregation (group by, count, sum)",
+            "relational algebra",
+            "entity relationships",
+            "sql queries",
+            "keys and constraints",
+            "jdbc / database connectivity"
           ],
           "synonym_terms": [
             "database connectivity",
@@ -1663,15 +1131,15 @@
           ],
           "graph_neighbor_terms": [
             "database design",
-            "normalization",
             "sql joins",
+            "normalization",
             "variables",
             "set",
             "sliit",
             "transactions",
             "schedule",
-            "functional dependency",
             "storage and file organization",
+            "functional dependency",
             "drawn"
           ],
           "lecture_context_terms": [
@@ -1714,7 +1182,7 @@
             "Frequently tested in exams",
             "Useful bridge from a weak area to an important exam theme"
           ],
-          "weak_signal": "topic scored 100% in quiz",
+          "weak_signal": "topic scored 75% in quiz",
           "exam_frequency": "appears in 7.4% of past paper questions",
           "prerequisite_path": [],
           "similarity_score": 0.624,
@@ -1731,14 +1199,14 @@
           "confidence": "medium",
           "query_expansion": {
             "base_terms": [
-              "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-              "relational algebra",
-              "keys and constraints",
-              "entity relationships",
-              "aggregation (group by, count, sum)",
+              "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
               "database access",
-              "jdbc / database connectivity",
-              "sql queries"
+              "aggregation (group by, count, sum)",
+              "relational algebra",
+              "entity relationships",
+              "sql queries",
+              "keys and constraints",
+              "jdbc / database connectivity"
             ],
             "synonym_terms": [
               "database connectivity",
@@ -1750,15 +1218,548 @@
             ],
             "graph_neighbor_terms": [
               "database design",
-              "normalization",
               "sql joins",
+              "normalization",
               "variables",
               "set",
               "sliit",
               "transactions",
               "schedule",
-              "functional dependency",
               "storage and file organization",
+              "functional dependency",
+              "drawn"
+            ],
+            "lecture_context_terms": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "question_id": "lec_4_Q25",
+      "score": 96.44,
+      "reasons": [
+        "Supports weak topic: Sql Queries",
+        "Connected concept: Set",
+        "Frequently tested in exams",
+        "Useful bridge from a weak area to an important exam theme",
+        "Recommended for targeted revision.",
+        "Weak area: lower quiz score on this lecture",
+        "High exam frequency (important in your materials)",
+        "Same or very close topic as your weak quiz area (GraphRAG match)",
+        "Related or supporting concept linked through topic similarity (GraphRAG)"
+      ],
+      "reason_trace": {
+        "supports_weak_topic": "Sql Queries",
+        "related_concept": "Set",
+        "high_frequency_exam": true,
+        "why_useful_now": "Recommended for targeted revision.",
+        "lines": [
+          "Supports weak topic: Sql Queries",
+          "Connected concept: Set",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme"
+        ],
+        "weak_signal": "topic scored 14% in quiz",
+        "exam_frequency": "appears in 20.4% of past paper questions",
+        "prerequisite_path": [],
+        "similarity_score": 0.6185,
+        "recommendation_rank": 56,
+        "action": "Review core concept and practice recommended MCQs."
+      },
+      "recommended_topic": "Set",
+      "row_index": 194,
+      "tfidf_score": 0.087158,
+      "embedding_score": 0.618521,
+      "hybrid_score": 0.485939,
+      "ranking_explanation": {
+        "contribution": {
+          "lexical_tfidf": 0.087158,
+          "semantic_embedding": 0.618521,
+          "soft_weak_boost": 0.0,
+          "hybrid_used": true
+        },
+        "confidence": "medium",
+        "query_expansion": {
+          "base_terms": [
+            "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
+            "database access",
+            "aggregation (group by, count, sum)",
+            "relational algebra",
+            "entity relationships",
+            "sql queries",
+            "keys and constraints",
+            "jdbc / database connectivity"
+          ],
+          "synonym_terms": [
+            "database connectivity",
+            "driver manager",
+            "sql connection",
+            "primary key",
+            "foreign key",
+            "constraints"
+          ],
+          "graph_neighbor_terms": [
+            "database design",
+            "sql joins",
+            "normalization",
+            "variables",
+            "set",
+            "sliit",
+            "transactions",
+            "schedule",
+            "storage and file organization",
+            "functional dependency",
+            "drawn"
+          ],
+          "lecture_context_terms": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ]
+        }
+      },
+      "why_selected": [
+        "Supports weak topic: Sql Queries",
+        "Connected concept: Set",
+        "Frequently tested in exams"
+      ],
+      "weak_topic_link": "Sql Queries",
+      "related_concept": "Set",
+      "difficulty_level": "Easy",
+      "reasoning_trace": {
+        "ranking_reasons": [
+          "Supports weak topic: Sql Queries",
+          "Connected concept: Set",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme",
+          "Recommended for targeted revision.",
+          "Weak area: lower quiz score on this lecture"
+        ],
+        "graph_reason_trace": {
+          "supports_weak_topic": "Sql Queries",
+          "related_concept": "Set",
+          "high_frequency_exam": true,
+          "why_useful_now": "Recommended for targeted revision.",
+          "lines": [
+            "Supports weak topic: Sql Queries",
+            "Connected concept: Set",
+            "Frequently tested in exams",
+            "Useful bridge from a weak area to an important exam theme"
+          ],
+          "weak_signal": "topic scored 14% in quiz",
+          "exam_frequency": "appears in 20.4% of past paper questions",
+          "prerequisite_path": [],
+          "similarity_score": 0.6185,
+          "recommendation_rank": 56,
+          "action": "Review core concept and practice recommended MCQs."
+        },
+        "ranking_explanation": {
+          "contribution": {
+            "lexical_tfidf": 0.087158,
+            "semantic_embedding": 0.618521,
+            "soft_weak_boost": 0.0,
+            "hybrid_used": true
+          },
+          "confidence": "medium",
+          "query_expansion": {
+            "base_terms": [
+              "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
+              "database access",
+              "aggregation (group by, count, sum)",
+              "relational algebra",
+              "entity relationships",
+              "sql queries",
+              "keys and constraints",
+              "jdbc / database connectivity"
+            ],
+            "synonym_terms": [
+              "database connectivity",
+              "driver manager",
+              "sql connection",
+              "primary key",
+              "foreign key",
+              "constraints"
+            ],
+            "graph_neighbor_terms": [
+              "database design",
+              "sql joins",
+              "normalization",
+              "variables",
+              "set",
+              "sliit",
+              "transactions",
+              "schedule",
+              "storage and file organization",
+              "functional dependency",
+              "drawn"
+            ],
+            "lecture_context_terms": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "question_id": "lec_4_Q16",
+      "score": 95.37,
+      "reasons": [
+        "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+        "Connected concept: Sliit",
+        "Frequently tested in exams",
+        "Useful bridge from a weak area to an important exam theme",
+        "Recommended for targeted revision.",
+        "Weak area: lower quiz score on this lecture",
+        "High exam frequency (important in your materials)",
+        "Same or very close topic as your weak quiz area (GraphRAG match)",
+        "Related or supporting concept linked through topic similarity (GraphRAG)"
+      ],
+      "reason_trace": {
+        "supports_weak_topic": "Aggregation (GROUP BY, COUNT, SUM)",
+        "related_concept": "Sliit",
+        "high_frequency_exam": true,
+        "why_useful_now": "Recommended for targeted revision.",
+        "lines": [
+          "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+          "Connected concept: Sliit",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme"
+        ],
+        "weak_signal": "topic scored 14% in quiz",
+        "exam_frequency": "appears in 20.4% of past paper questions",
+        "prerequisite_path": [],
+        "similarity_score": 0.6059,
+        "recommendation_rank": 40,
+        "action": "Review core concept and practice recommended MCQs."
+      },
+      "recommended_topic": "Sliit",
+      "row_index": 185,
+      "tfidf_score": 0.127762,
+      "embedding_score": 0.605949,
+      "hybrid_score": 0.534155,
+      "ranking_explanation": {
+        "contribution": {
+          "lexical_tfidf": 0.127762,
+          "semantic_embedding": 0.605949,
+          "soft_weak_boost": 0.0,
+          "hybrid_used": true
+        },
+        "confidence": "medium",
+        "query_expansion": {
+          "base_terms": [
+            "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
+            "database access",
+            "aggregation (group by, count, sum)",
+            "relational algebra",
+            "entity relationships",
+            "sql queries",
+            "keys and constraints",
+            "jdbc / database connectivity"
+          ],
+          "synonym_terms": [
+            "database connectivity",
+            "driver manager",
+            "sql connection",
+            "primary key",
+            "foreign key",
+            "constraints"
+          ],
+          "graph_neighbor_terms": [
+            "database design",
+            "sql joins",
+            "normalization",
+            "variables",
+            "set",
+            "sliit",
+            "transactions",
+            "schedule",
+            "storage and file organization",
+            "functional dependency",
+            "drawn"
+          ],
+          "lecture_context_terms": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ]
+        }
+      },
+      "why_selected": [
+        "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+        "Connected concept: Sliit",
+        "Frequently tested in exams"
+      ],
+      "weak_topic_link": "Aggregation (GROUP BY, COUNT, SUM)",
+      "related_concept": "Sliit",
+      "difficulty_level": "Easy",
+      "reasoning_trace": {
+        "ranking_reasons": [
+          "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+          "Connected concept: Sliit",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme",
+          "Recommended for targeted revision.",
+          "Weak area: lower quiz score on this lecture"
+        ],
+        "graph_reason_trace": {
+          "supports_weak_topic": "Aggregation (GROUP BY, COUNT, SUM)",
+          "related_concept": "Sliit",
+          "high_frequency_exam": true,
+          "why_useful_now": "Recommended for targeted revision.",
+          "lines": [
+            "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+            "Connected concept: Sliit",
+            "Frequently tested in exams",
+            "Useful bridge from a weak area to an important exam theme"
+          ],
+          "weak_signal": "topic scored 14% in quiz",
+          "exam_frequency": "appears in 20.4% of past paper questions",
+          "prerequisite_path": [],
+          "similarity_score": 0.6059,
+          "recommendation_rank": 40,
+          "action": "Review core concept and practice recommended MCQs."
+        },
+        "ranking_explanation": {
+          "contribution": {
+            "lexical_tfidf": 0.127762,
+            "semantic_embedding": 0.605949,
+            "soft_weak_boost": 0.0,
+            "hybrid_used": true
+          },
+          "confidence": "medium",
+          "query_expansion": {
+            "base_terms": [
+              "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
+              "database access",
+              "aggregation (group by, count, sum)",
+              "relational algebra",
+              "entity relationships",
+              "sql queries",
+              "keys and constraints",
+              "jdbc / database connectivity"
+            ],
+            "synonym_terms": [
+              "database connectivity",
+              "driver manager",
+              "sql connection",
+              "primary key",
+              "foreign key",
+              "constraints"
+            ],
+            "graph_neighbor_terms": [
+              "database design",
+              "sql joins",
+              "normalization",
+              "variables",
+              "set",
+              "sliit",
+              "transactions",
+              "schedule",
+              "storage and file organization",
+              "functional dependency",
+              "drawn"
+            ],
+            "lecture_context_terms": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "question_id": "lec_1_Q29",
+      "score": 64.0,
+      "reasons": [
+        "Supports weak topic: Entity Relationships",
+        "Connected concept: Database Design",
+        "Frequently tested in exams",
+        "Useful bridge from a weak area to an important exam theme",
+        "Recommended for targeted revision.",
+        "High exam frequency (important in your materials)",
+        "Same or very close topic as your weak quiz area (GraphRAG match)",
+        "Related or supporting concept linked through topic similarity (GraphRAG)"
+      ],
+      "reason_trace": {
+        "supports_weak_topic": "Entity Relationships",
+        "related_concept": "Database Design",
+        "high_frequency_exam": true,
+        "why_useful_now": "Recommended for targeted revision.",
+        "lines": [
+          "Supports weak topic: Entity Relationships",
+          "Connected concept: Database Design",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme"
+        ],
+        "weak_signal": "topic scored 75% in quiz",
+        "exam_frequency": "appears in 7.4% of past paper questions",
+        "prerequisite_path": [],
+        "similarity_score": 0.7037,
+        "recommendation_rank": 23,
+        "action": "Review core concept and practice recommended MCQs."
+      },
+      "recommended_topic": "Database Design",
+      "row_index": 28,
+      "tfidf_score": 0.111662,
+      "embedding_score": 0.703718,
+      "hybrid_score": 0.604503,
+      "ranking_explanation": {
+        "contribution": {
+          "lexical_tfidf": 0.111662,
+          "semantic_embedding": 0.703718,
+          "soft_weak_boost": 0.0,
+          "hybrid_used": true
+        },
+        "confidence": "medium",
+        "query_expansion": {
+          "base_terms": [
+            "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
+            "database access",
+            "aggregation (group by, count, sum)",
+            "relational algebra",
+            "entity relationships",
+            "sql queries",
+            "keys and constraints",
+            "jdbc / database connectivity"
+          ],
+          "synonym_terms": [
+            "database connectivity",
+            "driver manager",
+            "sql connection",
+            "primary key",
+            "foreign key",
+            "constraints"
+          ],
+          "graph_neighbor_terms": [
+            "database design",
+            "sql joins",
+            "normalization",
+            "variables",
+            "set",
+            "sliit",
+            "transactions",
+            "schedule",
+            "storage and file organization",
+            "functional dependency",
+            "drawn"
+          ],
+          "lecture_context_terms": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ]
+        }
+      },
+      "why_selected": [
+        "Supports weak topic: Entity Relationships",
+        "Connected concept: Database Design",
+        "Frequently tested in exams"
+      ],
+      "weak_topic_link": "Entity Relationships",
+      "related_concept": "Database Design",
+      "difficulty_level": "Medium",
+      "reasoning_trace": {
+        "ranking_reasons": [
+          "Supports weak topic: Entity Relationships",
+          "Connected concept: Database Design",
+          "Frequently tested in exams",
+          "Useful bridge from a weak area to an important exam theme",
+          "Recommended for targeted revision.",
+          "High exam frequency (important in your materials)"
+        ],
+        "graph_reason_trace": {
+          "supports_weak_topic": "Entity Relationships",
+          "related_concept": "Database Design",
+          "high_frequency_exam": true,
+          "why_useful_now": "Recommended for targeted revision.",
+          "lines": [
+            "Supports weak topic: Entity Relationships",
+            "Connected concept: Database Design",
+            "Frequently tested in exams",
+            "Useful bridge from a weak area to an important exam theme"
+          ],
+          "weak_signal": "topic scored 75% in quiz",
+          "exam_frequency": "appears in 7.4% of past paper questions",
+          "prerequisite_path": [],
+          "similarity_score": 0.7037,
+          "recommendation_rank": 23,
+          "action": "Review core concept and practice recommended MCQs."
+        },
+        "ranking_explanation": {
+          "contribution": {
+            "lexical_tfidf": 0.111662,
+            "semantic_embedding": 0.703718,
+            "soft_weak_boost": 0.0,
+            "hybrid_used": true
+          },
+          "confidence": "medium",
+          "query_expansion": {
+            "base_terms": [
+              "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
+              "database access",
+              "aggregation (group by, count, sum)",
+              "relational algebra",
+              "entity relationships",
+              "sql queries",
+              "keys and constraints",
+              "jdbc / database connectivity"
+            ],
+            "synonym_terms": [
+              "database connectivity",
+              "driver manager",
+              "sql connection",
+              "primary key",
+              "foreign key",
+              "constraints"
+            ],
+            "graph_neighbor_terms": [
+              "database design",
+              "sql joins",
+              "normalization",
+              "variables",
+              "set",
+              "sliit",
+              "transactions",
+              "schedule",
+              "storage and file organization",
+              "functional dependency",
               "drawn"
             ],
             "lecture_context_terms": [
@@ -1791,52 +1792,185 @@
       "2.pdf",
       "3.pdf",
       "4.pdf",
-      "5.pdf"
+      "5.pdf",
+      "6.pdf",
+      "7.pdf",
+      "8.pdf"
     ],
     "strong_files": [
-      "1.pdf",
-      "6.pdf",
-      "7.pdf"
+      "1.pdf"
     ],
     "has_quiz_state": true,
     "weak_topics_confirmed": [
-      "Relational Algebra",
-      "Keys and Constraints",
-      "Entity Relationships",
-      "Aggregation (GROUP BY, COUNT, SUM)",
       "Database Access",
-      "JDBC / Database Connectivity",
-      "Sql Queries"
+      "Aggregation (GROUP BY, COUNT, SUM)",
+      "Relational Algebra",
+      "Entity Relationships",
+      "Sql Queries",
+      "Keys and Constraints",
+      "JDBC / Database Connectivity"
     ],
     "related_concept_links": [
       {
-        "from_weak": "Relational Algebra",
+        "from_weak": "Database Access",
         "related_concept": "Database Design",
         "link_type": "Supporting topic (high exam share)"
       },
       {
-        "from_weak": "Relational Algebra",
-        "related_concept": "Normalization",
-        "link_type": "Supporting topic (high exam share)"
-      },
-      {
-        "from_weak": "Relational Algebra",
+        "from_weak": "Database Access",
         "related_concept": "SQL Joins",
         "link_type": "Supporting topic (high exam share)"
       },
       {
-        "from_weak": "Relational Algebra",
+        "from_weak": "Aggregation (GROUP BY, COUNT, SUM)",
+        "related_concept": "Normalization",
+        "link_type": "Supporting topic (high exam share)"
+      },
+      {
+        "from_weak": "Aggregation (GROUP BY, COUNT, SUM)",
         "related_concept": "Variables",
         "link_type": "Supporting topic (high exam share)"
       },
       {
-        "from_weak": "Relational Algebra",
+        "from_weak": "Aggregation (GROUP BY, COUNT, SUM)",
         "related_concept": "Set",
         "link_type": "Supporting topic (high exam share)"
       }
     ],
     "prerequisite_concept_links": [],
     "map_center_specs": [
+      {
+        "kind": "weak",
+        "row_index": 46,
+        "lecture_id": "lec_8",
+        "topic": {
+          "topic_id": 46,
+          "keywords": [
+            "Database Access"
+          ],
+          "rep_sentence": "Most users need to access only a small part of the database to carry out...",
+          "sentences": [
+            "Most users need to access only a small part of the database to carry out their tasks. \uf0a1",
+            "Principals : Individuals, groups, or processes granted access to the SQL Server instance, either at the server level or database level.",
+            "Database-level principals include users and database roles. \uf0a1",
+            "6. Create user-defined database roles if the fixed database roles do not meet your configuration requirements.",
+            "7. Assign users to the appropriate database roles (either fixed or user-defined)."
+          ]
+        },
+        "tid": "topic_46_lec_8",
+        "lec_fn": "8.pdf",
+        "label": "Database Access"
+      },
+      {
+        "kind": "weak",
+        "row_index": 7,
+        "lecture_id": "lec_2",
+        "topic": {
+          "topic_id": 7,
+          "keywords": [
+            "Aggregation"
+          ],
+          "rep_sentence": "LECTURE 02-",
+          "sentences": [
+            "LECTURE 02-",
+            "Example : Balance of the account should be greater than 0 \uf0a1",
+            "Suppose that an employee\u2019s salary should not exceed his/her manager\u2019s salary \uf0a1",
+            "Exchange what you have written with your peer and correct the answer.",
+            "Compare what you have written with your peer."
+          ]
+        },
+        "tid": "topic_7_lec_2",
+        "lec_fn": "2.pdf",
+        "label": "Aggregation (GROUP BY, COUNT, SUM)"
+      },
+      {
+        "kind": "weak",
+        "row_index": 14,
+        "lecture_id": "lec_3",
+        "topic": {
+          "topic_id": 14,
+          "keywords": [
+            "Aggregation"
+          ],
+          "rep_sentence": "LECTURE 03- SCHEMA REFINEMENT LECTURE CONTENT \uf0a1",
+          "sentences": [
+            "LECTURE 03- SCHEMA REFINEMENT LECTURE CONTENT \uf0a1",
+            "Why schema refinement?",
+            "Explain the pitfalls of incorrect grouping of attributes in relations. \uf0a1",
+            "WHY SCHEMA REFINEMENT? \uf0a1",
+            "The relations resulted through the logical database design may not be very good if your conceptual database design is not good. \uf0a1"
+          ]
+        },
+        "tid": "topic_14_lec_3",
+        "lec_fn": "3.pdf",
+        "label": "Aggregation (GROUP BY, COUNT, SUM)"
+      },
+      {
+        "kind": "weak",
+        "row_index": 18,
+        "lecture_id": "lec_4",
+        "topic": {
+          "topic_id": 18,
+          "keywords": [
+            "Aggregation"
+          ],
+          "rep_sentence": "Aggregate functions \uf0a1 GROUP BY \u2013 HAVING clauses LIKE OPERATOR Student \uf0a1",
+          "sentences": [
+            "Aggregate functions \uf0a1 GROUP BY \u2013 HAVING clauses LIKE OPERATOR Student \uf0a1",
+            "By hand side of join, with the matching rows in 1000 Amal 3.2 BM BM 3 Curtin the table on the left hand side of the join.",
+            "An aggregate function summarizes the results of an expression over a number of rows, returning a single value. \uf0a1",
+            "Some of the commonly used aggregate functions are SUM, COUNT, AVG, MIN and MAX AGGREGATION (CONTD.) \uf0a1",
+            "Groups the data in tables and produces a single summary row for each group."
+          ]
+        },
+        "tid": "topic_18_lec_4",
+        "lec_fn": "4.pdf",
+        "label": "Aggregation (GROUP BY, COUNT, SUM)"
+      },
+      {
+        "kind": "weak",
+        "row_index": 22,
+        "lecture_id": "lec_4",
+        "topic": {
+          "topic_id": 22,
+          "keywords": [
+            "Aggregation"
+          ],
+          "rep_sentence": "CHECK (gpa<= 4.0 ) ) MODIFICATIONS TO TABLES \uf0a1 ALTER commands \u2013 to alter the...",
+          "sentences": [
+            "CHECK (gpa<= 4.0 ) ) MODIFICATIONS TO TABLES \uf0a1 ALTER commands \u2013 to alter the definition of the object \uf0a1",
+            "Ex : Adding a new column to a table \uf0a1 ALTER TABLE student ADD age INT \uf0a1",
+            "Ex : Adding a new constraint to a column \uf0a1 ALTER TABLE student ADD CONSTRAINT chk_age CHECK (age > 18) \uf0a1",
+            "Ex : removing a column from a table \uf0a1 ALTER TABLE student DROP COLUMN age \uf0a1 DROP commands \u2013 for dropping objects \uf0a1",
+            "Ex: Deleting a table DROP TABLE"
+          ]
+        },
+        "tid": "topic_22_lec_4",
+        "lec_fn": "4.pdf",
+        "label": "Aggregation (GROUP BY, COUNT, SUM)"
+      },
+      {
+        "kind": "weak",
+        "row_index": 27,
+        "lecture_id": "lec_5",
+        "topic": {
+          "topic_id": 27,
+          "keywords": [
+            "Aggregation"
+          ],
+          "rep_sentence": "IF (...)...",
+          "sentences": [
+            "IF (...)...",
+            "Looping \uf0a1 WHILE (...) T-SQL: VARIABLES \uf0a1",
+            "As a counter either to count the number of times a loop is performed or to control how many times the loop is performed \uf0a1",
+            "IF STATEMENT \uf0a1 Imposes conditions on the execution of a Transact-SQL statement. \uf0a1",
+            "1000 BEGIN PRINT \u2018Inside the IF statement\u2019 PRINT \u2018There are lesser than 1000 employees \u2019 END ELSE PRINT \u2018There are more than 1000 emloyees ! '"
+          ]
+        },
+        "tid": "topic_27_lec_5",
+        "lec_fn": "5.pdf",
+        "label": "Aggregation (GROUP BY, COUNT, SUM)"
+      },
       {
         "kind": "weak",
         "row_index": 0,
@@ -1968,138 +2102,6 @@
         "tid": "topic_20_lec_4",
         "lec_fn": "4.pdf",
         "label": "Relational Algebra"
-      },
-      {
-        "kind": "weak",
-        "row_index": 1,
-        "lecture_id": "lec_1",
-        "topic": {
-          "topic_id": 1,
-          "keywords": [
-            "Keys and Constraints"
-          ],
-          "rep_sentence": "A several thousand of students are enrolled for courses at SLIIT.",
-          "sentences": [
-            "A several thousand of students are enrolled for courses at SLIIT.",
-            "How do you recommend to store these students\u2019 data and why? \uf0a1",
-            "During the New Year season you need to buy various groceries and presents for family.",
-            "REQUIREMENT ANALYSIS (CONTD.)",
-            "A Library is organized into several sections such as fiction, children and technology."
-          ]
-        },
-        "tid": "topic_1_lec_1",
-        "lec_fn": "1.pdf",
-        "label": "Keys and Constraints"
-      },
-      {
-        "kind": "weak",
-        "row_index": 8,
-        "lecture_id": "lec_2",
-        "topic": {
-          "topic_id": 8,
-          "keywords": [
-            "Keys and Constraints"
-          ],
-          "rep_sentence": "A relational database is a collection of relations with distinct relation...",
-          "sentences": [
-            "A relational database is a collection of relations with distinct relation names. \uf0a1",
-            "The main construct representing data in the relational model is the relation. \uf0a1",
-            "A relation consists of a relational schema and a relational instance.",
-            "The relational schema describes the columns for a relation. \uf0a1",
-            "The schema species the relation's name, the name of each field and the domain of each field."
-          ]
-        },
-        "tid": "topic_8_lec_2",
-        "lec_fn": "2.pdf",
-        "label": "Keys and Constraints"
-      },
-      {
-        "kind": "weak",
-        "row_index": 9,
-        "lecture_id": "lec_2",
-        "topic": {
-          "topic_id": 9,
-          "keywords": [
-            "Keys and Constraints"
-          ],
-          "rep_sentence": "INTEGRITY CONSTRAINTS \uf0a1",
-          "sentences": [
-            "INTEGRITY CONSTRAINTS \uf0a1",
-            "An integrity constraints (IC) is a condition specified on a database schema and restricts the data that could be stored in an instance of the database. \uf0a1",
-            "If a database instance satisfies all the integrity constraints specified on the database schema, it is a legal instance. \uf0a1",
-            "There are several types of integrity constraints \uf0a1 Domain constraints \uf0a1",
-            "Referential integrity constraints \uf0a1"
-          ]
-        },
-        "tid": "topic_9_lec_2",
-        "lec_fn": "2.pdf",
-        "label": "Keys and Constraints"
-      },
-      {
-        "kind": "weak",
-        "row_index": 10,
-        "lecture_id": "lec_2",
-        "topic": {
-          "topic_id": 10,
-          "keywords": [
-            "Keys and Constraints"
-          ],
-          "rep_sentence": "Ex: Students(sid: string, name: string, login: string, age: integer, gpa:...",
-          "sentences": [
-            "Ex: Students(sid: string, name: string, login: string, age: integer, gpa: real) \uf0a1",
-            "ISA MAPPING \u2013 OPTION 1 \uf0a1 Create a relation for the superclass name with its attributes.",
-            "Person NIC name age Person \uf0a1 Create separate relations for the sub classes with their attributes.",
-            "Primary key of the superclass is Student NIC gpa also primary key of each subclass.",
-            "Faculty member NIC salary \uf0a1 Option 1 works for all Student Faculty member constraints disjoint, overlapping, total and partial salary GPA ISA MAPPING \u2013 OPTION 1 (CONTD.) \uf0a1"
-          ]
-        },
-        "tid": "topic_10_lec_2",
-        "lec_fn": "2.pdf",
-        "label": "Keys and Constraints"
-      },
-      {
-        "kind": "weak",
-        "row_index": 12,
-        "lecture_id": "lec_3",
-        "topic": {
-          "topic_id": 12,
-          "keywords": [
-            "Keys and Constraints"
-          ],
-          "rep_sentence": "For example: Suppose we have a student table with attributes: id name, age. \uf0a1",
-          "sentences": [
-            "For example: Suppose we have a student table with attributes: id name, age. \uf0a1",
-            "Here id attribute uniquely identifies the name attribute of student table because if we know the student id we can tell the student name associated with it. \uf0a1",
-            "With respect to attributes you know a person holds write three functional dependencies that can exist in a person table.",
-            "A key constraint is a special case of a FD where the attributes in the key play the role of X and the set of all attributes play the role of Y. \uf0a1 Normalization process analyzes schemas based on keys and on the functional dependencies among their attributes. \uf0a1",
-            "Attribute closure of an attribute set X, denoted by X+ can be defined as set of all attributes which can be functionally determined from it. \uf0a1"
-          ]
-        },
-        "tid": "topic_12_lec_3",
-        "lec_fn": "3.pdf",
-        "label": "Keys and Constraints"
-      },
-      {
-        "kind": "weak",
-        "row_index": 29,
-        "lecture_id": "lec_5",
-        "topic": {
-          "topic_id": 29,
-          "keywords": [
-            "Keys and Constraints"
-          ],
-          "rep_sentence": "At the end of this lecture, students should be able to \uf0a1",
-          "sentences": [
-            "At the end of this lecture, students should be able to \uf0a1",
-            "Selection conditions \uf0a1",
-            "Parameter mode of parameters for \uf0a1",
-            "They are more powerful than general constraints. \uf0a1",
-            "For example, \uf0a1"
-          ]
-        },
-        "tid": "topic_29_lec_5",
-        "lec_fn": "5.pdf",
-        "label": "Keys and Constraints"
       },
       {
         "kind": "weak",
@@ -2323,160 +2325,6 @@
       },
       {
         "kind": "weak",
-        "row_index": 7,
-        "lecture_id": "lec_2",
-        "topic": {
-          "topic_id": 7,
-          "keywords": [
-            "Aggregation"
-          ],
-          "rep_sentence": "LECTURE 02-",
-          "sentences": [
-            "LECTURE 02-",
-            "Example : Balance of the account should be greater than 0 \uf0a1",
-            "Suppose that an employee\u2019s salary should not exceed his/her manager\u2019s salary \uf0a1",
-            "Exchange what you have written with your peer and correct the answer.",
-            "Compare what you have written with your peer."
-          ]
-        },
-        "tid": "topic_7_lec_2",
-        "lec_fn": "2.pdf",
-        "label": "Aggregation (GROUP BY, COUNT, SUM)"
-      },
-      {
-        "kind": "weak",
-        "row_index": 14,
-        "lecture_id": "lec_3",
-        "topic": {
-          "topic_id": 14,
-          "keywords": [
-            "Aggregation"
-          ],
-          "rep_sentence": "LECTURE 03- SCHEMA REFINEMENT LECTURE CONTENT \uf0a1",
-          "sentences": [
-            "LECTURE 03- SCHEMA REFINEMENT LECTURE CONTENT \uf0a1",
-            "Why schema refinement?",
-            "Explain the pitfalls of incorrect grouping of attributes in relations. \uf0a1",
-            "WHY SCHEMA REFINEMENT? \uf0a1",
-            "The relations resulted through the logical database design may not be very good if your conceptual database design is not good. \uf0a1"
-          ]
-        },
-        "tid": "topic_14_lec_3",
-        "lec_fn": "3.pdf",
-        "label": "Aggregation (GROUP BY, COUNT, SUM)"
-      },
-      {
-        "kind": "weak",
-        "row_index": 18,
-        "lecture_id": "lec_4",
-        "topic": {
-          "topic_id": 18,
-          "keywords": [
-            "Aggregation"
-          ],
-          "rep_sentence": "Aggregate functions \uf0a1 GROUP BY \u2013 HAVING clauses LIKE OPERATOR Student \uf0a1",
-          "sentences": [
-            "Aggregate functions \uf0a1 GROUP BY \u2013 HAVING clauses LIKE OPERATOR Student \uf0a1",
-            "By hand side of join, with the matching rows in 1000 Amal 3.2 BM BM 3 Curtin the table on the left hand side of the join.",
-            "An aggregate function summarizes the results of an expression over a number of rows, returning a single value. \uf0a1",
-            "Some of the commonly used aggregate functions are SUM, COUNT, AVG, MIN and MAX AGGREGATION (CONTD.) \uf0a1",
-            "Groups the data in tables and produces a single summary row for each group."
-          ]
-        },
-        "tid": "topic_18_lec_4",
-        "lec_fn": "4.pdf",
-        "label": "Aggregation (GROUP BY, COUNT, SUM)"
-      },
-      {
-        "kind": "weak",
-        "row_index": 22,
-        "lecture_id": "lec_4",
-        "topic": {
-          "topic_id": 22,
-          "keywords": [
-            "Aggregation"
-          ],
-          "rep_sentence": "CHECK (gpa<= 4.0 ) ) MODIFICATIONS TO TABLES \uf0a1 ALTER commands \u2013 to alter the...",
-          "sentences": [
-            "CHECK (gpa<= 4.0 ) ) MODIFICATIONS TO TABLES \uf0a1 ALTER commands \u2013 to alter the definition of the object \uf0a1",
-            "Ex : Adding a new column to a table \uf0a1 ALTER TABLE student ADD age INT \uf0a1",
-            "Ex : Adding a new constraint to a column \uf0a1 ALTER TABLE student ADD CONSTRAINT chk_age CHECK (age > 18) \uf0a1",
-            "Ex : removing a column from a table \uf0a1 ALTER TABLE student DROP COLUMN age \uf0a1 DROP commands \u2013 for dropping objects \uf0a1",
-            "Ex: Deleting a table DROP TABLE"
-          ]
-        },
-        "tid": "topic_22_lec_4",
-        "lec_fn": "4.pdf",
-        "label": "Aggregation (GROUP BY, COUNT, SUM)"
-      },
-      {
-        "kind": "weak",
-        "row_index": 27,
-        "lecture_id": "lec_5",
-        "topic": {
-          "topic_id": 27,
-          "keywords": [
-            "Aggregation"
-          ],
-          "rep_sentence": "IF (...)...",
-          "sentences": [
-            "IF (...)...",
-            "Looping \uf0a1 WHILE (...) T-SQL: VARIABLES \uf0a1",
-            "As a counter either to count the number of times a loop is performed or to control how many times the loop is performed \uf0a1",
-            "IF STATEMENT \uf0a1 Imposes conditions on the execution of a Transact-SQL statement. \uf0a1",
-            "1000 BEGIN PRINT \u2018Inside the IF statement\u2019 PRINT \u2018There are lesser than 1000 employees \u2019 END ELSE PRINT \u2018There are more than 1000 emloyees ! '"
-          ]
-        },
-        "tid": "topic_27_lec_5",
-        "lec_fn": "5.pdf",
-        "label": "Aggregation (GROUP BY, COUNT, SUM)"
-      },
-      {
-        "kind": "weak",
-        "row_index": 46,
-        "lecture_id": "lec_8",
-        "topic": {
-          "topic_id": 46,
-          "keywords": [
-            "Database Access"
-          ],
-          "rep_sentence": "Most users need to access only a small part of the database to carry out...",
-          "sentences": [
-            "Most users need to access only a small part of the database to carry out their tasks. \uf0a1",
-            "Principals : Individuals, groups, or processes granted access to the SQL Server instance, either at the server level or database level.",
-            "Database-level principals include users and database roles. \uf0a1",
-            "6. Create user-defined database roles if the fixed database roles do not meet your configuration requirements.",
-            "7. Assign users to the appropriate database roles (either fixed or user-defined)."
-          ]
-        },
-        "tid": "topic_46_lec_8",
-        "lec_fn": "8.pdf",
-        "label": "Database Access"
-      },
-      {
-        "kind": "weak",
-        "row_index": 30,
-        "lecture_id": "lec_6",
-        "topic": {
-          "topic_id": 30,
-          "keywords": [
-            "Jdbc"
-          ],
-          "rep_sentence": "JAVA DATABASE CONNECTIVITY LECTURE CONTENT \uf0a1",
-          "sentences": [
-            "JAVA DATABASE CONNECTIVITY LECTURE CONTENT \uf0a1",
-            "JDBC LEARNING OUTCOMES \uf0a1",
-            "Write a command line program in java to access different databases INTRODUCTION \uf0a1",
-            "Java Database Connectivity (JDBC) is an application program interface (API) specification for connecting programs written in Java to the data in popular databases. \uf0a1",
-            "The application program interface lets you to connect to a database, to interact with that database via SQL and retrieve results from the database that could be used within a java application."
-          ]
-        },
-        "tid": "topic_30_lec_6",
-        "lec_fn": "6.pdf",
-        "label": "JDBC / Database Connectivity"
-      },
-      {
-        "kind": "weak",
         "row_index": 19,
         "lecture_id": "lec_4",
         "topic": {
@@ -2630,6 +2478,160 @@
         "label": "Sql Queries"
       },
       {
+        "kind": "weak",
+        "row_index": 1,
+        "lecture_id": "lec_1",
+        "topic": {
+          "topic_id": 1,
+          "keywords": [
+            "Keys and Constraints"
+          ],
+          "rep_sentence": "A several thousand of students are enrolled for courses at SLIIT.",
+          "sentences": [
+            "A several thousand of students are enrolled for courses at SLIIT.",
+            "How do you recommend to store these students\u2019 data and why? \uf0a1",
+            "During the New Year season you need to buy various groceries and presents for family.",
+            "REQUIREMENT ANALYSIS (CONTD.)",
+            "A Library is organized into several sections such as fiction, children and technology."
+          ]
+        },
+        "tid": "topic_1_lec_1",
+        "lec_fn": "1.pdf",
+        "label": "Keys and Constraints"
+      },
+      {
+        "kind": "weak",
+        "row_index": 8,
+        "lecture_id": "lec_2",
+        "topic": {
+          "topic_id": 8,
+          "keywords": [
+            "Keys and Constraints"
+          ],
+          "rep_sentence": "A relational database is a collection of relations with distinct relation...",
+          "sentences": [
+            "A relational database is a collection of relations with distinct relation names. \uf0a1",
+            "The main construct representing data in the relational model is the relation. \uf0a1",
+            "A relation consists of a relational schema and a relational instance.",
+            "The relational schema describes the columns for a relation. \uf0a1",
+            "The schema species the relation's name, the name of each field and the domain of each field."
+          ]
+        },
+        "tid": "topic_8_lec_2",
+        "lec_fn": "2.pdf",
+        "label": "Keys and Constraints"
+      },
+      {
+        "kind": "weak",
+        "row_index": 9,
+        "lecture_id": "lec_2",
+        "topic": {
+          "topic_id": 9,
+          "keywords": [
+            "Keys and Constraints"
+          ],
+          "rep_sentence": "INTEGRITY CONSTRAINTS \uf0a1",
+          "sentences": [
+            "INTEGRITY CONSTRAINTS \uf0a1",
+            "An integrity constraints (IC) is a condition specified on a database schema and restricts the data that could be stored in an instance of the database. \uf0a1",
+            "If a database instance satisfies all the integrity constraints specified on the database schema, it is a legal instance. \uf0a1",
+            "There are several types of integrity constraints \uf0a1 Domain constraints \uf0a1",
+            "Referential integrity constraints \uf0a1"
+          ]
+        },
+        "tid": "topic_9_lec_2",
+        "lec_fn": "2.pdf",
+        "label": "Keys and Constraints"
+      },
+      {
+        "kind": "weak",
+        "row_index": 10,
+        "lecture_id": "lec_2",
+        "topic": {
+          "topic_id": 10,
+          "keywords": [
+            "Keys and Constraints"
+          ],
+          "rep_sentence": "Ex: Students(sid: string, name: string, login: string, age: integer, gpa:...",
+          "sentences": [
+            "Ex: Students(sid: string, name: string, login: string, age: integer, gpa: real) \uf0a1",
+            "ISA MAPPING \u2013 OPTION 1 \uf0a1 Create a relation for the superclass name with its attributes.",
+            "Person NIC name age Person \uf0a1 Create separate relations for the sub classes with their attributes.",
+            "Primary key of the superclass is Student NIC gpa also primary key of each subclass.",
+            "Faculty member NIC salary \uf0a1 Option 1 works for all Student Faculty member constraints disjoint, overlapping, total and partial salary GPA ISA MAPPING \u2013 OPTION 1 (CONTD.) \uf0a1"
+          ]
+        },
+        "tid": "topic_10_lec_2",
+        "lec_fn": "2.pdf",
+        "label": "Keys and Constraints"
+      },
+      {
+        "kind": "weak",
+        "row_index": 12,
+        "lecture_id": "lec_3",
+        "topic": {
+          "topic_id": 12,
+          "keywords": [
+            "Keys and Constraints"
+          ],
+          "rep_sentence": "For example: Suppose we have a student table with attributes: id name, age. \uf0a1",
+          "sentences": [
+            "For example: Suppose we have a student table with attributes: id name, age. \uf0a1",
+            "Here id attribute uniquely identifies the name attribute of student table because if we know the student id we can tell the student name associated with it. \uf0a1",
+            "With respect to attributes you know a person holds write three functional dependencies that can exist in a person table.",
+            "A key constraint is a special case of a FD where the attributes in the key play the role of X and the set of all attributes play the role of Y. \uf0a1 Normalization process analyzes schemas based on keys and on the functional dependencies among their attributes. \uf0a1",
+            "Attribute closure of an attribute set X, denoted by X+ can be defined as set of all attributes which can be functionally determined from it. \uf0a1"
+          ]
+        },
+        "tid": "topic_12_lec_3",
+        "lec_fn": "3.pdf",
+        "label": "Keys and Constraints"
+      },
+      {
+        "kind": "weak",
+        "row_index": 29,
+        "lecture_id": "lec_5",
+        "topic": {
+          "topic_id": 29,
+          "keywords": [
+            "Keys and Constraints"
+          ],
+          "rep_sentence": "At the end of this lecture, students should be able to \uf0a1",
+          "sentences": [
+            "At the end of this lecture, students should be able to \uf0a1",
+            "Selection conditions \uf0a1",
+            "Parameter mode of parameters for \uf0a1",
+            "They are more powerful than general constraints. \uf0a1",
+            "For example, \uf0a1"
+          ]
+        },
+        "tid": "topic_29_lec_5",
+        "lec_fn": "5.pdf",
+        "label": "Keys and Constraints"
+      },
+      {
+        "kind": "weak",
+        "row_index": 30,
+        "lecture_id": "lec_6",
+        "topic": {
+          "topic_id": 30,
+          "keywords": [
+            "Jdbc"
+          ],
+          "rep_sentence": "JAVA DATABASE CONNECTIVITY LECTURE CONTENT \uf0a1",
+          "sentences": [
+            "JAVA DATABASE CONNECTIVITY LECTURE CONTENT \uf0a1",
+            "JDBC LEARNING OUTCOMES \uf0a1",
+            "Write a command line program in java to access different databases INTRODUCTION \uf0a1",
+            "Java Database Connectivity (JDBC) is an application program interface (API) specification for connecting programs written in Java to the data in popular databases. \uf0a1",
+            "The application program interface lets you to connect to a database, to interact with that database via SQL and retrieve results from the database that could be used within a java application."
+          ]
+        },
+        "tid": "topic_30_lec_6",
+        "lec_fn": "6.pdf",
+        "label": "JDBC / Database Connectivity"
+      },
+      {
         "kind": "related",
         "row_index": 3,
         "lecture_id": "lec_1",
@@ -2650,7 +2652,7 @@
         "tid": "topic_3_lec_1",
         "lec_fn": "1.pdf",
         "label": "Database Design",
-        "linked_weak_label": "Relational Algebra"
+        "linked_weak_label": "Database Access"
       },
       {
         "kind": "related",
@@ -2673,7 +2675,7 @@
         "tid": "topic_5_lec_1",
         "lec_fn": "1.pdf",
         "label": "Drawn",
-        "linked_weak_label": "Relational Algebra"
+        "linked_weak_label": "Database Access"
       },
       {
         "kind": "related",
@@ -2696,7 +2698,7 @@
         "tid": "topic_15_lec_3",
         "lec_fn": "3.pdf",
         "label": "Normalization",
-        "linked_weak_label": "Relational Algebra"
+        "linked_weak_label": "Aggregation (GROUP BY, COUNT, SUM)"
       },
       {
         "kind": "related",
@@ -2719,7 +2721,7 @@
         "tid": "topic_16_lec_3",
         "lec_fn": "3.pdf",
         "label": "SQL Joins",
-        "linked_weak_label": "Relational Algebra"
+        "linked_weak_label": "Aggregation (GROUP BY, COUNT, SUM)"
       },
       {
         "kind": "related",
@@ -2742,7 +2744,7 @@
         "tid": "topic_17_lec_3",
         "lec_fn": "3.pdf",
         "label": "SQL Joins",
-        "linked_weak_label": "Relational Algebra"
+        "linked_weak_label": "Aggregation (GROUP BY, COUNT, SUM)"
       },
       {
         "kind": "related",
@@ -2765,7 +2767,7 @@
         "tid": "topic_21_lec_4",
         "lec_fn": "4.pdf",
         "label": "Sliit",
-        "linked_weak_label": "Relational Algebra"
+        "linked_weak_label": "Aggregation (GROUP BY, COUNT, SUM)"
       },
       {
         "kind": "related",
@@ -2788,7 +2790,7 @@
         "tid": "topic_25_lec_5",
         "lec_fn": "5.pdf",
         "label": "Variables",
-        "linked_weak_label": "Relational Algebra"
+        "linked_weak_label": "Aggregation (GROUP BY, COUNT, SUM)"
       },
       {
         "kind": "related",
@@ -2811,7 +2813,7 @@
         "tid": "topic_33_lec_6",
         "lec_fn": "6.pdf",
         "label": "Set",
-        "linked_weak_label": "Relational Algebra"
+        "linked_weak_label": "Aggregation (GROUP BY, COUNT, SUM)"
       },
       {
         "kind": "related",
@@ -2832,7 +2834,7 @@
         "tid": "topic_34_lec_6",
         "lec_fn": "6.pdf",
         "label": "Functional Dependency",
-        "linked_weak_label": "Relational Algebra"
+        "linked_weak_label": "Aggregation (GROUP BY, COUNT, SUM)"
       },
       {
         "kind": "related",
@@ -2855,7 +2857,7 @@
         "tid": "topic_37_lec_7",
         "lec_fn": "7.pdf",
         "label": "Storage And File Organization",
-        "linked_weak_label": "Relational Algebra"
+        "linked_weak_label": "Aggregation (GROUP BY, COUNT, SUM)"
       },
       {
         "kind": "related",
@@ -2878,7 +2880,7 @@
         "tid": "topic_40_lec_7",
         "lec_fn": "7.pdf",
         "label": "Schedule",
-        "linked_weak_label": "Relational Algebra"
+        "linked_weak_label": "Aggregation (GROUP BY, COUNT, SUM)"
       },
       {
         "kind": "related",
@@ -2901,7 +2903,7 @@
         "tid": "topic_41_lec_7",
         "lec_fn": "7.pdf",
         "label": "Transactions",
-        "linked_weak_label": "Relational Algebra"
+        "linked_weak_label": "Aggregation (GROUP BY, COUNT, SUM)"
       }
     ],
     "uses_confirmed_weak_topics": true,
@@ -2922,14 +2924,14 @@
       "embedding_weight": 0.6,
       "query_expansion": {
         "base_terms": [
-          "relational algebra keys and constraints entity relationships aggregation (group by, count, sum) database access jdbc / database connectivity sql queries",
-          "relational algebra",
-          "keys and constraints",
-          "entity relationships",
-          "aggregation (group by, count, sum)",
+          "database access aggregation (group by, count, sum) relational algebra entity relationships sql queries keys and constraints jdbc / database connectivity",
           "database access",
-          "jdbc / database connectivity",
-          "sql queries"
+          "aggregation (group by, count, sum)",
+          "relational algebra",
+          "entity relationships",
+          "sql queries",
+          "keys and constraints",
+          "jdbc / database connectivity"
         ],
         "synonym_terms": [
           "database connectivity",
@@ -2941,15 +2943,15 @@
         ],
         "graph_neighbor_terms": [
           "database design",
-          "normalization",
           "sql joins",
+          "normalization",
           "variables",
           "set",
           "sliit",
           "transactions",
           "schedule",
-          "functional dependency",
           "storage and file organization",
+          "functional dependency",
           "drawn"
         ],
         "lecture_context_terms": [
@@ -2966,60 +2968,60 @@
     },
     "learning_state_snapshot": {
       "weak_topics": [
-        "Relational Algebra",
-        "Keys and Constraints",
-        "Entity Relationships",
-        "Aggregation (GROUP BY, COUNT, SUM)",
         "Database Access",
-        "JDBC / Database Connectivity",
-        "Sql Queries"
+        "Aggregation (GROUP BY, COUNT, SUM)",
+        "Relational Algebra",
+        "Entity Relationships",
+        "Sql Queries",
+        "Keys and Constraints",
+        "JDBC / Database Connectivity"
       ],
       "strong_topics": [
-        "Sql Queries",
-        "Database Access",
-        "Storage And File Organization",
+        "Database Security",
+        "Transactions",
         "Database Design"
       ],
-      "mastered_topics": [
-        "Sql Queries"
-      ],
+      "mastered_topics": [],
       "confidence_score": {
-        "Aggregation (GROUP BY, COUNT, SUM)": 0.635,
-        "Sql Queries": 0.9313,
-        "Relational Algebra": 0.45,
-        "Keys and Constraints": 0.6944,
-        "Database Access": 0.7725,
-        "Entity Relationships": 0.7556,
+        "Aggregation (GROUP BY, COUNT, SUM)": 0.5875,
+        "Sql Queries": 0.725,
+        "Relational Algebra": 0.6071,
+        "Keys and Constraints": 0.635,
+        "Database Access": 0.5417,
+        "Entity Relationships": 0.6367,
         "Jdbc": 0.27,
-        "Storage And File Organization": 0.64,
+        "Storage And File Organization": 0.09,
         "Database Design": 0.64,
-        "JDBC / Database Connectivity": 0.6367
+        "JDBC / Database Connectivity": 0.6367,
+        "Database Security": 0.64,
+        "Transactions": 0.73,
+        "Job": 0.09
       }
     },
     "edge_explanations": {
       "weak_to_related": [
         {
-          "from_weak": "Relational Algebra",
+          "from_weak": "Database Access",
           "to_related": "Database Design",
           "why": "Supporting topic (high exam share)"
         },
         {
-          "from_weak": "Relational Algebra",
-          "to_related": "Normalization",
-          "why": "Supporting topic (high exam share)"
-        },
-        {
-          "from_weak": "Relational Algebra",
+          "from_weak": "Database Access",
           "to_related": "SQL Joins",
           "why": "Supporting topic (high exam share)"
         },
         {
-          "from_weak": "Relational Algebra",
+          "from_weak": "Aggregation (GROUP BY, COUNT, SUM)",
+          "to_related": "Normalization",
+          "why": "Supporting topic (high exam share)"
+        },
+        {
+          "from_weak": "Aggregation (GROUP BY, COUNT, SUM)",
           "to_related": "Variables",
           "why": "Supporting topic (high exam share)"
         },
         {
-          "from_weak": "Relational Algebra",
+          "from_weak": "Aggregation (GROUP BY, COUNT, SUM)",
           "to_related": "Set",
           "why": "Supporting topic (high exam share)"
         }
@@ -3028,18 +3030,18 @@
     },
     "student_map_summary": {
       "weak_topics": [
-        "Relational Algebra",
-        "Keys and Constraints",
-        "Entity Relationships",
-        "Aggregation (GROUP BY, COUNT, SUM)",
         "Database Access",
-        "JDBC / Database Connectivity",
-        "Sql Queries"
+        "Aggregation (GROUP BY, COUNT, SUM)",
+        "Relational Algebra",
+        "Entity Relationships",
+        "Sql Queries",
+        "Keys and Constraints",
+        "JDBC / Database Connectivity"
       ],
       "related_concepts": [
         "Database Design",
-        "Normalization",
         "SQL Joins",
+        "Normalization",
         "Variables",
         "Set"
       ],
@@ -3048,55 +3050,67 @@
     },
     "student_learning_context": {
       "weak_topics_confirmed": [
-        "Relational Algebra",
-        "Keys and Constraints",
-        "Entity Relationships",
-        "Aggregation (GROUP BY, COUNT, SUM)",
         "Database Access",
-        "JDBC / Database Connectivity",
-        "Sql Queries"
+        "Aggregation (GROUP BY, COUNT, SUM)",
+        "Relational Algebra",
+        "Entity Relationships",
+        "Sql Queries",
+        "Keys and Constraints",
+        "JDBC / Database Connectivity"
       ],
       "topic_accuracy": [
         {
-          "topic_name": "Relational Algebra",
+          "topic_name": "Job",
           "accuracy": 0.0,
-          "total": 5,
+          "total": 1,
           "band": "weak"
         },
         {
-          "topic_name": "Keys and Constraints",
-          "accuracy": 44.44444444444444,
-          "total": 9,
+          "topic_name": "Storage And File Organization",
+          "accuracy": 0.0,
+          "total": 1,
+          "band": "weak"
+        },
+        {
+          "topic_name": "Database Access",
+          "accuracy": 16.666666666666664,
+          "total": 6,
           "band": "weak"
         },
         {
           "topic_name": "Aggregation (GROUP BY, COUNT, SUM)",
+          "accuracy": 25.0,
+          "total": 12,
+          "band": "weak"
+        },
+        {
+          "topic_name": "Relational Algebra",
+          "accuracy": 28.57142857142857,
+          "total": 7,
+          "band": "weak"
+        },
+        {
+          "topic_name": "Sql Queries",
+          "accuracy": 50.0,
+          "total": 6,
+          "band": "moderate"
+        },
+        {
+          "topic_name": "Keys and Constraints",
           "accuracy": 50.0,
           "total": 4,
           "band": "moderate"
         },
         {
           "topic_name": "Entity Relationships",
-          "accuracy": 55.55555555555556,
-          "total": 9,
-          "band": "moderate"
-        },
-        {
-          "topic_name": "JDBC / Database Connectivity",
           "accuracy": 66.66666666666666,
           "total": 3,
           "band": "moderate"
         },
         {
-          "topic_name": "Database Access",
-          "accuracy": 75.0,
-          "total": 4,
-          "band": "strong"
-        },
-        {
-          "topic_name": "Sql Queries",
-          "accuracy": 87.5,
-          "total": 8,
+          "topic_name": "Transactions",
+          "accuracy": 100.0,
+          "total": 2,
           "band": "strong"
         },
         {
@@ -3106,7 +3120,7 @@
           "band": "strong"
         },
         {
-          "topic_name": "Storage And File Organization",
+          "topic_name": "Database Security",
           "accuracy": 100.0,
           "total": 1,
           "band": "strong"
@@ -3124,51 +3138,117 @@
       ],
       "related_topics": [
         {
-          "weak_topic": "Relational Algebra",
+          "weak_topic": "Database Access",
           "related_topic": "Database Design",
           "link_type": "Supporting topic (high exam share)"
         },
         {
-          "weak_topic": "Relational Algebra",
-          "related_topic": "Normalization",
-          "link_type": "Supporting topic (high exam share)"
-        },
-        {
-          "weak_topic": "Relational Algebra",
+          "weak_topic": "Database Access",
           "related_topic": "SQL Joins",
           "link_type": "Supporting topic (high exam share)"
         },
         {
-          "weak_topic": "Relational Algebra",
+          "weak_topic": "Aggregation (GROUP BY, COUNT, SUM)",
+          "related_topic": "Normalization",
+          "link_type": "Supporting topic (high exam share)"
+        },
+        {
+          "weak_topic": "Aggregation (GROUP BY, COUNT, SUM)",
           "related_topic": "Variables",
           "link_type": "Supporting topic (high exam share)"
         },
         {
-          "weak_topic": "Relational Algebra",
+          "weak_topic": "Aggregation (GROUP BY, COUNT, SUM)",
           "related_topic": "Set",
           "link_type": "Supporting topic (high exam share)"
         }
       ],
       "recommended_mcqs": [
         {
-          "question_id": "lec_1_Q6",
-          "score": 54.86,
+          "question_id": "lec_1_Q21",
+          "score": 60.51,
           "reason_trace": {
             "supports_weak_topic": "Relational Algebra",
-            "related_concept": "Drawn",
+            "related_concept": "Normalization",
             "high_frequency_exam": true,
             "why_useful_now": "Recommended for targeted revision.",
             "lines": [
               "Supports weak topic: Relational Algebra",
-              "Connected concept: Drawn",
+              "Connected concept: Normalization",
               "Frequently tested in exams",
               "Useful bridge from a weak area to an important exam theme"
             ],
-            "weak_signal": "topic scored 100% in quiz",
+            "weak_signal": "topic scored 75% in quiz",
             "exam_frequency": "appears in 7.4% of past paper questions",
             "prerequisite_path": [],
-            "similarity_score": 0.431,
-            "recommendation_rank": 103,
+            "similarity_score": 0.655,
+            "recommendation_rank": 37,
+            "action": "Review core concept and practice recommended MCQs."
+          }
+        },
+        {
+          "question_id": "lec_8_Q30",
+          "score": 100.0,
+          "reason_trace": {
+            "supports_weak_topic": "Database Access",
+            "related_concept": "Database Design",
+            "high_frequency_exam": true,
+            "why_useful_now": "Recommended for targeted revision.",
+            "lines": [
+              "Supports weak topic: Database Access",
+              "Connected concept: Database Design",
+              "Frequently tested in exams",
+              "Useful bridge from a weak area to an important exam theme"
+            ],
+            "weak_signal": "topic scored 57% in quiz",
+            "exam_frequency": "appears in 14.4% of past paper questions",
+            "prerequisite_path": [],
+            "similarity_score": 0.6651,
+            "recommendation_rank": 20,
+            "action": "Review core concept and practice recommended MCQs."
+          }
+        },
+        {
+          "question_id": "lec_1_Q36",
+          "score": 52.35,
+          "reason_trace": {
+            "supports_weak_topic": "Keys and Constraints",
+            "related_concept": "Functional Dependency",
+            "high_frequency_exam": true,
+            "why_useful_now": "Recommended for targeted revision.",
+            "lines": [
+              "Supports weak topic: Keys and Constraints",
+              "Connected concept: Functional Dependency",
+              "Frequently tested in exams",
+              "Useful bridge from a weak area to an important exam theme"
+            ],
+            "weak_signal": "topic scored 75% in quiz",
+            "exam_frequency": "appears in 7.4% of past paper questions",
+            "prerequisite_path": [],
+            "similarity_score": 0.357,
+            "recommendation_rank": 115,
+            "action": "Review core concept and practice recommended MCQs."
+          }
+        },
+        {
+          "question_id": "lec_8_Q47",
+          "score": 94.82,
+          "reason_trace": {
+            "supports_weak_topic": "Entity Relationships",
+            "related_concept": "Database Design",
+            "high_frequency_exam": true,
+            "why_useful_now": "Recommended for targeted revision.",
+            "lines": [
+              "Supports weak topic: Entity Relationships",
+              "Connected concept: Database Design",
+              "Frequently tested in exams",
+              "Useful bridge from a weak area to an important exam theme"
+            ],
+            "weak_signal": "topic scored 57% in quiz",
+            "exam_frequency": "appears in 14.4% of past paper questions",
+            "prerequisite_path": [],
+            "similarity_score": 0.4856,
+            "recommendation_rank": 93,
             "action": "Review core concept and practice recommended MCQs."
           }
         },
@@ -3186,7 +3266,7 @@
               "Frequently tested in exams",
               "Useful bridge from a weak area to an important exam theme"
             ],
-            "weak_signal": "topic scored 100% in quiz",
+            "weak_signal": "topic scored 75% in quiz",
             "exam_frequency": "appears in 7.4% of past paper questions",
             "prerequisite_path": [],
             "similarity_score": 0.624,
@@ -3195,96 +3275,30 @@
           }
         },
         {
-          "question_id": "lec_2_Q27",
-          "score": 96.42,
-          "reason_trace": {
-            "supports_weak_topic": "Keys and Constraints",
-            "related_concept": "Variables",
-            "high_frequency_exam": true,
-            "why_useful_now": "Recommended for targeted revision.",
-            "lines": [
-              "Supports weak topic: Keys and Constraints",
-              "Connected concept: Variables",
-              "Frequently tested in exams",
-              "Useful bridge from a weak area to an important exam theme"
-            ],
-            "weak_signal": "topic scored 14% in quiz",
-            "exam_frequency": "appears in 18.6% of past paper questions",
-            "prerequisite_path": [],
-            "similarity_score": 0.6264,
-            "recommendation_rank": 50,
-            "action": "Review core concept and practice recommended MCQs."
-          }
-        },
-        {
-          "question_id": "lec_6_Q39",
+          "question_id": "lec_1_Q29",
           "score": 64.0,
           "reason_trace": {
             "supports_weak_topic": "Entity Relationships",
-            "related_concept": "Set",
+            "related_concept": "Database Design",
             "high_frequency_exam": true,
             "why_useful_now": "Recommended for targeted revision.",
             "lines": [
               "Supports weak topic: Entity Relationships",
-              "Connected concept: Set",
+              "Connected concept: Database Design",
               "Frequently tested in exams",
               "Useful bridge from a weak area to an important exam theme"
             ],
             "weak_signal": "topic scored 75% in quiz",
-            "exam_frequency": "appears in 10.0% of past paper questions",
+            "exam_frequency": "appears in 7.4% of past paper questions",
             "prerequisite_path": [],
-            "similarity_score": 0.5725,
-            "recommendation_rank": 66,
+            "similarity_score": 0.7037,
+            "recommendation_rank": 23,
             "action": "Review core concept and practice recommended MCQs."
           }
         },
         {
-          "question_id": "lec_8_Q72",
-          "score": 72.0,
-          "reason_trace": {
-            "supports_weak_topic": "Database Access",
-            "related_concept": "Database Design",
-            "high_frequency_exam": true,
-            "why_useful_now": "Recommended for targeted revision.",
-            "lines": [
-              "Supports weak topic: Database Access",
-              "Connected concept: Database Design",
-              "Frequently tested in exams",
-              "Useful bridge from a weak area to an important exam theme"
-            ],
-            "weak_signal": "topic scored 71% in quiz",
-            "exam_frequency": "appears in 14.4% of past paper questions",
-            "prerequisite_path": [],
-            "similarity_score": 0.6169,
-            "recommendation_rank": 89,
-            "action": "Review core concept and practice recommended MCQs."
-          }
-        },
-        {
-          "question_id": "lec_7_Q1",
-          "score": 64.0,
-          "reason_trace": {
-            "supports_weak_topic": "Sql Queries",
-            "related_concept": "Database Design",
-            "high_frequency_exam": true,
-            "why_useful_now": "Recommended for targeted revision.",
-            "lines": [
-              "Supports weak topic: Sql Queries",
-              "Connected concept: Database Design",
-              "Frequently tested in exams",
-              "Useful bridge from a weak area to an important exam theme"
-            ],
-            "weak_signal": "topic scored 100% in quiz",
-            "exam_frequency": "appears in 10.0% of past paper questions",
-            "prerequisite_path": [],
-            "similarity_score": 0.691,
-            "recommendation_rank": 11,
-            "action": "Review core concept and practice recommended MCQs."
-          }
-        },
-        {
-          "question_id": "lec_6_Q2",
-          "score": 64.0,
+          "question_id": "lec_6_Q9",
+          "score": 98.47,
           "reason_trace": {
             "supports_weak_topic": "JDBC / Database Connectivity",
             "related_concept": "Database Design",
@@ -3296,77 +3310,77 @@
               "Frequently tested in exams",
               "Useful bridge from a weak area to an important exam theme"
             ],
-            "weak_signal": "topic scored 75% in quiz",
+            "weak_signal": "topic scored 25% in quiz",
             "exam_frequency": "appears in 10.0% of past paper questions",
             "prerequisite_path": [],
-            "similarity_score": 0.7436,
-            "recommendation_rank": 10,
+            "similarity_score": 0.6734,
+            "recommendation_rank": 54,
             "action": "Review core concept and practice recommended MCQs."
           }
         },
         {
-          "question_id": "lec_4_Q28",
-          "score": 97.25,
+          "question_id": "lec_4_Q15",
+          "score": 91.46,
           "reason_trace": {
-            "supports_weak_topic": "Keys and Constraints",
-            "related_concept": "Normalization",
+            "supports_weak_topic": "Aggregation (GROUP BY, COUNT, SUM)",
+            "related_concept": "Set",
             "high_frequency_exam": true,
             "why_useful_now": "Recommended for targeted revision.",
             "lines": [
-              "Supports weak topic: Keys and Constraints",
-              "Connected concept: Normalization",
+              "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+              "Connected concept: Set",
               "Frequently tested in exams",
               "Useful bridge from a weak area to an important exam theme"
             ],
-            "weak_signal": "topic scored 43% in quiz",
+            "weak_signal": "topic scored 14% in quiz",
             "exam_frequency": "appears in 20.4% of past paper questions",
             "prerequisite_path": [],
-            "similarity_score": 0.559,
-            "recommendation_rank": 73,
+            "similarity_score": 0.3848,
+            "recommendation_rank": 104,
             "action": "Review core concept and practice recommended MCQs."
           }
         },
         {
-          "question_id": "lec_8_Q64",
-          "score": 71.16,
+          "question_id": "lec_4_Q25",
+          "score": 96.44,
           "reason_trace": {
-            "supports_weak_topic": "Relational Algebra",
-            "related_concept": "Database Design",
+            "supports_weak_topic": "Sql Queries",
+            "related_concept": "Set",
             "high_frequency_exam": true,
             "why_useful_now": "Recommended for targeted revision.",
             "lines": [
-              "Supports weak topic: Relational Algebra",
-              "Connected concept: Database Design",
+              "Supports weak topic: Sql Queries",
+              "Connected concept: Set",
               "Frequently tested in exams",
               "Useful bridge from a weak area to an important exam theme"
             ],
-            "weak_signal": "topic scored 71% in quiz",
-            "exam_frequency": "appears in 14.4% of past paper questions",
+            "weak_signal": "topic scored 14% in quiz",
+            "exam_frequency": "appears in 20.4% of past paper questions",
             "prerequisite_path": [],
-            "similarity_score": 0.6629,
-            "recommendation_rank": 28,
+            "similarity_score": 0.6185,
+            "recommendation_rank": 56,
             "action": "Review core concept and practice recommended MCQs."
           }
         },
         {
-          "question_id": "lec_8_Q59",
-          "score": 70.4,
+          "question_id": "lec_4_Q16",
+          "score": 95.37,
           "reason_trace": {
-            "supports_weak_topic": "Database Access",
-            "related_concept": "Database Design",
+            "supports_weak_topic": "Aggregation (GROUP BY, COUNT, SUM)",
+            "related_concept": "Sliit",
             "high_frequency_exam": true,
             "why_useful_now": "Recommended for targeted revision.",
             "lines": [
-              "Supports weak topic: Database Access",
-              "Connected concept: Database Design",
+              "Supports weak topic: Aggregation (GROUP BY, COUNT, SUM)",
+              "Connected concept: Sliit",
               "Frequently tested in exams",
               "Useful bridge from a weak area to an important exam theme"
             ],
-            "weak_signal": "topic scored 71% in quiz",
-            "exam_frequency": "appears in 14.4% of past paper questions",
+            "weak_signal": "topic scored 14% in quiz",
+            "exam_frequency": "appears in 20.4% of past paper questions",
             "prerequisite_path": [],
-            "similarity_score": 0.5945,
-            "recommendation_rank": 33,
+            "similarity_score": 0.6059,
+            "recommendation_rank": 40,
             "action": "Review core concept and practice recommended MCQs."
           }
         }
@@ -3378,8 +3392,8 @@
         "max_increase": null,
         "max_decrease": null
       },
-      "quiz_accuracy_overall": 56.81818181818182,
-      "updated_at": "2026-05-03T20:30:50.570116+00:00"
+      "quiz_accuracy_overall": 38.63636363636363,
+      "updated_at": "2026-05-03T21:09:05.778728+00:00"
     }
   }
 }

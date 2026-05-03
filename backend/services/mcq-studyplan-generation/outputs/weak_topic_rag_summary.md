@@ -46,9 +46,9 @@ Reread the retrieved lecture extracts for Relational Algebra, then verify you ca
 DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to ensure privacy and to control access to data that must not be...
 
 ### Key points
-- A privilege allows a user to access some data object in a certain manner (e.g., to read or to modify). A user who...
 - given permission to access the database only through a small set of views that contain the specific data the user is...
 - ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...
+- created by the project manager Project manager could create the login of Senior DBA and Senior DBA could create the...
 
 ### Common mistakes (only if grounded in lecture text)
 
@@ -56,10 +56,10 @@ DATABASE SECURITY . In addition to protecting the intrinsic value of the data, c
 Reread the retrieved lecture extracts for Database Access, then verify you can explain them in your own words.
 
 ### Retrieval trace (internal)
-- 8.pdf | 8.pdf::chunk_0 | score=0.538 | 
-- 8.pdf | 8.pdf::chunk_1 | score=0.4232 | 
-- 5.pdf | 5.pdf::chunk_1 | score=0.3809 | 
-- 2.pdf | 2.pdf::chunk_0 | score=0.2854 | 
+- 8.pdf | 8.pdf::chunk_0 | score=0.4328 | 
+- 5.pdf | 5.pdf::chunk_1 | score=0.4008 | 
+- 2.pdf | 2.pdf::chunk_0 | score=0.2981 | 
+- 8.pdf | 8.pdf::chunk_4 | score=0.2747 | 
 
 ## Storage And File Organization
 ### Summary (lecture-based)

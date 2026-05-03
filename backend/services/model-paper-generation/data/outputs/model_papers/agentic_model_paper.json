@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-05-01 22:25:27",
+  "generated_at": "2026-05-03 21:11:14",
   "mode": "AGENTIC_V1",
-  "num_questions": 6,
+  "num_questions": 3,
   "topic_distribution": {
     "Q1": {
       "topic": "ER_EER_MODELING"
@@ -16,7 +16,7 @@
   "questions": [
     {
       "question_no": "Q1",
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nConsider a library management system that tracks books, authors, patrons, and loans. The 'Book' entity has attributes: BookID, Title, ISBN, and Genre. The 'Author' entity includes AuthorID, Name, and Nationality. Each book can have multiple authors, resulting in a many-to-many relationship between 'Book' and 'Author'. The 'Patron' entity has PatronID, Name, and MembershipDate. Patrons can check out multiple books, but each loan is associated with only one book and one patron, which forms a one-to-many relationship from 'Patron' to 'Loan'. The 'Loan' entity has attributes: LoanID and LoanDate. Additionally, introduce an ISA hierarchy where the 'Patron' can be classified into 'StudentPatron' with an attribute: SchoolName, and 'AdultPatron' with an attribute: EmploymentStatus",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nIn a university's course registration system, there are several entities involved: the 'Student' entity has attributes such as StudentID, Name, DateOfBirth, and EmailAddresses (where EmailAddresses is multivalued). The 'Course' entity consists of CourseID, Title, Credits, and DepartmentID. Additionally, to encapsulate the relationship between students and courses, there's an 'Enrollment' entity which tracks the EnrollmentDate and Grade received by students in specific courses. The university department, represented by the 'Department' entity, comprises DepartmentID, DepartmentName, and HeadOfDepartment, where each department offers multiple courses. A specialization exists within the 'Student' where they may be classified as either 'Graduate' or 'Undergraduate', with Graduate students having the attributes ThesisTitle and AdvisorName, while Undergraduates possess YearOfStudy and Major. Relationships should reflect the cardinality where each student can enroll in many courses, while each course can have multiple students enrolled",
       "subquestions": [
         {
           "label": "a",
@@ -30,9 +30,9 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69f4da2fcf9ea7763a8a6dbd",
-      "original_semantic_description": "A library management system is designed to keep track of various entities involved in the library's operations. The primary entities are 'Book', 'Member', 'Loan', and 'Staff'. The 'Book' entity consists of attributes such as ISBN, Title, Author, and Genre. The 'Member' entity has MemberID, Name, ContactNumber, and Address. The 'Loan' entity tracks the loans made and includes attributes like LoanID, LoanDate, and ReturnDate. The 'Staff' entity contains StaffID, Name, and Position. The relationship between 'Member' and 'Loan' is one-to-many, indicating that a member can have multiple loans over time. Moreover, 'Staff' is responsible for managing 'Book' entries, which establishes a one-to-many relationship where each staff member can manage multiple books, while also having a composite attribute of Address with Street, City, and ZipCode.",
-      "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
+      "template_id": "69f7b98349ba729f98f43984",
+      "original_semantic_description": "In a university's course registration system, there are several entities involved: the 'Student' entity has attributes such as StudentID, Name, DateOfBirth, and EmailAddresses (where EmailAddresses is multivalued). The 'Course' entity consists of CourseID, Title, Credits, and DepartmentID. Additionally, to encapsulate the relationship between students and courses, there's an 'Enrollment' entity which tracks the EnrollmentDate and Grade received by students in specific courses. The university department, represented by the 'Department' entity, comprises DepartmentID, DepartmentName, and HeadOfDepartment, where each department offers multiple courses. A specialization exists within the 'Student' where they may be classified as either 'Graduate' or 'Undergraduate', with Graduate students having the attributes ThesisTitle and AdvisorName, while Undergraduates possess YearOfStudy and Major. Relationships should reflect the cardinality where each student can enroll in many courses, while each course can have multiple students enrolled.",
+      "diagram_image_path": "C:\\Users\\leasha\\Desktop\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
@@ -41,7 +41,7 @@
     },
     {
       "question_no": "Q2",
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, C->D, CD->E, B->A, E->B}}. In this scenario, each attribute has a specific role in a logistics management system where A represents the ShipmentID, B is the CarrierID, C is the Destination, D is the DepartureDate, and E is the DeliveryDate. You are required to analyze this relation for normalization.",
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies over R: F={{AB->C, B->D, CD->E, E->A, A->B}}. This relation is used Analyze the schema to ensure it aligns with database normalization standards.",
       "subquestions": [
         {
           "label": "a",
@@ -59,7 +59,7 @@
       "pattern_label": "NORMALIZATION_FD_KEYS",
       "main_topic": "NORMALIZATION_FD_KEYS",
       "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69f737aad80542684bc06778",
+      "template_id": "69f7b98349ba729f98f43985",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
@@ -68,11 +68,11 @@
     },
     {
       "question_no": "Q3",
-      "text": "A healthcare organization is designing a comprehensive database system to manage patient information, appointments, and medical records. The system consists of various entities, including Patients, Appointments, and Medical_Records. Each patient has a unique Patient_ID, personal details, and a medical history linked to their records. The database will support functionalities such as scheduling appointments and maintaining records of medical treatments administered. Different roles are assigned to various team members for database management and access control. Jenna is the chief database administrator responsible for overseeing the entire database system's architecture and management. Liam and Zoe are junior database administrators working under Jenna's guidance, responsible for different modules like patients and records. Ethan is a database developer under Liam and Zoe, tasked with building and modifying the database schema. Natalie and Oliver are data entry operators responsible for inputting patient information and updating medical records in the system.",
+      "text": "A university is developing a comprehensive database to manage its enrollment system. The database will include several tables: \"Students\" with attributes (student_id: integer, name: string, email: string, major: string), \"Courses\" (course_id: integer, course_name: string, credits: integer), and \"Enrollments\" (enrollment_id: integer, student_id: integer, course_id: integer, semester: string). Each student can enroll in multiple courses, and each course can have multiple students. The university must ensure that students can only enroll in courses available during their selected semester. Additionally, students must provide a unique email address, and courses must have a defined number of credits for completion. Identify the key integrity constraints that will be necessary for this schema to maintain data integrity across these relations.",
       "subquestions": [
         {
           "label": "a",
-          "text": "Write SQL queries to in the context of jdbc, the code segment provided utilizes a type 4 driver for database connectivity. accept or refute the above statement justifying your answer."
+          "text": "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer."
         },
         {
           "label": "b",
@@ -80,15 +80,15 @@
         },
         {
           "label": "c",
-          "text": "Briefly explain the options available for transferring data between different sources, such as between tables and external data files in the database system."
+          "text": "Briefly explain the options available for transferring data between different tables within the university's database schema."
         },
         {
           "label": "d",
-          "text": "Briefly explain how authentication and authorization are achieved in a SQL Server environment."
+          "text": "Briefly explain how authorization is achieved in SQL databases concerning student access to their enrollment details."
         },
         {
           "label": "e",
-          "text": "A hospital is establishing role-based access control for its database system that manages Patients, Doctors, and Appointments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Appointments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating patient appointment data.",
+          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
           "subquestions": [
             {
               "label": "i",
@@ -100,7 +100,7 @@
             },
             {
               "label": "iii",
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Loans database using a user-defined server role."
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
             },
             {
               "label": "iv",
@@ -108,7 +108,7 @@
             },
             {
               "label": "v",
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Members and Loans databases."
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
             }
           ]
         }
@@ -116,7 +116,7 @@
       "pattern_label": "SQL_DDL_DML",
       "main_topic": "SQL_DDL_DML",
       "intent": "SQL_DDL_DML",
-      "template_id": "69f737aad80542684bc06779",
+      "template_id": "69f7b98349ba729f98f43986",
       "diagram_image_path": null,
       "diagram_generated": false,
       "diagram_type": null,
