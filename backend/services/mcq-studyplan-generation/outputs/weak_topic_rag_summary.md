@@ -1,232 +1,98 @@
-# Weak Topic RAG Summary
-
-## Relational Algebra
-### Definition
-ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen...
-
-### Key Concepts
-- ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...
-- Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...
-- IT200 C From Student s Where EXISTS ( Select * Name Amal from grades g Nimali Where g.SID=s.SID and g.Grade=‘A’)...
-- Decomposition into BCNF: Consider relation R with FDs F. If X Y violates BCNF, decompose R A C D A B C D D B...
-
-### Why it is important in exams
-- Exams often test conceptual differences in Relational Algebra.
-- Focus on scenario based interpretation, not memorization.
-
-### MCQ Patterns
-- Definition vs application MCQs for Relational Algebra.
-- Compare two close options and eliminate by constraint/condition.
-
-### Quick revision checklist
-- State one-line definition of Relational Algebra
-- List 2-3 key rules/conditions
-- Solve at least 3 topic-focused MCQs
-
-### Common Mistakes
-- Memorizing terms without knowing when to apply them.
-- Skipping MCQ practice after revision.
-
-### Retrieval Trace
-- 2.pdf | 2.pdf::chunk_0 | score=0.5846 | 
-- 2.pdf | 2.pdf::chunk_2 | score=0.555 | 
-- 4.pdf | 4.pdf::chunk_4 | score=0.5375 | 
-- 3.pdf | 3.pdf::chunk_5 | score=0.5622 | 
-
-## Entity Relationships
-### Definition
-Exchange what you have written with your peer and correct the answer. Have you understood each constraint well? MAPPING ENTITIES AND ATTRIBUTES Go through page 1 of the handout...
-
-### Key Concepts
-- Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...
-- for courses offered during a particular semester. The registered date must be stored in the database. DESIGN TRAPS...
-- ENTITIES Weak entities are entities that cannot be uniquely identified alone in a domain. Following restrictions...
-- ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...
-
-### Why it is important in exams
-- Exams often test conceptual differences in Entity Relationships.
-- Focus on scenario based interpretation, not memorization.
-
-### MCQ Patterns
-- Definition vs application MCQs for Entity Relationships.
-- Compare two close options and eliminate by constraint/condition.
-
-### Quick revision checklist
-- State one-line definition of Entity Relationships
-- List 2-3 key rules/conditions
-- Solve at least 3 topic-focused MCQs
-
-### Common Mistakes
-- Memorizing terms without knowing when to apply them.
-- Skipping MCQ practice after revision.
-
-### Retrieval Trace
-- 2.pdf | 2.pdf::chunk_2 | score=0.5788 | 
-- 1.pdf | 1.pdf::chunk_5 | score=0.5712 | 
-- 1.pdf | 1.pdf::chunk_2 | score=0.5623 | 
-- 2.pdf | 2.pdf::chunk_0 | score=0.5642 | 
-
-## Keys and Constraints
-### Definition
-Referential integrity constraints Key constraints Other constraints INTEGRITY CONSTRAINTS (CONTD.) Domain Constraint Domain constraint specifies that the values that appear in...
-
-### Key Concepts
-- Referential integrity constraints Key constraints Other constraints INTEGRITY CONSTRAINTS (CONTD.) Domain Constraint...
-- Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...
-- users DATABASE DESIGN PROCESS There are six main phases of the process to develop a database Requirement collection...
-- Adding a new constraint to a column ALTER TABLE student ADD CONSTRAINT chk_age CHECK (age > 18) Ex : removing a...
-
-### Why it is important in exams
-- Exams often test conceptual differences in Keys and Constraints.
-- Focus on scenario based interpretation, not memorization.
-
-### MCQ Patterns
-- Definition vs application MCQs for Keys and Constraints.
-- Compare two close options and eliminate by constraint/condition.
-
-### Quick revision checklist
-- State one-line definition of Keys and Constraints
-- List 2-3 key rules/conditions
-- Solve at least 3 topic-focused MCQs
-
-### Common Mistakes
-- Confusing candidate key vs primary key.
-- Not checking referential integrity when using foreign keys.
-
-### Retrieval Trace
-- 2.pdf | 2.pdf::chunk_1 | score=0.6657 | 
-- 2.pdf | 2.pdf::chunk_2 | score=0.6059 | 
-- 1.pdf | 1.pdf::chunk_1 | score=0.5472 | 
-- 4.pdf | 4.pdf::chunk_1 | score=0.55 | 
+# Weak Topic RAG Summary (current weak topics only, lecture-grounded)
 
 ## Aggregation (GROUP BY, COUNT, SUM)
-### Definition
-student sub class or the faculty member sub class? Probably not. Therefore, there is no covering constraint associated with the hierarchy. Existence of a covering constraint is...
+### Summary (lecture-based)
+IT200 C From Student s Where EXISTS ( Select * Name Amal from grades g Nimali Where g.SID=s.SID and g.Grade=‘A’) COMPARISON OPERATORS WITH SOME, ANY & ALL Comparison operators...
 
-### Key Concepts
+### Key points
 - student sub class or the faculty member sub class? Probably not. Therefore, there is no covering constraint...
 - on a values in a given field When using group by Each item in the SELECT list must be single valued per group....
-- ‘Inside the IF statement’ PRINT ‘There are lesser than 1000 employees ’ END ELSE PRINT ‘There are more than 1000...
-- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS Introduction to databases, DBMS and their benefits Database design...
+- NIC name age gpa salary student faculty belongs to ISA Primary key of the superclass Boolean attributes becomes...
 
-### Why it is important in exams
-- Exams often test conceptual differences in Aggregation (GROUP BY, COUNT, SUM).
-- Focus on scenario based interpretation, not memorization.
-
-### MCQ Patterns
-- Definition vs application MCQs for Aggregation (GROUP BY, COUNT, SUM).
-- Compare two close options and eliminate by constraint/condition.
-
-### Quick revision checklist
-- State one-line definition of Aggregation (GROUP BY, COUNT, SUM)
-- List 2-3 key rules/conditions
-- Solve at least 3 topic-focused MCQs
-
-### Common Mistakes
+### Common mistakes (only if grounded in lecture text)
 - Using columns in SELECT that are not in GROUP BY or an aggregate.
-- Confusing WHERE vs HAVING conditions.
 
-### Retrieval Trace
-- 1.pdf | 1.pdf::chunk_4 | score=0.5944 | 
-- 4.pdf | 4.pdf::chunk_5 | score=0.5602 | 
-- 5.pdf | 5.pdf::chunk_2 | score=0.4768 | 
-- 1.pdf | 1.pdf::chunk_0 | score=0.4769 | 
+### Next action
+Reread the retrieved lecture extracts for Aggregation (GROUP BY, COUNT, SUM), then verify you can explain them in your own words.
+
+### Retrieval trace (internal)
+- 4.pdf | 4.pdf::chunk_4 | score=0.4323 | 
+- 1.pdf | 1.pdf::chunk_4 | score=0.3269 | 
+- 4.pdf | 4.pdf::chunk_5 | score=0.3212 | 
+- 2.pdf | 2.pdf::chunk_4 | score=0.308 | 
+
+## Relational Algebra
+### Summary (lecture-based)
+ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then convert the into a database schema in the data model of the chosen...
+
+### Key points
+- X YZ, then X Y and X Z COMPUTING KEYS USING AMSTRONG AXIOMS (CONTD.) Consider a relation R (A, B, C, D), with the...
+- to be part of the formal definition of a relation in the relational model since it allows only atomic values and...
+- Exchange what you have written with your peer and correct the answer. Have you understood each constraint well?...
+
+### Common mistakes (only if grounded in lecture text)
+
+### Next action
+Reread the retrieved lecture extracts for Relational Algebra, then verify you can explain them in your own words.
+
+### Retrieval trace (internal)
+- 2.pdf | 2.pdf::chunk_0 | score=0.2867 | 
+- 3.pdf | 3.pdf::chunk_3 | score=0.2829 | 
+- 3.pdf | 3.pdf::chunk_4 | score=0.2652 | 
+- 2.pdf | 2.pdf::chunk_2 | score=0.259 | 
 
 ## Database Access
-### Definition
+### Summary (lecture-based)
 DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to ensure privacy and to control access to data that must not be...
 
-### Key Concepts
-- DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to...
-- INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS Introduction to databases, DBMS and their benefits Database design...
-- ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...
+### Key points
+- A privilege allows a user to access some data object in a certain manner (e.g., to read or to modify). A user who...
 - given permission to access the database only through a small set of views that contain the specific data the user is...
-
-### Why it is important in exams
-- Exams often test conceptual differences in Database Access.
-- Focus on scenario based interpretation, not memorization.
-
-### MCQ Patterns
-- Definition vs application MCQs for Database Access.
-- Compare two close options and eliminate by constraint/condition.
-
-### Quick revision checklist
-- State one-line definition of Database Access
-- List 2-3 key rules/conditions
-- Solve at least 3 topic-focused MCQs
-
-### Common Mistakes
-- Memorizing terms without knowing when to apply them.
-- Skipping MCQ practice after revision.
-
-### Retrieval Trace
-- 8.pdf | 8.pdf::chunk_0 | score=0.6321 | 
-- 1.pdf | 1.pdf::chunk_0 | score=0.6257 | 
-- 2.pdf | 2.pdf::chunk_0 | score=0.625 | 
-- 5.pdf | 5.pdf::chunk_1 | score=0.5928 | 
-
-## JDBC / Database Connectivity
-### Definition
-JAVA DATABASE CONNECTIVITY JDBC . Even though SQL was standardized, still different applications was needed to be developed to access different DBMSs. A common way for an...
-
-### Key Concepts
-- JAVA DATABASE CONNECTIVITY JDBC . Even though SQL was standardized, still different applications was needed to be...
-- These drivers are typically provided by the database vendors and used in the same manner as the JDBC ODBC Bridge....
 - ER AND EER TO RELATIONAL MODEL MAPPING Relational model and its components ER to relational mapping . We then...
-- DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to...
 
-### Why it is important in exams
-- Exams often test conceptual differences in JDBC / Database Connectivity.
-- Focus on scenario based interpretation, not memorization.
+### Common mistakes (only if grounded in lecture text)
 
-### MCQ Patterns
-- Definition vs application MCQs for JDBC / Database Connectivity.
-- Compare two close options and eliminate by constraint/condition.
+### Next action
+Reread the retrieved lecture extracts for Database Access, then verify you can explain them in your own words.
 
-### Quick revision checklist
-- State one-line definition of JDBC / Database Connectivity
-- List 2-3 key rules/conditions
-- Solve at least 3 topic-focused MCQs
+### Retrieval trace (internal)
+- 8.pdf | 8.pdf::chunk_0 | score=0.538 | 
+- 8.pdf | 8.pdf::chunk_1 | score=0.4232 | 
+- 5.pdf | 5.pdf::chunk_1 | score=0.3809 | 
+- 2.pdf | 2.pdf::chunk_0 | score=0.2854 | 
 
-### Common Mistakes
-- Forgetting to load/register the driver or connection string details.
-- Not closing ResultSet/Statement/Connection properly.
+## Storage And File Organization
+### Summary (lecture-based)
+INTRODUCTION TO DBMS AND DATABASE DESIGN PROCESS Introduction to databases, DBMS and their benefits Database design process Requirement analysis Conceptual modelling using EER...
 
-### Retrieval Trace
-- 6.pdf | 6.pdf::chunk_0 | score=0.6684 | 
-- 6.pdf | 6.pdf::chunk_1 | score=0.6016 | 
-- 2.pdf | 2.pdf::chunk_0 | score=0.5826 | 
-- 8.pdf | 8.pdf::chunk_0 | score=0.5699 | 
-
-## Sql Queries
-### Definition
-given permission to access the database only through a small set of views that contain the specific data the user is authorized to see, thus restricting the user's access to...
-
-### Key Concepts
-- given permission to access the database only through a small set of views that contain the specific data the user is...
-- IT200 C From Student s Where EXISTS ( Select * Name Amal from grades g Nimali Where g.SID=s.SID and g.Grade=‘A’)...
-- is executed instead of the triggering SQL statement, thus overriding the actions of the triggering statements....
+### Key points
 - SQL Introduction to SQL Data definition language Data manipulation language At the end of this lecture students...
+- DATABASE SECURITY . In addition to protecting the intrinsic value of the data, corporations must consider ways to...
+- name attribute of student table because if we know the student id we can tell the student name associated with it....
 
-### Why it is important in exams
-- Exams often test conceptual differences in Sql Queries.
-- Focus on scenario based interpretation, not memorization.
+### Common mistakes (only if grounded in lecture text)
 
-### MCQ Patterns
-- Definition vs application MCQs for Sql Queries.
-- Compare two close options and eliminate by constraint/condition.
+### Next action
+Reread the retrieved lecture extracts for Storage And File Organization, then verify you can explain them in your own words.
 
-### Quick revision checklist
-- State one-line definition of Sql Queries
-- List 2-3 key rules/conditions
-- Solve at least 3 topic-focused MCQs
+### Retrieval trace (internal)
+- 1.pdf | 1.pdf::chunk_0 | score=0.2757 | 
+- 4.pdf | 4.pdf::chunk_0 | score=0.2027 | 
+- 8.pdf | 8.pdf::chunk_0 | score=0.1597 | 
+- 3.pdf | 3.pdf::chunk_2 | score=0.1439 | 
 
-### Common Mistakes
-- Memorizing terms without knowing when to apply them.
-- Skipping MCQ practice after revision.
+## Job
+### Summary (lecture-based)
+by a variety of failures. TYPES OF BACKUPS Full Backups : Full database backup takes a copy of the entire database including the part of the transaction log file. Differential...
 
-### Retrieval Trace
-- 5.pdf | 5.pdf::chunk_1 | score=0.5828 | 
-- 4.pdf | 4.pdf::chunk_4 | score=0.5762 | 
-- 5.pdf | 5.pdf::chunk_4 | score=0.5503 | 
-- 4.pdf | 4.pdf::chunk_0 | score=0.5665 |
+### Key points
+- DATABASE UTILITIES Transferring data between different sources Backup and restore of data Jobs and job schedules...
+
+### Common mistakes (only if grounded in lecture text)
+
+### Next action
+Reread the retrieved lecture extracts for Job, then verify you can explain them in your own words.
+
+### Retrieval trace (internal)
+- 7.pdf | 7.pdf::chunk_3 | score=0.5516 | 
+- 7.pdf | 7.pdf::chunk_0 | score=0.5206 |

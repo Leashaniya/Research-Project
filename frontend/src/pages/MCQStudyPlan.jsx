@@ -752,11 +752,14 @@ const MCQStudyPlan = () => {
     return m;
   }, [percentageDf]);
 
-  const chartData = percentageDf.map((r) => {
+  const chartData = percentageDf.map((r, idx) => {
     const friendly = getFriendlyLectureLabel(r.Lecture_File, r.Lecture_Title, r.Top_Topics || []);
+    const n = (r.Lecture_File || '').match(/\d+/)?.[0] || String(idx + 1);
     return {
     name: friendly,
     shortName: formatLectureName(friendly),
+    /** Short x-axis tick only; full name stays in `name` for tooltips. */
+    barXLabel: `L${n}`,
     questions: r.Questions_In_Lecture || 0,
     percentage: r.Percentage_of_Total || 0,
     };
@@ -1113,9 +1116,14 @@ const MCQStudyPlan = () => {
                   <p className="mcq-chart-subtitle">Taller bars = more practice questions from that lecture in past exams.</p>
                   {chartData.length > 0 ? (
                     <ResponsiveContainer width="100%" height={350}>
-                      <BarChart data={chartData}>
+                      <BarChart data={chartData} margin={{ top: 8, right: 8, left: 8, bottom: 28 }}>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="shortName" />
+                        <XAxis
+                          dataKey="barXLabel"
+                          tick={false}
+                          tickLine={false}
+                          label={{ value: 'Lectures', position: 'insideBottom', offset: 0 }}
+                        />
                         <YAxis label={{ value: 'Questions', angle: -90, position: 'insideLeft' }} />
                         <Tooltip
                           formatter={(value, name) => [value, name === 'questions' ? 'Question Count' : name]}
@@ -1830,9 +1838,6 @@ const MCQStudyPlan = () => {
                     <p className="mcq-study-plan-hint">
                       These summaries are generated from your lecture content and quiz weak areas.
                     </p>
-                    <p className="text-muted mb-2">
-                      For best quality summaries, set <code>OPENAI_API_KEY</code> or <code>ANTHROPIC_API_KEY</code> in the backend environment.
-                    </p>
                     {weakTopicSummary.length > 0 ? (
                       <div>
                         {weakTopicSummary.map((item) => (
@@ -1865,30 +1870,6 @@ const MCQStudyPlan = () => {
                       </div>
                     ) : (
                       <p className="text-muted mb-0">Complete the quiz to generate weak-topic revision summaries.</p>
-                    )}
-                  </div>
-
-                  <div className="mcq-chart-card">
-                    <h5><i className="fas fa-chart-bar me-2"></i>Your scores by lecture</h5>
-                    {Object.keys(quizResults.topic_wise || {}).length > 0 ? (
-                      <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={Object.entries(quizResults.topic_wise || {}).map(([topic, d]) => ({
-                          name: getFriendlyLectureLabel(
-                            topic,
-                            lectureMetaByFile[topic]?.title,
-                            lectureMetaByFile[topic]?.topics || []
-                          ),
-                          accuracy: d.accuracy || 0,
-                        }))}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" />
-                          <YAxis domain={[0, 100]} />
-                          <Tooltip />
-                          <Bar dataKey="accuracy" fill="#4e73df" name="Accuracy (%)" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    ) : (
-                      <p className="text-muted">No chart data</p>
                     )}
                   </div>
 
@@ -2097,28 +2078,6 @@ const MCQStudyPlan = () => {
                         </p>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="mcq-graphrag-adaptive-card">
-                    <h5><i className="fas fa-project-diagram me-2"></i>Related topics you should revise next</h5>
-                    <p className="mb-1"><strong>Weak topics (quiz)</strong></p>
-                    <p className="mcq-graphrag-adaptive-text">
-                      {adaptiveGraphragNarrative.weakShow.length
-                        ? adaptiveGraphragNarrative.weakShow.join(', ')
-                        : '— Complete the quiz to list weak topics here.'}
-                    </p>
-                    <p className="mb-1 mt-2"><strong>Related topics to revise</strong></p>
-                    {adaptiveGraphragNarrative.links.length ? (
-                      <ul className="mcq-graphrag-link-list mb-2">
-                        {adaptiveGraphragNarrative.links.slice(0, 5).map((l, idx) => (
-                          <li key={`${l.from_weak}-${l.related_concept}-${idx}`}>
-                            <strong>{l.from_weak}</strong> → {l.related_concept}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="mcq-graphrag-adaptive-text mb-2">— Run <strong>Dashboard → Run Analysis</strong> after your quiz to refresh related topic suggestions.</p>
-                    )}
                   </div>
 
                   {comparisonChartData.length > 0 && (

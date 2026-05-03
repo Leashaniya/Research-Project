@@ -1,0 +1,8 @@
+{
+  "input_signature": "6262ec69c24842df4011e462a3af35c12dd0275f9c0828fc91f8deb7808185cd",
+  "created_at": "2026-05-03T04:39:24.489529+00:00",
+  "embed_model": "all-MiniLM-L6-v2",
+  "n_topics": 6,
+  "max_sentences_per_lecture": 100,
+  "cache_version": 1
+}

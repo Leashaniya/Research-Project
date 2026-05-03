@@ -28,6 +28,8 @@ export interface AnalysisResponse {
   total_questions?: number;
   percentage_df?: any[];
   message: string;
+  /** True when results were read from disk cache (same PDFs / config as last run). */
+  from_cache?: boolean;
 }
 
 export interface StudyPlanItem {
@@ -130,11 +132,24 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   return response.json();
 }
 
+function resolveMcqUserId(explicit?: string): string {
+  if (explicit && explicit.trim()) return explicit.trim();
+  try {
+    const fromStorage = typeof localStorage !== 'undefined' ? localStorage.getItem('mcq_user_id') : null;
+    if (fromStorage && fromStorage.trim()) return fromStorage.trim();
+  } catch {
+    /* ignore */
+  }
+  return 'default';
+}
+
 /**
- * Run analysis on lecture materials
+ * Run analysis on lecture materials. Uses `mcq_user_id` in localStorage when set,
+ * or pass `userId` for per-account disk cache (backend stores under data/{user_id}/).
  */
-export async function runAnalysis(): Promise<AnalysisResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/dashboard/analyze`, {
+export async function runAnalysis(userId?: string): Promise<AnalysisResponse> {
+  const uid = encodeURIComponent(resolveMcqUserId(userId));
+  const response = await fetch(`${API_BASE_URL}/api/dashboard/analyze?user_id=${uid}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
   });

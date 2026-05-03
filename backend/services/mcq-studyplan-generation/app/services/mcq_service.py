@@ -11,6 +11,7 @@ SERVICE_ROOT = Path(__file__).resolve().parents[2]
 if str(SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(SERVICE_ROOT))
 
+import numpy as np
 import pandas as pd
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -23,129 +24,246 @@ from reportlab.lib.units import inch
 OUTPUT_FOLDER = "outputs"
 
 
-def run_analysis() -> tuple[bool, str]:
-    """Run lecture/question analysis. Returns (success, message)."""
+def save_data(user_folder: str | Path, bundle: dict, input_signature: str) -> None:
+    """Persist analysis artifacts under ``user_folder`` (see ``analysis_cache.save_data``)."""
+    from analysis_cache import save_data as _save
+
+    _save(Path(user_folder), bundle, input_signature)
+
+
+def load_data(user_folder: str | Path, expected_signature: str | None = None) -> dict | None:
+    """
+    Load cached analysis from ``user_folder``. If ``expected_signature`` is omitted,
+    the current lecture/question PDF signature is used (same as ``run_analysis``).
+    """
+    from analysis_cache import compute_input_signature, load_data as _load
+
+    sig = expected_signature if expected_signature is not None else compute_input_signature()
+    return _load(Path(user_folder), sig)
+
+
+def _write_question_percentage_chart(percentage_df: pd.DataFrame) -> None:
+    """Write question distribution PNG under OUTPUT_FOLDER."""
     try:
-        from pdf_utils import get_all_pdf_files
-        from config import LECTURE_SLIDES_FOLDER, QUESTIONS_FOLDER
+        from main import create_percentage_visualization
+        create_percentage_visualization(percentage_df, os.path.join(OUTPUT_FOLDER, "question_percentage_chart.png"))
+    except Exception:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        plt.figure(figsize=(12, 8))
+        lectures = percentage_df["Lecture_File"].tolist()
+        percentages = percentage_df["Percentage_of_Total"].tolist()
+        x_pos = range(len(lectures))
+        plt.subplot(2, 1, 1)
+        plt.bar(x_pos, percentages, color="skyblue", edgecolor="black")
+        plt.xticks(x_pos, lectures, rotation=45, ha="right")
+        plt.ylabel("Percentage of Total Questions (%)")
+        plt.title("Question Distribution Across Lectures")
+        plt.grid(True, alpha=0.3)
+        plt.subplot(2, 1, 2)
+        cumulative = percentage_df["Cumulative_Percentage"].tolist()
+        plt.plot(x_pos, cumulative, "o-", color="darkgreen", linewidth=2, markersize=8)
+        plt.fill_between(x_pos, 0, cumulative, alpha=0.2, color="green")
+        plt.xticks(x_pos, lectures, rotation=45, ha="right")
+        plt.ylabel("Cumulative Percentage (%)")
+        plt.xlabel("Lecture Files")
+        plt.title("Cumulative Question Coverage")
+        plt.grid(True, alpha=0.3)
+        plt.ylim([0, 110])
+        plt.tight_layout()
+        plt.savefig(os.path.join(OUTPUT_FOLDER, "question_percentage_chart.png"), dpi=150, bbox_inches="tight")
+        plt.close()
 
-        lecture_files = get_all_pdf_files(LECTURE_SLIDES_FOLDER)
-        question_files = get_all_pdf_files(QUESTIONS_FOLDER)
 
-        if not lecture_files:
-            return False, "No lecture slides found!"
+def _build_learning_graph(
+    lecture_data: list,
+    mcq_df: pd.DataFrame,
+    all_topics: list,
+    sims,
+    mcq_embeddings,
+    *,
+    skip_graph_if_exists: bool = False,
+) -> tuple:
+    """Compute similarities if needed, then build PyVis HTML. Returns (sims, mcq_embeddings)."""
+    graph_path = os.path.join(OUTPUT_FOLDER, "graphrag_visualization.html")
+    if mcq_df.empty or not all_topics:
+        return sims, mcq_embeddings
+    if skip_graph_if_exists and os.path.isfile(graph_path):
+        return sims, mcq_embeddings
 
-        from pdf_utils import extract_text_from_pdf, extract_lecture_title, find_matching_question_file
-        from nlp_utils import extract_topics_from_text
-        from mcq_utils import extract_questions_from_pdf, create_mcq_dataframe
-        from config import N_TOPICS, MAX_SENTENCES_PER_LECTURE
-        from analysis_utils import analyze_question_distribution, generate_detailed_question_report
+    try:
+        from mcq_utils import compute_similarities
+        from graph_utils import build_pyvis_graph
 
-        lecture_data = []
-        all_mcq_data = []
+        if sims is None or (hasattr(sims, "size") and sims.size == 0):
+            sims, mcq_embeddings = compute_similarities(all_topics, mcq_df)
+        build_pyvis_graph(lecture_data, mcq_df, sims, graph_path, open_browser=False)
+    except Exception as graph_err:
+        print(f"Graph build skipped: {graph_err}")
+    return sims, mcq_embeddings
 
-        for i, lecture_file in enumerate(lecture_files):
-            lecture_text = extract_text_from_pdf(lecture_file)
-            lecture_title = extract_lecture_title(lecture_text)
-            topics = extract_topics_from_text(lecture_text, n_topics=N_TOPICS, max_sentences=MAX_SENTENCES_PER_LECTURE)
-            matching_question_file = find_matching_question_file(lecture_file, question_files)
-            questions = []
-            if matching_question_file:
-                question_text = extract_text_from_pdf(matching_question_file)
-                questions = extract_questions_from_pdf(question_text, use_openai_for_answers=False)
-                lecture_id = f"lec_{i + 1}"
-                if questions:
-                    mcq_df = create_mcq_dataframe(questions, lecture_id)
-                    all_mcq_data.append(mcq_df)
 
-            lecture_data.append({
-                "id": f"lec_{i + 1}",
-                "file": lecture_file,
-                "filename": os.path.basename(lecture_file),
-                "title": lecture_title,
-                "topics": topics,
-                "question_file": matching_question_file,
-                "question_filename": os.path.basename(matching_question_file) if matching_question_file else None,
-                "question_count": len(questions),
-            })
+def _execute_full_pipeline() -> dict:
+    """Parse PDFs, extract MCQs/topics, compute embeddings and similarity matrix."""
+    from pdf_utils import get_all_pdf_files
+    from config import LECTURE_SLIDES_FOLDER, QUESTIONS_FOLDER
+    from pdf_utils import extract_text_from_pdf, extract_lecture_title, find_matching_question_file
+    from nlp_utils import extract_topics_from_text
+    from mcq_utils import extract_questions_from_pdf, create_mcq_dataframe, compute_similarities
+    from config import N_TOPICS, MAX_SENTENCES_PER_LECTURE
+    from analysis_utils import analyze_question_distribution, generate_detailed_question_report
 
-        if all_mcq_data:
-            mcq_df = pd.concat(all_mcq_data, ignore_index=True)
-        else:
-            mcq_df = pd.DataFrame(columns=["id", "lecture_id", "question", "options", "source"])
+    lecture_files = get_all_pdf_files(LECTURE_SLIDES_FOLDER)
+    question_files = get_all_pdf_files(QUESTIONS_FOLDER)
 
-        all_topics = []
-        topic_counter = 0
-        for lecture in lecture_data:
-            if "topics" in lecture:
-                for topic in lecture["topics"]:
-                    topic["topic_id"] = topic_counter
-                    topic["lecture_id"] = lecture["id"]
-                    all_topics.append(topic)
-                    topic_counter += 1
+    if not lecture_files:
+        raise RuntimeError("No lecture slides found!")
 
-        percentage_df = analyze_question_distribution(lecture_data, question_files)
-        detailed_report = generate_detailed_question_report(lecture_data, mcq_df)
+    lecture_data = []
+    all_mcq_data = []
 
-        try:
-            from main import create_percentage_visualization
-            create_percentage_visualization(percentage_df, os.path.join(OUTPUT_FOLDER, "question_percentage_chart.png"))
-        except Exception:
-            import matplotlib
-            matplotlib.use("Agg")
-            import matplotlib.pyplot as plt
-            plt.figure(figsize=(12, 8))
-            lectures = percentage_df["Lecture_File"].tolist()
-            percentages = percentage_df["Percentage_of_Total"].tolist()
-            x_pos = range(len(lectures))
-            plt.subplot(2, 1, 1)
-            plt.bar(x_pos, percentages, color="skyblue", edgecolor="black")
-            plt.xticks(x_pos, lectures, rotation=45, ha="right")
-            plt.ylabel("Percentage of Total Questions (%)")
-            plt.title("Question Distribution Across Lectures")
-            plt.grid(True, alpha=0.3)
-            plt.subplot(2, 1, 2)
-            cumulative = percentage_df["Cumulative_Percentage"].tolist()
-            plt.plot(x_pos, cumulative, "o-", color="darkgreen", linewidth=2, markersize=8)
-            plt.fill_between(x_pos, 0, cumulative, alpha=0.2, color="green")
-            plt.xticks(x_pos, lectures, rotation=45, ha="right")
-            plt.ylabel("Cumulative Percentage (%)")
-            plt.xlabel("Lecture Files")
-            plt.title("Cumulative Question Coverage")
-            plt.grid(True, alpha=0.3)
-            plt.ylim([0, 110])
-            plt.tight_layout()
-            plt.savefig(os.path.join(OUTPUT_FOLDER, "question_percentage_chart.png"), dpi=150, bbox_inches="tight")
-            plt.close()
+    for i, lecture_file in enumerate(lecture_files):
+        lecture_text = extract_text_from_pdf(lecture_file)
+        lecture_title = extract_lecture_title(lecture_text)
+        topics = extract_topics_from_text(lecture_text, n_topics=N_TOPICS, max_sentences=MAX_SENTENCES_PER_LECTURE)
+        matching_question_file = find_matching_question_file(lecture_file, question_files)
+        questions = []
+        if matching_question_file:
+            question_text = extract_text_from_pdf(matching_question_file)
+            questions = extract_questions_from_pdf(question_text, use_openai_for_answers=False)
+            lecture_id = f"lec_{i + 1}"
+            if questions:
+                mcq_df = create_mcq_dataframe(questions, lecture_id)
+                all_mcq_data.append(mcq_df)
 
-        # Build graph (optional - skip if fails)
-        # Same filename as GraphRAG visualization so /api/graph/url serves student-friendly graph
-        graph_path = os.path.join(OUTPUT_FOLDER, "graphrag_visualization.html")
-        if not mcq_df.empty and all_topics:
-            try:
-                from mcq_utils import compute_similarities
-                from graph_utils import build_pyvis_graph
-                sims, _ = compute_similarities(all_topics, mcq_df)
-                build_pyvis_graph(lecture_data, mcq_df, sims, graph_path, open_browser=False)
-            except Exception as graph_err:
-                print(f"Graph build skipped: {graph_err}")
+        lecture_data.append({
+            "id": f"lec_{i + 1}",
+            "file": lecture_file,
+            "filename": os.path.basename(lecture_file),
+            "title": lecture_title,
+            "topics": topics,
+            "question_file": matching_question_file,
+            "question_filename": os.path.basename(matching_question_file) if matching_question_file else None,
+            "question_count": len(questions),
+        })
 
-        # Update state
-        import app.services.state as st
-        st.LECTURE_DATA.clear()
-        st.LECTURE_DATA.extend(lecture_data)
-        st.MCQ_DF = mcq_df
-        st.PERCENTAGE_DF = percentage_df
-        st.ALL_TOPICS.clear()
-        st.ALL_TOPICS.extend(all_topics)
-        st.DETAILED_REPORT = detailed_report
-        st.PROCESSED = True
+    if all_mcq_data:
+        mcq_df = pd.concat(all_mcq_data, ignore_index=True)
+    else:
+        mcq_df = pd.DataFrame(columns=["id", "lecture_id", "question", "options", "source"])
 
-        return True, "Analysis completed successfully!"
+    all_topics = []
+    topic_counter = 0
+    for lecture in lecture_data:
+        if "topics" in lecture:
+            for topic in lecture["topics"]:
+                topic["topic_id"] = topic_counter
+                topic["lecture_id"] = lecture["id"]
+                all_topics.append(topic)
+                topic_counter += 1
+
+    percentage_df = analyze_question_distribution(lecture_data, question_files)
+    detailed_report = generate_detailed_question_report(lecture_data, mcq_df)
+
+    sims, mcq_embeddings = (
+        compute_similarities(all_topics, mcq_df)
+        if not mcq_df.empty and all_topics
+        else (np.array([]), np.array([]))
+    )
+
+    return {
+        "lecture_data": lecture_data,
+        "all_topics": all_topics,
+        "mcq_df": mcq_df,
+        "percentage_df": percentage_df,
+        "detailed_report": detailed_report,
+        "sims": sims,
+        "mcq_embeddings": mcq_embeddings,
+    }
+
+
+def _normalize_tabular_artifacts(artifacts: dict) -> None:
+    """Ensure DataFrames have unique columns so row['lecture_id'] etc. stay scalar."""
+    from analysis_cache import dedupe_dataframe_columns
+
+    for key in ("mcq_df", "percentage_df", "detailed_report"):
+        df = artifacts.get(key)
+        if isinstance(df, pd.DataFrame):
+            artifacts[key] = dedupe_dataframe_columns(df)
+
+
+def _apply_analysis_to_state(artifacts: dict) -> None:
+    import app.services.state as st
+    st.LECTURE_DATA.clear()
+    st.LECTURE_DATA.extend(artifacts["lecture_data"])
+    st.MCQ_DF = artifacts["mcq_df"]
+    st.PERCENTAGE_DF = artifacts["percentage_df"]
+    st.ALL_TOPICS.clear()
+    st.ALL_TOPICS.extend(artifacts["all_topics"])
+    st.DETAILED_REPORT = artifacts["detailed_report"]
+    st.PROCESSED = True
+
+
+def run_analysis(user_id: str = "default") -> tuple[bool, str, bool]:
+    """
+    Run lecture/question analysis or load from disk cache under data/{user_id}/.
+
+    Returns (success, message, loaded_from_cache).
+    """
+    try:
+        from analysis_cache import (
+            compute_input_signature,
+            load_data,
+            save_data,
+            user_data_dir,
+        )
+
+        sig = compute_input_signature()
+        user_folder = user_data_dir(user_id)
+        cached = load_data(user_folder, sig)
+
+        if cached is not None:
+            artifacts = {
+                "lecture_data": cached["lecture_data"],
+                "all_topics": cached["all_topics"],
+                "mcq_df": cached["mcq_df"],
+                "percentage_df": cached["percentage_df"],
+                "detailed_report": cached["detailed_report"],
+                "sims": cached["sims"],
+                "mcq_embeddings": cached["mcq_embeddings"],
+            }
+            _normalize_tabular_artifacts(artifacts)
+            _apply_analysis_to_state(artifacts)
+            _write_question_percentage_chart(artifacts["percentage_df"])
+            _build_learning_graph(
+                artifacts["lecture_data"],
+                artifacts["mcq_df"],
+                artifacts["all_topics"],
+                artifacts["sims"],
+                artifacts["mcq_embeddings"],
+                skip_graph_if_exists=True,
+            )
+            return True, "Analysis loaded from disk cache (inputs unchanged).", True
+
+        artifacts = _execute_full_pipeline()
+        _normalize_tabular_artifacts(artifacts)
+        _apply_analysis_to_state(artifacts)
+        _write_question_percentage_chart(artifacts["percentage_df"])
+        _build_learning_graph(
+            artifacts["lecture_data"],
+            artifacts["mcq_df"],
+            artifacts["all_topics"],
+            artifacts["sims"],
+            artifacts["mcq_embeddings"],
+        )
+
+        save_data(user_folder, artifacts, sig)
+        return True, "Analysis completed successfully!", False
 
     except Exception as e:
         traceback.print_exc()
-        return False, str(e)
+        return False, str(e), False
 
 
 def generate_study_plan_pdf(study_plan_df: pd.DataFrame, daily_schedule_df: pd.DataFrame, total_hours: float, study_days: int) -> io.BytesIO:

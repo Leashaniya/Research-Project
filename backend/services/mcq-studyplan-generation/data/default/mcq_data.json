@@ -1,0 +1,4511 @@
+[
+  {
+    "id":"lec_1_Q1",
+    "lecture_id":"lec_1",
+    "question":"What is a Database Management System (DBMS)?",
+    "options":"A. A collection of related data | B. A general-purpose software system that facilitates defining, constructing, manipulating, and sharing databases | C. A file processing system for storing data | D. A programming language for creating databases",
+    "answer":"B",
+    "question_number":1,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q2",
+    "lecture_id":"lec_1",
+    "question":"Which of the following is NOT an advantage of the database approach over file processing systems?",
+    "options":"A. Data independence | B. Enforcing integrity constraints | C. Simpler implementation for small-scale applications | D. Concurrent access by multiple users",
+    "answer":"C",
+    "question_number":2,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q3",
+    "lecture_id":"lec_1",
+    "question":"In the database design process, what is the FIRST phase?",
+    "options":"A. Conceptual database design | B. Logical database design | C. Requirement collection and analysis | D. Physical database design",
+    "answer":"C",
+    "question_number":3,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q4",
+    "lecture_id":"lec_1",
+    "question":"What type of entity cannot be uniquely identified alone in a domain?",
+    "options":"A. Strong entity B) Weak entity | C. Composite entity | D. Abstract entity",
+    "answer":"B",
+    "question_number":4,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q5",
+    "lecture_id":"lec_1",
+    "question":"In an ISA relationship hierarchy, what does \"disjoint\" mean?",
+    "options":"A. All entities in subclasses are also in the superclass | B. An entity cannot belong to more than one subclass simultaneously | C. An entity must belong to at least one subclass | D. Subclasses share all attributes with the superclass",
+    "answer":"B",
+    "question_number":5,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q6",
+    "lecture_id":"lec_1",
+    "question":"What is a fan trap in ER modeling?",
+    "options":"A. A missing relationship between entity types | B. An ambiguous pathway between certain entity instances due to multiple one- tomany relationships fanning out from the same entity | C. A relationship that connects more than three entities | D. An entity with too many attributes",
+    "answer":"B",
+    "question_number":6,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q7",
+    "lecture_id":"lec_1",
+    "question":"Which constraint determines whether entities in subclasses collectively include all entities in the superclass?",
+    "options":"A. Overlapping constraint B) Participation constraint C) Covering constraint | D. Cardinality constraint",
+    "answer":"C",
+    "question_number":7,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q8",
+    "lecture_id":"lec_1",
+    "question":"What is the identifying relationship set requirement for weak entities?",
+    "options":"A. Many-to-many relationship with the owner entity | B. One-to-one relationship with the owner entity | C. One-to-many relationship where the weak entity has total participation | D. Optional participation in any relationship",
+    "answer":"C",
+    "question_number":8,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q9",
+    "lecture_id":"lec_1",
+    "question":"When should a ternary relationship be used instead of binary relationships?",
+    "options":"A. When you need to connect exactly three entities | B. When there is a common attribute that needs all three entities together | C. When binary relationships are too complex | D. When you want to simplify the ER diagram",
+    "answer":"B",
+    "question_number":9,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q10",
+    "lecture_id":"lec_1",
+    "question":"What does aggregation in EER modeling allow you to do?",
+    "options":"A. Combine multiple entities into one | B. Indicate that a relationship set participates in another relationship set | C. Create subclasses from a superclass | D. Define composite attributes",
+    "answer":"B",
+    "question_number":10,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q11",
+    "lecture_id":"lec_1",
+    "question":"A chasm trap occurs when:",
+    "options":"A. Too many relationships fan out from one entity | B. A model suggests a relationship should exist but it doesn't actually exist C) An entity has no primary key D) Multiple entities share the same attributes",
+    "answer":"B",
+    "question_number":11,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q12",
+    "lecture_id":"lec_1",
+    "question":"In the conceptual database design phase, which model is commonly used?",
+    "options":"A. Relational model | B. Object-oriented model | C. Entity-Relationship (ER) model | D. Hierarchical model",
+    "answer":"C",
+    "question_number":12,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q13",
+    "lecture_id":"lec_1",
+    "question":"What does \"total specialization\" mean in an ISA hierarchy?",
+    "options":"A. All subclasses overlap with each other | B. Every entity in the superclass must belong to at least one subclass (covering constraint exists) | C. Subclasses cannot share entities | D. All attributes must be specialized",
+    "answer":"B",
+    "question_number":13,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q14",
+    "lecture_id":"lec_1",
+    "question":"Which of the following is an aspect to consider during requirement analysis?",
+    "options":"A. Database normalization rules | B. Hardware specifications | C. What data is to be stored in the database | D. Network topology",
+    "answer":"C",
+    "question_number":14,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q15",
+    "lecture_id":"lec_1",
+    "question":"What is the main difference between specialization and generalization?",
+    "options":"A. Specialization is top-down (defining subclasses), generalization is bottom-up (identifying commonalities) B) Specialization uses ternary relationships, generalization uses binary | C. Specialization is for weak entities, generalization is for strong entities | D. There is no difference, they are the same concept",
+    "answer":"A",
+    "question_number":15,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q16",
+    "lecture_id":"lec_1",
+    "question":"Which of the following are advantages of the database approach? (Select all that apply)",
+    "options":"A. Data independence | B. Efficient data access | C. Lower initial development cost than file systems | D. Enforcing integrity constraints",
+    "answer":"",
+    "question_number":16,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q17",
+    "lecture_id":"lec_1",
+    "question":"During requirement collection and analysis, what should database developers do? (Select all that apply)",
+    "options":"A. Interview clients | B. Analyze documents and reports | C. Design the physical database schema | D. Identify unclear or incomplete requirements",
+    "answer":"",
+    "question_number":17,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q18",
+    "lecture_id":"lec_1",
+    "question":"Which of the following are phases in the database design process? (Select all that apply)",
+    "options":"A. Requirement collection and analysis | B. Software testing | C. Conceptual database design | D. Schema refinement",
+    "answer":"",
+    "question_number":18,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q19",
+    "lecture_id":"lec_1",
+    "question":"For a weak entity to be valid, which restrictions must hold? (Select all that apply)",
+    "options":"A. It must participate in a one-to-many relationship with an owner entity | B. It can be uniquely identified on its own | C. It must have total participation in the identifying relationship | D. Each weak entity can have multiple owner entities",
+    "answer":"",
+    "question_number":19,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q20",
+    "lecture_id":"lec_1",
+    "question":"What are characteristics of the database system approach compared to file processing? (Select all that apply)",
+    "options":"A. Self-describing nature | B. Insulation between programs and data | C. Support for multiple views of data | D. Single-user access only",
+    "answer":"",
+    "question_number":20,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q21",
+    "lecture_id":"lec_1",
+    "question":"In EER modeling, ISA relationships can have which constraints? (Select all that apply)",
+    "options":"A. Overlapping constraint | B. Foreign key constraint | C. Covering constraint | D. Disjoint constraint",
+    "answer":"",
+    "question_number":21,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q22",
+    "lecture_id":"lec_1",
+    "question":"Which statements about ternary relationships are correct? (Select all that apply)",
+    "options":"A. They involve exactly three entities | B. They can represent common attributes that need all three entities together | C. They should replace all binary relationships | D. They can coexist with binary relationships if both have different meanings",
+    "answer":"",
+    "question_number":22,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q23",
+    "lecture_id":"lec_1",
+    "question":"What can cause design traps in ER modeling? (Select all that apply)",
+    "options":"A. Fan traps with ambiguous pathways | B. Proper normalization | C. Chasm traps with missing relationships | D. Multiple one-to-many relationships fanning from the same entity",
+    "answer":"",
+    "question_number":23,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q24",
+    "lecture_id":"lec_1",
+    "question":"Which of the following are true about aggregation in EER models? (Select all that apply)",
+    "options":"A. It allows a relationship set to participate in another relationship | B. It contains two independent relationships | C. It is the same as a ternary relationship | D. It can be used to model complex dependencies",
+    "answer":"",
+    "question_number":24,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q25",
+    "lecture_id":"lec_1",
+    "question":"What aspects should be considered during requirement analysis? (Select all that apply)",
+    "options":"A. What data is to be stored | B. What programming language to use | C. What applications are to be built | D. What operations have to be performed",
+    "answer":"",
+    "question_number":25,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q26",
+    "lecture_id":"lec_1",
+    "question":"Which of the following are direct or indirect advantages of using a DBMS? (Select one or more)",
+    "options":"A. Maintaining integrity of data | B. Restricting unauthorized access to data | C. Reduced program maintenance | D. Providing fast access to data",
+    "answer":"",
+    "question_number":26,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q27",
+    "lecture_id":"lec_1",
+    "question":"Which of the following are direct or indirect advantages of using a DBMS? (Select one or more)",
+    "options":"A. Maintaining integrity of data | B. Restricting unauthorized access to data | C. Reduced program maintenance | D. Providing fast access to data",
+    "answer":"",
+    "question_number":27,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q28",
+    "lecture_id":"lec_1",
+    "question":"Which of the following are direct or indirect advantages of using a DBMS? (Select one or more)",
+    "options":"A. Maintaining integrity of data | B. Restricting unauthorized access to data | C. Reduced program maintenance | D. Providing fast access to data",
+    "answer":"",
+    "question_number":28,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q29",
+    "lecture_id":"lec_1",
+    "question":"Which of the following is\/are TRUE about databases and database management systems? (Select one or more)",
+    "options":"A. Databases are used to only store complex information | B. All databases are computerized | C. Defining a database involves specifying the data types, structures, and constraints on data | D. DBMS is a special purpose software that is capable of structuring, storing, and programming data",
+    "answer":"C",
+    "question_number":29,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q30",
+    "lecture_id":"lec_1",
+    "question":"Which of the following is the correct order of processes involved in developing a database?",
+    "options":"A. Requirement collection and analysis \u2192 Conceptual database design \u2192 Schema refinement \u2192 Logical database design \u2192 Security design and Physical database design | B. Requirement collection and analysis \u2192 Conceptual database design \u2192 Schema refinement \u2192 Logical database design \u2192 Physical database design and Security design | C. Requirement collection and analysis \u2192 Physical database design \u2192 Conceptual database design \u2192 Logical database design \u2192 Schema refinement \u2192 Security design | D. Requirement collection and analysis \u2192 Conceptual database design \u2192 Logical database design \u2192 Schema refinement \u2192 Physical database design and Security design",
+    "answer":"D",
+    "question_number":30,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q31",
+    "lecture_id":"lec_1",
+    "question":"Which of the following are not examples of program\u2013data independence (insulation between program and data)? (Select one or more)",
+    "options":"A. Being able to hide from users where the actual data are stored | B. Being able to access data using programs written in different programming languages | C. Being able to define which users are able to access data | D. Being able to improve the performance of the database without affecting the data",
+    "answer":"C",
+    "question_number":31,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q32",
+    "lecture_id":"lec_1",
+    "question":"Which of the following is\/are intensions (intentions) of a database developer during the requirement collection and analysis phase? (Select one or more)",
+    "options":"A. Finding the names of the people who will be developing the applications to access the database | B. Finding relationships among data in the organization | C. Finding data to be stored in the organization | D. Identify the number of concurrent users who will be using the database",
+    "answer":"B",
+    "question_number":32,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q33",
+    "lecture_id":"lec_1",
+    "question":"Which of the following are direct\/indirect advantages of using a DBMS? (Select one or more)",
+    "options":"A. Maintaining integrity of data | B. Restricting unauthorized access to data | C. Reduced program maintenance | D. Providing fast access to data",
+    "answer":"",
+    "question_number":33,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q34",
+    "lecture_id":"lec_1",
+    "question":"Which of the following are NOT examples of program-data independence (insulation between program and data)? (Select one or more)",
+    "options":"A. Being able to add columns to a table without affecting user queries | B. Being able to access data using programs written in different programming languages | C. Being able to improve the performance of the database without affecting the data | D. Being able to define which users are able to access data",
+    "answer":"D",
+    "question_number":34,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q35",
+    "lecture_id":"lec_1",
+    "question":"Which is\/are NOT a characteristic(s) of the database approach? (Select one or more)",
+    "options":"A. Support of a single view of the data | B. Self-describing nature of a database system | C. Data collection | D. Insulation between programs and data",
+    "answer":"A",
+    "question_number":35,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q36",
+    "lecture_id":"lec_1",
+    "question":"University rooms scenario Which of the following are true?",
+    "options":"A. A group cannot exist without a batch | B. There are no descriptive attributes for relationships in the diagram | C. There are two identifying relationships in the diagram | D. Allocated can be considered as a ternary relationship",
+    "answer":"A",
+    "question_number":36,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_1_Q37",
+    "lecture_id":"lec_1",
+    "question":"Which of the following are direct or indirect advantages of using a DBMS? (Select one or more)",
+    "options":"A. Maintaining integrity of data | B. Restricting unauthorized access to data | C. Reduced program maintenance | D. Providing fast access to data",
+    "answer":"",
+    "question_number":37,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q1",
+    "lecture_id":"lec_2",
+    "question":"A university database has a Person superclass with Student and Faculty subclasses",
+    "options":"A. Option 1 - Multiple relations with superclass and subclass tables | B. Option 2 - Separate relations for subclasses only | C. Option 3 - Single relation with type attribute | D. Option 4 - Single relation with Boolean attributes",
+    "answer":"A",
+    "question_number":1,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q2",
+    "lecture_id":"lec_2",
+    "question":"Consider the following relational schema: Employee(eid, ename, salary, did) Department(did, dname, budget) You need to enforce: \"Total salary of all employees in a department should not exceed the department's budget",
+    "options":"A. Domain constraint using CHECK | B. Key constraint | C. Referential integrity using foreign key | D. Assertion (constraint across multiple tables)",
+    "answer":"D",
+    "question_number":2,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q3",
+    "lecture_id":"lec_2",
+    "question":"In mapping a composite attribute \"Address\" (street, city, postal_code) to the relational model, what is the correct approach?",
+    "options":"A. Create a separate Address table with foreign key reference | B. Flatten into simple attributes: street, city, postal_code in the same relation | C. Store as a single text field with concatenated values | D. Use a multivalued attribute representation",
+    "answer":"B",
+    "question_number":3,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q4",
+    "lecture_id":"lec_2",
+    "question":"Given an M:N relationship \"Enrolls\" between Student and Course entities with a descriptive attribute \"grade\", how should this be mapped?",
+    "options":"A. Include grade as an attribute in Student table | B. Include grade as an attribute in Course table | C. Create an Enrolls table with Student PK, Course PK as composite key, and grade as attribute | D. Create two separate tables for the relationship",
+    "answer":"C",
+    "question_number":4,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q5",
+    "lecture_id":"lec_2",
+    "question":"A weak entity \"Room\" depends on strong entity \"Building\" through identifying relationship \"Contains\"",
+    "options":"A. room_number only | B. building_id only | C. (building_id, room_number) - composite key | D. A new surrogate key should be created",
+    "answer":"C",
+    "question_number":5,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q6",
+    "lecture_id":"lec_2",
+    "question":"You have a ternary relationship \"Supply\" connecting Supplier, Part, and Project with attribute \"quantity\"",
+    "options":"A. 1 | B. 2 | C. 3 | D. 4",
+    "answer":"C",
+    "question_number":6,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q7",
+    "lecture_id":"lec_2",
+    "question":"Consider ISA mapping Option 2 for Person \u2192 Student, Faculty",
+    "options":"A. A person who is only a student | B. A person who is only a faculty member | C. A person who is neither student nor faculty (visitor) | D. A person who is both student and faculty",
+    "answer":"C",
+    "question_number":7,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q8",
+    "lecture_id":"lec_2",
+    "question":"In an Employee-Project-Department scenario, you have:",
+    "options":"A. Fan trap | B. Chasm trap | C. Circular trap | D. No trap occurs",
+    "answer":"B",
+    "question_number":8,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q9",
+    "lecture_id":"lec_2",
+    "question":"A foreign key constraint \"ON DELETE CASCADE\" means:",
+    "options":"A. Deletion is not allowed if referenced tuples exist | B. When a referenced tuple is deleted, all referencing tuples are also deleted | C. When a tuple is deleted, its foreign key is set to NULL | D. Deletion creates a backup before removing data",
+    "answer":"B",
+    "question_number":9,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q10",
+    "lecture_id":"lec_2",
+    "question":"In ISA mapping Option 3 (single table with type attribute), you have Person with Student and Faculty subclasses",
+    "options":"A. Type = 'Visitor', gpa = NULL, salary = NULL | B. Cannot be represented in this option | C. Type = NULL, gpa = NULL, salary = NULL | D. Requires a separate table",
+    "answer":"A",
+    "question_number":10,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q11",
+    "lecture_id":"lec_2",
+    "question":"You are mapping an aggregation: Players play Matches, and this play relationship wins Awards",
+    "options":"A. awardName only | B. (playerId, matchId) only | C. (awardName, playerId, matchId) - composite of all three | D. (playerId, matchId, awardDate)",
+    "answer":"C",
+    "question_number":11,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q12",
+    "lecture_id":"lec_2",
+    "question":"Which of the following violations would a domain constraint catch?",
+    "options":"A. An employee's salary exceeding their manager's salary | B. Entering age as -5 for a student | C. A foreign key referencing a non-existent primary key | D. Duplicate primary key values",
+    "answer":"B",
+    "question_number":12,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q13",
+    "lecture_id":"lec_2",
+    "question":"Consider a 1:1 relationship \"Manages\" between Employee and Department where each department has exactly one manager and an employee manages at most one department",
+    "options":"A. Create a separate Manages relation | B. Add department_id as foreign key in Employee table | C. Add employee_id as foreign key in Department table with NOT NULL | D. Merge Employee and Department into one table",
+    "answer":"C",
+    "question_number":13,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q14",
+    "lecture_id":"lec_2",
+    "question":"In a university database, you have ISA hierarchy: Person \u2192 Employee \u2192 Faculty\/Staff (disjoint, total)",
+    "options":"A. Option 1 - Four tables: Person, Employee, Faculty, Staff | B. Option 2 - Two tables: Faculty, Staff (with Person and Employee attributes) | C. Option 3 - One table with type attribute | D. Multiple hierarchy mapping",
+    "answer":"B",
+    "question_number":14,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q15",
+    "lecture_id":"lec_2",
+    "question":"A candidate key that is NOT chosen as the primary key is called:",
+    "options":"A. Foreign key | B. Alternate key | C. Composite key | D. Partial key",
+    "answer":"B",
+    "question_number":15,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q16",
+    "lecture_id":"lec_2",
+    "question":"You're converting a multivalued attribute \"phone_numbers\" for Employee entity",
+    "options":"A. Store as comma-separated values in one column B) Create columns phone1, phone2, phone3 C) Create a separate Phone table (emp_id, phone_number) with composite PK D) Store in JSON format",
+    "answer":"C",
+    "question_number":16,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q17",
+    "lecture_id":"lec_2",
+    "question":"Which ISA mapping option would have the MOST NULL values when subclasses have many unique attributes?",
+    "options":"A. Option 1 | B. Option 2 | C. Option 3 | D. Option 4",
+    "answer":"D",
+    "question_number":17,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q18",
+    "lecture_id":"lec_2",
+    "question":"In a Book-Author relationship where a book can have multiple authors and an author can write multiple books, with an attribute \"author_order\" (1st author, 2nd author, etc",
+    "options":"A. (book_id, author_id) | B. author_order | C. (book_id, author_order) | D. (book_id, author_id, author_order)",
+    "answer":"A",
+    "question_number":18,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q19",
+    "lecture_id":"lec_2",
+    "question":"A fan trap occurs when:",
+    "options":"A. Too many relationships originate from one entity causing ambiguous paths | D. Foreign key references are circular",
+    "answer":"A",
+    "question_number":19,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q20",
+    "lecture_id":"lec_2",
+    "question":"Referential integrity \"ON DELETE SET NULL\" is NOT appropriate when:",
+    "options":"A. The foreign key is part of the primary key | B. The relationship is optional | C. Cascade deletion is expensive | D. The referenced table is large",
+    "answer":"A",
+    "question_number":20,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q21",
+    "lecture_id":"lec_2",
+    "question":"When mapping a 1:N relationship between Department (1) and Employee (N), which approaches are valid? (Select all that apply)",
+    "options":"A. Add department_id as FK in Employee table | B. Add employee_id as FK in Department table | C. Create a separate DeptEmp relation | D. Include relationship attributes in Employee table",
+    "answer":"",
+    "question_number":21,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q22",
+    "lecture_id":"lec_2",
+    "question":"A legal database instance must satisfy: (Select all that apply)",
+    "options":"",
+    "answer":"",
+    "question_number":22,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q23",
+    "lecture_id":"lec_2",
+    "question":"In ISA mapping Option 1, which statements are TRUE? (Select all that apply)",
+    "options":"A. Allows querying superclass without JOIN operations | B. Efficiently handles overlapping subclasses | C. Requires NULL values for subclass-specific attributes | D. Each subclass relation's PK is also a FK to superclass",
+    "answer":"",
+    "question_number":23,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q24",
+    "lecture_id":"lec_2",
+    "question":"Which factors should influence the choice of ISA mapping option? (Select all that apply)",
+    "options":"A. Whether specialization is overlapping or disjoint | B. Whether specialization is total or partial | C. Number of attributes in subclasses | D. Query patterns (frequent superclass vs subclass queries)",
+    "answer":"",
+    "question_number":24,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q25",
+    "lecture_id":"lec_2",
+    "question":"When mapping aggregation relationships, which are correct? (Select all that apply)",
+    "options":"A. First map the inner aggregation relationship | B. The aggregation is treated as an entity for outer relationship C) Primary key of aggregation table combines PKs of aggregated entities | D. Outer relationship's FK references the aggregation table's PK E) Aggregation eliminates the need for ternary relationships Answers: A, B, C, D",
+    "answer":"",
+    "question_number":25,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q26",
+    "lecture_id":"lec_2",
+    "question":"For a weak entity to be correctly mapped: (Select all that apply)",
+    "options":"A. Include owner entity's PK as FK | B. Combine owner's PK with partial key for weak entity's PK | C. Weak entity can exist independently in the database | D. Owner's PK must be part of weak entity's primary key",
+    "answer":"",
+    "question_number":26,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q27",
+    "lecture_id":"lec_2",
+    "question":"CHECK constraints can be used to enforce: (Select all that apply)",
+    "options":"A. Salary > 0 | B. Age BETWEEN 18 AND 65 | C. Start_date < End_date | D. Employee salary < Manager salary (different tuples)",
+    "answer":"",
+    "question_number":27,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q28",
+    "lecture_id":"lec_2",
+    "question":"In ISA mapping Option 4 with Boolean flags, problems include: (Select all that apply)",
+    "options":"A. Many NULL values for subclass-specific attributes | B. No way to enforce disjoint constraint at schema level | C. Difficult to add new subclasses D) Cannot represent overlapping subclasses E) Poor performance for subclass-specific queries Answers: A, B, C, E",
+    "answer":"",
+    "question_number":28,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q29",
+    "lecture_id":"lec_2",
+    "question":"Which relationships require a separate relation table? (Select all that apply)",
+    "options":"A. M:N binary relationship | B. 1:N binary relationship with relationship attributes | C. Ternary relationship | D. 1:1 relationship with total participation on both sides",
+    "answer":"",
+    "question_number":29,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q30",
+    "lecture_id":"lec_2",
+    "question":"Foreign key ON DELETE options and their effects: (Select all that apply)",
+    "options":"A. CASCADE - deletes all referencing tuples | B. SET NULL - sets FK to NULL in referencing tuples | C. RESTRICT - prevents deletion if references exist | D. SET DEFAULT - sets FK to default value",
+    "answer":"",
+    "question_number":30,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q31",
+    "lecture_id":"lec_2",
+    "question":"Scenario: Hospital database has Doctor and Patient entities",
+    "options":"C. Specialist(doc_id, name, specialization), GP(doc_id, name), Patient(pat_id, name), Treats(doc_id, pat_id, start_date, diagnosis) | D. Doctor(doc_id, name, specialization, is_specialist), Patient(pat_id, name), Treats(doc_id, pat_id, start_date, diagnosis)",
+    "answer":"C",
+    "question_number":31,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q32",
+    "lecture_id":"lec_2",
+    "question":"Scenario: Library system: Book has ISBN, title",
+    "options":"A. Book(ISBN, title), Copy(copy_id, ISBN*), Member(member_id), Borrows(copy_id, member_id, due_date) | B. Book(ISBN, title), Copy(copy_id, ISBN*, member_id*, due_date), Member(member_id) | C. Book(ISBN, title), Copy(copy_id, ISBN*), Member(member_id, copy_id*, due_date) | D. Book(ISBN, title, copy_id), Copy(copy_id, member_id, due_date), Member(member_id)",
+    "answer":"B",
+    "question_number":32,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q33",
+    "lecture_id":"lec_2",
+    "question":"Scenario: University has Course, Instructor, Semester",
+    "options":"B. Course(course_id, name), Instructor(inst_id, name), Semester(sem_id, term), Teaches(course_id, inst_id, sem_id, enrollment_count) with PK (course_id, inst_id, sem_id) | C. Course(course_id, name, inst_id*, sem_id*), Instructor(inst_id, name), Semester(sem_id, term) | D. CourseOffering(course_id, inst_id, sem_id, enrollment_count, name) with PK (course_id, sem_id)",
+    "answer":"B",
+    "question_number":33,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q34",
+    "lecture_id":"lec_2",
+    "question":"Scenario: Employee entity has empID, name, salary, supervisor_ID (an employee's supervisor is also an employee - recursive relationship)",
+    "options":"A. Employee(empID, name, salary), Supervises(empID, supervisor_ID) | B. Employee(empID, name, salary, supervisor_ID*) | C. Employee(empID, name, salary), Supervisor(supervisor_ID, empID*) | D. Cannot be mapped in relational model",
+    "answer":"B",
+    "question_number":34,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q35",
+    "lecture_id":"lec_2",
+    "question":"Scenario: Person \u2192 Employee \u2192 Manager\/Engineer (overlapping, partial)",
+    "options":"A. Option 1 - Four tables: Person, Employee, Manager, Engineer | B. Option 2 - Two tables: Manager, Engineer | C. Option 3 - One table with type attribute | D. Option 4 - One table with Boolean flags",
+    "answer":"A",
+    "question_number":35,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q36",
+    "lecture_id":"lec_2",
+    "question":"Which of the following is true related to ISA relationships? (Select one or more) , B, D",
+    "options":"A. The hierarchy in which each entity participates in only one subclass relationship is classified as disjoint | B. A subtype of an ISA hierarchy can have its own key | C. A shape object with circle, rectangle, and triangle as subtypes is an example of total participation | D. If subtypes are overlapping, the participation constraint must be partial",
+    "answer":"A",
+    "question_number":36,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q37",
+    "lecture_id":"lec_2",
+    "question":"Which of the following is\/are TRUE related to ISA relationships? (Select one or more) , B, D",
+    "options":"A. The hierarchy in which each entity participates in only one subclass relationship is classified as disjoint | B. A subtype of an ISA hierarchy can have its own key | C. A shape object with circle, rectangle, and triangle as subtypes is an example of total participation | D. If subtypes are overlapping, the participation constraint must be partial",
+    "answer":"A",
+    "question_number":37,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q38",
+    "lecture_id":"lec_2",
+    "question":"Construction company \u2013 EER diagram (binary\/ternary) Correct statements:",
+    "options":"A. Binary relationship between site and material with descriptive attribute | B. Only binary relationships in the diagram | C. Company is a strong entity in the EER | D. Ternary relationship exists",
+    "answer":"A",
+    "question_number":38,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q39",
+    "lecture_id":"lec_2",
+    "question":"ISA relationships Which are correct?",
+    "options":"A. Subtypes at a higher level inherit attributes only from immediate subtype | B. Defining supertypes and forming supertype\/subtype relationships is called specialization | C. ISA with private university, state university, semi-government university is partial and disjoint | D. A subtype can participate in a relationship unique to that subtype",
+    "answer":"B",
+    "question_number":39,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q40",
+    "lecture_id":"lec_2",
+    "question":"University rooms scenario: A university has lecture halls and laboratories",
+    "options":"A. A group cannot exist without a batch | B. There are no descriptive attributes for relationships in the diagram | C. There are two identifying relationships in the diagram | D. Allocated can be considered as a ternary relationship",
+    "answer":"A",
+    "question_number":40,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q41",
+    "lecture_id":"lec_2",
+    "question":"Construction company \u2013 EER diagram Which of the following are correct related to the EER diagram?",
+    "options":"A. Raw material types could be represented by an attribute named type | B. Site is involved with a binary relationship with raw material | C. Company is a strong entity in the EER | D. Purchase relationship contains three descriptive attributes",
+    "answer":"C",
+    "question_number":41,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q42",
+    "lecture_id":"lec_2",
+    "question":"Consider a relation R(A,B,C,D,E,F,G) with the following set of functional dependencies: F = { AB \u2192 CDEFG, D \u2192 B, D \u2192 E, E \u2192 FG }",
+    "options":"A. R1(D,E), R2(A,B,C,D) | B. R1(E,F,G), R2(A,B,C,D,E) | C. R1(E,F,G), R2(D,E), R3(A,B,C,D) | D. R1(A,B,C,D,E,F,G)",
+    "answer":"C",
+    "question_number":42,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q43",
+    "lecture_id":"lec_2",
+    "question":"Company has multiple construction sites",
+    "options":"A. Raw material types could be represented by an attribute named type | B. Site is involved with a binary relationship with raw material | C. Company is a strong entity in the EER | D. Purchase relationship contains three descriptive attributes",
+    "answer":"C",
+    "question_number":43,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q44",
+    "lecture_id":"lec_2",
+    "question":"Select the correct answer(s) about the 'Section' relation in the final relational model",
+    "options":"A. ",
+    "answer":"",
+    "question_number":44,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q45",
+    "lecture_id":"lec_2",
+    "question":"Consider the following requirements for a construction company:",
+    "options":"A. There is a ternary relationship in the diagram | B. There are only binary relationships in the diagram | C. There is a binary relationship between site and material with a descriptive attribute | D. Raw material types could be represented by subclasses",
+    "answer":"A",
+    "question_number":45,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q46",
+    "lecture_id":"lec_2",
+    "question":"Consider the following relational schemes: Car(Number, Owner, ChassisNo, Model, Year, Price) Registration(Number, Owner, ChassisNo) With the following functional dependencies: 1",
+    "options":"A. 3NF | B. BCNF | C. Unnormalized | D. 2NF",
+    "answer":"B",
+    "question_number":46,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q47",
+    "lecture_id":"lec_2",
+    "question":"Let R(A,B,",
+    "options":"A. A | B. B | C. C | D. A and B",
+    "answer":"A",
+    "question_number":47,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q48",
+    "lecture_id":"lec_2",
+    "question":"The lossless decomposition of relation R is ensured if and only if:",
+    "options":"A. Every functional dependency is preserved | B. Common attribute(s) form a superkey in at least one relation | C. Common attribute(s) are candidate keys in both relations | D. Decomposition is done in BCNF",
+    "answer":"B",
+    "question_number":48,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q49",
+    "lecture_id":"lec_2",
+    "question":"Which of the following statements about 3NF and BCNF is true?",
+    "options":"A. Every BCNF relation is in 3NF | B. Every 3NF relation is in BCNF | C. BCNF allows transitive dependencies | D. 3NF eliminates all anomalies",
+    "answer":"A",
+    "question_number":49,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q50",
+    "lecture_id":"lec_2",
+    "question":"A functional dependency X \u2192 Y holds in a relation R if and only if:",
+    "options":"A. X is a superkey | B. Y is a key | C. Each value of X is associated with precisely one value of Y | D. Y determines X",
+    "answer":"C",
+    "question_number":50,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q51",
+    "lecture_id":"lec_2",
+    "question":"Which of the following normal forms is based on the concept of functional dependency?",
+    "options":"A. 1NF | B. 2NF | C. 3NF | D. BCNF",
+    "answer":"",
+    "question_number":51,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q52",
+    "lecture_id":"lec_2",
+    "question":"Candidate keys \u2013 CustomerSales CustomerSales(CustNo, SalesDate, SalesAmount, SalesRepNo, Location) FDs:",
+    "options":"A. (Location, SalesDate, SalesTime) | B. (CustNo, SalesDate) | C. CustNo, SalesRepNo | D. SalesRepNo, SalesDate, SalesTime",
+    "answer":"B",
+    "question_number":52,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q53",
+    "lecture_id":"lec_2",
+    "question":"Select the correct answer(s) about the 'Section' relation in the final relational model",
+    "options":"A. ",
+    "answer":"",
+    "question_number":53,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q54",
+    "lecture_id":"lec_2",
+    "question":"a) It is in 1NF and every non-prime attribute is fully functionally dependent on the primary key b) There are no transitive dependencies c) Every determinant is a candidate key d) There is no partial dependency e) a and d only",
+    "options":"",
+    "answer":"B",
+    "question_number":54,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q55",
+    "lecture_id":"lec_2",
+    "question":"Which of the following causes anomalies in databases?",
+    "options":"A. Redundancy | B. Lack of normalization | C. Improper constraints | D. All of the above",
+    "answer":"D",
+    "question_number":55,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q56",
+    "lecture_id":"lec_2",
+    "question":"The primary purpose of normalization is to:",
+    "options":"A. Reduce redundancy and avoid anomalies | B. Increase query speed | C. Ensure data security | D. Improve indexing",
+    "answer":"A",
+    "question_number":56,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q57",
+    "lecture_id":"lec_2",
+    "question":"Which of the following decompositions is not dependency preserving?",
+    "options":"A. R(A,B,C) \u2192 R1(A,B) and R2(B,C) for A \u2192 B and B \u2192 C | B. R(A,B,C) \u2192 R1(A,B) and R2(A,C) for A \u2192 B and A \u2192 C | C. R(A,B,C) \u2192 R1(A,B) and R2(B,C) for A \u2192 C | D. R(A,B,C) \u2192 R1(B,C) and R2(C,A) for A \u2192 B",
+    "answer":"C",
+    "question_number":57,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q58",
+    "lecture_id":"lec_2",
+    "question":"Consider a relation R(A, B, C, D, E, F, G) with the following set of functional dependencies: F = { AB \u2192 CDEFG, D \u2192 B, D \u2192 E, E \u2192 FG }",
+    "options":"A. R1(D, E), R2(A, B, C, D) | B. R1(E, F, G), R2(A, B, C, D, E) | C. R1(E, F, G), R2(D, E), R3(A, B, C, D) | D. R1(A, B, C, D, E, F, G)",
+    "answer":"C",
+    "question_number":58,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q59",
+    "lecture_id":"lec_2",
+    "question":"Consider a relation R(A, B, C, D, E, F, G) with functional dependencies: F = { AB \u2192 C, A \u2192 D, G \u2192 A, B \u2192 EFG }",
+    "options":"A. R1(A, D), R2(B, E, F, G), R3(A, B, C) | B. R1(A, D), R2(B, E, F, G), R3(A, B, C, G) | C. R1(A, D), R2(B, E, F, G), R3(A, G), R4(B, C, G) | D. R1(A, D), R2(B, E, F, G), R3(A, B, C), R4(A, G)",
+    "answer":"D",
+    "question_number":59,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q60",
+    "lecture_id":"lec_2",
+    "question":"If a view named V1 is created that references every column in table EMPLOYEE except the column SALARY, which of the following is not a correct statement? (Select one or more)",
+    "options":"A. All data, except SALARY data, that is stored in the EMPLOYEE table is copied to a separate physical location when V1 is created | B. View V1 can be used in the same context as the EMPLOYEE table for all data retrieval operations that do not require SALARY information | C. View V1 cannot be used as a data source for other views | D. No data is copied to a separate physical location when V1 is created",
+    "answer":"A",
+    "question_number":60,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q61",
+    "lecture_id":"lec_2",
+    "question":"Consider relation R(F1, F2, F3, F4, F5) with functional dependencies: F = { F2 F3 \u2192 F1 F4 F5, F4 \u2192 F2 }",
+    "options":"A. 3rd Normal Form (3NF) | B. 2nd Normal Form (2NF) | C. 1st Normal Form (1NF) | D. Unnormalized Form",
+    "answer":"",
+    "question_number":61,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q62",
+    "lecture_id":"lec_2",
+    "question":"Consider the following relation: R(A, C, E, G, I, K, L, N, P, Q) With the following set of functional dependencies: { ACE, AGI, CK, K \u2192 LN, GPQ } Question: Identify the candidate key(s) in relation R",
+    "options":"A. A | B. G | C. C | D. AC",
+    "answer":"A",
+    "question_number":62,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q63",
+    "lecture_id":"lec_2",
+    "question":"Consider the following relational schemes: Car(Number, Owner, ChassisNo, Model, Year, Price) Registration(Number, Owner, ChassisNo) With the following functional dependencies: 1",
+    "options":"A. 3NF | B. BCNF | C. Unnormalized | D. 2NF",
+    "answer":"B",
+    "question_number":63,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q64",
+    "lecture_id":"lec_2",
+    "question":"Consider the table Academic_Staff(SID, FacultyID, FacultyLocation, FacultyPhone, StaffName, StaffPosition, HoursPerWeek) with functional dependencies:",
+    "options":"A. Unnormalized Form | B. 1NF | C. 2NF | D. 3NF",
+    "answer":"C",
+    "question_number":64,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q65",
+    "lecture_id":"lec_2",
+    "question":"Which of the following statements about rooms in a university description are true? (Select one or more)",
+    "options":"A. The type of the rooms could be represented using subclasses | B. The type of the rooms could be represented as an attribute | C. There are only strong entities in this description | D. If building is an entity, room will be a weak entity",
+    "answer":"A",
+    "question_number":65,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q66",
+    "lecture_id":"lec_2",
+    "question":"University rooms description: lecture halls and laboratories\u2014both have capacity and number of resources; located in buildings (e",
+    "options":"A. The type of the rooms could be represented using subclasses | B. The type of the rooms could be represented as an attribute | C. There are only strong entities in this description | D. If building is an entity, room will be a weak entity",
+    "answer":"A",
+    "question_number":66,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q67",
+    "lecture_id":"lec_2",
+    "question":"Which option below is the most appropriate mapping for an ISA hierarchy?",
+    "options":"A. Option 1 and Option 4 | B. Option 4 | C. Option 2 | D. Option 3",
+    "answer":"B",
+    "question_number":67,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q68",
+    "lecture_id":"lec_2",
+    "question":"Which of the following is true related to ISA relationships? (Select one or more)",
+    "options":"A. A shape object with circle, rectangle, and triangle as subtypes is an example of total participation | B. A subtype of an ISA hierarchy can have its own key | C. The hierarchy in which each entity participates in only one subclass relationship is classified as disjoint | D. If subtypes are overlapping, the participation constraint must be partial",
+    "answer":"B",
+    "question_number":68,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q69",
+    "lecture_id":"lec_2",
+    "question":"Consider relation R(M, N, O, P, Q) with functional dependencies: F = { N \u2192 M, M \u2192 O, NO \u2192 P, MO \u2192 NQ }",
+    "options":"A. BCNF | B. 1NF | C. 2NF | D. 3NF",
+    "answer":"D",
+    "question_number":69,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q70",
+    "lecture_id":"lec_2",
+    "question":"Consider a relation R with eight attributes: R, U, S, Q, T, P (atomic values only)",
+    "options":"A. 2NF | B. BCNF | C. 1NF | D. 3NF",
+    "answer":"A",
+    "question_number":70,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q71",
+    "lecture_id":"lec_2",
+    "question":"Consider the following relational schemes: Car(Number, Owner, ChassisNo, Model, Year, Price) Registration(Number, Owner, ChassisNo) With the following functional dependencies: 1",
+    "options":"A. BCNF | B. 1NF | C. Unnormalized | D. 2NF",
+    "answer":"B",
+    "question_number":71,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q72",
+    "lecture_id":"lec_2",
+    "question":"Construction company scenario: multiple construction sites with unique site numbers, addresses, and types (house, apartment, shopping complex)",
+    "options":"A. There are only binary relationships in the diagram | B. There is a ternary relationship in the diagram | C. Company is a strong entity in the EER | D. There is a binary relationship between site and material with a descriptive attribute",
+    "answer":"B",
+    "question_number":72,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q73",
+    "lecture_id":"lec_2",
+    "question":"Consider relation R(A, C, E, G, I, K, L, N, P, Q) with functional dependencies: F = { ACE \u2192 A, A \u2192 G, CK \u2192 K, K \u2192 LN, G \u2192 PQ } Identify candidate keys in the relation R",
+    "options":"A. AC | B. G | C. C | D. A",
+    "answer":"A",
+    "question_number":73,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q74",
+    "lecture_id":"lec_2",
+    "question":"Consider relational schemes:",
+    "options":"A. 1NF | B. 2NF | C. 3NF | D. Unnormalized Form",
+    "answer":"C",
+    "question_number":74,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q75",
+    "lecture_id":"lec_2",
+    "question":"Academic_Staff(SID, FacultyID, FacultyLocation, FacultyPhone, StaffName, StaffPosition, HoursPerWeek) with functional dependencies: SID \u2192 StaffName, StaffPosition, FacultyID, FacultyLocation, FacultyPhone FacultyID \u2192 FacultyLocation, FacultyPhone FacultyLocation \u2192 FacultyID, FacultyPhone FacultyPhone \u2192 FacultyID, FacultyLocation What is the primary key for the relation?",
+    "options":"A. SID | B. SID, FacultyID | C. FacultyPhone | D. FacultyLocation",
+    "answer":"A",
+    "question_number":75,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q76",
+    "lecture_id":"lec_2",
+    "question":"Relation R has eight attributes R(U, S, Q, T, P)",
+    "options":"A. QT | B. T | C. RQ | D. Q",
+    "answer":"A",
+    "question_number":76,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q77",
+    "lecture_id":"lec_2",
+    "question":"Relation R(U, S, Q, T, P) with atomic values",
+    "options":"A. 1NF | B. 2NF | C. 3NF | D. BCNF",
+    "answer":"B",
+    "question_number":77,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q78",
+    "lecture_id":"lec_2",
+    "question":"Relation R(R, M, N, O, P, Q) with FDs: F = {N -> M, M -> O, NO -> P, MO -> NQ} Identify the candidate keys:",
+    "options":"A. N | B. M | C. MO | D. NO",
+    "answer":"D",
+    "question_number":78,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q79",
+    "lecture_id":"lec_2",
+    "question":"Which of the following is true related to ISA relationships? (Select one or more)",
+    "options":"A. The hierarchy in which each entity participates in only one subclass relationship is classified as disjoint | B. A subtype of an ISA hierarchy can have its own key | C. If subtypes are overlapping, the participation constraint must be partial | D. A shape object with circle, rectangle, and triangle as subtypes is an example of total participation",
+    "answer":"A",
+    "question_number":79,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q80",
+    "lecture_id":"lec_2",
+    "question":"Relation R has eight attributes: R, U, S, Q, T, P",
+    "options":"A. 3NF | B. Unnormalized Form | C. 1NF | D. 2NF",
+    "answer":"D",
+    "question_number":80,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q81",
+    "lecture_id":"lec_2",
+    "question":"Academic Staff(SID, FacultyID, FacultyLocation, FacultyPhone, StaffName, StaffPosition, HoursPerWeek) with functional dependencies: SID -> StaffName, StaffPosition, FacultyID, FacultyLocation, FacultyPhone FacultyID -> FacultyLocation, FacultyPhone FacultyLocation -> FacultyID, FacultyPhone FacultyPhone -> FacultyID, FacultyLocation What is the current normal form of Academic Staff?",
+    "options":"A. 1NF | B. 2NF | C. BCNF | D. Unnormalized form",
+    "answer":"B",
+    "question_number":81,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q82",
+    "lecture_id":"lec_2",
+    "question":"Normal form Relation R(R, U, S, Q, T, P), F = {R -> S, Q -> RU, T -> P} What is the normal form of R?",
+    "options":"A. 3NF | B. Unnormalized Form | C. 1NF | D. 2NF",
+    "answer":"D",
+    "question_number":82,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q83",
+    "lecture_id":"lec_2",
+    "question":"Academic Staff \u2013 Normal form AcademicStaff(SID, FacultyID, FacultyLocation, FacultyPhone, StaffName, StaffPosition, HoursPerWeek) FDs:",
+    "options":"A. 1NF | B. 2NF | C. BCNF | D. Unnormalized form",
+    "answer":"B",
+    "question_number":83,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q84",
+    "lecture_id":"lec_2",
+    "question":"Highest normal form \u2013 Relation R(F1\u2013F5) Relation R(F1, F2, F3, F4, F5), FDs: F = {F2F3 -> F1F4F5, F4 -> F2} Highest normal form:",
+    "options":"A. 3rd Normal Form | B. 2nd Normal Form | C. 1st Normal Form | D. Unnormalized Form",
+    "answer":"",
+    "question_number":84,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q85",
+    "lecture_id":"lec_2",
+    "question":"Construction company \u2013 EER diagram permissions Scenario: Bank DB, users: Asanka and Ferosh (data entry operators) Which permissions are needed:",
+    "options":"A. ALTER ROLE dataEntry ADD MEMBER asanka | B. ALTER ROLE db_owner ADD MEMBER ferosh | C. GRANT INSERT on bankDB to dataEntry | D. ALTER ROLE dataEntry ADD MEMBER ferosh",
+    "answer":"A",
+    "question_number":85,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q86",
+    "lecture_id":"lec_2",
+    "question":"Candidate keys \u2013 Relation R(F1\u2013F5) Relation R(F1, F2, F3, F4, F5), FDs: F = {F2F3 -> F1F4F5, F4 -> F2} Candidate keys:",
+    "options":"A. (F2F3, F4) | B. {F4} | C. {F2F3, F4F3} | D. {F4F3}",
+    "answer":"B",
+    "question_number":86,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q87",
+    "lecture_id":"lec_2",
+    "question":"Relation R(A, B, C,",
+    "options":"A. Unnormalized Form | B. 1st Normal Form | C. 3rd Normal Form | D. BCNF",
+    "answer":"C",
+    "question_number":87,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q88",
+    "lecture_id":"lec_2",
+    "question":"Consider the following relation: CustomerSales(CustNo, SalesDate, SalesAmount, SalesRepNo, Location) with the following set of functional dependencies: 1",
+    "options":"A. (CustNo, SalesRepNo) | B. (CustNo, SalesDate) | C. (CustNo) | D. (SalesRepNo, SalesDate, SalesTime)",
+    "answer":"B",
+    "question_number":88,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q89",
+    "lecture_id":"lec_2",
+    "question":"BCNF decomposition \u2013 Relation R(A\u2013G) Relation R(A, B, C, D, E, F, G), FDs: F = {AB -> CDEFG, D -> B, D -> E, E -> FG} BCNF relations:",
+    "options":"A. R1(D, E), R2(A, B, C, D) | B. R1(E, F, G), R2(A, B, C, D, E) | C. R1(E, F, G), R2(D, E), R3(A, B, C, D) | D. R1(A, B, C, D, E, F, G)",
+    "answer":"C",
+    "question_number":89,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q90",
+    "lecture_id":"lec_2",
+    "question":"Normal form \u2013 Relation R(A\u2013H) Relation R(A, B, C, D, E, F, G, H), FDs: F = {ABC -> DE, D -> B, E -> FGH, G -> F} Highest normal form:",
+    "options":"A. BCNF | B. 2nd Normal Form | C. 1st Normal Form | D. 3rd Normal Form",
+    "answer":"D",
+    "question_number":90,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q91",
+    "lecture_id":"lec_2",
+    "question":"BCNF decomposition \u2013 Relation R(A\u2013G) Relation R(A, B, C, D, E, F, G), FDs: F = {AB -> C, A -> D, G -> A, B -> EFG} BCNF relations:",
+    "options":"A. R1(A, D), R2(B, E, F, G), R3(A, B, C) | B. R1(A, D), R2(B, E, F, G), R3(A, B, C, G) | C. R1(A, D), R2(B, E, F, G), R3(A, G), R4(B, C, G) | D. R1(A, D), R2(B, E, F, G), R3(A, B, C), R4(A, G)",
+    "answer":"D",
+    "question_number":91,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q92",
+    "lecture_id":"lec_2",
+    "question":"Candidate keys \u2013 Relation R(F1\u2013F4) Relation R(F1, F2, F3, F4), FDs: F = {F3F4 -> F2, F2 -> F1, F1 -> F3} Candidate keys:",
+    "options":"A. F1F4, F2F4 | B. F1F4 | C. F2F4 | D. F1F4, F2F4, F3F4",
+    "answer":"A",
+    "question_number":92,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_2_Q93",
+    "lecture_id":"lec_2",
+    "question":"Consider the following relation: CustomerSales(CustNo, SalesDate, SalesAmount, SalesRepNo, Location) With the following set of functional dependencies: 1",
+    "options":"A. (CustNo, SalesRepNo) | B. (CustNo, SalesDate) | C. (CustNo) | D. (SalesRepNo, SalesDate, SalesTime)",
+    "answer":"B",
+    "question_number":93,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q1",
+    "lecture_id":"lec_3",
+    "question":"A relation stores employee and department data together",
+    "options":"A. Insertion anomaly | B. Deletion anomaly | C. Update anomaly | D. Referential integrity violation",
+    "answer":"B",
+    "question_number":1,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q2",
+    "lecture_id":"lec_3",
+    "question":"Consider relation R(A, B, C,",
+    "options":"A. {A} | B. {A, B} | C. {A, B, C} | D. {A, B, C, D}",
+    "answer":"D",
+    "question_number":2,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q3",
+    "lecture_id":"lec_3",
+    "question":"Which Armstrong's Axiom states: \"If X \u2287 Y, then Y \u2192 X\"?",
+    "options":"A. Reflexivity | B. Augmentation | C. Transitivity | D. Union",
+    "answer":"A",
+    "question_number":3,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q4",
+    "lecture_id":"lec_3",
+    "question":"A decomposition has the lossless join property if:",
+    "options":"A. No data is lost during decomposition | B. Joining the decomposed relations produces exactly the original relation | C. All functional dependencies are preserved | D. No NULL values are introduced",
+    "answer":"B",
+    "question_number":4,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q5",
+    "lecture_id":"lec_3",
+    "question":"Given R(A, B, C, D, E) with FDs: {AB \u2192 C, C \u2192 D, D \u2192 E}",
+    "options":"A. A | B. AB | C. ABC | D. ABCDE",
+    "answer":"B",
+    "question_number":5,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q6",
+    "lecture_id":"lec_3",
+    "question":"A relation is in 1NF if:",
+    "options":"A. It has no partial dependencies | B. It has no transitive dependencies | C. All attributes contain only atomic (indivisible) values | D. Every determinant is a candidate key",
+    "answer":"C",
+    "question_number":6,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q7",
+    "lecture_id":"lec_3",
+    "question":"Consider R(A, B, C,",
+    "options":"A. 1NF only | B. 2NF (has partial dependency) | C. 3NF (has transitive dependency) | D. BCNF only",
+    "answer":"B",
+    "question_number":7,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q8",
+    "lecture_id":"lec_3",
+    "question":"A functional dependency X \u2192 Y is a FULL functional dependency if:",
+    "options":"A. X is a superkey | B. Y contains all attributes of the relation | C. Removing any attribute from X means the dependency no longer holds | D. X and Y have no common attributes",
+    "answer":"C",
+    "question_number":8,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q9",
+    "lecture_id":"lec_3",
+    "question":"Given R(A, B, C,",
+    "options":"A. 1 | B. 2 | C. 4 | D. Cannot be determined",
+    "answer":"C",
+    "question_number":9,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q10",
+    "lecture_id":"lec_3",
+    "question":"A relation R is in 3NF if:",
+    "options":"A. It is in 2NF and has no transitive dependencies among nonprime attributes | B. It has no partial dependencies | C. Every determinant is a candidate key | D. It is in 1NF only",
+    "answer":"A",
+    "question_number":10,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q11",
+    "lecture_id":"lec_3",
+    "question":"Consider R(A, B,",
+    "options":"A. R1(A, B), R2(B, C) | B. R1(A, C), R2(B, C) | C. R1(A, B, C) - already in 3NF | D. R1(A), R2(B), R3(C)",
+    "answer":"A",
+    "question_number":11,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q12",
+    "lecture_id":"lec_3",
+    "question":"A relation is in BCNF if for every nontrivial FD X \u2192 A:",
+    "options":"A. X is a prime attribute | B. A is a prime attribute | C. X is a superkey | D. X \u2192 A is a full dependency",
+    "answer":"C",
+    "question_number":12,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q13",
+    "lecture_id":"lec_3",
+    "question":"The dependency preserving property ensures that:",
+    "options":"A. No data is lost during JOIN operations | B. Constraints on the original relation can be enforced by constraints on decomposed relations | C. All candidate keys are preserved | D. The decomposition is lossless",
+    "answer":"B",
+    "question_number":13,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q14",
+    "lecture_id":"lec_3",
+    "question":"Given R(A, B, C,",
+    "options":"A. AB \u2192 C (AB is a key) | B. C \u2192 D (C is not a superkey) | C. D \u2192 A (D is not a superkey) | D. Both B and C",
+    "answer":"D",
+    "question_number":14,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q15",
+    "lecture_id":"lec_3",
+    "question":"In relation R(ABCDEF) with primary key AB and FD: C \u2192 D, what type of anomaly occurs?",
+    "options":"A. No anomaly - relation is properly designed | B. Insertion anomaly when adding new C-D pair without knowing AB | C. Update anomaly when C value appears multiple times | D. Both B and C",
+    "answer":"D",
+    "question_number":15,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q16",
+    "lecture_id":"lec_3",
+    "question":"A prime attribute is:",
+    "options":"A. The primary key of a relation | B. An attribute that appears in the left side of any FD | C. An attribute that is a member of any candidate key | D. The first attribute in the relation schema",
+    "answer":"C",
+    "question_number":16,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q17",
+    "lecture_id":"lec_3",
+    "question":"Consider R(A, B, C,",
+    "options":"A. 1NF | B. 2NF | C. 3NF | D. BCNF",
+    "answer":"B",
+    "question_number":17,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q18",
+    "lecture_id":"lec_3",
+    "question":"Using augmentation axiom, if X \u2192 Y, then for any Z:",
+    "options":"A. XZ \u2192 Y | B. X \u2192 YZ | C. XZ \u2192 YZ | D. Z \u2192 Y",
+    "answer":"C",
+    "question_number":18,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q19",
+    "lecture_id":"lec_3",
+    "question":"Which decomposition property is MORE important for database integrity?",
+    "options":"A. Lossless join property | B. Dependency preserving property | C. Both are equally important | D. Neither affects integrity",
+    "answer":"A",
+    "question_number":19,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q20",
+    "lecture_id":"lec_3",
+    "question":"Given R(A, B, C, D, E) with FDs: {A \u2192 B, BC \u2192 E, ED \u2192 A}",
+    "options":"A. B+ and C+ | B. (BC)+ | C. A+ | D. E+",
+    "answer":"B",
+    "question_number":20,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q21",
+    "lecture_id":"lec_3",
+    "question":"Redundancy in a poorly designed relation can cause: (Select all that apply)",
+    "options":"A. Insertion anomalies | B. Deletion anomalies | C. Update anomalies | D. Faster query performance",
+    "answer":"",
+    "question_number":21,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q22",
+    "lecture_id":"lec_3",
+    "question":"Which are valid Armstrong's Axioms? (Select all that apply)",
+    "options":"A. Reflexivity | B. Augmentation | C. Transitivity | D. Union",
+    "answer":"",
+    "question_number":22,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q23",
+    "lecture_id":"lec_3",
+    "question":"During normalization from 1NF to BCNF: (Select all that apply)",
+    "options":"A. Relations always decrease in number | B. Redundancy decreases | C. Query complexity may increase | D. Some functional dependencies might be lost",
+    "answer":"",
+    "question_number":23,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q24",
+    "lecture_id":"lec_3",
+    "question":"Given R(A, B,",
+    "options":"A. A is a candidate key | B. There is a transitive dependency | C. The relation is in 2NF | D. The relation is in 3NF",
+    "answer":"",
+    "question_number":24,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q25",
+    "lecture_id":"lec_3",
+    "question":"Which statements about BCNF are correct? (Select all that apply)",
+    "options":"A. Every BCNF relation is in 3NF | B. Every 3NF relation is in BCNF | C. BCNF is stricter than 3NF | D. BCNF allows some transitive dependencies",
+    "answer":"",
+    "question_number":25,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q26",
+    "lecture_id":"lec_3",
+    "question":"A relation in 3NF but not BCNF must have: (Select all that apply)",
+    "options":"A. At least two candidate keys | B. A determinant that is not a superkey but determines a prime attribute | C. Overlapping candidate keys | D. Transitive dependencies involving only prime attributes",
+    "answer":"",
+    "question_number":26,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q27",
+    "lecture_id":"lec_3",
+    "question":"Which can be determined using attribute closure? (Select all that apply)",
+    "options":"A. Whether a set of attributes is a superkey | B. Whether a set of attributes is a candidate key | C. All FDs that hold in the relation | D. Whether an FD is implied by a set of FDs",
+    "answer":"",
+    "question_number":27,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q28",
+    "lecture_id":"lec_3",
+    "question":"To normalize a relation from 2NF to 3NF, remove: (Select all that apply)",
+    "options":"A. Partial dependencies | B. Transitive dependencies where nonprime determines nonprime | C. All FDs where determinant is not a key | D. Multivalued attributes",
+    "answer":"",
+    "question_number":28,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q29",
+    "lecture_id":"lec_3",
+    "question":"A relation R(A, B, C,",
+    "options":"A. It is in 3NF | B. For every FD X\u2192A, either X is a superkey or A is prime | C. For every FD X\u2192A, X is a superkey (nontrivial FDs) | D. It has no redundancy",
+    "answer":"",
+    "question_number":29,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q30",
+    "lecture_id":"lec_3",
+    "question":"Insertion anomalies can occur when: (Select all that apply)",
+    "options":"A. Cannot insert data without knowing unrelated information | B. Required fields are NULL | C. Redundant data must be entered consistently | D. Primary key cannot be determined",
+    "answer":"",
+    "question_number":30,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q31",
+    "lecture_id":"lec_3",
+    "question":"Scenario: Consider relation COURSE_ENROLLMENT(StudentID, StudentName, CourseID, CourseName, InstructorID, InstructorName, Grade)",
+    "options":"A. StudentID | B. CourseID | C. (StudentID, CourseID) | D. (StudentID, CourseID, InstructorID)",
+    "answer":"C",
+    "question_number":31,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q32",
+    "lecture_id":"lec_3",
+    "question":"Continuing from Q31, what is the highest normal form of COURSE_ENROLLMENT?",
+    "options":"A. 1NF | B. 2NF | C. 3NF | D. BCNF",
+    "answer":"A",
+    "question_number":32,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q33",
+    "lecture_id":"lec_3",
+    "question":"Continuing from Q31, decompose to 3NF",
+    "options":"A. R1(StudentID, StudentName), R2(CourseID, CourseName, InstructorID), R3(InstructorID, InstructorName), R4(StudentID, CourseID, Grade) | B. R1(StudentID, StudentName), R2(CourseID, CourseName, InstructorID, InstructorName), R3(StudentID, CourseID, Grade) | C. R1(StudentID, StudentName, CourseID, CourseName), R2(InstructorID, InstructorName, Grade) | D. R1(StudentID, StudentName), R2(CourseID, CourseName, InstructorName), R3(StudentID, CourseID, Grade)",
+    "answer":"B",
+    "question_number":33,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q34",
+    "lecture_id":"lec_3",
+    "question":"Scenario: R(A, B, C, D, E) with FDs: {A \u2192 B, B \u2192 C, C \u2192 D, D \u2192 E, E \u2192 A} Which statements are true?",
+    "options":"A. Every single attribute is a candidate key | B. The relation is in BCNF | C. The relation has redundancy | D. A decomposition is needed",
+    "answer":"A",
+    "question_number":34,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q35",
+    "lecture_id":"lec_3",
+    "question":"Scenario: RENTAL(PropertyID, CountyName, Lot#, Area, Price, TaxRate) with FDs:",
+    "options":"A. Separate based on FD3: R1(CountyName, TaxRate), R2(PropertyID, CountyName, Lot#, Area, Price) | B. Separate based on FD4: R1(Area, Price), R2(PropertyID, CountyName, Lot#, Area, TaxRate) | C. Separate based on FD1: R1(PropertyID, CountyName, Lot#, Area, Price, TaxRate) | D. No decomposition needed",
+    "answer":"A",
+    "question_number":35,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q36",
+    "lecture_id":"lec_3",
+    "question":"Scenario: EMPLOYEE(EmpID, ProjectID, Hours, EmpName, ProjectName, Location) with FDs:",
+    "options":"A. R1(EmpID, EmpName), R2(ProjectID, ProjectName, Location), R3(EmpID, ProjectID, Hours) | B. R1(EmpID, EmpName, ProjectID, Hours), R2(ProjectID, ProjectName, Location) | C. R1(EmpID, ProjectID, Hours, EmpName, ProjectName, Location) | D. R1(EmpID, EmpName), R2(ProjectID, ProjectName), R3(ProjectID, Location), R4(EmpID, ProjectID, Hours)",
+    "answer":"A",
+    "question_number":36,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q37",
+    "lecture_id":"lec_3",
+    "question":"Scenario: R(A, B, C,",
+    "options":"A. AB | B. AC | C. AD | D. A",
+    "answer":"C",
+    "question_number":37,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q38",
+    "lecture_id":"lec_3",
+    "question":"Scenario: SUPPLIER_PART(SupplierID, PartID, ProjectID, Quantity, SupplierName, PartName, City)",
+    "options":"A. 2 | B. 3 | C. 4 | D. 5",
+    "answer":"C",
+    "question_number":38,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q39",
+    "lecture_id":"lec_3",
+    "question":"Scenario: You have R(A, B, C, D, E, F) with AB as primary key and these FDs:",
+    "options":"A. AB \u2192 CDEF | B. C \u2192 D | C. E \u2192 F | D. Both B and C",
+    "answer":"D",
+    "question_number":39,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_3_Q40",
+    "lecture_id":"lec_3",
+    "question":"Scenario: After normalizing a relation to BCNF, you discover that a critical constraint \"total project hours must not exceed 160\" cannot be checked without joining multiple tables",
+    "options":"A. Lossless join property | B. Dependency preservation property | C. Domain constraint enforcement | D. Atomicity",
+    "answer":"B",
+    "question_number":40,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q1",
+    "lecture_id":"lec_4",
+    "question":"Which SQL constraint ensures that a column cannot contain NULL values?",
+    "options":"A. UNIQUE | B. NOT NULL | C. CHECK | D. PRIMARY KEY",
+    "answer":"B",
+    "question_number":1,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q2",
+    "lecture_id":"lec_4",
+    "question":"Given the table: CREATE TABLE Employee ( empID INT PRIMARY KEY, name VARCHAR(50), salary DECIMAL(10,2) CHECK (salary > 20000), deptID INT DEFAULT 10 ); What happens when you execute: INSERT INTO Employee (empID, name, salary) VALUES (101, 'John', 15000);",
+    "options":"A. Row is inserted successfully | B. Error: CHECK constraint violation | C. Row inserted with salary set to NULL | D. Row inserted with salary set to 20000",
+    "answer":"B",
+    "question_number":2,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q3",
+    "lecture_id":"lec_4",
+    "question":"What is the difference between DELETE and DROP commands?",
+    "options":"A. DELETE removes table structure, DROP removes rows | B. DELETE removes rows, DROP removes the entire table including structure | C. They are synonyms | D. DELETE is DDL, DROP is DML",
+    "answer":"B",
+    "question_number":3,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q4",
+    "lecture_id":"lec_4",
+    "question":"Consider: SELECT name FROM student WHERE name LIKE 'A_i%'; Which names match this pattern?",
+    "options":"A. Ajith, Aruni, Anil | B. Ali, Amin, Aruni | C. Ajith, Ali, Amin | D. Anil, Aruni only",
+    "answer":"C",
+    "question_number":4,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q5",
+    "lecture_id":"lec_4",
+    "question":"What does this query return? SELECT COUNT(*) FROM student WHERE gpa IS NULL;",
+    "options":"A. Number of students with gpa = 0 | B. Number of students without gpa recorded | C. Total number of students | D. Error: cannot count NULL values",
+    "answer":"B",
+    "question_number":5,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q6",
+    "lecture_id":"lec_4",
+    "question":"Given Student(sid, name, gpa, progId) and Program(progId, name, duration), which query finds students in 4-year programs?",
+    "options":"A. SELECT s | B. SELECT s | C. SELECT name FROM Student WHERE duration = 4; | D. SELECT s",
+    "answer":"B",
+    "question_number":6,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q7",
+    "lecture_id":"lec_4",
+    "question":"What is the result of: SELECT DISTINCT progId FROM student; compared to: SELECT progId FROM student;",
+    "options":"A. Same result always | B. DISTINCT removes duplicate program IDs | C. DISTINCT sorts the results | D. DISTINCT shows only NULL values",
+    "answer":"B",
+    "question_number":7,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q8",
+    "lecture_id":"lec_4",
+    "question":"Which query finds students with gpa between 3",
+    "options":"A. SELECT * FROM student WHERE gpa > 3 | B. SELECT * FROM student WHERE gpa >= 3 | C. SELECT * FROM student WHERE gpa BETWEEN 3 | D. Both B and C",
+    "answer":"D",
+    "question_number":8,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q9",
+    "lecture_id":"lec_4",
+    "question":"What does ORDER BY do without ASC or DESC specification?",
+    "options":"A. Orders randomly | B. Orders in ascending order (default) | C. Orders in descending order | D. Produces error",
+    "answer":"B",
+    "question_number":9,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q10",
+    "lecture_id":"lec_4",
+    "question":"Given: SELECT s",
+    "options":"A. They are excluded from results | B. They appear with offerBy = NULL | C. They appear with offerBy = 'Unknown' | D. Query produces error",
+    "answer":"B",
+    "question_number":10,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q11",
+    "lecture_id":"lec_4",
+    "question":"Which is correct about INNER JOIN vs LEFT OUTER JOIN?",
+    "options":"A. INNER JOIN returns more rows | B. LEFT OUTER JOIN returns all rows from left table | C. They always produce same result | D. INNER JOIN includes NULL values",
+    "answer":"B",
+    "question_number":11,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q12",
+    "lecture_id":"lec_4",
+    "question":"Consider: SELECT name FROM Student WHERE sid IN (SELECT sid FROM Grades WHERE grade = 'A'); This is equivalent to:",
+    "options":"A. SELECT DISTINCT s | B. SELECT s | C. Both A and B D) Neither A nor B",
+    "answer":"C",
+    "question_number":12,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q13",
+    "lecture_id":"lec_4",
+    "question":"What's the difference between ANY and ALL operators?",
+    "options":"A. ANY requires all comparisons true, ALL requires at least one true | B. ANY requires at least one comparison true, ALL requires all comparisons true | C. They are synonyms | D. ANY is for subqueries, ALL is for joins",
+    "answer":"B",
+    "question_number":13,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q14",
+    "lecture_id":"lec_4",
+    "question":"Given Student(sid, name, gpa), which query finds students with gpa greater than ALL Computer Science students?",
+    "options":"A. SELECT name FROM Student WHERE gpa > (SELECT MAX(gpa) FROM Student WHERE major = 'CS'); | B. SELECT name FROM Student WHERE gpa > ALL (SELECT gpa FROM Student WHERE major = 'CS'); | C. Both A and B | D. Neither works",
+    "answer":"C",
+    "question_number":14,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q15",
+    "lecture_id":"lec_4",
+    "question":"What does COUNT(columnName) do differently from COUNT(*)?",
+    "options":"A. They are identical | B. COUNT(columnName) excludes NULL values in that column | C. COUNT(*) excludes NULL values | D. COUNT(columnName) counts distinct values",
+    "answer":"B",
+    "question_number":15,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q16",
+    "lecture_id":"lec_4",
+    "question":"In GROUP BY clause, which is TRUE?",
+    "options":"A. Can only use one grouping attribute | B. All SELECT attributes must appear in GROUP BY or be aggregated | C. Cannot use WHERE with GROUP BY | D. Must always use HAVING",
+    "answer":"B",
+    "question_number":16,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q17",
+    "lecture_id":"lec_4",
+    "question":"What's the difference between WHERE and HAVING clauses?",
+    "options":"A. WHERE is used with GROUP BY, HAVING is not | B. WHERE filters rows before grouping, HAVING filters groups after grouping | C. They are synonyms | D. HAVING is used with aggregate functions only",
+    "answer":"B",
+    "question_number":17,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q18",
+    "lecture_id":"lec_4",
+    "question":"Consider: SELECT deptID, AVG(salary) FROM Employee WHERE salary > 30000 GROUP BY deptID HAVING COUNT(*) > 5; What does this query return?",
+    "options":"A. Departments with average salary > 30000 and more than 5 employees | B. Average salary of departments having more than 5 employees earning over 30000 C) All departments with more than 5 employees D) Error: cannot use WHERE with GROUP BY",
+    "answer":"B",
+    "question_number":18,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q19",
+    "lecture_id":"lec_4",
+    "question":"What constraint type is violated if you try to insert duplicate values in a PRIMARY KEY column?",
+    "options":"A. NOT NULL constraint | B. CHECK constraint | C. UNIQUE constraint (implicit in PRIMARY KEY) | D. FOREIGN KEY constraint",
+    "answer":"C",
+    "question_number":19,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q20",
+    "lecture_id":"lec_4",
+    "question":"Given: ALTER TABLE Student ADD CONSTRAINT chk_age CHECK (age >= 18); What happens to existing rows with age < 18?",
+    "options":"A. They are automatically deleted | B. They are updated to age = 18 | C. The ALTER statement fails | D. They remain but new inserts are checked",
+    "answer":"C",
+    "question_number":20,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q21",
+    "lecture_id":"lec_4",
+    "question":"Which are valid SQL aggregate functions? (Select all that apply)",
+    "options":"A. SUM() | B. AVG() | C. MEDIAN() | D. COUNT()",
+    "answer":"",
+    "question_number":21,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q22",
+    "lecture_id":"lec_4",
+    "question":"Which constraints can be defined at the column level in CREATE TABLE? (Select all that apply)",
+    "options":"A. NOT NULL | B. UNIQUE | C. PRIMARY KEY | D. FOREIGN KEY",
+    "answer":"",
+    "question_number":22,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q23",
+    "lecture_id":"lec_4",
+    "question":"For ON DELETE CASCADE in a foreign key constraint: (Select all that apply)",
+    "options":"A. Deleting parent row automatically deletes child rows | B. Maintains referential integrity automatically | C. Prevents deletion of parent rows | D. Is safer than ON DELETE SET NULL",
+    "answer":"",
+    "question_number":23,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q24",
+    "lecture_id":"lec_4",
+    "question":"Which statements about DISTINCT are TRUE? (Select all that apply)",
+    "options":"A. Eliminates duplicate rows from result set B) Can be used with aggregate functions C) Affects performance (requires sorting\/hashing) | D. Can only be used with single column",
+    "answer":"",
+    "question_number":24,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q25",
+    "lecture_id":"lec_4",
+    "question":"For the query: SELECT deptID, COUNT(*), AVG(salary) FROM Employee GROUP BY deptID; Which are TRUE? (Select all that apply)",
+    "options":"A. Returns one row per department | B. COUNT(*) counts employees per department | C. AVG(salary) shows average salary per department | D. Can add ORDER BY deptID",
+    "answer":"",
+    "question_number":25,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q26",
+    "lecture_id":"lec_4",
+    "question":"Which operations require a subquery? (Select all that apply)",
+    "options":"A. IN operator with dynamic value list | B. EXISTS operator | C. Comparing to aggregate results from different groups | D. ALL operator",
+    "answer":"",
+    "question_number":26,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q27",
+    "lecture_id":"lec_4",
+    "question":"For LEFT OUTER JOIN between Student and Program: (Select all that apply)",
+    "options":"A. All Student rows appear in result | B. Program columns are NULL for students without matching program | C. Students without programs are excluded D) If a program has no students, it won't appear",
+    "answer":"",
+    "question_number":27,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q28",
+    "lecture_id":"lec_4",
+    "question":"Which are true about PRIMARY KEY constraint? (Select all that apply)",
+    "options":"A. Automatically creates an index | B. Allows NULL values | C. Ensures uniqueness | D. A table can have multiple primary keys",
+    "answer":"",
+    "question_number":28,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q29",
+    "lecture_id":"lec_4",
+    "question":"For the EXISTS operator: (Select all that apply)",
+    "options":"A. Returns TRUE if subquery returns at least one row | B. Can be used with correlated subqueries | C. Is equivalent to COUNT(*) > 0 | D. More efficient than IN for large subqueries",
+    "answer":"",
+    "question_number":29,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q30",
+    "lecture_id":"lec_4",
+    "question":"Which require GROUP BY clause? (Select all that apply)",
+    "options":"A. Using HAVING clause | B. Computing aggregate per group | C. Using aggregate functions | D. Combining aggregates with non-aggregated columns in SELECT E) Using ORDER BY Answers: A, B, D",
+    "answer":"",
+    "question_number":30,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q31",
+    "lecture_id":"lec_4",
+    "question":"Scenario: Database has Student(sid, name, major, gpa) and Enrollment(sid, courseId, grade)",
+    "options":"A. SELECT sid FROM Enrollment GROUP BY sid HAVING COUNT(*) = 10; | B. SELECT sid FROM Enrollment GROUP BY sid HAVING COUNT(DISTINCT courseId) = 10; | C. SELECT sid FROM Student WHERE sid IN (SELECT sid FROM Enrollment); | D. SELECT DISTINCT sid FROM Enrollment;",
+    "answer":"B",
+    "question_number":31,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q32",
+    "lecture_id":"lec_4",
+    "question":"Scenario: Employee(empId, name, salary, deptId, managerId) where managerId references empId (self-referencing)",
+    "options":"A. SELECT e | B. SELECT e | C. Both A and B | D. Neither works",
+    "answer":"C",
+    "question_number":32,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q33",
+    "lecture_id":"lec_4",
+    "question":"Scenario: Product(pid, name, category, price), Sales(pid, quantity, saleDate)",
+    "options":"A. SELECT name FROM Product WHERE pid NOT IN (SELECT pid FROM Sales); | B. SELECT name FROM Product p WHERE NOT EXISTS (SELECT * FROM Sales s WHERE s | C. SELECT p | D. All of the above",
+    "answer":"D",
+    "question_number":33,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q34",
+    "lecture_id":"lec_4",
+    "question":"Scenario: Given: CREATE TABLE Orders ( orderId INT PRIMARY KEY, custId INT, amount DECIMAL(10,2) CHECK (amount > 0), orderDate DATE DEFAULT CURRENT_DATE, FOREIGN KEY (custId) REFERENCES Customer(custId) ON DELETE CASCADE ); What happens when a customer with existing orders is deleted from Customer table?",
+    "options":"A. Deletion fails due to referential integrity | B. All their orders are automatically deleted | C. Orders remain with custId set to NULL | D. Orders remain unchanged",
+    "answer":"B",
+    "question_number":34,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q35",
+    "lecture_id":"lec_4",
+    "question":"Scenario: Student(sid, name, gpa), Enrollment(sid, courseId, semester), Course(courseId, courseName, credits)",
+    "options":"A. SELECT sid FROM Enrollment WHERE semester = 'Fall2024' GROUP BY sid HAVING COUNT(*) > (SELECT COUNT(*) FROM Enrollment WHERE semester = 'Spring2024'); | B. SELECT e1 | C. Both are correct | D. Neither is correct",
+    "answer":"B",
+    "question_number":35,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q36",
+    "lecture_id":"lec_4",
+    "question":"Scenario: Employee(empId, name, salary, deptId), Department(deptId, deptName, budget)",
+    "options":"A. SELECT d | B. SELECT d | C. SELECT deptName FROM Department WHERE budget * 0 | D. Both B and C",
+    "answer":"D",
+    "question_number":36,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q37",
+    "lecture_id":"lec_4",
+    "question":"Scenario: Course(courseId, courseName, credits), Prerequisite(courseId, prereqCourseId)",
+    "options":"A. SELECT courseName FROM Course WHERE courseId NOT IN (SELECT courseId FROM Prerequisite); | B. SELECT courseName FROM Course c WHERE NOT EXISTS (SELECT * FROM Prerequisite p WHERE p | C. SELECT c | D. All have similar efficiency",
+    "answer":"B",
+    "question_number":37,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q38",
+    "lecture_id":"lec_4",
+    "question":"Scenario: Sales(saleId, productId, quantity, price, saleDate)",
+    "options":"A. SELECT productId, SUM(quantity * price) as revenue FROM Sales | B. SELECT productId, SUM(quantity * price) as revenue FROM Sales WHERE YEAR(saleDate) = 2024 GROUP BY productId HAVING SUM(quantity * price) > 100000 ORDER BY revenue DESC; | C. Both work equally | D. Neither works",
+    "answer":"B",
+    "question_number":38,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q39",
+    "lecture_id":"lec_4",
+    "question":"Scenario: Student(sid, name), Enrollment(sid, courseId, grade), Course(courseId, courseName)",
+    "options":"A. SELECT s | B. SELECT s | C. Both are correct | D. A is correct only",
+    "answer":"C",
+    "question_number":39,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q40",
+    "lecture_id":"lec_4",
+    "question":"Scenario: Library database: Book(isbn, title, author), Copy(copyId, isbn, status), Loan(loanId, copyId, memberId, loanDate, returnDate)",
+    "options":"A. SELECT b | B. SELECT b | C. Both work | D. Neither is fully correct",
+    "answer":"A",
+    "question_number":40,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q41",
+    "lecture_id":"lec_4",
+    "question":"Consider the following tables: Patient(pid, pname, age) Admission(pid, admissionDate)",
+    "options":"A. Query2 and Query4 return identical row sets, but Query1 and Query2 return different row sets | B. All queries return identical row sets | C. Query3 returns strictly fewer rows than Query2 | D. Query4 will encounter an integrity violation at runtime",
+    "answer":"A",
+    "question_number":41,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q42",
+    "lecture_id":"lec_4",
+    "question":"Consider the following relations: Product(P_code, Description, Stocking_date, QtyOnHand, MinQty, Price, Discount, V_code) Vendor(V_code, Name, Address, Phone)",
+    "options":"A. SELECT Name, Address, Phone FROM Vendor WHERE V_code NOT IN (SELECT V_code FROM Product); | B. SELECT Name, Address, Phone FROM Vendor WHERE V_code != Product; | C. SELECT Name, Address, Phone FROM Vendor WHERE V_code NOT IN (SELECT V_code FROM Vendor); | D. SELECT Name, Address, Phone FROM Vendor WHERE V_code NOT IN (SELECT V_code FROM Product);",
+    "answer":"A",
+    "question_number":42,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q43",
+    "lecture_id":"lec_4",
+    "question":"Consider the following table: Emp (eid, ename, designation, salary, did) Consider the following relational query on the Emp table: SELECT salary FROM Emp e1 WHERE 2 = ( SELECT COUNT(DISTINCT(e2",
+    "options":"A. Find the 2nd highest salary from the table | B. Find the 3rd highest salary from the table | C. Find the 4th highest salary from the table | D. Find the highest salary from the table",
+    "answer":"B",
+    "question_number":43,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q44",
+    "lecture_id":"lec_4",
+    "question":"Consider the following relation: Weather (CityID, city, temperature, condition) Which of the following queries will return the names of those cities with their temperature and condition whose condition is neither 'sunny' nor 'cloudy'?",
+    "options":"A. SELECT city, temperature, condition FROM weather WHERE condition NOT EXISTS ('sunny', 'cloudy'); | B. SELECT city, temperature, condition FROM weather WHERE condition NOT IN ('sunny', 'cloudy'); | C. SELECT city, temperature, condition FROM weather WHERE condition BETWEEN ('sunny', 'cloudy'); | D. SELECT city, temperature, condition FROM weather WHERE condition IN ('sunny', 'cloudy');",
+    "answer":"B",
+    "question_number":44,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q45",
+    "lecture_id":"lec_4",
+    "question":"Consider the following schema: EMP (eid, ename, age, salary, did) What will be the output of the following SQL query? SELECT * FROM emp e WHERE 2 = ( SELECT COUNT(DISTINCT e1",
+    "options":"A. Third highest age | B. Two distinct ages of employees | C. Employee with second highest age | D. Second highest age",
+    "answer":"A",
+    "question_number":45,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q46",
+    "lecture_id":"lec_4",
+    "question":"Which of the following queries will result in an error? (Select one or more)",
+    "options":"A. SELECT dept_id, COUNT(name) FROM employees; | B. SELECT AVG(salary) FROM employees GROUP BY dept_id; | C. SELECT eid FROM employees WHERE salary > AVG(salary); | D. SELECT dept_id, job_id, AVG(salary) FROM employees GROUP BY dept_id,job_id;",
+    "answer":"A",
+    "question_number":46,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q47",
+    "lecture_id":"lec_4",
+    "question":"Consider the following tables: Student (sid, sname, age) Grades (sid, cid, grade)",
+    "options":"A. None of the above | B. SELECT sname FROM Student WHERE sid NOT IN (SELECT sid IN Grades); | C. SELECT s | D. SELECT s",
+    "answer":"D",
+    "question_number":47,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q48",
+    "lecture_id":"lec_4",
+    "question":"Consider the following relational schema: Doctor (did, name, specialization) Patient (pid, pname, docId, diagnosis)",
+    "options":"A. Names of all the doctors with all their patients having fever | B. Names of all the doctors with at least one of their patients having fever | C. Names of all the doctors with none of their patients having fever | D. Names of all the doctors with at most one of their patients having fever",
+    "answer":"A",
+    "question_number":48,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q49",
+    "lecture_id":"lec_4",
+    "question":"Consider the following three tables to store student enrollments in different courses: Student(EnrollNo, Name) Course(CourseID, Name) Enrollments(EnrollNo, CourseI",
+    "options":"A. Name of all students who are enrolled in \"DBMS\" | B. Name of all students who are enrolled in both \"DBMS\" and \"OS\" | C. Name of all students who are either enrolled in \"DBMS\" or \"OS\" or both | D. Name of all students who are either enrolled in \"DBMS\" or \"OS\" courses",
+    "answer":"B",
+    "question_number":49,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q50",
+    "lecture_id":"lec_4",
+    "question":"Consider the following table: Emp(eid, ename, designation, salary, deptName) Consider the following SQL query: SELECT deptName FROM Emp WHERE designation = 'Manager' GROUP BY deptName HAVING AVG(salary) > (SELECT AVG(salary) FROM Emp); Question: This query returns the names of the departments in which:",
+    "options":"A. The average salary of managers is more than the average salary of all male employees in the company | B. The average salary of managers is more than the average salary in the company | C. The average salary of managers is more than the average salary of employees in the same department | D. The average salary is more than the average salary in the company",
+    "answer":"B",
+    "question_number":50,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q51",
+    "lecture_id":"lec_4",
+    "question":"Consider the following relations: Product(P_code, Description, Stocking_date, QtyOnHand, MinQty, Price, Discount, V_code) Vendor(V_code, Name, Address, Phone)",
+    "options":"A. SELECT Name, Address, Phone FROM Vendor WHERE V_code NOT IN (SELECT V_code FROM Product); | B. SELECT Name, Address, Phone FROM Vendor WHERE V_code != Product; | C. SELECT Name, Address, Phone FROM Vendor WHERE V_code NOT IN (SELECT V_code FROM Vendor); | D. SELECT Name, Address, Phone FROM Vendor WHERE V_code NOT IN (SELECT V_code FROM Product);",
+    "answer":"A",
+    "question_number":51,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q52",
+    "lecture_id":"lec_4",
+    "question":"Suppose relation R(A,",
+    "options":"A.  | A. 2 | B. 3 | C. 4 | D. 5",
+    "answer":"B",
+    "question_number":52,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q53",
+    "lecture_id":"lec_4",
+    "question":"Consider the following three tables to store student enrollments in different courses: Student(EnrollNo, Name) Course(CourseID, Name) Enrollments(EnrollNo, CourseI",
+    "options":"A. Name of all students who are enrolled in \"DBMS\" | B. Name of all students who are enrolled in \"DBMS\" and \"OS\" | C. Name of all students who are either enrolled in \"DBMS\" or \"OS\" or both | D. Name of all students who are either enrolled in \"DBMS\" or \"OS\" courses",
+    "answer":"B",
+    "question_number":53,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q54",
+    "lecture_id":"lec_4",
+    "question":"Consider the following relational schema: Doctor(did, name, specialization) Patient(pid, pname, docId, diagnosis) docId is a foreign key referring to did of the Doctor relation",
+    "options":"A. Names of all the doctors with all their patients having fever | B. Names of all the doctors with at least one of their patients having fever | C. Names of all the doctors with none of their patients having fever | D. Names of all the doctors with at most one of their patient having fever",
+    "answer":"A",
+    "question_number":54,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q55",
+    "lecture_id":"lec_4",
+    "question":"Consider the tables given below: Student(sid, sname, age) Grades(sid, cid, grade)",
+    "options":"A. None of the above | B. select sname from Student where sid not IN (select sid in Grades) | C. select s | D. select s",
+    "answer":"D",
+    "question_number":55,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q56",
+    "lecture_id":"lec_4",
+    "question":"Suppose the relations are as follows: R(A,",
+    "options":"B. ; | A. 5 | B. 2 | C. 3 | D. 4",
+    "answer":"D",
+    "question_number":56,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q57",
+    "lecture_id":"lec_4",
+    "question":"Consider a relation Lecturer as follows: Lecturer(EmpNo CHAR(03), Name VARCHAR(50), Salary REAL, Category VARCHAR(25), DateJoined DATE, DNO) Consider the following details of a Lecturer:",
+    "options":"A. INSERT INTO Lecturer (EmpNo, Name, Salary, Category, DateJoined, DNO) VALUES (175, 'Dulip Silva', 12000, 'Instructor', SYSDATE, 05); | B. INSERT (EmpNo, Name, Salary, Category, DateJoined, DNO) VALUES (175, 'Dulip Silva', 12000, 'Instructor', SYSDATE, 05) INTO Lecturer; | C. RT INTO Lecturer (EmpNo, Name, Salary, Category, DateJoined, DNO) VALUES (175, 'Dulip Silva', 12000, 'Instructor', SYSDATE, 05); | D. INSERT INTO Lecturer VALUES (175, 'Dulip Silva', 12000, 'Instructor', SYSDATE, 05);",
+    "answer":"A",
+    "question_number":57,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q58",
+    "lecture_id":"lec_4",
+    "question":"Which of the following queries will result in an error? (Select one or more)",
+    "options":"A. select avg(salary) from employees group by dept_id | B. select dept_id, avg(salary) from employees group by dept_id | C. select eid from employees where salary > avg(salary) | D. select dept_id, count(name) from employees",
+    "answer":"C",
+    "question_number":58,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q59",
+    "lecture_id":"lec_4",
+    "question":"SQL \u2013 Avg salary Emp(eid, ename, designation, salary, deptName) SELECT deptName FROM Emp WHERE designation = 'Manager' GROUP BY deptName HAVING AVG(salary) > (SELECT AVG(salary) FROM Emp) The query returns departments where:",
+    "options":"A. Average salary is more than average salary in company | B. Average salary of managers > average salary in company | C. Average salary of managers > average salary of employees in same department | D. Average salary of managers > average salary of all male employees",
+    "answer":"B",
+    "question_number":59,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q60",
+    "lecture_id":"lec_4",
+    "question":"Consider the Appointments table shown below: Patient Doctor AppointmentDate Lakmal Dr",
+    "options":"A. 3 | B. 9 | C. 5 | D. 6",
+    "answer":"B",
+    "question_number":60,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q61",
+    "lecture_id":"lec_4",
+    "question":"Consider the following tables: Patient(pid, pname, age) Admission(pid, admissionDate)",
+    "options":"A. Query 2 and Query 4 return identical row sets but Query 1 and Query 2 return different row sets | B. All queries return identical row sets | C. Query 3 returns strictly fewer rows than Query 2 | D. Query 4 will encounter an integrity violation at runtime",
+    "answer":"A",
+    "question_number":61,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q62",
+    "lecture_id":"lec_4",
+    "question":"Consider the following schema: EMP(eid, ename, age, salary, did) What will be the output of the following SQL query? select * from emp e where 2 = (select count(distinct e1",
+    "options":"A. Third highest age | B. Two distinct ages of employees | C. Employee with second highest age | D. Second highest age",
+    "answer":"A",
+    "question_number":62,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q63",
+    "lecture_id":"lec_4",
+    "question":"Consider the following relation: Weather(CityID, temperature, city, condition) Which of the following queries will return the names of cities with temperature and condition whose condition is neither sunny nor cloudy?",
+    "options":"A. SELECT city, temperature, condition FROM weather WHERE condition NOT EXISTS ('sunny', 'cloudy'); | B. SELECT city, temperature, condition FROM weather WHERE condition NOT IN ('sunny', 'cloudy'); | C. SELECT city, temperature, condition FROM weather WHERE condition BETWEEN ('sunny', 'cloudy'); | D. SELECT city, temperature, condition FROM weather WHERE condition IN ('sunny', 'cloudy');",
+    "answer":"B",
+    "question_number":63,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q64",
+    "lecture_id":"lec_4",
+    "question":"Consider the following table: Emp(eid, ename, designation, salary, did) Consider the following relational query on the Emp table: SELECT salary FROM Emp e1 WHERE 2 = ( SELECT COUNT(DISTINCT e2",
+    "options":"A. find the 2nd highest salary from the table | B. find the 3rd highest salary from the table | C. find the 4th highest salary from the table | D. find the highest salary from the table",
+    "answer":"B",
+    "question_number":64,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q65",
+    "lecture_id":"lec_4",
+    "question":"SQL query \u2013 LEFT OUTER JOIN Relations R(A,",
+    "options":"A. 4 | B. 5 | C. 2 | D. 6",
+    "answer":"",
+    "question_number":65,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q66",
+    "lecture_id":"lec_4",
+    "question":"SQL \u2013 Employee hierarchy Emps(empID, ssNo, name, mgrI",
+    "options":"A. Query can't represent in SQL | B. Both I and II | C. I only | D. Neither I nor II",
+    "answer":"B",
+    "question_number":66,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q67",
+    "lecture_id":"lec_4",
+    "question":"Consider the following table: Emp(eid, ename, designation, salary, did) SQL query: SELECT salary FROM Emp e1 WHERE 2 = ( SELECT COUNT(DISTINCT(e2",
+    "options":"A. Find the 2nd highest salary from table | B. Find the 4th highest salary from table | C. Find the highest salary from table | D. Find the 3rd highest salary from table",
+    "answer":"D",
+    "question_number":67,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q68",
+    "lecture_id":"lec_4",
+    "question":"SQL \u2013 2nd highest salary Emp(eid, ename, designation, salary, did) SELECT salary FROM Emp e1 WHERE 2 = ( SELECT COUNT(DISTINCT(e2",
+    "options":"A. Find the 2nd highest salary | B. Find the 4th highest salary | C. Find the highest salary | D. Find the 3rd highest salary",
+    "answer":"D",
+    "question_number":68,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q69",
+    "lecture_id":"lec_4",
+    "question":"Relation Emps(empID, ssNo, name, mgrI",
+    "options":"A. Query can't represent in SQL | B. Both I and II | C. I only | D. Neither I nor II",
+    "answer":"B",
+    "question_number":69,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q70",
+    "lecture_id":"lec_4",
+    "question":"Weather(CityID, Temperature, City, Condition) Which query will return the names of cities with temperature and condition where condition is neither 'sunny' nor 'cloudy'?",
+    "options":"A. SELECT city, temperature, condition FROM weather WHERE condition EXISTS ('sunny', 'cloudy'); | B. SELECT city, temperature, condition FROM weather WHERE condition NOT IN ('sunny', 'cloudy'); | C. SELECT city, temperature, condition FROM weather WHERE condition IN ('sunny', 'cloudy'); | D. SELECT city, temperature, condition FROM weather WHERE condition BETWEEN ('sunny', 'cloudy');",
+    "answer":"B",
+    "question_number":70,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q71",
+    "lecture_id":"lec_4",
+    "question":"The DROP TABLE statement: (Select one or more)",
+    "options":"A. Deletes the table structure only | B. Works whether or not referential integrity constraints are violated | C. Deletes the table structure along with the table data | D. Works only if referential integrity constraints are not violated",
+    "answer":"C",
+    "question_number":71,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q72",
+    "lecture_id":"lec_4",
+    "question":"Consider tables:",
+    "options":"A. All queries return identical row sets | B. Query 4 will encounter an integrity violation at runtime | C. Query 3 returns strictly fewer rows than Query 2 | D. Query 2 and Query 4 return identical row sets but Query 1 and Query 2 return different row sets",
+    "answer":"D",
+    "question_number":72,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q73",
+    "lecture_id":"lec_4",
+    "question":"Which of the following statements are not true about ALTER and UPDATE statements? (Select one or more)",
+    "options":"A. ALTER TABLE command could be used to modify the structure of the table | B. UPDATE command could be used to modify the structure of the table | C. UPDATE command could be used to edit values of rows in a table | D. ALTER TABLE command could be used to edit values of rows in a table",
+    "answer":"B",
+    "question_number":73,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q74",
+    "lecture_id":"lec_4",
+    "question":"Which of the following queries will result in an error? (Select one or more)",
+    "options":"A. SELECT dept_id, AVG(salary) FROM employees GROUP BY dept_id; | B. SELECT dept_id, COUNT(name) FROM employees; | C. SELECT AVG(salary) FROM employees GROUP BY dept_id; | D. SELECT dept_id, job_id, AVG(salary) FROM employees GROUP BY dept_id, job_id;",
+    "answer":"B",
+    "question_number":74,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q75",
+    "lecture_id":"lec_4",
+    "question":"Which of the following statements are not true about ALTER and UPDATE statements? (Select one or more) , B, C",
+    "options":"A. UPDATE command could be used to modify the structure of the table | B. UPDATE command could be used to add constraints after table creation | C. ALTER TABLE command could be used to edit values of rows in a table | D. ALTER TABLE command could be used to modify the structure of the table",
+    "answer":"A",
+    "question_number":75,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q76",
+    "lecture_id":"lec_4",
+    "question":"ALTER and UPDATE statements Which statements are not true?",
+    "options":"A. ALTER TABLE command could be used to edit values of the rows in a table | B. ALTER TABLE command could be used to modify the structure of the table | C. UPDATE command could be used to edit values of the rows in a table | D. UPDATE command could be used to add constraints to a table after it is created",
+    "answer":"A",
+    "question_number":76,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q77",
+    "lecture_id":"lec_4",
+    "question":"Suppose relations:",
+    "options":"B. ; | A. 2 | B. 3 | C. 4 | D. 5",
+    "answer":"B",
+    "question_number":77,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q78",
+    "lecture_id":"lec_4",
+    "question":"Which of the following statements are not true about ALTER and UPDATE statements?",
+    "options":"A. ALTER TABLE command could be used to edit values of the rows in a table | B. ALTER TABLE command could be used to modify the structure of the table | C. UPDATE command could be used to edit values of the rows in a table | D. UPDATE command could be used to add constraints to a table after it is created",
+    "answer":"A",
+    "question_number":78,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q79",
+    "lecture_id":"lec_4",
+    "question":"Student (sid, sname, age), Grades(sid, cid, grade) \u2014 Grades table stores grades obtained",
+    "options":"A. SELECT s | B. SELECT sname FROM Student WHERE sid NOT IN (SELECT sid FROM Grades); | C. SELECT s | D. SELECT s",
+    "answer":"A",
+    "question_number":79,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q80",
+    "lecture_id":"lec_4",
+    "question":"Given tables: Member(memid, name, address, phone) Member_Hobbies(memid, hobby) Which of the following queries will return the names of members who have both 'Music' and 'Photography' as hobbies? (Select one or more)",
+    "options":"A. SELECT m | B. SELECT m | C. SELECT m | D. SELECT m",
+    "answer":"B",
+    "question_number":80,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q81",
+    "lecture_id":"lec_4",
+    "question":"Consider Emp(eid, ename, designation, salary, deptName)",
+    "options":"A. the average salary of managers is more than the average salary of all male employees in the company | B. the average salary of managers is more than the average salary in the company | C. the average salary is more than the average salary in the company | D. the average salary of managers is more than the average salary of employees in the same department",
+    "answer":"B",
+    "question_number":81,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q82",
+    "lecture_id":"lec_4",
+    "question":"Three tables to store student enrollments in courses:",
+    "options":"A. Names of all students enrolled in either \"DBMS\" or \"OS\" | B. Names of all students enrolled in \"DBMS\" and \"OS\" | C. Names of all students enrolled in \"DBMS\" only | D. Names of all students enrolled in \"OS\" only",
+    "answer":"B",
+    "question_number":82,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q83",
+    "lecture_id":"lec_4",
+    "question":"Consider Emp(eid, ename, designation, salary, did)",
+    "options":"A. 2nd highest salary from table | B. 3rd highest salary from table | C. Highest salary from table | D. 4th highest salary from table",
+    "answer":"B",
+    "question_number":83,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q84",
+    "lecture_id":"lec_4",
+    "question":"SQL \u2013 Cities with higher temperature than Paris Weather(CityID, Temperature, City, Condition) Correct query:",
+    "options":"A. SELECT temperature > MIN(temperature) FROM weather WHERE city='Paris' GROUP BY city | B. SELECT city FROM weather WHERE city='Paris' AND temperature > ALL (temperature) | C. SELECT city FROM weather WHERE temperature > (SELECT temperature FROM weather WHERE city='Paris') | D. SELECT city FROM weather WHERE temperature EXISTS (SELECT FROM weather WHERE city='Paris')",
+    "answer":"C",
+    "question_number":84,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q85",
+    "lecture_id":"lec_4",
+    "question":"Student enrollments query Tables: Student(EnrollNo, Name), Course(CourseID, Name), Enrollments(EnrollNo, CourseI",
+    "options":"A. Name of all students | B. Name of all students who are either enrolled in DBMS or OS or both | C. Name of all students enrolled in DBMS | D. Name of all students enrolled in DBMS and OS",
+    "answer":"D",
+    "question_number":85,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q86",
+    "lecture_id":"lec_4",
+    "question":"Consider the following relational scheme with all atomic values: Academic_Staff(SID, FacultyID, FacultyLocation, FacultyPhone, StaffName, StaffPosition, HoursPerWeek) With the following functional dependencies: 1",
+    "options":"A. FacultyLocation | B. SID | C. FacultyPhone | D. StaffName",
+    "answer":"B",
+    "question_number":86,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q87",
+    "lecture_id":"lec_4",
+    "question":"Suppose relation R(A,",
+    "options":"A. 5 | B. 2 | C. 3 | D. 4",
+    "answer":"D",
+    "question_number":87,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q88",
+    "lecture_id":"lec_4",
+    "question":"Which of the following queries will result in an error? (Select one or more)",
+    "options":"A. SELECT dept_id, COUNT(name) FROM employees; | B. SELECT eid FROM employees WHERE salary > AVG(salary); | C. SELECT dept_id, AVG(salary) FROM employees GROUP BY dept_id; | D. SELECT dept_id",
+    "answer":"A",
+    "question_number":88,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q89",
+    "lecture_id":"lec_4",
+    "question":"In the context of SQL as a comprehensive language, which components beyond DDL and DML are highlighted in the review? (Select one or more) , B, C",
+    "options":"A. Facilities for security and authorization | B. Facilities for transaction processing | C. Facilities for embedding SQL in general-purpose languages | D. Facilities for physical storage optimization",
+    "answer":"A",
+    "question_number":89,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q90",
+    "lecture_id":"lec_4",
+    "question":"What is the effect of specifying ON DELETE SET DEFAULT in a FOREIGN KEY constraint, as in the STUDENT table example?",
+    "options":"A. It cascades deletions to referencing rows | B. It sets the foreign key to NULL on deletion | C. It sets the foreign key to its default value on deletion | D. It prevents deletion if references exist",
+    "answer":"C",
+    "question_number":90,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q91",
+    "lecture_id":"lec_4",
+    "question":"In the CREATE TABLE STUDENT example, why might an INSERT fail for a row with progId not in PROGRAMS? (Select one or more)",
+    "options":"A. Due to the FOREIGN KEY constraint | B. Because progId has DEFAULT 'IT' | C. If ON UPDATE CASCADE is violated | D. The UNIQUE on nic prevents it",
+    "answer":"A",
+    "question_number":91,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q92",
+    "lecture_id":"lec_4",
+    "question":"Which ALTER TABLE operations are demonstrated in the lecture? (Select one or more) , B, C",
+    "options":"A. ADD COLUMN | B. ADD CONSTRAINT | C. DROP COLUMN | D. DROP TABLE",
+    "answer":"A",
+    "question_number":92,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q93",
+    "lecture_id":"lec_4",
+    "question":"How does DROP TABLE differ from ALTER TABLE DROP COLUMN in impact?",
+    "options":"A. DROP TABLE removes the entire table; ALTER DROP COLUMN removes one column | B. ALTER DROP COLUMN cascades to foreign keys; DROP TABLE does not | C. DROP TABLE preserves data; ALTER DROP COLUMN does not | D. Both require no references to succeed",
+    "answer":"A",
+    "question_number":93,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q94",
+    "lecture_id":"lec_4",
+    "question":"In INSERT statements, what happens if columns are omitted, as in the second STUDENT insert example? , B, C",
+    "options":"A. Omitted columns get NULL if allowed | B. Omitted columns get DEFAULT if specified | C. The insert fails if PRIMARY KEY is omitted | D. All columns must be specified explicitly",
+    "answer":"A",
+    "question_number":94,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q95",
+    "lecture_id":"lec_4",
+    "question":"For the DELETE statement example, what would happen if WHERE is omitted?",
+    "options":"A. It deletes all rows in the table | B. It fails due to syntax error | C. It deletes only NULL rows | D. It prompts for confirmation",
+    "answer":"A",
+    "question_number":95,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q96",
+    "lecture_id":"lec_4",
+    "question":"In UPDATE without WHERE, what is the risk? (Select one or more) , B, C",
+    "options":"A. Updates all rows in the table | B. May violate CHECK constraints | C. Could cascade via FOREIGN KEY | D. Fails if no SET clause",
+    "answer":"A",
+    "question_number":96,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q97",
+    "lecture_id":"lec_4",
+    "question":"Which is the correct basic form of SELECT as per the lecture?",
+    "options":"A. SELECT <attributes> FROM <relations> WHERE <conditions> | B. SELECT * WHERE <conditions> FROM <relations> | C. FROM <relations> SELECT <attributes> WHERE <conditions> | D. WHERE <conditions> SELECT <attributes> FROM <relations>",
+    "answer":"A",
+    "question_number":97,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q98",
+    "lecture_id":"lec_4",
+    "question":"In the LIKE example for names starting with 'A', what would LIKE 'A_' match?",
+    "options":"A. Names with exactly two characters starting with A | B. Any name starting with A | C. Names ending with A | D. Names containing A anywhere",
+    "answer":"A",
+    "question_number":98,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q99",
+    "lecture_id":"lec_4",
+    "question":"Why is IS NULL used instead of = NULL in WHERE clauses?",
+    "options":"A. = NULL always returns false; IS NULL checks properly | B. IS NULL is for strings only | C. = NULL works for numbers | D. IS NULL is deprecated",
+    "answer":"A",
+    "question_number":99,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q100",
+    "lecture_id":"lec_4",
+    "question":"What distinguishes INNER JOIN from cartesian product in the example? (Select one or more) , B, C",
+    "options":"A. INNER JOIN uses ON or WHERE for condition | B. Cartesian has no condition, all combinations | C. INNER JOIN eliminates unmatched rows | D. Both return same if no condition",
+    "answer":"A",
+    "question_number":100,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q101",
+    "lecture_id":"lec_4",
+    "question":"In LEFT OUTER JOIN example, why are NULLs in offerBy for some students? , C, D",
+    "options":"A. No matching program for that pid | B. Programs without students are excluded | C. It's the right table's unmatched | D. LEFT includes all left rows",
+    "answer":"A",
+    "question_number":101,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_4_Q102",
+    "lecture_id":"lec_4",
+    "question":"In the IN nested query example for 'A' grades, what does the subquery return? (Select one or more) , B, C",
+    "options":"A. List of SID with Grade='A' | B. Matches outer SID to subquery list | C. Could use EXISTS alternatively | D. Requires correlated subquery",
+    "answer":"A",
+    "question_number":102,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q1",
+    "lecture_id":"lec_5",
+    "question":"What is a view in a database?",
+    "options":"A. A physical table stored permanently on disk | B. A virtual table derived from base tables that doesn't necessarily exist in physical form | C. A backup copy of a table | D. An index on a table",
+    "answer":"B",
+    "question_number":1,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q2",
+    "lecture_id":"lec_5",
+    "question":"Which statement about views is FALSE?",
+    "options":"A. Views can simplify complex queries | B. Views can provide security by restricting data access | C. All views are updateable | D. Views don't physically store data",
+    "answer":"C",
+    "question_number":2,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q3",
+    "lecture_id":"lec_5",
+    "question":"Given a view created as: CREATE VIEW dept_summary AS SELECT deptId, COUNT(*) as empCount, AVG(salary) as avgSalary FROM Employee GROUP BY deptId; Can you execute: UPDATE dept_summary SET avgSalary = 50000 WHERE deptId = 10;? (or D if trigger exists)",
+    "options":"A. Yes, it updates the average salary | B. No, views with aggregate functions are not updateable | C. Yes, but it updates all employee salaries | D. Yes, but only if there's an INSTEAD OF trigger",
+    "answer":"B",
+    "question_number":3,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q4",
+    "lecture_id":"lec_5",
+    "question":"What happens when you drop a base table that a view depends on?",
+    "options":"A. The view is automatically dropped | B. The view remains but queries fail | C. The view is converted to a regular table | D. Depends on the DBMS",
+    "answer":"D",
+    "question_number":4,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q5",
+    "lecture_id":"lec_5",
+    "question":"In T-SQL, which is the correct way to declare a variable?",
+    "options":"A. VAR @empId INT; | B. DECLARE @empId INT; | C. SET @empId INT; | D. INT @empId;",
+    "answer":"B",
+    "question_number":5,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q6",
+    "lecture_id":"lec_5",
+    "question":"What is the initial value of a declared T-SQL variable?",
+    "options":"A. 0 for numbers, empty string for text | B. NULL | C. Undefined | D. Must be initialized immediately",
+    "answer":"B",
+    "question_number":6,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q7",
+    "lecture_id":"lec_5",
+    "question":"How do you assign a value to a variable in T-SQL?",
+    "options":"A. @empId = 100; | B. SET @empId = 100; | C. LET @empId = 100; | D. ASSIGN @empId = 100;",
+    "answer":"B",
+    "question_number":7,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q8",
+    "lecture_id":"lec_5",
+    "question":"What does the BREAK statement do in a WHILE loop?",
+    "options":"A. Skips current iteration and continues to next | B. Exits the innermost WHILE loop completely | C. Pauses execution temporarily | D. Exits all nested loops",
+    "answer":"B",
+    "question_number":8,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q9",
+    "lecture_id":"lec_5",
+    "question":"What does the CONTINUE statement do in a WHILE loop?",
+    "options":"A. Exits the loop | B. Skips remaining statements in current iteration and restarts the loop | C. Continues to the next loop | D. Does nothing",
+    "answer":"B",
+    "question_number":9,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q10",
+    "lecture_id":"lec_5",
+    "question":"What is the key difference between a stored function and a stored procedure?",
+    "options":"A. Functions can have parameters, procedures cannot | B. Functions must return a single value, procedures may return multiple values via OUTPUT | C. Procedures execute faster | D. No significant difference",
+    "answer":"B",
+    "question_number":10,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q11",
+    "lecture_id":"lec_5",
+    "question":"Can a stored function use OUTPUT parameters?",
+    "options":"A. Yes, just like procedures | B. No, functions only use IN parameters and RETURN value | C. Only for table-valued functions | D. Yes, but only one OUTPUT parameter",
+    "answer":"B",
+    "question_number":11,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q12",
+    "lecture_id":"lec_5",
+    "question":"How do you call a stored function in T-SQL?",
+    "options":"A. EXEC functionName(parameters); | B. CALL functionName(parameters); | C. SELECT dbo | D. EXECUTE FUNCTION functionName(parameters);",
+    "answer":"C",
+    "question_number":12,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q13",
+    "lecture_id":"lec_5",
+    "question":"Given: CREATE FUNCTION dbo",
+    "options":"A. SELECT dbo | B. SELECT dbo | C. EXEC dbo | D. SELECT *, dbo",
+    "answer":"C",
+    "question_number":13,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q14",
+    "lecture_id":"lec_5",
+    "question":"What is the default parameter mode for stored procedures if not specified?",
+    "options":"A. OUTPUT | B. IN | C. INOUT | D. Must always be specified",
+    "answer":"B",
+    "question_number":14,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q15",
+    "lecture_id":"lec_5",
+    "question":"Given a procedure: CREATE PROCEDURE calcStats(@deptId INT, @maxSal FLOAT OUTPUT, @minSal FLOAT OUTPUT) AS BEGIN SELECT @maxSal=MAX(salary), @minSal=MIN(salary) FROM Employee WHERE deptId=@deptId END Which call is CORRECT?",
+    "options":"A. EXEC calcStats 10, @max, @min; | B. DECLARE @max FLOAT, @min FLOAT; EXEC calcStats 10, @max OUTPUT, @min OUTPUT; | C. SELECT calcStats(10, @max, @min); | D. CALL calcStats(10, @max, @min);",
+    "answer":"B",
+    "question_number":15,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q16",
+    "lecture_id":"lec_5",
+    "question":"What is a trigger in a database?",
+    "options":"A. A scheduled task that runs periodically | B. A special stored procedure that automatically executes in response to DML\/DDL events | C. A constraint on a table | D. A backup mechanism",
+    "answer":"B",
+    "question_number":16,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q17",
+    "lecture_id":"lec_5",
+    "question":"What are the INSERTED and DELETED virtual tables in triggers?",
+    "options":"A. Permanent system tables | B. Temporary tables created during trigger execution storing affected rows | C. Backup tables | D. User-created tables",
+    "answer":"B",
+    "question_number":17,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q18",
+    "lecture_id":"lec_5",
+    "question":"For an INSERT operation, what data appears in trigger tables?",
+    "options":"A. INSERTED has new rows, DELETED is empty | B. DELETED has new rows, INSERTED is empty | C. Both tables have the new rows | D. Both tables are empty",
+    "answer":"A",
+    "question_number":18,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q19",
+    "lecture_id":"lec_5",
+    "question":"For an UPDATE operation, what appears in INSERTED and DELETED tables?",
+    "options":"A. INSERTED has old values, DELETED has new values | B. INSERTED has new values, DELETED has old values | C. Both have new values | D. Only INSERTED has values",
+    "answer":"B",
+    "question_number":19,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q20",
+    "lecture_id":"lec_5",
+    "question":"For a DELETE operation, what appears in trigger tables?",
+    "options":"A. INSERTED has deleted rows, DELETED is empty | B. DELETED has deleted rows, INSERTED is empty | C. Both tables have deleted rows | D. Both tables are empty",
+    "answer":"B",
+    "question_number":20,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q21",
+    "lecture_id":"lec_5",
+    "question":"What is the difference between AFTER and INSTEAD OF triggers?",
+    "options":"A. No difference, just different syntax | B. AFTER executes after DML completes, INSTEAD OF executes in place of DML | C. AFTER is faster | D. INSTEAD OF is only for DDL",
+    "answer":"B",
+    "question_number":21,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q22",
+    "lecture_id":"lec_5",
+    "question":"Can AFTER triggers be defined on views?",
+    "options":"A. Yes, on any view | B. No, AFTER triggers cannot be defined on views | C. Only on updateable views | D. Only with special permissions",
+    "answer":"B",
+    "question_number":22,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q23",
+    "lecture_id":"lec_5",
+    "question":"How many INSTEAD OF triggers can be defined per INSERT operation on a table?",
+    "options":"A. Unlimited | B. At most one | C. Exactly two (before and after) | D. None - INSTEAD OF only for views",
+    "answer":"B",
+    "question_number":23,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q24",
+    "lecture_id":"lec_5",
+    "question":"Given a trigger: CREATE TRIGGER prevent_delete ON Employee INSTEAD OF DELETE AS BEGIN PRINT 'Deletion not allowed' END What happens when you execute DELETE FROM Employee WHERE eid = 100;?",
+    "options":"A. Employee 100 is deleted | B. Message printed, but employee is NOT deleted | C. Error occurs | D. All employees are deleted",
+    "answer":"B",
+    "question_number":24,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q25",
+    "lecture_id":"lec_5",
+    "question":"What does ROLLBACK TRANSACTION do in a trigger?",
+    "options":"A. Saves changes permanently | B. Undoes the entire transaction including the triggering operation | C. Only undoes trigger code | D. Creates a backup",
+    "answer":"B",
+    "question_number":25,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q26",
+    "lecture_id":"lec_5",
+    "question":"Which trigger is better for implementing validation logic?",
+    "options":"A. AFTER trigger with ROLLBACK if validation fails | B. INSTEAD OF trigger that only executes DML if validation passes | C. Both are equally good | D. Neither - use CHECK constraints",
+    "answer":"B",
+    "question_number":26,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q27",
+    "lecture_id":"lec_5",
+    "question":"Can triggers call other stored procedures?",
+    "options":"A. No, triggers are isolated | B. Yes, triggers can execute procedures | C. Only AFTER triggers can | D. Only with special permissions",
+    "answer":"B",
+    "question_number":27,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q28",
+    "lecture_id":"lec_5",
+    "question":"What happens if a trigger raises an error?",
+    "options":"A. Error is ignored, operation continues | B. Trigger code stops, but DML operation completes | C. Entire transaction is rolled back (for AFTER triggers) | D. Only the trigger is rolled back",
+    "answer":"C",
+    "question_number":28,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q29",
+    "lecture_id":"lec_5",
+    "question":"Which is a valid advantage of using views?",
+    "options":"A. Faster query execution | B. Security - restrict user access to specific columns\/rows | C. Automatic backup | D. Increase storage space",
+    "answer":"B",
+    "question_number":29,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q30",
+    "lecture_id":"lec_5",
+    "question":"What is a disadvantage of views?",
+    "options":"A. Too much disk space usage | B. Cannot query multiple tables | C. Performance overhead - queries on views must be translated to base table queries | D. Limited to one view per table",
+    "answer":"C",
+    "question_number":30,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q31",
+    "lecture_id":"lec_5",
+    "question":"Which types of views are generally NOT updateable? (Select all that apply)",
+    "options":"A. Views with aggregate functions (SUM, AVG, COUNT) | B. Views joining multiple tables | C. Views with DISTINCT | D. Simple SELECT from single table",
+    "answer":"",
+    "question_number":31,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q32",
+    "lecture_id":"lec_5",
+    "question":"Which statements about T-SQL variables are TRUE? (Select all that apply)",
+    "options":"A. Variable names must start with @ | B. Variables must be declared before use | C. Variables are initialized to NULL by default | D. Variables can store query results",
+    "answer":"",
+    "question_number":32,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q33",
+    "lecture_id":"lec_5",
+    "question":"Which control-of-flow statements are available in T-SQL? (Select all that apply)",
+    "options":"A. IF | B. WHILE | C. FOR loop | D. BREAK",
+    "answer":"",
+    "question_number":33,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q34",
+    "lecture_id":"lec_5",
+    "question":"Advantages of stored procedures include: (Select all that apply)",
+    "options":"A. Reduced network traffic (logic executes on server) | B. Improved performance (pre-compiled execution plan) | C. Enhanced security (users don't need direct table access) | D. Code reusability across applications",
+    "answer":"",
+    "question_number":34,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q35",
+    "lecture_id":"lec_5",
+    "question":"Which are valid characteristics of stored functions? (Select all that apply)",
+    "options":"A. Must return a value | B. Can use OUTPUT parameters | C. Can be called in SELECT statements | D. Can modify database tables",
+    "answer":"",
+    "question_number":35,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q36",
+    "lecture_id":"lec_5",
+    "question":"What can trigger a DML trigger? (Select all that apply)",
+    "options":"A. INSERT statement | B. UPDATE statement | C. DELETE statement | D. SELECT statement",
+    "answer":"",
+    "question_number":36,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q37",
+    "lecture_id":"lec_5",
+    "question":"For a trigger on Employee table with UPDATE operation, INSERTED and DELETED tables contain: (Select all that apply)",
+    "options":"A. INSERTED: new values after update | B. DELETED: old values before update | C. Both tables have same structure as Employee table | D. INSERTED: only changed columns",
+    "answer":"",
+    "question_number":37,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q38",
+    "lecture_id":"lec_5",
+    "question":"When should you use INSTEAD OF triggers? (Select all that apply)",
+    "options":"A. To update views that join multiple tables | B. To implement custom INSERT logic | C. To prevent certain operations entirely | D. To audit changes after they occur",
+    "answer":"",
+    "question_number":38,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q39",
+    "lecture_id":"lec_5",
+    "question":"Which scenarios require stored procedures over functions? (Select all that apply)",
+    "options":"A. Need to return multiple values | B. Need to modify database tables | C. Need to use OUTPUT parameters | D. Need to call from SELECT statement",
+    "answer":"",
+    "question_number":39,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q40",
+    "lecture_id":"lec_5",
+    "question":"Best practices for triggers include: (Select all that apply)",
+    "options":"A. Keep trigger logic simple and fast | B. Avoid lengthy transactions in triggers | C. Use triggers for complex business logic | D. Document what triggers do",
+    "answer":"",
+    "question_number":40,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q41",
+    "lecture_id":"lec_5",
+    "question":"Scenario: Banking system with Account(accountNo, balance), Transaction(transId, accountNo, amount, type, date)",
+    "options":"",
+    "answer":"B",
+    "question_number":41,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q42",
+    "lecture_id":"lec_5",
+    "question":"Scenario: Employee(eid, name, salary, managerId) with self-referencing managerId",
+    "options":"",
+    "answer":"B",
+    "question_number":42,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q43",
+    "lecture_id":"lec_5",
+    "question":"Scenario: Library: Book(isbn, title), Copy(copyId, isbn), Loan(loanId, copyId, memberId, loanDate, returnDate)",
+    "options":"A. Yes, updates the book title | B. No, view joins multiple tables | C. Yes, with INSTEAD OF trigger | D. Both B and C",
+    "answer":"D",
+    "question_number":43,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q44",
+    "lecture_id":"lec_5",
+    "question":"Scenario: Create function to calculate employee's total work percentage across all departments",
+    "options":"",
+    "answer":"B",
+    "question_number":44,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q45",
+    "lecture_id":"lec_5",
+    "question":"Scenario: Product(pid, name, price, stock), Sale(saleId, pid, quantity, saleDate)",
+    "options":"A. AFTER cannot access INSERTED table | B. INSTEAD OF allows checking before operation and combining logic | C. AFTER is slower | D. INSTEAD OF is required for stock updates",
+    "answer":"B",
+    "question_number":45,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q46",
+    "lecture_id":"lec_5",
+    "question":"Scenario: HR system - Employee(eid, name, salary, deptId), Department(deptId, name, budget)",
+    "options":"A. Transaction management | B. Business rule enforcement in stored procedures | C. OUTPUT parameter usage | D. All of the above",
+    "answer":"D",
+    "question_number":46,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q47",
+    "lecture_id":"lec_5",
+    "question":"Scenario: Audit system tracks all changes to sensitive Employee salary field",
+    "options":"A. If salary is NULL | B. If salary column was included in UPDATE statement (even if value unchanged) | C. If salary value actually changed | D. If salary is valid",
+    "answer":"B",
+    "question_number":47,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q48",
+    "lecture_id":"lec_5",
+    "question":"Scenario: Student registration system prevents overbooking courses",
+    "options":"A. Should use AFTER instead of INSTEAD OF | B. Doesn't handle multiple students enrolling simultaneously | C. Should check maxStudents before counting | D. Missing transaction handling",
+    "answer":"B",
+    "question_number":48,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q49",
+    "lecture_id":"lec_5",
+    "question":"Scenario: Complex view joins Student, Enrollment, and Course tables",
+    "options":"A. Update succeeds and course name changes | B. Update fails - views with joins are not directly updateable | C. Update succeeds but only for one student's enrollment | D. Update succeeds with INSTEAD OF trigger",
+    "answer":"B",
+    "question_number":49,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q50",
+    "lecture_id":"lec_5",
+    "question":"Scenario: HR database: Employee(eid, name, salary, deptId), Department(deptId, deptName, budget)",
+    "options":"A. EXEC dbo | B. SELECT dbo | C. CALL getSalaryPercentage(101) | D. EXECUTE FUNCTION getSalaryPercentage(101)",
+    "answer":"B",
+    "question_number":50,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q51",
+    "lecture_id":"lec_5",
+    "question":"Which of the following statements are true related to constraints? (Select one or more)",
+    "options":"A. If a subtype participates in a relationship that is the same as the other subtypes, that relationship could be added to the supertype | B. When an entity belongs to only one subtype in the hierarchy, the relationship is total and disjoint | C. A bowler and batsman (wicketkeeper is also a batsman) which are subtypes of a cricketer type is total and disjoint | D. When an entity instance may be a member of multiple subtypes, or does not have to be a member of a subtype, the specialization is overlapping and total",
+    "answer":"A",
+    "question_number":51,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q52",
+    "lecture_id":"lec_5",
+    "question":"Consider the following table definition: CREATE TABLE Product ( pid CHAR(4) PRIMARY KEY, pname VARCHAR(30), manufactureDate DATETIME DEFAULT GETDATE(), qty INT, CONSTRAINT pid_chk CHECK (pid LIKE 'PSTO-510-5[0-5]-577'), CONSTRAINT qty_chk CHECK (qty >= 0) ); Which of the following statements are true related to the above definition? (Select one or more)",
+    "options":"A. Consider a product with a quantity (qty) of 10 | B. \"T12\" is a valid pid that could be stored in the Product table | C. \"P333\" is a valid pid that could be stored in the Product table | D. Executing the following insert statement will cause an error: INSERT INTO Product(pid, qty) VALUES ('T000', 50)",
+    "answer":"A",
+    "question_number":52,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q53",
+    "lecture_id":"lec_5",
+    "question":"Consider the following table definition: CREATE TABLE Product ( pid CHAR(4) PRIMARY KEY, pname VARCHAR(30), manufactureDate DATETIME DEFAULT GETDATE(), Qty INT, CONSTRAINT pid_chk CHECK (pid LIKE '[P|S|T][0-5][0-5][0-5]'), CONSTRAINT qty_chk CHECK (qty > 0) ); Which of the following statements are true related to the above definition? (Select one or more)",
+    "options":"A. Consider a product with a quantity (qty) of 10 | B. \"T12\" is a valid pid that could be stored in the Product table | C. \"P333\" is a valid pid that could be stored in the Product table | D. Executing the following insert statement will cause an error: INSERT INTO Product(pid, qty) VALUES ('T000', 50)",
+    "answer":"A",
+    "question_number":53,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q54",
+    "lecture_id":"lec_5",
+    "question":"Consider the following table definition: CREATE TABLE Product ( pid CHAR(4) PRIMARY KEY, pname VARCHAR(30), manufactureDate DATETIME DEFAULT GETDATE(), qty INT, CONSTRAINT pid_chk CHECK (pid LIKE 'P|S|T[0-5][0-5]|10-5|10-577'), CONSTRAINT qty_chk CHECK (qty > 0) ); Which of the following statements are TRUE related to the above definition? (Select one or more)",
+    "options":"A. Consider a product with a quantity (qty) of 10 | B. T12 is a valid pid that could be stored in the Product table | C. P333 is a valid pid that could be stored in the Product table | D. Executing the following insert statement will cause an error:",
+    "answer":"A",
+    "question_number":54,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q55",
+    "lecture_id":"lec_5",
+    "question":"Which of the following statements are true related to constraints? (Select one or more)",
+    "options":"A. If a subtype participates in a relationship that is the same as the other subtypes, that relationship could be added to the supertype | B. When an entity belongs to only one subtype in the hierarchy, the relationship is total and disjoint | C. When an entity instance may be a member of multiple subtypes or it does not have to be a member of a subtype, the specialization is overlapping and total | D. A bowler and batsman (assume wicket keeper is also a batsman), which are subtypes of a cricketer type, is total and disjoint",
+    "answer":"A",
+    "question_number":55,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q56",
+    "lecture_id":"lec_5",
+    "question":"Which of the following statements are TRUE related to constraints? (Select one or more)",
+    "options":"A. A bowler and batsman (assume wicket keeper is also a batsman), which are subtypes of a cricketer type, is total and disjoint | B. If a subtype participates in a relationship that is the same as the other subtypes, that relationship could be added to the supertype | C. When an entity belongs to only one subtype in the hierarchy, the relationship is total and disjoint | D. When an entity instance may be a member of multiple subtypes or it does not have to be a member of a subtype, the specialization is overlapping and total",
+    "answer":"B",
+    "question_number":56,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_5_Q57",
+    "lecture_id":"lec_5",
+    "question":"Consider table definition: CREATE TABLE Product ( pid CHAR(4) PRIMARY KEY, pname VARCHAR(30), manufactureDate DATETIME DEFAULT GETDATE(), Qty INT, CONSTRAINT pid_chk CHECK (pid LIKE '[P|S|T][0-5][0-5][0-5]'), CONSTRAINT qty_chk CHECK (qty > 0) ); Which statements are true? (Select one or more)",
+    "options":"A. T12 is a valid pid that could be stored in the Product table | B. Consider a product with a quantity (qty) of 10 | C. After executing INSERT INTO Product(pid, qty) VALUES('T000', 50), the row inserted will have two null values | D. P333 is a valid pid that could be stored in the Product table",
+    "answer":"B",
+    "question_number":57,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q1",
+    "lecture_id":"lec_6",
+    "question":"What does JDBC stand for?",
+    "options":"A. Java Database Connection | B. Java Database Connectivity | C. Java Data Business Connector | D. Java Database Communication",
+    "answer":"B",
+    "question_number":1,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q2",
+    "lecture_id":"lec_6",
+    "question":"What is the primary purpose of JDBC?",
+    "options":"A. To create databases | B. To provide a common API for Java applications to access different databases | C. To replace SQL | D. To improve database performance",
+    "answer":"B",
+    "question_number":2,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q3",
+    "lecture_id":"lec_6",
+    "question":"In JDBC architecture, what is the role of the JDBC Driver Manager?",
+    "options":"A. Stores database data | B. Manages database drivers and matches connection requests to appropriate drivers | C. Executes SQL queries | D. Creates database tables",
+    "answer":"B",
+    "question_number":3,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q4",
+    "lecture_id":"lec_6",
+    "question":"How many types of JDBC drivers are there?",
+    "options":"A. 2 | B. 3 | C. 4 | D. 5",
+    "answer":"C",
+    "question_number":4,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q5",
+    "lecture_id":"lec_6",
+    "question":"What is a Type 1 JDBC driver?",
+    "options":"A. Native API Driver | B. JDBC-ODBC Bridge Driver | C. Network Pure Java Driver | D. Thin Driver",
+    "answer":"B",
+    "question_number":5,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q6",
+    "lecture_id":"lec_6",
+    "question":"Which JDBC driver type is written entirely in Java and provides the highest performance?",
+    "options":"A. Type 1 | B. Type 2 | C. Type 3 | D. Type 4",
+    "answer":"D",
+    "question_number":6,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q7",
+    "lecture_id":"lec_6",
+    "question":"What does a Type 2 (Native API) driver require on the client machine?",
+    "options":"A. Only Java Runtime Environment | B. Vendor-specific native library\/driver | C. ODBC driver | D. Middleware server",
+    "answer":"B",
+    "question_number":7,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q8",
+    "lecture_id":"lec_6",
+    "question":"Which driver type uses a three-tier approach with middleware?",
+    "options":"A. Type 1 | B. Type 2 | C. Type 3 | D. Type 4",
+    "answer":"C",
+    "question_number":8,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q9",
+    "lecture_id":"lec_6",
+    "question":"What is the correct order of steps to create a JDBC application?",
+    "options":"A. Open connection \u2192 Import packages \u2192 Load driver \u2192 Execute query | B. Import packages \u2192 Load driver \u2192 Open connection \u2192 Execute query \u2192 Extract data \u2192 Clean up | C. Load driver \u2192 Open connection \u2192 Import packages \u2192 Execute query | D. Execute query \u2192 Open connection \u2192 Load driver",
+    "answer":"B",
+    "question_number":9,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q10",
+    "lecture_id":"lec_6",
+    "question":"Which package contains the JDBC API?",
+    "options":"A. java | B. java | C. java | D. javax",
+    "answer":"B",
+    "question_number":10,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q11",
+    "lecture_id":"lec_6",
+    "question":"How do you register a JDBC driver in your program?",
+    "options":"A. new Driver(); | B. Class | C. DriverManager | D. import driver",
+    "answer":"B",
+    "question_number":11,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q12",
+    "lecture_id":"lec_6",
+    "question":"Which method is used to establish a database connection?",
+    "options":"A. Connection | B. Database | C. DriverManager | D. Driver",
+    "answer":"C",
+    "question_number":12,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q13",
+    "lecture_id":"lec_6",
+    "question":"What are the three parameters required for DriverManager",
+    "options":"A. Driver name, database name, port number | B. URL, username, password | C. Host, port, database name | D. Connection string, timeout, retry count",
+    "answer":"B",
+    "question_number":13,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q14",
+    "lecture_id":"lec_6",
+    "question":"What does the JDBC URL format typically look like?",
+    "options":"A. http:\/\/database:port\/dbname | B. jdbc:subprotocol:subname | C. database:\/\/host:port | D. sql:\/\/server\/database",
+    "answer":"B",
+    "question_number":14,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q15",
+    "lecture_id":"lec_6",
+    "question":"Which interface represents a database connection in JDBC?",
+    "options":"A. DatabaseConnection | B. Connection | C. Statement | D. Session",
+    "answer":"B",
+    "question_number":15,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q16",
+    "lecture_id":"lec_6",
+    "question":"How many Statement interfaces are there in JDBC?",
+    "options":"A. 1 | B. 2 | C. 3 | D. 4",
+    "answer":"C",
+    "question_number":16,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q17",
+    "lecture_id":"lec_6",
+    "question":"When should you use a Statement object?",
+    "options":"A. For parameterized queries | B. For calling stored procedures | C. For static SQL statements executed once | D. For batch processing",
+    "answer":"C",
+    "question_number":17,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q18",
+    "lecture_id":"lec_6",
+    "question":"When should you use a PreparedStatement instead of Statement?",
+    "options":"A. For DDL statements | B. For SQL statements with parameters or executed multiple times | C. Only for SELECT queries | D. For database administration tasks",
+    "answer":"B",
+    "question_number":18,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q19",
+    "lecture_id":"lec_6",
+    "question":"What symbol represents a parameter placeholder in PreparedStatement?",
+    "options":"A. @ | B. $ | C. ? | D. #",
+    "answer":"C",
+    "question_number":19,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q20",
+    "lecture_id":"lec_6",
+    "question":"Which method is used to bind an integer value to a PreparedStatement parameter?",
+    "options":"A. bindInt() | B. setInteger() | C. setInt() | D. putInt()",
+    "answer":"C",
+    "question_number":20,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q21",
+    "lecture_id":"lec_6",
+    "question":"Given: PreparedStatement pstmt = conn",
+    "options":"A. pstmt | B. pstmt | C. pstmt | D. pstmt",
+    "answer":"B",
+    "question_number":21,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q22",
+    "lecture_id":"lec_6",
+    "question":"Which interface is used to call stored procedures?",
+    "options":"A. Statement | B. PreparedStatement | C. CallableStatement | D. ProcedureStatement",
+    "answer":"C",
+    "question_number":22,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q23",
+    "lecture_id":"lec_6",
+    "question":"How do you prepare a CallableStatement to execute a stored procedure?",
+    "options":"A. conn | B. conn | C. conn | D. new CallableStatement(\"procedureName\");",
+    "answer":"B",
+    "question_number":23,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q24",
+    "lecture_id":"lec_6",
+    "question":"How do you register an OUT parameter in CallableStatement?",
+    "options":"A. stmt | B. stmt | C. stmt | D. stmt",
+    "answer":"B",
+    "question_number":24,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q25",
+    "lecture_id":"lec_6",
+    "question":"Which method executes a SELECT query and returns results?",
+    "options":"A. execute() | B. executeUpdate() | C. executeQuery() | D. executeSelect()",
+    "answer":"C",
+    "question_number":25,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q26",
+    "lecture_id":"lec_6",
+    "question":"What does executeUpdate() return?",
+    "options":"A. ResultSet object | B. Boolean value | C. Number of rows affected | D. Connection object",
+    "answer":"C",
+    "question_number":26,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q27",
+    "lecture_id":"lec_6",
+    "question":"What does the execute() method return?",
+    "options":"A. Number of rows | B. ResultSet | C. Boolean - true if ResultSet available, false otherwise | D. Connection status",
+    "answer":"C",
+    "question_number":27,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q28",
+    "lecture_id":"lec_6",
+    "question":"What interface represents the result of a SELECT query?",
+    "options":"A. QueryResult | B. ResultSet | C. DataSet | D. RecordSet",
+    "answer":"B",
+    "question_number":28,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q29",
+    "lecture_id":"lec_6",
+    "question":"How do you navigate to the next row in a ResultSet?",
+    "options":"A. rs | B. rs | C. rs | D. rs",
+    "answer":"B",
+    "question_number":29,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q30",
+    "lecture_id":"lec_6",
+    "question":"Where is the ResultSet cursor positioned initially?",
+    "options":"A. First row | B. Last row | C. Before the first row | D. After the last row",
+    "answer":"C",
+    "question_number":30,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q31",
+    "lecture_id":"lec_6",
+    "question":"How can you retrieve data from a ResultSet column?",
+    "options":"A. By column index only | B. By column name only | C. By column index or column name | D. Cannot retrieve data",
+    "answer":"C",
+    "question_number":31,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q32",
+    "lecture_id":"lec_6",
+    "question":"Given: ResultSet rs = stmt",
+    "options":"A. String name = rs | B. String name = rs | C. String name = rs | D. Both B and C",
+    "answer":"D",
+    "question_number":32,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q33",
+    "lecture_id":"lec_6",
+    "question":"What exception is most commonly encountered in JDBC?",
+    "options":"A. IOException | B. SQLException | C. DatabaseException | D. JDBCException",
+    "answer":"B",
+    "question_number":33,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q34",
+    "lecture_id":"lec_6",
+    "question":"Which SQLException method returns a vendor-specific error code?",
+    "options":"A. getCode() | B. getErrorCode() | C. getVendorCode() | D. getErrorNumber()",
+    "answer":"B",
+    "question_number":34,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q35",
+    "lecture_id":"lec_6",
+    "question":"Why is it important to close database resources (Connection, Statement, ResultSet)?",
+    "options":"A. To improve query performance | B. To prevent resource leaks and allow database to release resources | C. To delete the data | D. To commit transactions",
+    "answer":"B",
+    "question_number":35,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q36",
+    "lecture_id":"lec_6",
+    "question":"Which are valid JDBC driver types? (Select all that apply)",
+    "options":"A. JDBC-ODBC Bridge Driver (Type 1) | B. Native API Driver (Type 2) | C. Middleware Driver (Type 3) | D. Thin Driver (Type 4)",
+    "answer":"",
+    "question_number":36,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q37",
+    "lecture_id":"lec_6",
+    "question":"Advantages of Type 4 (Thin) JDBC driver include: (Select all that apply)",
+    "options":"A. Written entirely in Java | B. Platform independent | C. Highest performance | D. Requires ODBC installation",
+    "answer":"",
+    "question_number":37,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q38",
+    "lecture_id":"lec_6",
+    "question":"Which interfaces are part of java",
+    "options":"A. Driver | B. Connection | C. Statement | D. ResultSet",
+    "answer":"",
+    "question_number":38,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q39",
+    "lecture_id":"lec_6",
+    "question":"Which statement types can execute SQL queries? (Select all that apply)",
+    "options":"A. Statement | B. PreparedStatement | C. CallableStatement | D. ResultSet",
+    "answer":"",
+    "question_number":39,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q40",
+    "lecture_id":"lec_6",
+    "question":"PreparedStatement advantages over Statement include: (Select all that apply)",
+    "options":"A. Precompiled - better performance for repeated execution | B. Prevents SQL injection attacks | C. Supports parameterized queries | D. Can call stored procedures",
+    "answer":"",
+    "question_number":40,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q41",
+    "lecture_id":"lec_6",
+    "question":"Which methods can execute SQL in Statement interface? (Select all that apply)",
+    "options":"A. execute() | B. executeQuery() | C. executeUpdate() | D. executeSQL()",
+    "answer":"",
+    "question_number":41,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q42",
+    "lecture_id":"lec_6",
+    "question":"For CallableStatement, which are TRUE? (Select all that apply)",
+    "options":"A. Extends PreparedStatement | B. Used to call stored procedures | C. Supports OUT parameters | D. Uses {call procName(?)} syntax",
+    "answer":"",
+    "question_number":42,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q43",
+    "lecture_id":"lec_6",
+    "question":"ResultSet navigation and data retrieval methods include: (Select all that apply)",
+    "options":"A. next() - move to next row | B. previous() - move to previous row (scrollable ResultSet) | C. getInt() - retrieve integer value | D. getString() - retrieve string value",
+    "answer":"",
+    "question_number":43,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q44",
+    "lecture_id":"lec_6",
+    "question":"Proper resource cleanup in JDBC includes: (Select all that apply)",
+    "options":"A. Closing ResultSet | B. Closing Statement | C. Closing Connection | D. Must close in order: ResultSet \u2192 Statement \u2192 Connection",
+    "answer":"",
+    "question_number":44,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q45",
+    "lecture_id":"lec_6",
+    "question":"SQLException provides which information methods? (Select all that apply)",
+    "options":"A. getMessage() - error description | B. getErrorCode() - vendor-specific error code | C. getSQLState() - SQLState string | D. getNextException() - chain of exceptions",
+    "answer":"",
+    "question_number":45,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q46",
+    "lecture_id":"lec_6",
+    "question":"Analyze the following JDBC code: Class",
+    "options":"A. Import statements | B. Exception handling | C. Resource cleanup (closing connections) | D. All of the above",
+    "answer":"D",
+    "question_number":46,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q47",
+    "lecture_id":"lec_6",
+    "question":"Given the following stored procedure: CREATE PROCEDURE getEmployeeDetails( IN empId INT, OUT empName VARCHAR(50), OUT salary FLOAT ) BEGIN SELECT name, salary INTO empName, salary FROM Employee WHERE id = empId; END Which Java code correctly calls this procedure? \/\/ Option A CallableStatement cstmt = conn",
+    "options":"",
+    "answer":"A",
+    "question_number":47,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q48",
+    "lecture_id":"lec_6",
+    "question":"Security concern - SQL Injection: \/\/ Version 1 String userId = request",
+    "options":"A. Version 1 - simpler and faster | B. Version 2 - prevents SQL injection through parameterization | C. Both are equally secure | D. Neither is secure",
+    "answer":"B",
+    "question_number":48,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q49",
+    "lecture_id":"lec_6",
+    "question":"Performance Scenario: You need to insert 10,000 employee records",
+    "options":"",
+    "answer":"C",
+    "question_number":49,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_6_Q50",
+    "lecture_id":"lec_6",
+    "question":"Complete the JDBC application with proper resource management: Connection conn = null; PreparedStatement pstmt = null; ResultSet rs = null; try { Class",
+    "options":"",
+    "answer":"C",
+    "question_number":50,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q1",
+    "lecture_id":"lec_7",
+    "question":"What are database utilities primarily used for?",
+    "options":"A. Creating database schemas | B. Performing maintenance tasks on created tables and stored data | C. Writing SQL queries | D. Designing ER diagrams",
+    "answer":"B",
+    "question_number":1,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q2",
+    "lecture_id":"lec_7",
+    "question":"Which of the following is NOT a data transferring option in SQL Server?",
+    "options":"A. SQL Server Integration Services (SSIS) | B. BCP (Bulk Copy Program) | C. BULK INSERT | D. CREATE TABLE command",
+    "answer":"D",
+    "question_number":2,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q3",
+    "lecture_id":"lec_7",
+    "question":"What does SSIS stand for?",
+    "options":"A. SQL Server Import Services | B. SQL Server Integration Services | C. SQL Server Installation System | D. SQL Server Information Services",
+    "answer":"B",
+    "question_number":3,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q4",
+    "lecture_id":"lec_7",
+    "question":"Which SQL Server edition does NOT include the Import and Export Wizard?",
+    "options":"A. Enterprise Edition | B. Standard Edition | C. Express Edition and Local Database Edition | D. Developer Edition",
+    "answer":"C",
+    "question_number":4,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q5",
+    "lecture_id":"lec_7",
+    "question":"How many main steps are shown in the lecture for exporting data from an Excel file to SQL Server?",
+    "options":"A. 3 | B. 4 | C. 5 | D. 6",
+    "answer":"C",
+    "question_number":5,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q6",
+    "lecture_id":"lec_7",
+    "question":"In the Import\/Export Wizard, where do you access the export functionality?",
+    "options":"A. Database menu \u2192 Export | B. Right-click database \u2192 Tasks \u2192 Export Data | C. File menu \u2192 Export | D. Tools \u2192 Data Export",
+    "answer":"B",
+    "question_number":6,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q7",
+    "lecture_id":"lec_7",
+    "question":"When exporting from Excel, what should you check if column names are in the first row?",
+    "options":"A. Header Row checkbox | B. First Row Contains Column Names checkbox | C. Include Headers option | D. Skip First Row option",
+    "answer":"B",
+    "question_number":7,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q8",
+    "lecture_id":"lec_7",
+    "question":"What does BCP stand for?",
+    "options":"A. Bulk Copy Process | B. Bulk Copy Program | C. Batch Copy Protocol | D. Binary Copy Procedure",
+    "answer":"B",
+    "question_number":8,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q9",
+    "lecture_id":"lec_7",
+    "question":"What is a key advantage of BCP over other data transfer methods?",
+    "options":"A. Graphical user interface | B. Can transfer large numbers of records efficiently | C. Requires no configuration | D. Only works with Excel files",
+    "answer":"B",
+    "question_number":9,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q10",
+    "lecture_id":"lec_7",
+    "question":"Where is BCP installed?",
+    "options":"A. Must be downloaded separately | B. Only in Enterprise Edition | C. By default with SQL Server | D. Part of Windows OS",
+    "answer":"C",
+    "question_number":10,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q11",
+    "lecture_id":"lec_7",
+    "question":"What is the general format of the BCP command?",
+    "options":"A. bcp [database] [action] [file] | B. bcp {table|view|\"query\"} {out|in} {data_file} | C. bcp -source -destination -options | D. bcp [table] [file] [mode]",
+    "answer":"B",
+    "question_number":11,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q12",
+    "lecture_id":"lec_7",
+    "question":"What does the \"out\" option in BCP do?",
+    "options":"A. Imports data from file to table | B. Exports data from table\/view to data file | C. Deletes data | D. Validates data format",
+    "answer":"B",
+    "question_number":12,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q13",
+    "lecture_id":"lec_7",
+    "question":"What is the difference between \"out\" and \"queryout\" in BCP?",
+    "options":"A. No difference | B. out uses tables\/views, queryout uses SQL queries | C. out is faster | D. queryout requires admin rights",
+    "answer":"B",
+    "question_number":13,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q14",
+    "lecture_id":"lec_7",
+    "question":"In the BCP command bcp adventureworks",
+    "options":"A. Table mode | B. Text format | C. Trusted connection (Windows Authentication) | D. Transaction mode",
+    "answer":"C",
+    "question_number":14,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q15",
+    "lecture_id":"lec_7",
+    "question":"What does the -c argument specify in BCP?",
+    "options":"A. Connection string | B. Character data type for operations | C. Compression mode | D. Column delimiter",
+    "answer":"B",
+    "question_number":15,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q16",
+    "lecture_id":"lec_7",
+    "question":"What does the -S argument specify in BCP?",
+    "options":"A. Source file | B. SQL query | C. SQL Server instance name | D. Security mode",
+    "answer":"C",
+    "question_number":16,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q17",
+    "lecture_id":"lec_7",
+    "question":"What does BULK INSERT do?",
+    "options":"A. Inserts one row at a time | B. Loads data from a data file into a table | C. Creates bulk tables | D. Exports data to files",
+    "answer":"B",
+    "question_number":17,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q18",
+    "lecture_id":"lec_7",
+    "question":"What is a key difference between BULK INSERT and BCP \"in\" option?",
+    "options":"A. BULK INSERT is faster | B. BULK INSERT is executed by SQL Server process; BCP is client-side utility | C. BCP requires more permissions | D. No significant difference",
+    "answer":"B",
+    "question_number":18,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q19",
+    "lecture_id":"lec_7",
+    "question":"In BULK INSERT, what does FIELDTERMINATOR specify?",
+    "options":"A. End of file marker | B. Column delimiter\/separator | C. String terminator | D. Transaction boundary",
+    "answer":"B",
+    "question_number":19,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q20",
+    "lecture_id":"lec_7",
+    "question":"What does ROWTERMINATOR specify in BULK INSERT?",
+    "options":"A. Last row number | B. Row separator\/end-of-line marker | C. Maximum rows to import | D. Row validation rule",
+    "answer":"B",
+    "question_number":20,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q21",
+    "lecture_id":"lec_7",
+    "question":"Given: BULK INSERT emp FROM \"D:\\data",
+    "options":"A. Fixed-width | B. XML | C. Comma-separated values (CSV) | D. JSON",
+    "answer":"C",
+    "question_number":21,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q22",
+    "lecture_id":"lec_7",
+    "question":"What does SELECT INTO do?",
+    "options":"A. Selects data without copying | B. Copies data from one table to another | C. Creates indexes | D. Validates data integrity",
+    "answer":"B",
+    "question_number":22,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q23",
+    "lecture_id":"lec_7",
+    "question":"Which statement about SELECT INTO is TRUE?",
+    "options":"A. Can only work within same database | B. Can work across linked servers or distributed queries | C. Cannot create new tables | D. Only copies table structure, not data",
+    "answer":"B",
+    "question_number":23,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q24",
+    "lecture_id":"lec_7",
+    "question":"What is a key difference between SELECT INTO and BULK INSERT?",
+    "options":"A. SELECT INTO cannot read from external files | B. BULK INSERT is slower | C. SELECT INTO requires triggers | D. No difference",
+    "answer":"A",
+    "question_number":24,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q25",
+    "lecture_id":"lec_7",
+    "question":"Why is database backup important?",
+    "options":"A. To improve query performance | B. To protect against data loss from failures | C. To reduce storage space | D. To speed up transactions",
+    "answer":"B",
+    "question_number":25,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q26",
+    "lecture_id":"lec_7",
+    "question":"Which is NOT a scenario where backups help?",
+    "options":"A. User accidentally drops a table | B. Hardware failure (disk crash) | C. Natural disaster | D. Slow query performance",
+    "answer":"D",
+    "question_number":26,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q27",
+    "lecture_id":"lec_7",
+    "question":"What does a Full Backup include?",
+    "options":"A. Only data files | B. Entire database including part of transaction log | C. Only transaction logs | D. Only changed data since last backup",
+    "answer":"B",
+    "question_number":27,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q28",
+    "lecture_id":"lec_7",
+    "question":"What does a Differential Backup capture?",
+    "options":"A. Entire database | B. Only transaction logs | C. Only extents changed since last full backup | D. Only new records",
+    "answer":"C",
+    "question_number":28,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q29",
+    "lecture_id":"lec_7",
+    "question":"What does a Transaction Log Backup capture?",
+    "options":"A. Complete database | B. Changed data | C. Transaction log records since last full or log backup | D. User transactions only",
+    "answer":"C",
+    "question_number":29,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q30",
+    "lecture_id":"lec_7",
+    "question":"Which backup type allows point-in-time recovery?",
+    "options":"A. Full backup only | B. Differential backup only | C. Transaction log backup | D. None of the above",
+    "answer":"C",
+    "question_number":30,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q31",
+    "lecture_id":"lec_7",
+    "question":"What is a SQL Server Job?",
+    "options":"A. A user query | B. A specified series of operations performed sequentially | C. A backup file | D. A database connection",
+    "answer":"B",
+    "question_number":31,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q32",
+    "lecture_id":"lec_7",
+    "question":"Which of the following can jobs NOT do?",
+    "options":"A. Run on schedules | B. Run in response to alerts | C. Replace database administrator | D. Notify users of status",
+    "answer":"C",
+    "question_number":32,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q33",
+    "lecture_id":"lec_7",
+    "question":"Who can create jobs in SQL Server?",
+    "options":"A. Only sysadmin role members | B. Only database owners | C. Users in several roles including sysadmin | D. Any connected user",
+    "answer":"C",
+    "question_number":33,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q34",
+    "lecture_id":"lec_7",
+    "question":"Who can edit a job after it's created?",
+    "options":"A. Any user | B. Only job owner or sysadmin members | C. Only sysadmin | D. No one - jobs are immutable",
+    "answer":"B",
+    "question_number":34,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q35",
+    "lecture_id":"lec_7",
+    "question":"How can jobs be executed?",
+    "options":"A. Only manually | B. Only on schedules | C. According to schedules, in response to alerts, or via sp_start_job stored procedure | D. Only in response to alerts",
+    "answer":"C",
+    "question_number":35,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q36",
+    "lecture_id":"lec_7",
+    "question":"Which are valid data transfer methods in SQL Server? (Select all that apply)",
+    "options":"A. SQL Server Integration Services (SSIS) | B. Import\/Export Wizard | C. BCP command | D. BULK INSERT",
+    "answer":"",
+    "question_number":36,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q37",
+    "lecture_id":"lec_7",
+    "question":"BCP command options include: (Select all that apply)",
+    "options":"A. out - export from table\/view to file | B. in - import from file to table | C. queryout - export query results to file | D. format - generate format file",
+    "answer":"",
+    "question_number":37,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q38",
+    "lecture_id":"lec_7",
+    "question":"BULK INSERT command parameters include: (Select all that apply)",
+    "options":"A. FROM - specifies source file path | B. FIELDTERMINATOR - column delimiter | C. ROWTERMINATOR - row delimiter | D. BATCHSIZE - rows per batch",
+    "answer":"",
+    "question_number":38,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q39",
+    "lecture_id":"lec_7",
+    "question":"Types of database backups include: (Select all that apply)",
+    "options":"A. Full backup | B. Differential backup | C. Transaction log backup | D. Incremental backup",
+    "answer":"",
+    "question_number":39,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q40",
+    "lecture_id":"lec_7",
+    "question":"Scenarios where backups are essential include: (Select all that apply)",
+    "options":"A. User error (accidentally dropping table) | B. Hardware failure (disk crash) | C. Natural disasters (fire, flood) | D. Malware\/ransomware attack",
+    "answer":"",
+    "question_number":40,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q41",
+    "lecture_id":"lec_7",
+    "question":"SQL Server Job characteristics include: (Select all that apply)",
+    "options":"A. Series of operations performed sequentially | B. Can run on one or more schedules | C. Can respond to alerts | D. Can run on multiple servers",
+    "answer":"",
+    "question_number":41,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q42",
+    "lecture_id":"lec_7",
+    "question":"Job execution methods include: (Select all that apply)",
+    "options":"A. According to one or more schedules | B. In response to alerts | C. Manual execution via sp_start_job | D. Automatically at SQL Server startup",
+    "answer":"",
+    "question_number":42,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q43",
+    "lecture_id":"lec_7",
+    "question":"Schedule conditions for jobs include: (Select all that apply)",
+    "options":"A. When SQL Server Agent starts | B. When CPU utilization is idle | C. One time at specific date\/time | D. Recurring schedule (daily, weekly, monthly)",
+    "answer":"",
+    "question_number":43,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q44",
+    "lecture_id":"lec_7",
+    "question":"Core maintenance plan tasks include: (Select all that apply)",
+    "options":"A. Backup databases | B. Verify database integrity | C. Maintain indexes (rebuild\/reorganize) | D. Remove old data from msdb",
+    "answer":"",
+    "question_number":44,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q45",
+    "lecture_id":"lec_7",
+    "question":"Benefits of maintenance plans include: (Select all that apply)",
+    "options":"A. Ensure adequate database performance | B. Ensure database availability | C. Automate routine maintenance tasks | D. Reduce need for manual intervention",
+    "answer":"",
+    "question_number":45,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q46",
+    "lecture_id":"lec_7",
+    "question":"Scenario: You need to export 5 million rows from a SQL Server table to a CSV file for analysis in Excel",
+    "options":"A. Import\/Export Wizard - easiest GUI interface | B. BCP command - optimized for large data volumes | C. SELECT INTO - direct table copy | D. Manual SELECT and copy\/paste",
+    "answer":"B",
+    "question_number":46,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q47",
+    "lecture_id":"lec_7",
+    "question":"Scenario: You need to load a 10GB CSV file into SQL Server daily at 2 AM",
+    "options":"A. Use BULK INSERT in a scheduled SQL Server job | B. Manually run Import\/Export Wizard daily | C. Use BCP interactively each day | D. Write Python script",
+    "answer":"A",
+    "question_number":47,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q48",
+    "lecture_id":"lec_7",
+    "question":"Scenario: Your production database crashed",
+    "options":"A. Restore Sunday full backup only | B. Restore Sunday full + Thursday differential | C. Restore Sunday full + Thursday differential + all hourly log backups from noon to 3:45 PM | D. Restore only Thursday differential",
+    "answer":"C",
+    "question_number":48,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q49",
+    "lecture_id":"lec_7",
+    "question":"Code Analysis - BCP Command: bcp \"SELECT EmployeeID, Name, Salary FROM HR",
+    "options":"A. Imports data from dept5 | B. Exports all employees to dept5 | C. Exports employees from Department 5 to dept5 | D. Creates a backup of Employee table",
+    "answer":"C",
+    "question_number":49,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_7_Q50",
+    "lecture_id":"lec_7",
+    "question":"Maintenance Plan Design: You're designing a maintenance plan for a 500GB production database used 24\/7",
+    "options":"A. Full backup daily at midnight only | B. Full backup weekly + Differential daily + Transaction log every 15 minutes | C. Full backup monthly + Differential weekly | D. Transaction log backups only every 15 minutes",
+    "answer":"B",
+    "question_number":50,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q1",
+    "lecture_id":"lec_8",
+    "question":"What are the three main objectives of database security?",
+    "options":"A. Confidentiality, Integrity, Authentication | B. Secrecy, Integrity, Availability | C. Privacy, Security, Accessibility | D. Authorization, Authentication, Auditing",
+    "answer":"B",
+    "question_number":1,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q2",
+    "lecture_id":"lec_8",
+    "question":"Which security objective ensures that information should not be disclosed to unauthorized users?",
+    "options":"A. Integrity | B. Availability | C. Secrecy | D. Authentication",
+    "answer":"C",
+    "question_number":2,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q3",
+    "lecture_id":"lec_8",
+    "question":"Which security objective ensures that only authorized users can modify data?",
+    "options":"A. Secrecy | B. Integrity | C. Availability | D. Confidentiality",
+    "answer":"B",
+    "question_number":3,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q4",
+    "lecture_id":"lec_8",
+    "question":"Which security objective ensures that authorized users are not denied access?",
+    "options":"A. Secrecy | B. Integrity | C. Availability | D. Reliability",
+    "answer":"C",
+    "question_number":4,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q5",
+    "lecture_id":"lec_8",
+    "question":"What is a security policy?",
+    "options":"A. A backup strategy | B. A document specifying who is authorized to do what | C. A database design document | D. A disaster recovery plan",
+    "answer":"B",
+    "question_number":5,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q6",
+    "lecture_id":"lec_8",
+    "question":"What are the two main access control mechanisms in DBMS?",
+    "options":"A. User control and Admin control | B. Discretionary access control and Mandatory access control | C. Role-based and Permission-based control | D. Public and Private access control",
+    "answer":"B",
+    "question_number":6,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q7",
+    "lecture_id":"lec_8",
+    "question":"What is Discretionary Access Control (DA",
+    "options":"A. User roles only | B. Security clearance levels | C. Access rights or privileges | D. Time-based access",
+    "answer":"C",
+    "question_number":7,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q8",
+    "lecture_id":"lec_8",
+    "question":"What is authentication in SQL Server security?",
+    "options":"A. Granting permissions to users | B. Verifying the identities of users trying to connect C) Creating user accounts | D) Monitoring user activities",
+    "answer":"B",
+    "question_number":8,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q9",
+    "lecture_id":"lec_8",
+    "question":"What is authorization in SQL Server?",
+    "options":"A. Creating user logins | B. Verifying user identity | C. Determining which resources authorized users can access and what actions they can take | D. Encrypting data",
+    "answer":"C",
+    "question_number":9,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q10",
+    "lecture_id":"lec_8",
+    "question":"What are Principals in SQL Server security?",
+    "options":"A. Database objects like tables | B. Individuals, groups, or processes granted access to SQL Server | C. Types of permissions | D. Server configurations",
+    "answer":"B",
+    "question_number":10,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q11",
+    "lecture_id":"lec_8",
+    "question":"What are server-level principals?",
+    "options":"A. Database users and roles | B. Tables and views | C. Logins and server roles | D. Stored procedures",
+    "answer":"C",
+    "question_number":11,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q12",
+    "lecture_id":"lec_8",
+    "question":"What are database-level principals?",
+    "options":"A. Logins and server roles | B. Users and database roles | C. Tables and views | D. Schemas and catalogs",
+    "answer":"B",
+    "question_number":12,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q13",
+    "lecture_id":"lec_8",
+    "question":"What are Securables in SQL Server?",
+    "options":"A. Users and logins | B. Objects that make up the server and database environment | C. Permissions granted to users | D. Authentication methods",
+    "answer":"B",
+    "question_number":13,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q14",
+    "lecture_id":"lec_8",
+    "question":"What are the three hierarchical levels of securables?",
+    "options":"A. User, Group, Admin | B. Read, Write, Execute | C. Server, Database, Schema | D. Public, Private, Protected",
+    "answer":"C",
+    "question_number":14,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q15",
+    "lecture_id":"lec_8",
+    "question":"What are Permissions in SQL Server?",
+    "options":"A. User accounts | B. Types of access permitted to principals on specific securables | C. Database objects | D. Server configurations",
+    "answer":"B",
+    "question_number":15,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q16",
+    "lecture_id":"lec_8",
+    "question":"What is a Login in SQL Server?",
+    "options":"A. A database-level user account | B. A server-level individual user account for logging into SQL Server instance C) A permission type D) A database object",
+    "answer":"B",
+    "question_number":16,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q17",
+    "lecture_id":"lec_8",
+    "question":"How many authentication modes does SQL Server support?",
+    "options":"A. 1 | B. 2 | C. 3 | D. 4",
+    "answer":"B",
+    "question_number":17,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q18",
+    "lecture_id":"lec_8",
+    "question":"Which authentication mode uses Windows user or group accounts?",
+    "options":"A. SQL Server Authentication | B. Windows Authentication | C. Mixed Authentication | D. Certificate Authentication",
+    "answer":"B",
+    "question_number":18,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q19",
+    "lecture_id":"lec_8",
+    "question":"What is the syntax to create a Windows Authentication login?",
+    "options":"A. CREATE LOGIN [username] FROM WINDOWS | B. CREATE LOGIN [username] WITH PASSWORD | C. CREATE WINDOWS LOGIN [username] | D. ADD LOGIN [username] WINDOWS",
+    "answer":"B",
+    "question_number":19,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q20",
+    "lecture_id":"lec_8",
+    "question":"What is required when creating a SQL Server Authentication login?",
+    "options":"A. Windows domain name | B. Password C) Email address D) Security certificate",
+    "answer":"",
+    "question_number":20,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q21",
+    "lecture_id":"lec_8",
+    "question":"What does MUST_CHANGE option do when creating a login?",
+    "options":"A. User must change password every month | B. User must change password on first login | C. Password changes automatically | D. User cannot change password",
+    "answer":"B",
+    "question_number":21,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q22",
+    "lecture_id":"lec_8",
+    "question":"What is the difference between a Login and a User?",
+    "options":"A. No difference, they are synonyms | B. Login is server-level for connection, User is database-level for permissions | C. Login is for admins, User is for regular users | D. Login is temporary, User is permanent",
+    "answer":"B",
+    "question_number":22,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q23",
+    "lecture_id":"lec_8",
+    "question":"What is a server role?",
+    "options":"A. A database user | B. A group of logins that share common server-level permissions | C. A type of securable | D. A permission type",
+    "answer":"B",
+    "question_number":23,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q24",
+    "lecture_id":"lec_8",
+    "question":"What is the difference between fixed and user-defined server roles?",
+    "options":"C. Fixed roles are temporary | D. User-defined roles require more memory",
+    "answer":"B",
+    "question_number":24,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q25",
+    "lecture_id":"lec_8",
+    "question":"Which fixed server role can perform any activity in the server?",
+    "options":"A. dbcreator | B. securityadmin | C. sysadmin | D. serveradmin",
+    "answer":"C",
+    "question_number":25,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q26",
+    "lecture_id":"lec_8",
+    "question":"Which fixed server role can create, alter, drop, and restore databases?",
+    "options":"A. sysadmin | B. dbcreator | C. databaseadmin | D. serveradmin",
+    "answer":"B",
+    "question_number":26,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q27",
+    "lecture_id":"lec_8",
+    "question":"Which fixed server role manages logins and their properties?",
+    "options":"A. loginadmin | B. securityadmin | C. useradmin | D. sysadmin",
+    "answer":"B",
+    "question_number":27,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q28",
+    "lecture_id":"lec_8",
+    "question":"How do you add a login to a fixed server role?",
+    "options":"A. ADD LOGIN [login] TO ROLE [role] | B. ALTER SERVER ROLE [role] ADD MEMBER [login] | C. GRANT ROLE [role] TO [login] | D. INSERT INTO [role] VALUES ([login])",
+    "answer":"B",
+    "question_number":28,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q29",
+    "lecture_id":"lec_8",
+    "question":"How do you create a user-defined server role?",
+    "options":"A. ADD SERVER ROLE [name] | B. CREATE ROLE [name] | C. CREATE SERVER ROLE [name] | D. NEW SERVER ROLE [name]",
+    "answer":"C",
+    "question_number":29,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q30",
+    "lecture_id":"lec_8",
+    "question":"What permission allows creating databases on the server?",
+    "options":"A. DATABASE CREATE | B. CREATE ANY DATABASE | C. DB_CREATE | D. MAKE DATABASE",
+    "answer":"B",
+    "question_number":30,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q31",
+    "lecture_id":"lec_8",
+    "question":"What is a database user?",
+    "options":"A. Same as a login | B. A database-level account mapped to a login | C. A server role | D. A permission type",
+    "answer":"B",
+    "question_number":31,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q32",
+    "lecture_id":"lec_8",
+    "question":"What is the syntax to create a database user?",
+    "options":"A. CREATE USER [user] WITH LOGIN [login] | B. ADD USER [user] FROM LOGIN [login] | C. CREATE USER [user] FOR LOGIN [login] | D. NEW USER [user] AS [login]",
+    "answer":"C",
+    "question_number":32,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q33",
+    "lecture_id":"lec_8",
+    "question":"Can one login have users in multiple databases?",
+    "options":"A. No, one login = one user only | B. Yes, one login can be mapped to users in multiple databases | C. Only for sysadmin logins | D. Only with special permissions",
+    "answer":"B",
+    "question_number":33,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q34",
+    "lecture_id":"lec_8",
+    "question":"What is a database role?",
+    "options":"A. A server-level group | B. A group of database users sharing common database-level permissions | C. A type of table | D. A backup strategy",
+    "answer":"B",
+    "question_number":34,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q35",
+    "lecture_id":"lec_8",
+    "question":"Which fixed database role can perform all configuration and maintenance activities on the database?",
+    "options":"A. db_admin | B. db_owner | C. db_maintainer | D. db_sysadmin",
+    "answer":"B",
+    "question_number":35,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q36",
+    "lecture_id":"lec_8",
+    "question":"Which fixed database role can run any DDL command in a database?",
+    "options":"C) db_ddladmin D) db_creator",
+    "answer":"C",
+    "question_number":36,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q37",
+    "lecture_id":"lec_8",
+    "question":"Which fixed database role can add or remove database access?",
+    "options":"A. db_accessadmin | B. db_useradmin | C. db_securityadmin | D. db_gatekeeper",
+    "answer":"A",
+    "question_number":37,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q38",
+    "lecture_id":"lec_8",
+    "question":"How do you create a user-defined database role?",
+    "options":"A. ADD ROLE [name] | B. CREATE ROLE [name] | C. NEW DATABASE ROLE [name] | D. CREATE DATABASE ROLE [name]",
+    "answer":"B",
+    "question_number":38,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q39",
+    "lecture_id":"lec_8",
+    "question":"What does the GRANT command do?",
+    "options":"A. Creates a new permission | B. Grants permissions on a securable to a principal | C. Removes permissions | D. Lists all permissions",
+    "answer":"B",
+    "question_number":39,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q40",
+    "lecture_id":"lec_8",
+    "question":"What does the DENY command do?",
+    "options":"A) Removes permissions B) Explicitly denies a permission to a principal C) Grants negative permissions D) Disables a user account",
+    "answer":"B",
+    "question_number":40,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q41",
+    "lecture_id":"lec_8",
+    "question":"The three main objectives of database security are: (Select all that apply)",
+    "options":"A. Secrecy - prevent unauthorized disclosure | B. Speed - fast query execution | C. Integrity - prevent unauthorized modification | D. Availability - ensure authorized access",
+    "answer":"",
+    "question_number":41,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q42",
+    "lecture_id":"lec_8",
+    "question":"Which are components of SQL Server security framework? (Select all that apply)",
+    "options":"A. Principals | B. Securables | C. Permissions | D. Databases",
+    "answer":"",
+    "question_number":42,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q43",
+    "lecture_id":"lec_8",
+    "question":"Server-level principals include: (Select all that apply)",
+    "options":"A. Logins | B. Server roles C) Database users D) Database roles E) Windows groups mapped to logins F) Applications Answers: A, B",
+    "answer":"",
+    "question_number":43,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q44",
+    "lecture_id":"lec_8",
+    "question":"Database-level principals include: (Select all that apply)",
+    "options":"A. Logins | B. Server roles | C. Database users | D. Database roles",
+    "answer":"",
+    "question_number":44,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q45",
+    "lecture_id":"lec_8",
+    "question":"Server-level securables include: (Select all that apply)",
+    "options":"A. Databases | B. Tables | C. Availability groups | D. Views",
+    "answer":"",
+    "question_number":45,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q46",
+    "lecture_id":"lec_8",
+    "question":"Schema-level securables include: (Select all that apply)",
+    "options":"A. Databases | B. Tables | C. Views | D. Functions",
+    "answer":"",
+    "question_number":46,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q47",
+    "lecture_id":"lec_8",
+    "question":"Authentication modes in SQL Server include: (Select all that apply)",
+    "options":"A. Windows Authentication | B. SQL Server Authentication | C. Certificate Authentication | D. Mixed Mode (both Windows and SQL)",
+    "answer":"",
+    "question_number":47,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q48",
+    "lecture_id":"lec_8",
+    "question":"When creating a SQL Server Authentication login, you can specify: (Select all that apply)",
+    "options":"A. Password | B. MUST_CHANGE - force password change on first login | C. CHECK_EXPIRATION - enable password expiration | D. CHECK_POLICY - enforce password policy",
+    "answer":"",
+    "question_number":48,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q49",
+    "lecture_id":"lec_8",
+    "question":"Fixed server roles include: (Select all that apply)",
+    "options":"A. sysadmin - perform any activity | B. dbcreator - create\/manage databases | C. securityadmin - manage logins | D. serveradmin - configure server settings",
+    "answer":"",
+    "question_number":49,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q50",
+    "lecture_id":"lec_8",
+    "question":"Fixed database roles include: (Select all that apply)",
+    "options":"A. db_owner - all database permissions | B. db_securityadmin - manage permissions | C. db_accessadmin - manage access | D. db_ddladmin - DDL operations",
+    "answer":"",
+    "question_number":50,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q51",
+    "lecture_id":"lec_8",
+    "question":"Permissions that can be granted on database objects include: (Select all that apply)",
+    "options":"A. SELECT - read data | B. INSERT - add data | C. UPDATE - modify data | D. DELETE - remove data",
+    "answer":"",
+    "question_number":51,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q52",
+    "lecture_id":"lec_8",
+    "question":"Server-level permissions include: (Select all that apply)",
+    "options":"A. CREATE ANY DATABASE | B. ALTER ANY LOGIN | C. SELECT - read tables | D. SHUTDOWN - stop server",
+    "answer":"",
+    "question_number":52,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q53",
+    "lecture_id":"lec_8",
+    "question":"Advantages of using roles include: (Select all that apply)",
+    "options":"A. Easier permission management | B. Centralized permission control | C. Less administrative overhead | D. Improved performance",
+    "answer":"",
+    "question_number":53,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q54",
+    "lecture_id":"lec_8",
+    "question":"GRANT command can: (Select all that apply)",
+    "options":"A. Grant permissions to users | B. Grant permissions to roles | C. Include WITH GRANT OPTION | D. Remove permissions",
+    "answer":"",
+    "question_number":54,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q55",
+    "lecture_id":"lec_8",
+    "question":"Views can be used for security by: (Select all that apply)",
+    "options":"A. Hiding sensitive columns | B. Filtering rows based on criteria | C. Presenting summary information | D. Encrypting data automatically",
+    "answer":"",
+    "question_number":55,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q56",
+    "lecture_id":"lec_8",
+    "question":"Scenario: Super market project with Senior DBA (Kamal), Junior DBAs (Namali, Janaka), Developer (Sahan), and Data Entry Operators (Amali, Mihiran)",
+    "options":"A. Project Manager creates all logins, assigns sysadmin to everyone | D. Everyone uses the same login",
+    "answer":"B",
+    "question_number":56,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q57",
+    "lecture_id":"lec_8",
+    "question":"Code Analysis - Creating Login: CREATE LOGIN namali WITH PASSWORD = 'namali@123' MUST_CHANGE, CHECK_EXPIRATION = ON, CHECK_POLICY = ON, DEFAULT_DATABASE = Inventory; What security features does this implement?",
+    "options":"A. Forces password change on first login only | B. Forces password change + enables expiration + enforces complexity policy | C. Creates Windows Authentication login | D. Grants sysadmin privileges",
+    "answer":"B",
+    "question_number":57,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q58",
+    "lecture_id":"lec_8",
+    "question":"Scenario: Junior DBA (Namali) needs to manage InventoryDB - create tables, modify schema, manage users, and run backups",
+    "options":"",
+    "answer":"B",
+    "question_number":58,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q59",
+    "lecture_id":"lec_8",
+    "question":"Scenario: Database Developer (Sahan) needs to create tables with foreign keys but shouldn't access production data or manage users",
+    "options":"",
+    "answer":"A",
+    "question_number":59,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q60",
+    "lecture_id":"lec_8",
+    "question":"Security Policy Design: Requirements:",
+    "options":"",
+    "answer":"A",
+    "question_number":60,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q61",
+    "lecture_id":"lec_8",
+    "question":"Supermarket item table stores itemNumber, description, itemPrice, quantity available, and reorder level",
+    "options":"A. DBMS cannot allow multiple cashiers to update the quantity in hand simultaneously | B. DBMS can be configured so registered customers can only view item descriptions and prices | C. DBMS can be configured so that only the manager can change the price of an item | D. DBMS cannot allow multiple cashiers to access the table to see the price of items at the same time",
+    "answer":"B",
+    "question_number":61,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q62",
+    "lecture_id":"lec_8",
+    "question":"Consider activities performed by a database developer for a small pharmacy: 1",
+    "options":"A. 1, 2, 3, 4 | B. 2, 3, 4, 1 | C. 4, 1, 3, 2 | D. 1, 3, 2, 4",
+    "answer":"D",
+    "question_number":62,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q63",
+    "lecture_id":"lec_8",
+    "question":"Which of the following is true with respect to the item table?",
+    "options":"A. DBMS can be configured in a manner that item numbers cannot be duplicated | B. DBMS can be configured in a manner that registered customers can only view the item descriptions and prices | C. DBMS cannot allow multiple cashiers to access the table to update the quantity in hand | D. DBMS cannot allow multiple cashiers to access the table to see the price of items at the same time",
+    "answer":"A",
+    "question_number":63,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q64",
+    "lecture_id":"lec_8",
+    "question":"Steps involved in database design process for a bank database: 1",
+    "options":"A. 4, 2, 3, 1 | B. 3, 4, 2, 1 | C. 1, 2, 3, 4 | D. 2, 3, 1, 4",
+    "answer":"C",
+    "question_number":64,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q65",
+    "lecture_id":"lec_8",
+    "question":"An item table of a supermarket stores the itemNumber, description, item price, quantity available, and reorder level",
+    "options":"A. DBMS can be configured in a manner that item numbers cannot be duplicated | B. DBMS can be configured in a manner that registered customers can only view the item descriptions and prices | C. DBMS cannot allow multiple cashiers to access the table to update the quantity in hand | D. DBMS cannot allow multiple cashiers to access the table to see the price of items at the same time",
+    "answer":"A",
+    "question_number":65,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q66",
+    "lecture_id":"lec_8",
+    "question":"Database developer \u2013 Requirement collection Intensions of a database developer:",
+    "options":"A. Identify different types of data retrievals | B. Identify the number of concurrent users | C. Find relationships among data in the organization | D. Find names of the people who will develop applications",
+    "answer":"A",
+    "question_number":66,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q67",
+    "lecture_id":"lec_8",
+    "question":"Database developer tasks (pharmacy) 1",
+    "options":"A. 3, 2, 4, 1 | B. 1, 2, 3, 4 | C. 2, 3, 4, 1 | D. 1, 3, 2, 4",
+    "answer":"D",
+    "question_number":67,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q68",
+    "lecture_id":"lec_8",
+    "question":"Consider the following steps involved in the database design process for a bank database: 1",
+    "options":"A. 2, 3, 1, 4 | B. 1, 2, 3, 4 | C. 3, 2, 4, 1 | D. 4, 2, 3, 1",
+    "answer":"A",
+    "question_number":68,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q69",
+    "lecture_id":"lec_8",
+    "question":"Which of the following situations would you use a database to store data? (Select one or more)",
+    "options":"A. To store information about rooms and customers of a hotel management system | B. To store a student name list of your class which is used by multiple lecturers | C. To store information of vehicles owned by a vehicle renting company | D. To store your 'to do' list",
+    "answer":"A",
+    "question_number":69,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q70",
+    "lecture_id":"lec_8",
+    "question":"Which of the following is\/are the intention(s) of a database developer during the requirement collection and analysis phase? (Select one or more)",
+    "options":"A. Identify different types of data retrievals to be performed on the database | B. Find the names of the people who will be developing the applications to access the database | C. Identify the number of concurrent users who will be using the database | D. Find data to be stored in the organization",
+    "answer":"A",
+    "question_number":70,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q71",
+    "lecture_id":"lec_8",
+    "question":"An item table of a supermarket stores the itemNumber, description, item Price, Quantity available, and re-order level",
+    "options":"A. DBMS cannot allow multiple cashiers to access the table to update the quantity in hand | B. DBMS can be configured in a manner that only the manager can change the price of an item | C. DBMS can be configured in a manner that item numbers cannot be duplicated | D. DBMS can be configured in a manner that registered customers can only view the item descriptions and prices",
+    "answer":"B",
+    "question_number":71,
+    "source":"pdf"
+  },
+  {
+    "id":"lec_8_Q72",
+    "lecture_id":"lec_8",
+    "question":"Which of the following is\/are intentions of a database developer during the requirement collection and analysis? (Select one or more)",
+    "options":"A. Identify different types of data retrievals to be performed on the database | B. Finding the names of the people who will be developing the applications to access the database | C. Identify the number of concurrent users who will be using the database | D. Finding data to be stored in the organization",
+    "answer":"A",
+    "question_number":72,
+    "source":"pdf"
+  }
+]

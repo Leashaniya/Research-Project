@@ -10,7 +10,7 @@ SERVICE_ROOT = Path(__file__).resolve().parents[4]
 if str(SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(SERVICE_ROOT))
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from app.services import state
 from app.services.mcq_service import run_analysis
 from topic_labels import clean_topic_display_name
@@ -317,12 +317,15 @@ async def get_stats():
 
 
 @router.post("/analyze", include_in_schema=True)
-async def analyze():
+async def analyze(user_id: str = Query("default", description="Stable id for per-user disk cache under data/{user_id}/")):
     """Run analysis on lecture materials."""
     # run_analysis is CPU/IO heavy (PDFs, embeddings, graph build). Running it on the
     # event loop would block all other /api requests and cause gateway 504 cascades.
     loop = asyncio.get_running_loop()
-    success, message = await loop.run_in_executor(_ANALYSIS_EXECUTOR, run_analysis)
+    success, message, from_cache = await loop.run_in_executor(
+        _ANALYSIS_EXECUTOR,
+        lambda uid=user_id: run_analysis(uid),
+    )
     if not success:
         return {"success": False, "message": message}
     pct_df = state.PERCENTAGE_DF
@@ -334,6 +337,7 @@ async def analyze():
     return {
         "success": True,
         "message": message,
+        "from_cache": from_cache,
         "stats": {
             "total_lectures": total_lectures,
             "total_questions": total_questions,

@@ -90,7 +90,7 @@ def _load_runtime_data() -> Tuple[pd.DataFrame, List[Dict[str, Any]], np.ndarray
     from mcq_utils import compute_similarities
 
     if state.MCQ_DF.empty or not state.ALL_TOPICS or not state.LECTURE_DATA:
-        ok, msg = run_analysis()
+        ok, msg, _ = run_analysis()
         if not ok:
             raise RuntimeError(f"run_analysis failed: {msg}")
 

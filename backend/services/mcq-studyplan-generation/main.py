@@ -291,8 +291,8 @@ def create_percentage_visualization(percentage_df, output_file="question_percent
         plt.tight_layout()
         plt.savefig(output_file, dpi=150, bbox_inches='tight')
         plt.close()
-        
-        print(f"   ✓ Visualization saved to {output_file}")
+
+        print(f"   Visualization saved to {output_file}")
         return True
     except Exception as e:
         print(f"   Could not create visualization: {e}")
