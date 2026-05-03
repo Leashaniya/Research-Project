@@ -1,31 +1,16 @@
 {
-  "generated_at": "2026-05-01 22:25:27",
+  "generated_at": "2026-05-03 16:01:51",
   "mode": "AGENTIC_V1",
-  "num_questions": 6,
+  "num_questions": 1,
   "topic_distribution": {
     "Q1": {
       "topic": "ER_EER_MODELING"
-    },
-    "Q2": {
-      "topic": "NORMALIZATION_FD_KEYS"
-    },
-    "Q3": {
-      "topic": "SQL_DDL_DML"
-    },
-    "Q4": {
-      "topic": "SQL_DDL_DML"
-    },
-    "Q5": {
-      "topic": "RELATIONAL_ALGEBRA"
-    },
-    "Q6": {
-      "topic": "NORMALIZATION_FD_KEYS"
     }
   },
   "questions": [
     {
       "question_no": "Q1",
-      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nA library management system is designed to keep track of various entities involved in the library's operations. The primary entities are 'Book', 'Member', 'Loan', and 'Staff'. The 'Book' entity consists of attributes such as ISBN, Title, Author, and Genre. The 'Member' entity has MemberID, Name, ContactNumber, and Address. The 'Loan' entity tracks the loans made and includes attributes like LoanID, LoanDate, and ReturnDate. The 'Staff' entity contains StaffID, Name, and Position. The relationship between 'Member' and 'Loan' is one-to-many, indicating that a member can have multiple loans over time. Moreover, 'Staff' is responsible for managing 'Book' entries, which establishes a one-to-many relationship where each staff member can manage multiple books, while also having a composite attribute of Address with Street, City, and ZipCode",
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nConsider a library management system that tracks books, authors, patrons, and loans. The 'Book' entity has attributes: BookID, Title, ISBN, and Genre. The 'Author' entity includes AuthorID, Name, and Nationality. Each book can have multiple authors, resulting in a many-to-many relationship between 'Book' and 'Author'. The 'Patron' entity has PatronID, Name, and MembershipDate. Patrons can check out multiple books, but each loan is associated with only one book and one patron, which forms a one-to-many relationship from 'Patron' to 'Loan'. The 'Loan' entity has attributes: LoanID and LoanDate. Additionally, introduce an ISA hierarchy where the 'Patron' can be classified into 'StudentPatron' with an attribute: SchoolName, and 'AdultPatron' with an attribute: EmploymentStatus",
       "subquestions": [
         {
           "label": "a",
@@ -39,197 +24,14 @@
       "pattern_label": "ER_EER_MODELING",
       "main_topic": "ER_EER_MODELING",
       "intent": "ER_EER_MODELING",
-      "template_id": "69f4da2fcf9ea7763a8a6dbd",
-      "original_semantic_description": "A library management system is designed to keep track of various entities involved in the library's operations. The primary entities are 'Book', 'Member', 'Loan', and 'Staff'. The 'Book' entity consists of attributes such as ISBN, Title, Author, and Genre. The 'Member' entity has MemberID, Name, ContactNumber, and Address. The 'Loan' entity tracks the loans made and includes attributes like LoanID, LoanDate, and ReturnDate. The 'Staff' entity contains StaffID, Name, and Position. The relationship between 'Member' and 'Loan' is one-to-many, indicating that a member can have multiple loans over time. Moreover, 'Staff' is responsible for managing 'Book' entries, which establishes a one-to-many relationship where each staff member can manage multiple books, while also having a composite attribute of Address with Street, City, and ZipCode.",
-      "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
+      "template_id": "69f7710e5ec588e0c72866b2",
+      "original_semantic_description": "Consider a library management system that tracks books, authors, patrons, and loans. The 'Book' entity has attributes: BookID, Title, ISBN, and Genre. The 'Author' entity includes AuthorID, Name, and Nationality. Each book can have multiple authors, resulting in a many-to-many relationship between 'Book' and 'Author'. The 'Patron' entity has PatronID, Name, and MembershipDate. Patrons can check out multiple books, but each loan is associated with only one book and one patron, which forms a one-to-many relationship from 'Patron' to 'Loan'. The 'Loan' entity has attributes: LoanID and LoanDate. Additionally, introduce an ISA hierarchy where the 'Patron' can be classified into 'StudentPatron' with an attribute: SchoolName, and 'AdultPatron' with an attribute: EmploymentStatus.",
+      "diagram_image_path": "C:\\Users\\leasha\\Desktop\\Research-Project\\backend\\services\\model-paper-generation\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
       "diagram_generated": true,
       "diagram_type": "EER",
       "needs_diagram": true,
       "diagram_source": "semantic_description",
       "topic_label": "ER_EER_MODELING"
-    },
-    {
-      "question_no": "Q2",
-      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies F over R: F={{AB->C, A->D, C->B, DE->A, B->E}}. Analyze the relation based on the provided functional dependencies to determine unique keys and normal form compliance.",
-      "subquestions": [
-        {
-          "label": "a",
-          "text": "Find all the keys in relation R using the attribute closure method."
-        },
-        {
-          "label": "b",
-          "text": "Is R in 3NF? Give reasons for your conclusion."
-        },
-        {
-          "label": "c",
-          "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations."
-        }
-      ],
-      "pattern_label": "NORMALIZATION_FD_KEYS",
-      "main_topic": "NORMALIZATION_FD_KEYS",
-      "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69f4da2fcf9ea7763a8a6dbe",
-      "diagram_image_path": null,
-      "diagram_generated": false,
-      "diagram_type": null,
-      "needs_diagram": false,
-      "topic_label": "NORMALIZATION_FD_KEYS"
-    },
-    {
-      "question_no": "Q3",
-      "text": "A healthcare organization is implementing an electronic health record (EHR) system to manage patient information efficiently. The system will store data regarding patients, doctors, appointments, and prescriptions. Each patient has a unique patient ID, name, date of birth, contact information, and medical history. Doctors have a unique doctor ID, specialization, and contact information. The appointments are time-stamped and linked to both patients and doctors, while prescriptions include details such as medication name, dosage, and refill information. The organization aims to ensure data integrity and privacy, necessitating database design that enforces constraints accordingly.",
-      "subquestions": [
-        {
-          "label": "a",
-          "text": "Write SQL queries to in type 2 driver, jdbc api calls are converted to native java api calls. accept or refute the above statement justifying your answer."
-        },
-        {
-          "label": "b",
-          "text": "String sql = \"SELECT * FROM employees WHERE department = ?\";\nPreparedStatement pstmt = connection.prepareStatement(sql);\npstmt.setString(1, \"IT\");\nResultSet rs = pstmt.executeQuery();\n\nThere are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment shown above? Briefly explain when this type of statement will be used."
-        },
-        {
-          "label": "c",
-          "text": "Briefly explain the options available for transferring data between two sources such as between tables and servers."
-        },
-        {
-          "label": "d",
-          "text": "Briefly explain how authentication and authorization are achieved in SQL Server."
-        },
-        {
-          "label": "e",
-          "text": "The healthcare organization requires a robust mechanism to manage user roles in their EHR system. The roles include Data Managers, who oversee data privacy; Database Administrators, in charge of database maintenance; and Healthcare Providers, who input patient information. Describe how these roles can be implemented and managed within the SQL Server environment. Nathan is a database developer responsible for designing and implementing database schemas.. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance.. Emily is a junior database administrator managing specific databases within the system.. Michael is a data entry operator responsible for inputting data into the system..",
-          "subquestions": [
-            {
-              "label": "i",
-              "text": "i. Write a T-SQL statement to create a login to Sarah with windows authentication."
-            },
-            {
-              "label": "ii",
-              "text": "ii. Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role."
-            },
-            {
-              "label": "iii",
-              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Appointments database using a user-defined server role."
-            },
-            {
-              "label": "iv",
-              "text": "iv. Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases."
-            },
-            {
-              "label": "v",
-              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Patients and Appointments databases."
-            }
-          ]
-        }
-      ],
-      "pattern_label": "SQL_DDL_DML",
-      "main_topic": "SQL_DDL_DML",
-      "intent": "SQL_DDL_DML",
-      "template_id": "69f4da2fcf9ea7763a8a6dbf",
-      "diagram_image_path": null,
-      "diagram_generated": false,
-      "diagram_type": null,
-      "needs_diagram": false,
-      "topic_label": "SQL_DDL_DML"
-    },
-    {
-      "question_no": "Q4",
-      "text": "Consider the following schema of a database designed for a hospital: Patient (patientId: int, name: varchar(100), dateOfBirth: date, contactNumber: varchar(15)) Doctor (doctorId: int, name: varchar(100), specialty: varchar(100), phoneNumber: varchar(15)) Appointment (appointmentId: int, patientId: int, doctorId: int, appointmentDate: date, status: varchar(20)) Fee (feeId: int, appointmentId: int, amount: real, paymentStatus: varchar(20)). This schema supports managing patient data, doctors' specialties, scheduled appointments, and associated fees. The 'Patient' table stores information about patients, including unique patient ID, name, date of birth, and contact details. The 'Doctor' table holds details about doctors, including unique doctor ID, name, specialization, and contact information. The 'Appointment' table manages appointment records, tracking scheduled appointments between patients and doctors with dates and times. The 'Fee' table contains relevant information for the database system.",
-      "subquestions": [
-        {
-          "label": "a",
-          "text": "Write SQL Queries to perform the following:",
-          "subquestions": [
-            {
-              "label": "i",
-              "text": "Find the name and contact number of the patient who has an appointment scheduled for a given date."
-            },
-            {
-              "label": "ii",
-              "text": "Find the patient who has the highest total amount compared to all other patients. Find the patientId and name."
-            },
-            {
-              "label": "iii",
-              "text": "Find the name and name from Doctor, Patient, and Appointment where Appointment.appointmentDate is not null."
-            }
-          ]
-        },
-        {
-          "label": "b",
-          "text": "b) Create a function to calculate the total fee amount for a given patient. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
-        },
-        {
-          "label": "c",
-          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each patient. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by patient. The patient pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
-        }
-      ],
-      "pattern_label": "SQL_DDL_DML",
-      "main_topic": "SQL_DDL_DML",
-      "intent": "SQL_DDL_DML",
-      "template_id": "69f4da2fcf9ea7763a8a6dc0",
-      "diagram_image_path": null,
-      "diagram_generated": false,
-      "diagram_type": null,
-      "needs_diagram": false,
-      "topic_label": "SQL_DDL_DML"
-    },
-    {
-      "question_no": "Q5",
-      "text": "Consider the following relational database schema containing airline flight information.\nHere the passenger relation gives the details of the passengers who book flights.\nThe agency relation keeps the details of agents who book flights for passengers.\nThe flight relation stores the details of each available flight.\nThe booking relation stores required booking details.\n\npassenger (pid, pname, pgender, pcity)\nagency (aid, aname, acity)\nflight (fid, fdate, time, departs, arrives)\nbooking (pid, aid, fid, fdate)",
-      "subquestions": [
-        {
-          "label": "a",
-          "text": "Write a relational algebra expression to retrieve the required tuples for the first query."
-        },
-        {
-          "label": "b",
-          "text": "Write a relational algebra expression using join, selection, and projection for the requirement."
-        },
-        {
-          "label": "c",
-          "text": "Write a relational algebra expression using aggregation/grouping for the required computation."
-        },
-        {
-          "label": "d",
-          "text": "Write a relational algebra expression using set difference or division for the stated condition."
-        },
-        {
-          "label": "e",
-          "text": "Translate one of the above relational algebra expressions into tuple relational calculus."
-        }
-      ],
-      "template_id": "69f4da2fcf9ea7763a8a6db1",
-      "pattern_label": "RELATIONAL_ALGEBRA",
-      "main_topic": "RELATIONAL_ALGEBRA",
-      "intent": "RELATIONAL_ALGEBRA",
-      "topic_label": "RELATIONAL_ALGEBRA"
-    },
-    {
-      "question_no": "Q6",
-      "text": "Consider a relation R(OrderID, CustomerID, ProductID, Quantity, Price, OrderDate) with the following set of functional dependencies F={{OrderID->CustomerID, ProductID->Price, CustomerID->OrderDate, OrderID, ProductID->Quantity}}. This dataset relates to customer orders in an e-commerce platform and includes essential details about each order placed.",
-      "subquestions": [
-        {
-          "label": "a",
-          "text": "Identify the candidate key(s) for the relation R and justify your answer."
-        },
-        {
-          "label": "b",
-          "text": "Normalize the relation R to the Second Normal Form (2NF) and explain the steps you followed."
-        },
-        {
-          "label": "c",
-          "text": "Further normalize the relation R obtained in part 'b' to the Third Normal Form (3NF) and provide the final decomposition of the relation."
-        }
-      ],
-      "pattern_label": "NORMALIZATION_FD_KEYS",
-      "main_topic": "NORMALIZATION_FD_KEYS",
-      "intent": "NORMALIZATION_FD_KEYS",
-      "template_id": "69f4da2fcf9ea7763a8a6da6",
-      "diagram_image_path": null,
-      "diagram_generated": false,
-      "diagram_type": null,
-      "needs_diagram": false,
-      "topic_label": "NORMALIZATION_FD_KEYS"
     }
   ]
 }

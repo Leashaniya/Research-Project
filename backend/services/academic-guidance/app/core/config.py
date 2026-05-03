@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from typing import Optional
+from urllib.parse import urlparse
 
 # Load .env from service root (works for uvicorn app.main:app, python main.py, Docker, etc.)
 from dotenv import load_dotenv
@@ -35,6 +36,16 @@ def _read_env_google_vars():
         pass
 _read_env_google_vars()
 
+
+def _infer_default_session_cookie_secure() -> bool:
+    explicit = os.getenv("SESSION_COOKIE_SECURE")
+    if explicit is not None:
+        return explicit.lower() == "true"
+    for url in (os.getenv("REDIRECT_URI", ""), os.getenv("FRONTEND_URL", "")):
+        if url.strip().lower().startswith("https://"):
+            return True
+    return False
+
 # Single output dir for TTS WAV files (used by tts_tool and main.py static mount)
 AUDIO_OUTPUT_DIR = Path(__file__).resolve().parent.parent.parent / "outputs" / "audio"
 AUDIO_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -62,7 +73,7 @@ class Settings:
     RAG_SUMMARY_MODEL: str = os.getenv("RAG_SUMMARY_MODEL", "gpt-4o-mini")
 
     # CA guidance crew: chat model and output budget (reduces truncation on long assignments)
-    CA_GUIDANCE_MODEL: str = os.getenv("CA_GUIDANCE_MODEL", "gpt-4o")
+    CA_GUIDANCE_MODEL: str = os.getenv("CA_GUIDANCE_MODEL", "gpt-4o-mini")
     CA_GUIDANCE_MAX_OUTPUT_TOKENS: int = int(os.getenv("CA_GUIDANCE_MAX_OUTPUT_TOKENS", "16384"))
     CA_GUIDANCE_CHUNK_MAX_CHARS: int = int(os.getenv("CA_GUIDANCE_CHUNK_MAX_CHARS", "14000"))
     
@@ -80,6 +91,11 @@ class Settings:
     ASSIGNMENT_DIAGRAM_IMAGE_MODEL: str = os.getenv("ASSIGNMENT_DIAGRAM_IMAGE_MODEL", "dall-e-3")
     # Chat model for conceptual ER diagrams as Graphviz DOT (traditional symbols), not DALL·E
     ASSIGNMENT_ER_GRAPHVIZ_MODEL: str = os.getenv("ASSIGNMENT_ER_GRAPHVIZ_MODEL", "gpt-4o-mini")
+
+    # Session cookie configuration for OAuth and cross-site login flows
+    SESSION_COOKIE_SECURE: bool = _infer_default_session_cookie_secure()
+    SESSION_COOKIE_NAME: str = os.getenv("SESSION_COOKIE_NAME", "session")
+    SESSION_COOKIE_DOMAIN: Optional[str] = os.getenv("SESSION_COOKIE_DOMAIN", "") or None
 
     # TTS (Piper) – required for summarization audio. If unset, summaries have no audio.
     # Example: PIPER_EXE=/path/to/piper, PIPER_MODEL=/path/to/model.onnx

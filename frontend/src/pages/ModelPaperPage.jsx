@@ -168,6 +168,9 @@ function ModelPaperPage() {
       }
 
       const data = await resp.json();
+      if (data.detail && data.status !== "success") {
+        throw new Error(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail));
+      }
 
       // Log steps from backend
       if (data.steps) {
@@ -223,6 +226,9 @@ function ModelPaperPage() {
       }
 
       const data = await resp.json();
+      if (data.detail && data.status !== "success") {
+        throw new Error(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail));
+      }
 
       if (data.steps) {
         data.steps.forEach(step => addLog(step));

@@ -88,7 +88,7 @@ export async function validateModelAPI(model: ERModel): Promise<ValidationOutput
   // Log the normalized model for debugging
   console.log("Sending normalized model to backend:", JSON.stringify(normalizedModel, null, 2));
   
-  const response = await fetch(`${API_BASE_URL}/validate`, {
+  const response = await fetch(`${API_BASE_URL}/guidance/validate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -122,7 +122,7 @@ export async function getRenderPlanAPI(model: ERModel): Promise<RenderPlan> {
   // Normalize the model before sending to ensure all relationships have relationshipType
   const normalizedModel = normalizeModelForAPI(model);
   
-  const response = await fetch(`${API_BASE_URL}/render-plan`, {
+  const response = await fetch(`${API_BASE_URL}/guidance/render-plan`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

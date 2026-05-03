@@ -1,0 +1,7 @@
+[FIGURE: slide_006_fig_1.png]
+5. Graph-Based Visualization of Lecture–Topic–Question Relationships
+This page presents a graph-based visualization of the relationships between 
+lectures, topics, and MCQ questions. The graph structure is constructed using semantic 
+similarity relationships identified through Natural Language Processing. This visualization 
+enables exploration of how exam questions relate to lecture content and supports 
+recommendation of relevant MCQs for targeted practice.

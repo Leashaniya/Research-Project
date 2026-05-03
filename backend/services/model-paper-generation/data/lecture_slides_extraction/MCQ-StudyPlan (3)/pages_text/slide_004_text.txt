@@ -1,0 +1,8 @@
+3. Student Quiz Evaluation and Progress Analysis
+This page displays the student progress report after completing the recommended 
+MCQ quiz. The system evaluates student responses and calculates performance metrics 
+such as total questions attempted, number of correct answers, incorrect answers, and 
+overall accuracy. Additionally, lecture-wise performance analysis helps identify topics where 
+the student demonstrates strengths or weaknesses.
+[FIGURE: slide_004_fig_1.png]
+[FIGURE: slide_004_fig_2.png]

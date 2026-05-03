@@ -1081,7 +1081,7 @@ OR
 """
 
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a fair academic evaluator. Return only valid JSON, no explanations."},
                 {"role": "user", "content": prompt}

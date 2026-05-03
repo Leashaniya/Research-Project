@@ -1,0 +1,117 @@
+--- SLIDE 1 ---
+Student Study Plan Generation
+1. Analysis Dashboard
+This page shows the main analysis dashboard and lecture-wise question 
+distribution. Initially, the dashboard displays zero values before the analysis is executed. 
+After clicking the Run Analysis button, the system processes DMS lecture slides and past 
+MID paper MCQ questions. It extracts questions, identifies lecture topics using Natural 
+Language Processing techniques, and determines the total number of lectures and 
+questions.
+After the analysis is completed, the system visualizes the results using charts and statistics. 
+The bar chart and pie chart show how frequently questions from each lecture appear in past 
+exams, helping identify high-priority lectures. The detailed table also provides lecture-wise 
+statistics such as the number of questions and percentage distribution.
+[FIGURE: slide_001_fig_1.png]
+
+--- SLIDE 2 ---
+[FIGURE: slide_002_fig_1.png]
+[FIGURE: slide_002_fig_3.png]
+[FIGURE: slide_002_fig_2.png]
+[FIGURE: slide_002_fig_4.png]
+[FIGURE: slide_002_fig_6.png]
+[FIGURE: slide_002_fig_5.png]
+[FIGURE: slide_002_fig_7.png]
+| tecture Analysis system | YB @© @ x question x -
+Bom QA we Lg < G © 12700:1:5000
+*« & Analysis f& Ly Lecture Q&A Dashboard v &
+x Analysis completed successfully!
+€& s A Analysis Dashboard Analysis
+> Run
+Comprehensive of lecture and dats question overview your
+Topics Identified :
+OProcessed 48
+lE Distribution by @ Distribution Chart Question Lecture Pie
+Distribution by Distribution Question Lecture Question Count
+Fecenage(
+spat al mi 2pat 0 “ oper
+me Spat _ * 1H 2 Gpdt
+rf m7 9et
+g 6 oper
+£0 tpt
+a Ly
+. :
+ae & & eo 2 ¢
+F °
+Lecture
+« FA Netailed Question Distribution
+_| tecture Analysis system | YB © @ x question x -
+© Bora QA EL S < G 12700.1:5000 ~
+Question Distribution by Lecture Question Count Distribution
+percentage
+wm apat (3) 2 2c to oper
+Spat gs cat
+o rat
+3 5 mh 3per a me aper
+. s $ $ & ae s ie S a is ae os
+Lecture
+& Detailed Question Distribution
+‘auestions cumuLaTive
+Lecture rms PERCENTAGE VISUAL
+Spat 208% ® DATABASE MANAGEMENT SYSTEMS (T2040) LECTURE 04 108 208% -
+98 189% e 2pat DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 02- 397%
+139% C) apart DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 08 n 53.6% -
+@ Spdf DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 05 62 11.9% 65.5% -.
+Spat @ DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 06 st 98% 75.3% -..
+g Tpat DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 07 31 oa% 252%
+@ Spat DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE 03- 40 17% 22.9%
+100.0% @ pat DATABASE MANAGEMENT SYSTEMS (IT 2040) LECTURE O1- 7 71%
+
+--- SLIDE 3 ---
+2. Baseline Study Plan Generation
+This page illustrates the generation of a baseline study plan based on exam 
+question frequency. Using the lecture distribution analysis, the system allocates 
+recommended study hours for each lecture according to its importance in past examinations. 
+Lectures with higher question frequency receive greater study time allocation. The 
+recommended focus areas table highlights priority lectures and suggested study hours for 
+effective exam preparation.
+[FIGURE: slide_003_fig_1.png]
+[FIGURE: slide_003_fig_2.png]
+
+--- SLIDE 4 ---
+3. Student Quiz Evaluation and Progress Analysis
+This page displays the student progress report after completing the recommended 
+MCQ quiz. The system evaluates student responses and calculates performance metrics 
+such as total questions attempted, number of correct answers, incorrect answers, and 
+overall accuracy. Additionally, lecture-wise performance analysis helps identify topics where 
+the student demonstrates strengths or weaknesses.
+[FIGURE: slide_004_fig_1.png]
+[FIGURE: slide_004_fig_2.png]
+
+--- SLIDE 5 ---
+4. Adaptive Study Plan Generation
+This page shows the adaptive study plan generation process. Based on the 
+student’s quiz performance, the system recalibrates the study plan by adjusting lecture-wise 
+study hours. Weak lectures receive increased study time while strong lectures receive 
+slightly reduced allocation. Controlled parameters such as adaptation factor and maximum 
+adjustment limits ensure balanced modifications while maintaining a stable study schedule.
+
+--- SLIDE 6 ---
+[FIGURE: slide_006_fig_1.png]
+5. Graph-Based Visualization of Lecture–Topic–Question Relationships
+This page presents a graph-based visualization of the relationships between 
+lectures, topics, and MCQ questions. The graph structure is constructed using semantic 
+similarity relationships identified through Natural Language Processing. This visualization 
+enables exploration of how exam questions relate to lecture content and supports 
+recommendation of relevant MCQs for targeted practice.
+
+--- SLIDE 7 ---
+[FIGURE: slide_007_fig_1.png]
+This is to confirm that the developed component functions in relation to the DMS module. 
+The system analyzes DMS lecture slides and past paper MID MCQ questions using Natural 
+Language Processing techniques. It performs semantic mapping between lecture topics and 
+exam questions, conducts frequency-based analysis of past papers, and generates baseline 
+and adaptive study plans to support exam preparation. The system also evaluates student 
+quiz performance and applies a graph-based representation to model relationships between 
+lectures, topics, and MCQ questions for visualization and recommendation.
+DMS In-Charge:____________________________
+Date:___________________

@@ -1,0 +1,13 @@
+Student Study Plan Generation
+1. Analysis Dashboard
+This page shows the main analysis dashboard and lecture-wise question 
+distribution. Initially, the dashboard displays zero values before the analysis is executed. 
+After clicking the Run Analysis button, the system processes DMS lecture slides and past 
+MID paper MCQ questions. It extracts questions, identifies lecture topics using Natural 
+Language Processing techniques, and determines the total number of lectures and 
+questions.
+After the analysis is completed, the system visualizes the results using charts and statistics. 
+The bar chart and pie chart show how frequently questions from each lecture appear in past 
+exams, helping identify high-priority lectures. The detailed table also provides lecture-wise 
+statistics such as the number of questions and percentage distribution.
+[FIGURE: slide_001_fig_1.png]

@@ -1,0 +1,6 @@
+4. Adaptive Study Plan Generation
+This page shows the adaptive study plan generation process. Based on the 
+student’s quiz performance, the system recalibrates the study plan by adjusting lecture-wise 
+study hours. Weak lectures receive increased study time while strong lectures receive 
+slightly reduced allocation. Controlled parameters such as adaptation factor and maximum 
+adjustment limits ensure balanced modifications while maintaining a stable study schedule.

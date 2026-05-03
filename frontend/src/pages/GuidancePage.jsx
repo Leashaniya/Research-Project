@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import {
@@ -29,8 +28,24 @@ import { useAuth } from '../context/AuthContext';
 import './GuidancePage.css';
 import ERDiagramGeneratorPage from '../er/ERDiagramGeneratorPage';
 
+const normalizeApiBase = (value, suffix) => {
+  const raw = String(value || '').trim().replace(/\/+$/, '');
+  if (!raw) return suffix;
+  return raw.endsWith(suffix) ? raw : `${raw}${suffix}`;
+};
+
 // When behind gateway use /guidance; else VITE_API_URL (e.g. http://localhost:8000)
-const API_URL = import.meta.env.VITE_API_URL || '/guidance';
+const API_URL = normalizeApiBase(import.meta.env.VITE_API_URL, '/guidance');
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('authToken');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+const authFetch = (input, init = {}) => {
+  const headers = { ...(init.headers || {}), ...getAuthHeaders() };
+  return fetch(input, { ...init, headers });
+};
 
 function GuidancePage() {
   const { user } = useAuth();
@@ -208,6 +223,12 @@ function GuidancePage() {
     return `![${alt}](${src})`;
   };
 
+  const escapeUnsafeHtmlishSegment = (segment) =>
+    String(segment || '')
+      .replace(/<!--[\s\S]*?-->/g, '')
+      .replace(/<\/?[A-Za-z][A-Za-z0-9:-]*(?:\s[^<>]*)?>/g, (tag) => `\`${tag.replace(/`/g, '\\`')}\``)
+      .replace(/<[^<>\n]{1,120}>/g, (tag) => `\`${tag.replace(/`/g, '\\`')}\``);
+
   // Guidance report: expand [IMAGE:file] to real markdown images; normalize HTML figures/images
   const prepareGuidanceMarkdown = (text) => {
     if (!text || typeof text !== 'string') return text;
@@ -234,6 +255,7 @@ function GuidancePage() {
     };
 
     out = transformOutsideFencedCode(out, applyFigureImgAndImageTokens);
+    out = transformOutsideFencedCode(out, escapeUnsafeHtmlishSegment);
     out = transformOutsideFencedCode(out, ensureLinksInMarkdown);
 
     return out;
@@ -290,6 +312,12 @@ function GuidancePage() {
     return `${m}:${String(rem).padStart(2, '0')}`;
   };
 
+  const markdownAllowedElements = [
+    'a', 'blockquote', 'br', 'code', 'del', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'hr', 'img', 'li', 'ol', 'p', 'pre', 'strong', 'table', 'tbody', 'td', 'th',
+    'thead', 'tr', 'ul',
+  ];
+
   // ✅ (AUDIO CHANGE) Remove markdown audio parsing - backend now returns audio_url separately
   // const extractAudioFromMarkdown = ...  ❌ REMOVED
 
@@ -312,24 +340,54 @@ function GuidancePage() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/protected/run-guidance`, {
+      const startedAt = Date.now();
+      console.info('Guidance request started');
+      const response = await authFetch(`${API_URL}/protected/run-guidance`, {
         method: 'POST',
         credentials: 'include',
         body: formData,
       });
+      console.info('Guidance response headers received:', {
+        status: response.status,
+        ok: response.ok,
+        contentType: response.headers.get('content-type'),
+        contentLength: response.headers.get('content-length'),
+        elapsedMs: Date.now() - startedAt,
+      });
 
       if (response.ok) {
-        const result = await response.json();
+        const responseText = await response.text();
+        console.info('Guidance response body received:', {
+          chars: responseText.length,
+          elapsedMs: Date.now() - startedAt,
+        });
+        setLoading(false);
+
+        let result;
+        try {
+          result = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Guidance JSON parse failed:', parseError);
+          setReport({
+            error: `Guidance returned a non-JSON response (${responseText.length} chars). Check the gateway/backend terminal.`,
+          });
+          return;
+        }
 
         const rep = (result?.report || result?.markdown_report || '').toString();
+        if (!rep && result?.detail) {
+          setReport({ error: typeof result.detail === 'string' ? result.detail : JSON.stringify(result.detail) });
+          return;
+        }
         console.log('Guidance API ok; report length (chars):', typeof rep === 'string' ? rep.length : 0);
         console.log('Guidance API query results count:', Array.isArray(result?.query_results) ? result.query_results.length : 0);
 
-        setReport({
+        const nextReport = {
           content: rep,
           images: result.images || [],
           query_results: result.query_results || [],
-        });
+        };
+        window.setTimeout(() => setReport(nextReport), 0);
         if (result.guidance_id) {
           setGuidanceId(result.guidance_id);
           setBaseGuidanceContent(rep);
@@ -439,7 +497,7 @@ function GuidancePage() {
         fileName,
       });
 
-      const response = await fetch(`${API_URL}/protected/guidance/download-pdf`, {
+      const response = await authFetch(`${API_URL}/protected/guidance/download-pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -537,7 +595,7 @@ function GuidancePage() {
     setSessionId(newSessionId);
 
     try {
-      const response = await fetch(`${API_URL}/protected/summarize`, {
+      const response = await authFetch(`${API_URL}/protected/summarize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -558,7 +616,7 @@ function GuidancePage() {
 
         // Fetch summaries and show the recent summary (reinforced if available, else base)
         try {
-          const allSummariesResponse = await fetch(`${API_URL}/protected/summaries/topic/${encodeURIComponent(requestedTopic)}`, {
+          const allSummariesResponse = await authFetch(`${API_URL}/protected/summaries/topic/${encodeURIComponent(requestedTopic)}`, {
             method: 'GET',
             credentials: 'include',
           });
@@ -656,7 +714,7 @@ function GuidancePage() {
     setFeedbackError(null);
 
     try {
-      const response = await fetch(`${API_URL}/protected/summaries/feedback`, {
+      const response = await authFetch(`${API_URL}/protected/summaries/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -715,7 +773,7 @@ function GuidancePage() {
 
     try {
       // 1) Save feedback
-      const feedbackResp = await fetch(`${API_URL}/protected/summaries/feedback`, {
+      const feedbackResp = await authFetch(`${API_URL}/protected/summaries/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -881,7 +939,7 @@ function GuidancePage() {
     setGuidanceReinforceError(null);
     setGuidanceReinforceSuccess(false);
     try {
-      const feedbackResp = await fetch(`${API_URL}/protected/guidance/feedback`, {
+      const feedbackResp = await authFetch(`${API_URL}/protected/guidance/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -903,7 +961,7 @@ function GuidancePage() {
       const feedbackResult = await feedbackResp.json().catch(() => ({}));
       if (feedbackResult.feedback_id) setLastGuidanceFeedbackId(feedbackResult.feedback_id);
 
-      const reinforceResp = await fetch(`${API_URL}/protected/guidance/reinforce`, {
+      const reinforceResp = await authFetch(`${API_URL}/protected/guidance/reinforce`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -963,7 +1021,7 @@ function GuidancePage() {
 
     try {
       // Backend returns saved set or generates new based on force flag
-      const response = await fetch(`${API_URL}/protected/generate-flashcards`, {
+      const response = await authFetch(`${API_URL}/protected/generate-flashcards`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -997,7 +1055,7 @@ function GuidancePage() {
         }
 
         try {
-          const saveResponse = await fetch(`${API_URL}/protected/flashcards/save`, {
+          const saveResponse = await authFetch(`${API_URL}/protected/flashcards/save`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -1051,7 +1109,7 @@ function GuidancePage() {
       const feedbackType = flashcardFeedbackType[cardId] || null;
       const comment = flashcardFeedbackComment[cardId] || null;
 
-      const response = await fetch(`${API_URL}/protected/flashcards/feedback`, {
+      const response = await authFetch(`${API_URL}/protected/flashcards/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -1102,7 +1160,7 @@ function GuidancePage() {
     setFlashcardImproving(prev => ({ ...prev, [cardId]: true }));
 
     try {
-      const response = await fetch(`${API_URL}/protected/flashcards/improve`, {
+      const response = await authFetch(`${API_URL}/protected/flashcards/improve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -1201,7 +1259,7 @@ function GuidancePage() {
           </button>
         </div>
       ) : (
-        <code className={className} {...props}>
+        <code className={className}>
           {children}
         </code>
       );
@@ -1229,7 +1287,6 @@ function GuidancePage() {
 
       return (
         <img
-          {...props}
           src={imageSrc}
           alt={alt || 'Image'}
           className="markdown-image"
@@ -1249,13 +1306,24 @@ function GuidancePage() {
           target="_blank"
           rel="noopener noreferrer"
           style={{ color: '#336db0', textDecoration: 'underline' }}
-          {...props}
         >
           {children}
         </a>
       );
     },
   };
+
+  const SafeMarkdown = ({ children }) => (
+    <ReactMarkdown
+      components={CodeBlock}
+      remarkPlugins={[remarkGfm]}
+      skipHtml
+      unwrapDisallowed
+      allowedElements={markdownAllowedElements}
+    >
+      {children}
+    </ReactMarkdown>
+  );
 
   const clearStateOnLogout = () => {
     setReport(null);
@@ -1434,23 +1502,23 @@ function GuidancePage() {
 
                     {typeof report === 'string' ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report)}</ReactMarkdown>
+                        <SafeMarkdown>{prepareGuidanceMarkdown(report)}</SafeMarkdown>
                       </div>
                     ) : report.content ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report.content)}</ReactMarkdown>
+                        <SafeMarkdown>{prepareGuidanceMarkdown(report.content)}</SafeMarkdown>
                       </div>
                     ) : report.markdown_report ? (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{prepareGuidanceMarkdown(report.markdown_report)}</ReactMarkdown>
+                        <SafeMarkdown>{prepareGuidanceMarkdown(report.markdown_report)}</SafeMarkdown>
                       </div>
                     ) : report.error ? (
                       <div className="error-message">{report.error}</div>
                     ) : (
                       <div className="report-content">
-                        <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                        <SafeMarkdown>
                           {JSON.stringify(report, null, 2)}
-                        </ReactMarkdown>
+                        </SafeMarkdown>
                       </div>
                     )}
 
@@ -1854,9 +1922,9 @@ function GuidancePage() {
                               }
                             }
                             return (
-                              <ReactMarkdown components={CodeBlock} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                              <SafeMarkdown>
                                 {content}
-                              </ReactMarkdown>
+                              </SafeMarkdown>
                             );
                           })()}
                         </div>

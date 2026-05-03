@@ -1,0 +1,9 @@
+2. Baseline Study Plan Generation
+This page illustrates the generation of a baseline study plan based on exam 
+question frequency. Using the lecture distribution analysis, the system allocates 
+recommended study hours for each lecture according to its importance in past examinations. 
+Lectures with higher question frequency receive greater study time allocation. The 
+recommended focus areas table highlights priority lectures and suggested study hours for 
+effective exam preparation.
+[FIGURE: slide_003_fig_1.png]
+[FIGURE: slide_003_fig_2.png]

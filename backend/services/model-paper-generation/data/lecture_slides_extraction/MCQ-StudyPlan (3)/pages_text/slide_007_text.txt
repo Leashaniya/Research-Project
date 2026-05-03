@@ -1,0 +1,10 @@
+[FIGURE: slide_007_fig_1.png]
+This is to confirm that the developed component functions in relation to the DMS module. 
+The system analyzes DMS lecture slides and past paper MID MCQ questions using Natural 
+Language Processing techniques. It performs semantic mapping between lecture topics and 
+exam questions, conducts frequency-based analysis of past papers, and generates baseline 
+and adaptive study plans to support exam preparation. The system also evaluates student 
+quiz performance and applies a graph-based representation to model relationships between 
+lectures, topics, and MCQ questions for visualization and recommendation.
+DMS In-Charge:____________________________
+Date:___________________
