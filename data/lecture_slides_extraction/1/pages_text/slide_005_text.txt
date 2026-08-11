@@ -1,0 +1,9 @@
+WHY A DATABASE?
+Traditionally data are stored in files. So why don’t we store all data in 
+files.
+Example :
+Scenario 1 : A several thousand of students are enrolled for courses at SLIIT. 
+How do you recommend to store these students’ data and why?
+Scenario 2 :During the New Year season you need to buy various groceries 
+and presents for family. How do you recommend to store your shopping list 
+and why?

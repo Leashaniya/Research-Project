@@ -1,0 +1,16 @@
+{
+  "name": "research-project",
+  "private": true,
+  "description": "Academic Assistance Platform - CA Guidance & Model Paper",
+  "workspaces": [
+    "frontend/dashboard",
+    "frontend/model-paper-frontend",
+    "frontend/ca-guidance-and-summarization-frontend"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "start:dashboard": "npm run start --workspace=frontend/dashboard",
+    "start:model-paper": "npm run start --workspace=frontend/model-paper-frontend",
+    "start:ca-guidance": "npm run dev --workspace=frontend/ca-guidance-and-summarization-frontend"
+  }
+}

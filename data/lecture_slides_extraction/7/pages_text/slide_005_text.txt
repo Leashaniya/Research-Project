@@ -1,0 +1,9 @@
+DATA TRANSFERRING
+Some times it is required for transferring data between two sources such as between 
+tables and servers.
+SQL server offers a number of options to facilitate the above as follows :
+SQL Server Integration Services (SSIS)
+Using the SQL Server Import and Export Wizard
+Using BCP to Import and Export Data
+BULK INSERT
+SELECT INTO command

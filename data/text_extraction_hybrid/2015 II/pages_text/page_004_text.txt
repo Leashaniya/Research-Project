@@ -1,0 +1,29 @@
+00269
+Question 3 
+(20 marks)
+a) 
+Briefly explain the three main file organizations. 
+(3 marks)
+b) 
+“Updating a record in sorted file organization is always efficient than the heap file” 
+accept or refute the above statement providing reasons. 
+(3 marks)
+c) 
+Briefly explain the two alternatives used 
+in DBMS for managing the fixed length 
+records. Provide one limitation of each alternative. 
+(4 marks)
+d) 
+Consider the following B+ tree of order 2.
+[DIAGRAM: page_004_diagram_1.png]
+i. 
+ Illustrate B+ tree after inserting 13 to the tree above. 
+(3 marks)
+ii. 
+ Illustrate the B+ tree after deleting 21 from the original tree 
+(3 marks)
+e) 
+Show the extendible hashed file after inserting 6. 
+(4 marks)
+[DIAGRAM: page_004_diagram_2.png]
+25/09/2015

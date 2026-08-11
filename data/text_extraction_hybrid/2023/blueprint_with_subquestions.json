@@ -1,0 +1,128 @@
+[
+  {
+    "question_id": 1,
+    "marks": 20,
+    "text": "Consider the following EER Model.\n[DIAGRAM: page_002_diagram_1.png]",
+    "subquestions": [
+      {
+        "text": "Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
+        "marks": 17
+      },
+      {
+        "text": "What is the best option for mapping the ISA hierarchy in the diagram? Justify your answer.",
+        "marks": 3
+      },
+      {
+        "text": ""
+      }
+    ],
+    "pdf_stem": "2023"
+  },
+  {
+    "question_id": 2,
+    "marks": 15,
+    "text": "Consider a relation R (P, Q, R, S, T) with the following set of functional dependencies over R: F = {PR->Q, R->S, P->T}",
+    "subquestions": [
+      {
+        "text": "Find all the keys in relation R using attribute closure method.",
+        "marks": 4
+      },
+      {
+        "text": "Is R in 3NF? Give reasons for your conclusion.",
+        "marks": 3
+      },
+      {
+        "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+        "marks": 8
+      }
+    ],
+    "pdf_stem": "2023"
+  },
+  {
+    "question_id": 3,
+    "marks": 25,
+    "text": "[DIAGRAM: page_003_diagram_1.png]",
+    "subquestions": [
+      {
+        "text": "In Native API Driver, vendor-specific driver must be installed on each client machine. Accept or refute the above statement justifying your answer.",
+        "marks": 2
+      },
+      {
+        "text": "There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used.",
+        "marks": 2
+      },
+      {
+        "text": ""
+      },
+      {
+        "text": "Briefly explain what is meant by a BCP Command?",
+        "marks": 2
+      },
+      {
+        "text": "Briefly explain how SQL server security framework manages access to securable entities.",
+        "marks": 3
+      },
+      {
+        "text": "A software company has been tasked with developing a comprehensive healthcare information technology (IT) system for a large medical facility. The project manager is responsible for overseeing the project's development, and the following roles and responsibilities are assigned: Linda is the senior database administrator who is tasked with creating and managing the databases required for the healthcare IT system. This includes patient records, appointment scheduling, and medical inventory databases. Raj and Eva are junior database administrators who work under Linda's supervision. They are responsible for managing and maintaining specific databases within the healthcare IT system. Raj takes care of the patient records database, while Eva is responsible for the appointment scheduling database. Carla is a database developer who reports to Raj and Eva. Her role involves designing and building the database schemas, including creating tables, views, and stored procedures for the patient records and appointment scheduling databases. Sophie and John are data entry operators responsible for entering patient information, medical records, and appointment data into the system. They work closely with the junior database administrators to ensure accurate and timely data entry.",
+        "marks": null,
+        "subquestions": [
+          {
+            "text": "Write a T-SQL statement to create a login to Linda.",
+            "marks": 2
+          },
+          {
+            "text": "Provide permission using fixed server role to handle all the administrative tasks in the server to Linda.",
+            "marks": 3
+          },
+          {
+            "text": "Assuming that Eva has the user name eva.e, write a T-SQL statements required to assign her with the responsibility of handling the appointmentDB using user defined server role.",
+            "marks": 5
+          },
+          {
+            "text": "Assuming that Carla has a login name by the name carla.a, write T-SQL statements required to allow her to create tables, views and stored procedures.",
+            "marks": 3
+          },
+          {
+            "text": "Assuming that John has a login name john.k write T-SQL statements required to perform the tasks he is responsible for.",
+            "marks": 3
+          }
+        ]
+      }
+    ],
+    "pdf_stem": "2023"
+  },
+  {
+    "question_id": 4,
+    "marks": 40,
+    "text": "Consider the following schema of a database designed for a hotel: Guest (guestId: int, fname: varchar(50), lastName: varchar(50), phone: int, email: varchar(50), address: varchar(100)) Room (roomNum: int, roomType: varchar(20), bedType: varchar(50), price: real, isOccupied: boolean) Booking (bookingId: int, guestId: int, roomNum: int, checkInDate: date, checkOutDate: date, totalAmount: real) Bill (billNum: int, bookingId: int, totalAmount: real, paymentMethod: varchar(50), paymentStatus: varchar(50)) Receptionist (repId: int, name: varchar(20), phone: int, address: varchar(30)) The 'Guest' table is designed to store information about the hotel's guests, including their unique guest ID, first name, last name, phone number, email address, and physical address. The 'Room' table tracks details about the hotel's rooms. It includes information such as the room number, room type, bed type, price per night, and a flag (boolean) indicating whether the room is currently occupied. The 'Booking' table manages guest reservations. Each booking is assigned a unique ID and is associated with a specific guest (via guestId) and a room (via roomNum). It also records the check-in and check-out dates, as well as the total booking amount. The 'Bill' table handles billing information for guest stays. It connects to a particular booking (via bookingId) and stores the bill number, the total amount to be paid, the payment method, and the payment status. The 'Receptionist' table contains details about hotel receptionist, with each staff member having a unique ID, name, phone number, and address. This allows the system to keep track of receptionists or other staff members involved in hotel operations.",
+    "subquestions": [
+      {
+        "text": "Write SQL Queries to perform the following:",
+        "marks": null,
+        "subquestions": [
+          {
+            "text": "Find the guest's name and phone number who booked a Deluxe room for 2 days.",
+            "marks": 4
+          },
+          {
+            "text": "Find the total amount spent by guest with last name Smith on Bookings.",
+            "marks": 6
+          },
+          {
+            "text": "Find the room numbers, room types, and guest names of currently occupied rooms.",
+            "marks": 7
+          }
+        ]
+      },
+      {
+        "text": "Create a function to calculate the total bill amount for a given guest's booking.",
+        "marks": 11
+      },
+      {
+        "text": "Assume that the guests table consists of a column named TotalBillAmount. The 'TotalBillAmount' column contains the total bill amount for each guest. Create a trigger that automatically updates the 'TotalBillAmount' column whenever a new bill is added, or an existing bill is updated.",
+        "marks": 12
+      }
+    ],
+    "pdf_stem": "2023"
+  }
+]

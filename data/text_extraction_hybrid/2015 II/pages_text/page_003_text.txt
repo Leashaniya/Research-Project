@@ -1,0 +1,48 @@
+00269
+Question 2 
+(20 marks)
+a) 
+Explain two methods that could be used to improve the reliability of data stored in
+disks. 
+(3 marks)
+b) 
+Consider a disk with a sector size of 512 bytes, 400 tracks per surface, 20 sectors per 
+track, 5 single-sided platters and an average seek time of 10 msec. Suppose that a block
+size of 1,024 bytes is chosen. The disk spins at 2400 revolutions per minute. Assume
+that the average rotational delay is % revolution. The Disk Space Manager is requested
+to read blocks A, B and C stored as follows. 
+Block A is in platter 
+1 
+— track 20 
+Block B is in platter 
+1 — track 25 
+Block C is in platter 
+1 —track 30
+i. 
+Find the total time taken to read blocks A, B, and C stored as above. 
+(6 marks)
+ii. 
+Find the total cost for reading blocks A, B and C, if they are placed next to each 
+other on the same track. 
+(5 marks)
+c) 
+Consider the following buffer pool with 5 frames.
+[DIAGRAM: page_003_diagram_1.png]
+Each frame has a frame number (Frame No), page id (PageID) of page in buffer pool, pin 
+count (PinCount) and a dirty bit (Dirty).
+Assume that the following times states the last time the particular frame was accessed (on
+the same day):
+Frame number 0 at 11:15 am 
+Frame number 
+1 at 11:35 am 
+Frame number 2 at 10:57 am 
+Frame number 3 at 11:12 am 
+Frame number 4 at 11:26 am
+Describe the steps involved when a page request for the page with PageID 50 occurs if LRU 
+(least-recently-used) policy is used as the replacement policy. 
+(3 marks)
+d) 
+What happens if there is a page request when all pages in the buffer pool are dirty?
+(3 marks)
+Page 3 of 6
+25/09/2015

@@ -1,0 +1,10 @@
+RELATIONAL MODEL VS. SQL
+Terminology
+Relational Model
+SQL
+Relation
+Table
+Attribute
+Column
+Tuple
+Row

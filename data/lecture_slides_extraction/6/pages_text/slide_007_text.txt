@@ -1,0 +1,8 @@
+TYPES OF JDBC DRIVERS
+JDBC driver implementations vary because of the wide variety of operating systems 
+and hardware platforms in which Java operates. Sun has divided the implementation 
+in to four categories which are :
+Type 1: JDBC-ODBC Bridge Driver
+Type 2: Native API Driver
+Type 3: Network Pure Java Driver
+Type 4: Thin Driver(100% Pure Java Driver)

@@ -1,0 +1,9 @@
+SECURITY POLICY & ACCESS CONTROLS
+To achieve the objectives in the previous slide, a clear and consistent security policy 
+should be developed
+A security policy specifies who is authorized to do what.
+Most users need to access only a small part of the database to carry out their tasks.
+Allowing users unrestricted access to all the data can be undesirable.
+Two main mechanisms at the DBMS level to control access to data
+Discretionary access control
+Mandatory access control

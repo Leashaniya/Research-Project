@@ -1,0 +1,111 @@
+import logging
+import json
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from starlette.middleware.sessions import SessionMiddleware
+from app.core.config import settings
+from app.api.routes import auth, er, public, protected, summaries
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup and shutdown: close MongoDB on exit so Ctrl+C doesn't hang on PyMongo threads."""
+    yield
+    from app.core.database import close_database
+    close_database()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,  # Changed to DEBUG to see all messages
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+# Set specific loggers to appropriate levels
+logging.getLogger("uvicorn.access").setLevel(logging.INFO)
+logging.getLogger("uvicorn.error").setLevel(logging.INFO)
+# Suppress verbose PyMongo/MongoDB driver logs (heartbeats, etc.)
+logging.getLogger("pymongo").setLevel(logging.WARNING)
+logging.getLogger("pymongo.topology").setLevel(logging.WARNING)
+
+# Create FastAPI instance
+app = FastAPI(
+    title="CA Guidance Prototype API",
+    description="A FastAPI application for CA guidance prototype with Google OAuth",
+    version="1.0.0",
+    lifespan=lifespan,
+)
+
+# Ensure audio directory exists (relative to backend root, not current working dir)
+BACKEND_ROOT = Path(__file__).resolve().parents[1]  # .../backend/ca-guidance-and-summarization-backend
+AUDIO_DIR = BACKEND_ROOT / "outputs" / "audio"
+AUDIO_DIR.mkdir(parents=True, exist_ok=True)
+
+#Serve audio files
+app.mount("/audio", StaticFiles(directory=str(AUDIO_DIR)), name="audio")
+
+# Add session middleware for OAuth
+app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+
+# Add CORS middleware
+# Allow both production and development frontend URLs
+allowed_origins = [
+    settings.FRONTEND_URL,
+    "http://ca.vuedapt.com",
+    "https://ca.vuedapt.com",
+    "http://localhost:3000",
+    "http://localhost:3333",  # Vite dev server port
+    "http://localhost:5173",  # Vite default dev server port
+    "http://localhost:5174",  # Vite alternate port (common when 5173 is busy)
+]
+
+# Remove None/empty values
+allowed_origins = [origin for origin in allowed_origins if origin]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Register exception handler BEFORE including routers
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Handle Pydantic validation errors and log them for debugging."""
+    errors = exc.errors()
+    # Log detailed error information - use print to ensure it shows up
+    print("\n" + "=" * 80)
+    print(f"VALIDATION ERROR on {request.url.path}")
+    print(f"Method: {request.method}")
+    print(f"Errors:")
+    print(json.dumps(errors, indent=2))
+    print("=" * 80 + "\n")
+    logger.error("=" * 80)
+    logger.error(f"VALIDATION ERROR on {request.url.path}")
+    logger.error(f"Method: {request.method}")
+    logger.error(f"Errors: {json.dumps(errors, indent=2)}")
+    logger.error("=" * 80)
+    
+    # Return detailed error response
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": errors,
+            "message": "Validation failed. Check the 'detail' field for specific errors."
+        }
+    )
+
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+
+# Include routers
+app.include_router(public.router)
+app.include_router(auth.router)
+app.include_router(protected.router)
+app.include_router(summaries.router)
+app.include_router(er.router)
+

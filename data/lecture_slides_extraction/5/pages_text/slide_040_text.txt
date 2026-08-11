@@ -1,0 +1,6 @@
+EXERCISE 5
+Consider the tables given below
+Employee(nic, name, salary, dno)
+Dept (dno, dname, mgrNic)
+Create a trigger to ensure that no employee has a salary greater than his/her 
+manager.

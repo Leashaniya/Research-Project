@@ -1,0 +1,26 @@
+[
+  {
+    "question_id": 1,
+    "marks": 20,
+    "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.\n[DIAGRAM: page_002_diagram_1.png]",
+    "pdf_stem": "2018"
+  },
+  {
+    "question_id": 2,
+    "marks": 15,
+    "text": "Consider a relation R (A, B, C, D, E), with the following set of functional dependencies over R: F={A BC,BC EE DA }",
+    "pdf_stem": "2018"
+  },
+  {
+    "question_id": 3,
+    "marks": 25,
+    "text": "Consider the database of a department store that includes the following tables:\n[DIAGRAM: page_003_diagram_1.png]",
+    "pdf_stem": "2018"
+  },
+  {
+    "question_id": 4,
+    "marks": 40,
+    "text": "Consider the following relations in a database created for an online store Customers (cid: char (4), name: varchar (50), phone: char(10), country: varchar(20)) Employees (eid: char (4), ename: varchar (50), phone: char (4), hiredate: date) Orders (oid: int, eid: char (4), cid: char (4), orderDate: date, requiredDate: date, shippedDate: date) OrderDetails (oid: int, productld: char (4), quantity: int, discount: real Products (productld: int,productName: varchar(15),UnitPrice: real unitsInStock: int, ROL:int)",
+    "pdf_stem": "2018"
+  }
+]

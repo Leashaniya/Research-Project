@@ -1,0 +1,19 @@
+DATA DEFINITION LANGUAGE (DDL)
+DDL is the subset of SQL that supports the creation, deletion and 
+modifications for tables and views.
+Constraints can be defined on the tables
+Constraint
+Purpose
+Not Null
+Ensure that column doesn’t have null values
+Unique
+Ensure that column doesn’t have duplicate values
+Primary key
+Defines the primary key
+Foreign key
+Defines a foreign key
+Default
+Defines a default value for a column (When no values are 
+given)
+Check
+Validates data in a column

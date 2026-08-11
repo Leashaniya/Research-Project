@@ -1,0 +1,7 @@
+CONCEPTUAL DATABASE DESIGN
+The result of the requirement analysis step is a concisely written set of users’ 
+requirements.
+Once, this step is completed, the next step is to create a conceptual database 
+schema for the database, using a high-level conceptual data model.
+This step is called conceptual database design.
+Entity-Relationship (ER) model is a high-level conceptual data model.

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/graphviz.ts"],
+  "sourcesContent": ["export * from \"@hpcc-js/wasm-graphviz\";"],
+  "mappings": "iaAAA,IAAAA,EAAA,kBAAAC,EAAAD,GAAAE,EAAAF,EAAc,kCAAd",
+  "names": ["graphviz_exports", "__toCommonJS", "__reExport"]
+}

@@ -1,0 +1,10 @@
+TRIGGERS : INSERTED/DELETED TABLES
+When a trigger is executed SQL Server creates two virtual tables called INSERTED and DELETED.
+The deleted table stores copies of the affected rows during DELETE and UPDATE statements
+The inserted table stores copies of the affected rows during INSERT and UPDATE statements
+For example when inserting a record to a table,  SQL Server creates a virtual table call INSERTED 
+and loads data into the inserted table then executes the trigger statements and writes the related 
+data pages.
+The format of the inserted and deleted tables is the same as the format of the table on which the trigger 
+is defined
+Each column in the inserted and deleted tables maps directly to a column in the base table

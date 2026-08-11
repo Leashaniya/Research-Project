@@ -1,0 +1,3 @@
+MAPPING N-ARY RELATIONSHIPS
+N-ary relationship is mapped in to a “Relationship” relation and foreign keys
+[FIGURE: slide_015_fig_1.png]

@@ -1,0 +1,53 @@
+00846
+Question 4 
+(18 marks)
+a)
+Consider the following statement; 
+“Indexes speed up selections but may slow down updates.” 
+Briefly explain how indexes can “slow down” update operations. 
+(2 marks)
+Justify why a table contains only one clustered index whereas more unclustered 
+indexes are allowed. 
+(3 marks) 
+Consider the following schema: 
+Employee(eid:integer, ename:string, address:string, salary:float, dno:int)
+b)
+)
+There are 10000 pages in Employee file. Each page contains 100 tuples. 
+Assume that the following indexes exists: 
+Index I: An unclustered B+ Tree index on Employee<eid> with height 3. 
+Index 2: A clustered hash index using Alt. 1 on Employee<eid> (Assume a cost of
+1.2 Disk I/Os to access a hash page).
+Consider the following queries:
+Query 1: 
+SELECT 
+salary 
+FROM 
+Employee 
+WHERE 
+eid = ‘E100200762°
+Query 2: 
+SELECT 
+salary 
+FROM 
+Employee 
+WHERE 
+eid < ‘E00001000”
+i. What is the best index (from the indexes given above) that you would select to 
+evaluate query 1? Give reasons? Estimate the cost of the query in disk I/Os using 
+the selected index. Note that eid is primary key in the Employee table. 
+(4 marks)
+ii. What is the best index (from the indexes given above) that you would select to 
+evaluate query 2? Give reasons? 
+(2 marks)
+d)
+Consider the following relational schema: 
+Student (sno, sname, gpa) 
+Registration (sno. cno, marks) 
+Course (cno, cname, credits)
+Assume that Student relation consists of 300 pages with 100 tuples per page, 
+Registration relation contains 900 pages with 100 tuples per page, and Course relation 
+contains 300 pages with 100 tuples per page.
+Page 4 of 
+6
+08/04/2015

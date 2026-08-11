@@ -1,0 +1,46 @@
+DISTINCT OPERATOR
+StudentID
+Name
+gpa
+progId
+Student
+In a table, a column may contain 
+many duplicate values.
+1000
+Amal
+3.2
+BM
+1001
+Nimali
+Null
+IT
+Duplicates in results can be 
+eliminated using DISTINCT 
+operator
+1002
+Aruni
+3.0
+SE
+1003
+Surani
+2.5
+IT
+1004
+Imali
+Null
+BM
+ProgId
+BM
+Ex :
+Select DISTINCT progId
+From student
+ProgId
+IT
+Select progId
+BM
+SE
+IT
+IT
+From student
+SE
+BM

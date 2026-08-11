@@ -1,0 +1,35 @@
+LIKE OPERATOR
+Student
+Used for matching patterns
+StudentID
+Name
+gpa
+progId
+Syntax : <string> LIKE <pattern>
+1000
+Amal
+3.2
+BM
+<pattern> may contain two special 
+symbols:
+1001
+Nimali
+Null
+IT
+1002
+Aruni
+3.0
+SE
+1003
+Surani
+2.5
+IT
+
+%  = any sequence of characters
+
+_   = any single character
+Name
+Ex : Find students whose name starts  with a ‘A’
+Amal
+Select Name From student where Name Like ‘A%’
+Aruni

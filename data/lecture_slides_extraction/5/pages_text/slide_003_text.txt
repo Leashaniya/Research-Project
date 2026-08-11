@@ -1,0 +1,6 @@
+LEARNING OUTCOMES
+At the end of this lecture, students should be able to
+Identify situations where views, functions, stored procedures and triggers are 
+applicable.
+Write syntactically correct sql statements to create functions, procedures and 
+triggers on RDBMS to cater user requirements.

@@ -1,0 +1,9 @@
+KEYS AND FDS
+A key constraint is a special case of a FD where the attributes in the key play the role 
+of X and the set of all attributes play the role of  Y.
+Normalization process analyzes schemas based on keys and on the functional 
+dependencies among their attributes.
+Thus, to start normalization it is essential to find keys of a given relation.
+Attribute closure of an attribute set X, denoted by X+ can be defined as set of all 
+attributes which can be functionally determined from it.
+If X+ = all attributes, then X is a key.

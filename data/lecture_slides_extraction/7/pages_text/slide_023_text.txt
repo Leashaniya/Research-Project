@@ -1,0 +1,10 @@
+SCHEDULES
+A schedule specifies when a job runs. More than one job can run on the 
+same schedule, and more than one schedule can apply to the same job. A 
+schedule can define the following conditions for the time when a job 
+runs:
+Whenever SQL Server Agent starts. (SQL server agent is the component of SQL 
+sever responsible for automation)
+Whenever CPU utilization of the computer is at a level you have defined as idle.
+One time, at a specific date and time.
+On a recurring schedule.

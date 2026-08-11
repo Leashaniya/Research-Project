@@ -1,0 +1,36 @@
+Question 5 
+(25 marks)
+a) Explain the four properties of a transaction. 
+(4 marks)
+b) Briefly explain why the database executes Serializable Schedules rather than Serial 
+Schedules? 
+(3 marks)
+c) Briefly explain the rules in Strict 2 Phase Locking Protocol. 
+(3 marks)
+d) Briefly explain what a Cascading Abort is using a sample schedule. What are the causes 
+fora Cascading Abort? 
+(4 marks)
+e) Consider the transaction schedule below.
+[DIAGRAM: page_006_diagram_1.png]
+Assume that Transaction Ti is higher priority than transaction Ti.i(i.e. transaction T1 has 
+higher priority than T2; and Tz has higher priority than Ts).
+i. 
+ Draw a Wait-For-Graph for the schedule given above. 
+(2 marks)
+ii. 
+Draw the above schedule considering deadlock prevention algorithm: Wait-die 
+approach. 
+(3 marks)
+f) Consider the tree shown below. Describe the steps involved in executing each of the 
+following operations according to the Simple Tree Locking Algorithm, in term of the order 
+in which nodes are locked, unlocked, read and write.
+i. 
+ Search 26 
+(2 marks)
+ii. 
+Insert2 
+(2 marks)
+iii. Delete 44 
+(2 marks)
+Page 6 of 7 
+30/09/2016

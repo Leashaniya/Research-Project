@@ -1,0 +1,121 @@
+[
+  {
+    "question_id": 1,
+    "marks": 20,
+    "text": "Consider the following EER Model.\n[DIAGRAM: page_002_diagram_1.png]",
+    "subquestions": [
+      {
+        "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
+        "marks": 16
+      },
+      {
+        "text": "What is the best option for mapping the ISA hierarchy in the diagram? Justify your answer.",
+        "marks": 4
+      }
+    ],
+    "pdf_stem": "2023 II"
+  },
+  {
+    "question_id": 2,
+    "marks": 15,
+    "text": "Consider a relation R (A, B, C, D, E, F, G) with the following set of functional dependencies over R: F = {A->BC, B->D, C->EF, AC->G}",
+    "subquestions": [
+      {
+        "text": "Find all the keys in relation R using attribute closure method.",
+        "marks": 4
+      },
+      {
+        "text": "Is R in 3NF? Give reasons for your conclusion.",
+        "marks": 3
+      },
+      {
+        "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+        "marks": 8
+      }
+    ],
+    "pdf_stem": "2023 II"
+  },
+  {
+    "question_id": 3,
+    "marks": 25,
+    "text": "[DIAGRAM: page_003_diagram_1.png]",
+    "subquestions": [
+      {
+        "text": "Native API Driver is faster than Java Thin Driver. Accept or refute the above statement justifying your answer.",
+        "marks": 2
+      },
+      {
+        "text": "There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used.",
+        "marks": 2,
+        "diagram": "[DIAGRAM: page_003_diagram_1.png]"
+      },
+      {
+        "text": "Briefly explain what is meant by a Full Backup?",
+        "marks": 2
+      },
+      {
+        "text": "Briefly explain the three main aspects to focus on when a database is secured?",
+        "marks": 3
+      },
+      {
+        "text": "A software company has been assigned the responsibility of automating the tasks of a digital marketing company. This includes designing and developing a database for the company to maintain the records of various functions. It also maintains records of digital channels to market products and services in order to reach consumers. Menaka, a senior DBA is assigned to the project to handle all the administrative tasks related to the databases by the database architect. Menaka creates the required database and assign Nipun the responsibility of managing the CompanyDB. Since there will be lot of users for the project, Amali is assigned with the responsibility of handling logins to the system. Nipun assigns Kasuni with the responsibility of creating tables. In addition, Kasuni should be able to create views, stored procedures and triggers required. Dinethi, who is data entry operator is given the responsibility of inserting the data to the table. Amal is assigned with the responsibility of generating reports from the table in the data. For the above purpose, Amal could directly query the data or call functions and procedures.",
+        "subquestions": [
+          {
+            "text": "Write a T-SQL statement to create a login to Menaka.",
+            "marks": 2
+          },
+          {
+            "text": "Provide permission using fixed server role to handle all the administrative tasks in the server to Menaka.",
+            "marks": 3
+          },
+          {
+            "text": "Assuming that Nipun has the user name nipun.b, write a T-SQL statements required to assign him with the responsibility of handling the companyDB using user defined server role.",
+            "marks": 5
+          },
+          {
+            "text": "Assuming that Kasuni has a login name by the name kasuni.a write T-SQL statements required to allow her to create tables, functions, procedures and triggers.",
+            "marks": 3
+          },
+          {
+            "text": "Assuming that Amal has a login name amal k. write T-SQL statements required to perform the tasks she is responsible for.",
+            "marks": 3
+          }
+        ]
+      }
+    ],
+    "pdf_stem": "2023 II"
+  },
+  {
+    "question_id": 4,
+    "marks": 40,
+    "text": "Consider the following schema of a database designed for a university: Students (studentId: int, name: varchar(40), email: varchar(30), dob: date, specialization: int, GPA: real) Courses (courseId: int, name: varchar(40), credits: int) Offer (specialization: int, courseId: int, acYear: int, semester: int) Grades (studentId: int, courseId: int, acYear: int, calYear: int, semester: int, status: varchar(10), CAMarks: int, finalMark: int, grade: char(1)) GradePoints (grade: char(1), gradePoint: real) Enrollment (studentId: int, courseId: int, calYear: int, semester: int, basis: varchar(30))",
+    "subquestions": [
+      {
+        "text": "Write SQL Queries to perform the following:",
+        "subquestions": [
+          {
+            "text": "Display the course id, name, and credits of courses offered in semester 1 in year 2023 for students following Data Science Specialization.",
+            "marks": 4
+          },
+          {
+            "text": "Find the course IDs and names of modules offered in year 2 semester 1 to more than one specializations.",
+            "marks": 6
+          },
+          {
+            "text": "Find the ID, name, specialization and gpa of students in the Dean's list for year 2022 semester 2. Note that a student is in a Dean's List if for a particular semester in a year he has completed all modules and has an overall GPA over 3.7.",
+            "marks": 7
+          }
+        ]
+      },
+      {
+        "text": "Create a function to calculate the GPA of a given student for a given semester and year.",
+        "marks": 11
+      },
+      {
+        "text": "Create a trigger to set the grade of basis pro-rata or repeat students to C if he/she passes the module. Assume that CA marks and Final Marks are given by 100 and a student passes the module if the overall mark is above 45. Overall Mark = (CA + Final Marks)/2.",
+        "marks": 12
+      }
+    ],
+    "pdf_stem": "2023 II"
+  }
+]

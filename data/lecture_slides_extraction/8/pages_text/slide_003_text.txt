@@ -1,0 +1,4 @@
+LECTURE CONTENT
+Aspects of database security
+Access control mechanisms
+Roles, Users and Permissions in SQL server

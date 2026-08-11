@@ -1,0 +1,5 @@
+MAPPING AGGREGATION RELATIONSHIPS
+Aggregation mapping could be performed in two steps.
+Step 1: First map the aggregation relationship R.
+Step 2 :To map relationship set involving aggregation of R, treat the aggregation like an entity 
+set whose primary key is the primary key of the table for R

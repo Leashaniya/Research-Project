@@ -1,0 +1,104 @@
+MODEL EXAM PAPER (OpenAI RAG)
+Model: gpt-4o-mini
+Total Marks: 100
+======================================================================
+
+
+Q1 (20 marks) — ER_EER_MODELING
+  a) Create an Enhanced Entity-Relationship (EER) diagram that models the following scenario: A university has multiple departments, each of which offers various courses. Each course can have multiple instructors, and an instructor can teach multiple courses. Students enroll in courses and can be declared majors in specific departments. Each department has a name and a unique department number, while courses have unique course codes and titles. Additionally, delineate any ISA relationships that may exist if instructors are classified as full-time or part-time. Clearly identify all entities, attributes, relationships, and show any necessary cardinalities and participation constraints in your diagram. 
+
+```mermaid
+classDiagram
+    class Department {
+        +string departmentNumber
+        +string name
+    }
+    class Course {
+        +string courseCode
+        +string title
+    }
+    class Instructor {
+        +string instructorId
+        +string name
+        +string type
+    }
+    class Student {
+        +string studentId
+        +string name
+        +int enrollmentYear
+    }
+    Department "1" --o "*" Course : offers
+    Instructor "*" --o "*" Course : teaches
+    Student "*" --o "*" Course : enrolls
+    Instructor <|-- FullTimeInstructor : specialize
+    Instructor <|-- PartTimeInstructor : specialize
+```
+ (17 marks)
+  b) Briefly explain the concept of generalization and specialization in the EER model with an example distinct from the one provided in the main question. 
+ (3 marks)
+
+
+Q2 (15 marks) — NORMALIZATION_FD_KEYS
+  a) Given the relation S (StudentID, Name, CourseID, CourseName, InstructorID, InstructorName) with the functional dependencies F = { StudentID -> Name, CourseID -> CourseName, InstructorID -> InstructorName }, explain whether the relation is in First Normal Form (1NF) and justify your answer. (4 marks)
+  b) Identify the primary key for the relation S from the functional dependencies provided and explain how you arrived at your conclusion. (3 marks)
+  c) Normalize the relation S to Second Normal Form (2NF). Provide the decomposed relations and justify each step taken during the normalization process. Present the final tables and their functional dependencies. (8 marks)
+
+
+Q3 (25 marks) — SQL_DDL_DML
+  a) Explain the difference between SQL DDL (Data Definition Language) and DML (Data Manipulation Language). Provide one example of each. (5 marks)
+  b) Write a SQL statement to create a table named `Employees` with the following attributes: `EmployeeID` (integer, primary key), `FirstName` (varchar with a maximum length of 50), `LastName` (varchar with a maximum length of 50), and `HireDate` (date). (5 marks)
+  c) Assume the `Employees` table already contains data. Write a SQL command to update the `LastName` of an employee with `EmployeeID` 101 to 'Smith'. (5 marks)
+  d) Consider a scenario where you need to delete an employee from the `Employees` table based on `EmployeeID`. Write the SQL command that would accomplish this task. Additionally, explain the consequences of using this command without a WHERE clause. (10 marks)
+  e) You have been provided with the following relational schema for a library management system: 
+```
+mermaid
+  erDiagram
+    BOOK { 
+      integer BookID PK 
+      string Title 
+      string Author 
+      string Genre 
+      date PublishedDate
+    }
+    MEMBER { 
+      integer MemberID PK 
+      string Name 
+      string Email 
+      date DateJoined
+    }
+    LOAN { 
+      integer LoanID PK 
+      integer BookID FK 
+      integer MemberID FK 
+      date LoanDate 
+      date ReturnDate 
+    }
+```
+
+Write the SQL statements needed to:
+1. Create the `BOOK`, `MEMBER`, and `LOAN` tables according to the schema.
+2. Insert at least three sample records into the `BOOK` table.
+3. Query the `LOAN` table to retrieve all loans that are currently active (i.e., `ReturnDate` is NULL).
+Include data integrity constraints wherever applicable. (16 marks)
+
+
+Q4 (40 marks) — TRANSACTIONS_CONCURRENCY
+  a) Explain the ACID properties of transactions in database systems. Discuss how these properties help maintain database integrity during concurrent transaction executions. (8 marks)
+  b) Apply the concept of Serializable Schedules to identify if the following schedule is Serializable. Consider the transactions T1 and T2:
+T1: R(a), W(a)
+T2: R(a), W(a)
+Identify conflicts in the schedule and explain whether or not it is Serializable by illustrating your reasoning.
+
+Additionally, represent the conflicting operations graphically using the following structure:
+```mermaid
+ erDiagram
+ T1 ||--o{ Conflict : "accesses"
+ T2 ||--o{ Conflict : "accesses"
+``` (9 marks)
+  c) Create a deadlock detection algorithm for a system where transactions are waiting for resources. Assume there are multiple transactions accessing shared resources. Illustrate a Wait-For-Graph for a given schedule involving transactions T1, T2, and T3, and explain how deadlocks can be detected and resolved in your algorithm. Use the following structure for drawing:
+```mermaid
+ erDiagram
+ Transaction1 ||--o{ WaitFor : "waiting"
+ Transaction2 ||--o{ WaitFor : "waiting"
+ Transaction3 ||--o{ WaitFor : "waiting"
+``` (12 marks)

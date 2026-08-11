@@ -1,0 +1,8 @@
+SCHEMA REFINEMENT
+Schema refinement can be considered a systematic process for analyzing a relational 
+schema with the aim of  minimizing redundancies and minimizing insertion, deletion 
+and update anomalies.
+The process  performs a series of tests called normal form tests to check whether 
+the schemas meet certain conditions, and those relations that are unsatisfactory are 
+decomposed in to smaller relation.
+Normalization is based on functional dependencies

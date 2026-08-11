@@ -1,0 +1,14 @@
+JDBC ARCHITECTURE
+The JDBC API provides the 
+application-to-JDBC Manager 
+connection.
+The JDBC driver manager supports 
+the JDBC Manager-to-Driver 
+Connection. It  manages a list of 
+database drivers. Matches connection 
+requests from the java application 
+with the proper database driver.
+[FIGURE: slide_006_fig_1.png]
+JDBC Driver handles the 
+communications with the database 
+server.

@@ -1,0 +1,11 @@
+STEP 2 – EXPORTING DATA FROM AN EXCEL FILE
+On the next screen select the data 
+source.
+In this scenario the data source is an 
+excel file.
+Browse and select the location of the file.
+[FIGURE: slide_008_fig_1.png]
+Tick the check box on the bottom of the 
+screen if the column names are in the 
+first row of the file.
+Click Next.

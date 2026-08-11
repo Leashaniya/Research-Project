@@ -1,0 +1,210 @@
+[
+  {
+    "question_id": 1,
+    "marks": 20,
+    "text": "Consider the following schema of a database developed for an airport. Customer (customerId: integer, name: varchar (30), age: int, phone: char (10)) Reservations (flno: char (6), custId: integer) Flights (flno: char (6), from: varchar (30), to: varchar (30), departs: datetime, arrives: datetime, regNo: char (8), pilotId: integer) Aircraft (regNo: char (8), model: varchar (15), capacity: integer, Pilots (id: integer, name: varchar (30), salary: float, flyingHours: integer) The Aircraft table stores the registration number (regNo), model (model) and the number of passengers who can travel in the aircraft (capacity) for each aircraft type. The Flights table stores the flight number (flno), the departing airport (from), destination airport (to), departing time (departs), arrival time (arrives), the registration number of the aircraft (regNo) and the id of the pilot (pilot) related to all flights. Reservations table stores the flight number (flno) and the customer number (custId) for each customer who has reserved a flight. Pilots table stores the id (id), name (name), salary (salary) and the number of hours the pilot have flown (flyingHours) for each pilot. Primary keys of the tables are underlined.",
+    "subquestions": [
+      {
+        "marks": 2,
+        "text": "i. Find the registration number and the model of aircrafts that departs to Brisbane between 1st January 2010 and 31st May 2010."
+      },
+      {
+        "marks": 3,
+        "text": "ii. For each aircraft that has a capacity over 200 display the registration number and the number of flights it has taken. If the aircraft has not taken any flights display 0 for the number of flights."
+      },
+      {
+        "marks": 4,
+        "text": "iii. For each pilot who has flown an aircraft more than 100 times and has the number of flying hours exceeding 5000, print the pilots name and the salary."
+      },
+      {
+        "marks": 5,
+        "text": "b) Create a function which outputs the number of seats available in a given flight. Hint: If the number of reservations in a flight is equal to its capacity there are no seats available in the flight."
+      },
+      {
+        "marks": 6,
+        "text": "c) Create a trigger that uses the function you have created in part b) to ensure that the number of passengers in a flight does not exceed the capacity of the aircraft."
+      }
+    ],
+    "pdf_stem": "2016"
+  },
+  {
+    "question_id": 2,
+    "marks": 20,
+    "text": "[DIAGRAM: page_003_diagram_1.png]",
+    "subquestions": [
+      {
+        "marks": 3,
+        "text": "a) Briefly describe two main techniques used in RAID. What is the purpose of each technique?"
+      },
+      {
+        "marks": 2,
+        "text": "b) Explain the role of the Disk Space Manager in the database management system architecture?"
+      },
+      {
+        "marks": 1,
+        "text": "c) Consider a disk with a sector size of 512 bytes, block size of 1024 bytes, 1000 tracks per surface, 50 sectors per track and 5 double-sided platters. Seek time is 20 msec. Average rotational delay is 10 msec. Data transfer time per a block is 1 msec. You need to store a student file with fields as follows in the disk above: id (20 bytes), name (40 bytes), bdate (10 bytes), GPA (20 bytes), phone(10 bytes). The student file has 5000 records, which are in fixed-length format. No record spans multiple blocks."
+      },
+      {
+        "marks": 1,
+        "text": "i. What is the size of a student record?"
+      },
+      {
+        "marks": 2,
+        "text": "ii. How many student records can be stored in a block?"
+      },
+      {
+        "marks": 2,
+        "text": "iii. How many cylinders are needed to store the student file?"
+      },
+      {
+        "marks": 2,
+        "text": "iv. What is the time required to read a data block from the student file?"
+      },
+      {
+        "marks": 2,
+        "text": "v. What is the time required to read 3 consecutive data blocks in the same track from the student file?"
+      },
+      {
+        "marks": 2,
+        "text": "d) Explain the terms pin count and dirty bit relevant to the buffer manager?"
+      },
+      {
+        "marks": 4,
+        "text": "e) Consider the following buffer pool with 5 frames. Each frame has a frame number (Frame No), page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty).  Assume that the following times states the last time the particular frame was accessed (on the same day): Frame number 0 at 12:15 pm, Frame number 1 at 12:07 pm, Frame number 2 at 2:05 pm, Frame number 3 at 12:02 pm, Frame number 4 at 1:26 pm. Describe the steps followed by the buffer manager when a request for the page with PageID 50 occurs if MRU (Most-recently-used) replacement policy is used."
+      }
+    ],
+    "pdf_stem": "2016"
+  },
+  {
+    "question_id": 3,
+    "marks": 22,
+    "text": "[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_004_diagram_2.png]",
+    "subquestions": [
+      {
+        "marks": 3,
+        "text": "a) Briefly explain the three main file organizations."
+      },
+      {
+        "marks": 3,
+        "text": "b) Searching for records with an equality condition in Hash is always easy. Accept or refute the above statement giving reasons."
+      },
+      {
+        "marks": 3,
+        "text": "c) Briefly explain one advantage and one disadvantage of indexes."
+      },
+      {
+        "marks": 2,
+        "text": "d) What is an unclustered index? How many unclustered indexes a table can have?"
+      },
+      {
+        "marks": 3,
+        "text": "e) Consider the following B+ tree of order 2.  i. Illustrate B+ tree after inserting 20 to the tree above."
+      },
+      {
+        "marks": 3,
+        "text": "ii. Illustrate the B+ tree after deleting 30 from the original tree."
+      },
+      {
+        "marks": 5,
+        "text": "f) Consider the following extendible hashing index. The hashing function considers the last 2 digits of the binary representation.  Show the extendible hashed file after inserting 12 and 22."
+      }
+    ],
+    "pdf_stem": "2016"
+  },
+  {
+    "question_id": 4,
+    "marks": 13,
+    "text": "",
+    "subquestions": [
+      {
+        "marks": 3,
+        "text": "a) Briefly explain the process of query processing."
+      },
+      {
+        "marks": 2,
+        "text": "b) What is heuristic optimization in query processing?"
+      },
+      {
+        "marks": 1,
+        "text": "c) Consider the following relation: Student(sid:char(10), sname:varchar(100), address:varchar(200), gpa:float) Grades (sid: char(10), cid: char(5), grade: char(2)) The Student relation has 100 pages with 100 tuples per page. The Grades relation has 1000 pages with 200 tuples per page. Assume that 20 buffer frames are available in the buffer pool."
+      },
+      {
+        "marks": 1,
+        "text": "i. Consider the following query: SELECT sname FROM Student WHERE gpa >3.7 Estimate the cost for the above query assuming there are no indexes on the Student table. (Reduction factor for gpa > 3.7 is 0.1)"
+      },
+      {
+        "marks": 2,
+        "text": "ii. Consider the following query: SELECT g.grade FROM Student s, Grades g WHERE s.sid=g.sid and s.gpa >3.7 a. Estimate the cost for finding the students with gpa > 3.7 from the Student table assuming there is a B+ tree index of height 3 on the gpa column in the Student table with Alt. 2 which has 20 leaf pages. (Reduction factor for gpa > 3.7 is 0.1)"
+      },
+      {
+        "marks": 1,
+        "text": "b. Do we have to store the resulted Student pages in the disk before they are joined with the Grades table?"
+      },
+      {
+        "marks": 2,
+        "text": "c. Estimate the cost for finding the grades of the students with gpa > 3.7 assuming that the Grades table contains a Hash index of Alt. 1 on the sid column. Assume that the Index nested loop join is used to join the Student table and the Grades table."
+      },
+      {
+        "marks": 2,
+        "text": "d. What is the total cost for executing the query?"
+      }
+    ],
+    "pdf_stem": "2016"
+  },
+  {
+    "question_id": 5,
+    "marks": 25,
+    "text": "[DIAGRAM: page_006_diagram_1.png]\n[DIAGRAM: page_007_diagram_1.png]",
+    "subquestions": [
+      {
+        "marks": 4,
+        "text": "a) Explain the four properties of a transaction."
+      },
+      {
+        "marks": 2,
+        "text": "b) Briefly explain what is meant by a Schedule and a Serializable Schedule?"
+      },
+      {
+        "marks": 2,
+        "text": "c) Briefly explain what an unrepeatable read in transaction scheduling is using an example."
+      },
+      {
+        "marks": 2,
+        "text": "d) Briefly explain what a deadlock is."
+      },
+      {
+        "marks": 4,
+        "text": "e) Briefly explain the wound-wait and wait-die approaches used for deadlock prevention."
+      },
+      {
+        "marks": 2,
+        "text": "f) Consider the transaction schedule below.  Assume that Transaction T1 is higher priority than transaction T2 (i.e. transaction T1 has higher priority than T2 and T2 has higher priority than T3)."
+      },
+      {
+        "marks": 2,
+        "text": "i. Draw a Wait-For-Graph for the schedule given above."
+      },
+      {
+        "marks": 3,
+        "text": "ii. Draw the above schedule considering deadlock prevention algorithm: Wound-wait approach."
+      },
+      {
+        "marks": 2,
+        "text": "g) Consider the tree shown below. Describe the steps involved in executing each of the following operations according to the Simple Tree Locking Algorithm, in terms of the order in which nodes are locked, unlocked, read and write. Answer each part independently of others."
+      },
+      {
+        "marks": 2,
+        "text": "i. Search 9."
+      },
+      {
+        "marks": 2,
+        "text": "ii. Insert 37."
+      },
+      {
+        "marks": 2,
+        "text": "iii. Delete 4."
+      }
+    ],
+    "pdf_stem": "2016"
+  }
+]

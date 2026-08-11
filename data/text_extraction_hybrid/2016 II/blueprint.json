@@ -1,0 +1,32 @@
+[
+  {
+    "question_id": 1,
+    "marks": 20,
+    "text": "Consider the following schema of a database developed for a university. Lecturer (lecturerld: integer, Iname: varchar (30), grade: varchar (20), salary: real, type: varchar (10), department: varchar (30)) Qualifications (lecturerld: integer, qualification: varchar (30)) Course (cid: integer, cname; varchar (25), credits: integer, program: varchar (30)) Teach (lecturerld: integer, cid: integer, year: integer, semester: integer) Lecturer table stores the id (lecturerld), name (Iname), grade (Assistant Lecturer, Lecturer or Senior Lecturer), salary, type of the lecturer (Permanent or Visiting) and the attached department (such as IT and IS) for each lecturer in the university. Qualifications table stores information related to the qualifications of lecturers. The table stores the IDs of the lecturers (lecturerld) and the qualifications they have received (such as BSc in IT, MSc in GIS, MBA and Phd in Computer Science). Course table stores the ID of the course (cid), name (cname), number of credits (credits) and the program the course belongs to (such as BSc in IT, and BEng in Mechanical Engineering) for each course offered. The Teach table stores information on teaching. For each lecturer teaching a course, the Teach table stores the ID of the lecturer (lecturerld), ID of the course he/she has taught (cid), the year and the semester he/she has taught the course. Lecturerld attribute in Qualifications and Teach tables are foreign keys that references the Lecturer table. Cid attribute in Teach table is a foreign key that references the Course table. All primary keys of the tables are underlined.",
+    "pdf_stem": "2016 II"
+  },
+  {
+    "question_id": 2,
+    "marks": 20,
+    "text": "[DIAGRAM: page_003_diagram_1.png]",
+    "pdf_stem": "2016 II"
+  },
+  {
+    "question_id": 3,
+    "marks": 20,
+    "text": "[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_004_diagram_2.png]",
+    "pdf_stem": "2016 II"
+  },
+  {
+    "question_id": 4,
+    "marks": 15,
+    "text": "",
+    "pdf_stem": "2016 II"
+  },
+  {
+    "question_id": 5,
+    "marks": 25,
+    "text": "[DIAGRAM: page_006_diagram_1.png]\n[DIAGRAM: page_007_diagram_1.png]",
+    "pdf_stem": "2016 II"
+  }
+]

@@ -1,0 +1,201 @@
+{
+  "generated_at": "2026-02-22 21:22:10",
+  "mode": "AGENTIC_V1",
+  "total_marks": 100,
+  "num_questions": 4,
+  "topic_distribution": {
+    "Q1": {
+      "topic": "ER_EER_MODELING",
+      "marks": 20
+    },
+    "Q2": {
+      "topic": "NORMALIZATION_FD_KEYS",
+      "marks": 15
+    },
+    "Q3": {
+      "topic": "SQL_DDL_DML",
+      "marks": 25
+    },
+    "Q4": {
+      "topic": "SQL_DDL_DML",
+      "marks": 40
+    }
+  },
+  "questions": [
+    {
+      "question_no": "Q1",
+      "marks": 20,
+      "text": "Consider the following Enhanced Entity-Relationship (EER) diagram:\n                                \nNote: The diagram uses (min, max) cardinality notation where:\n- (1,1) indicates one-to-one relationship (each entity participates exactly once)\n- (1,N) or (1,*) indicates one-to-many relationship (one entity can relate to many)\n- (0,1) indicates optional participation (zero or one)\n- (0,N) or (0,*) indicates optional many participation (zero or many)\n\n\nIn a university database, there are four main entities: Student, Course, Instructor, and Enrollment. The Student entity has attributes: StudentID, FirstName, LastName, and Email. The Course entity includes CourseID, CourseName, and Credits. The Instructor entity has attributes such as InstructorID, Name, Department. possesses attributes: InstructorID, Name, and Office (a composite attribute with Building and RoomNumber). , which captures the relationship between Students and Courses, has EnrollmentID and an EnrollmentDate attribute. The relationships include a Many-to-Many between Student and Course through Enrollment, where a Student can enroll in multiple Courses and a Course can have multiple Students. Instructors teach Courses (One-to-Many relationship) and can be associated with multiple Courses. IMPORTANT: The system includes ISA hierarchies (subtype/supertype relationships). Student is the supertype with two subtypes: GraduateStudent and UndergraduateStudent. GraduateStudent has specific attributes: ThesisTitle, AdvisorName, ResearchArea. UndergraduateStudent has specific attributes: YearOfStudy, Major, GPA. A Student can be related to many Courses, and a Course can be related to many Students through the 'Enrolls' relationship (Student participation is optional, Course participation is optional). A Instructor can be related to many Courses through the 'Teaches' relationship (Instructor participation is optional)",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulting relations clearly.",
+          "marks": 17
+        },
+        {
+          "label": "b",
+          "text": "What is the best option for mapping the ISA hierarchies in the diagram? Justify your answer.",
+          "marks": 3
+        }
+      ],
+      "pattern_label": "ER_EER_MODELING",
+      "main_topic": "ER_EER_MODELING",
+      "intent": "ER_EER_MODELING",
+      "template_id": "699b25ce67b88dcefbceb909",
+      "original_semantic_description": "In a university database, there are four main entities: Student, Course, Instructor, and Enrollment. The Student entity has attributes: StudentID (Primary Key), FirstName, LastName, and Email. The Course entity includes CourseID (Primary Key), CourseName, and Credits. The Instructor entity has attributes such as InstructorID, Name, Department. possesses attributes: InstructorID (Primary Key), Name, and Office (a composite attribute with Building and RoomNumber). The Enrollment entity has attributes such as EnrollmentID, Name, Description., which captures the relationship between Students and Courses, has EnrollmentID (Primary Key) and an EnrollmentDate attribute. The relationships include a Many-to-Many between Student and Course through Enrollment, where a Student can enroll in multiple Courses and a Course can have multiple Students. Instructors teach Courses (One-to-Many relationship) and can be associated with multiple Courses.",
+      "diagram_image_path": "C:\\Users\\DELL\\Downloads\\Research Project\\data\\outputs\\model_papers\\images\\Q1_eer_diagram.png",
+      "diagram_generated": true,
+      "diagram_type": "EER",
+      "needs_diagram": true,
+      "diagram_source": "semantic_description",
+      "topic_label": "ER_EER_MODELING"
+    },
+    {
+      "question_no": "Q2",
+      "marks": 15,
+      "text": "Consider a relation R(A, B, C, D, E) with the following set of functional dependencies over R: F={{AB->C, C->D, D->E, B->A}}. Analyze the keys and normalization status of this relation.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Find all the keys in relation R using the attribute closure method.",
+          "marks": 4
+        },
+        {
+          "label": "b",
+          "text": "Is R in 3NF? Give reasons for your conclusion.",
+          "marks": 3
+        },
+        {
+          "label": "c",
+          "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+          "marks": 8
+        }
+      ],
+      "pattern_label": "NORMALIZATION_FD_KEYS",
+      "main_topic": "NORMALIZATION_FD_KEYS",
+      "intent": "NORMALIZATION_FD_KEYS",
+      "template_id": "699b25ce67b88dcefbceb90a",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": false,
+      "topic_label": "NORMALIZATION_FD_KEYS"
+    },
+    {
+      "question_no": "Q3",
+      "marks": 25,
+      "text": "A university is designing a database system to efficiently manage its courses, students, and enrollment records. The system will consist of three primary tables: Courses, Students, and Enrollments. The Courses table will hold the course details such as course ID, name, and credit hours. The Students table will contain information about each student including student ID, name, and major. The Enrollments table will establish relationships between students and the courses they enroll in, referencing the corresponding student ID and course ID.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
+          "marks": 2
+        },
+        {
+          "label": "b",
+          "text": "Code Segment: ```java String sql = \"SELECT * FROM employees WHERE department = ?\"; PreparedStatement pstmt = connection.prepareStatement(sql); pstmt.setString(1, \"IT\"); ResultSet rs = pstmt.executeQuery(); ``` Which type of JDBC statement is used in the code segment shown above? Briefly explain when this type of statement will be used.",
+          "marks": 2
+        },
+        {
+          "label": "c",
+          "text": "Briefly explain the options available for defining primary and foreign keys within the schema of the Courses, Students, and Enrollments tables.",
+          "marks": 2
+        },
+        {
+          "label": "d",
+          "text": "Briefly explain how data integrity can be maintained when designing the database schema for this university system.",
+          "marks": 3
+        },
+        {
+          "label": "e",
+          "text": "A university is establishing role-based access control for its database system that manages Courses, Students, and Enrollments. Sarah is the senior database administrator responsible for overall database administration. Emily is a junior database administrator responsible for managing the Enrollments database. Nathan is a database developer responsible for creating and maintaining database objects. Michael is a data entry operator responsible for entering and updating student enrollment data.",
+          "marks": null,
+          "subquestions": [
+            {
+              "label": "i",
+              "marks": 2,
+              "text": "i. Write a T-SQL statement to create a login to Sarah with windows authentication."
+            },
+            {
+              "label": "ii",
+              "marks": 3,
+              "text": "ii. Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role."
+            },
+            {
+              "label": "iii",
+              "marks": 5,
+              "text": "iii. Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the Enrollments database using a user-defined server role."
+            },
+            {
+              "label": "iv",
+              "marks": 3,
+              "text": "iv. Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases."
+            },
+            {
+              "label": "v",
+              "marks": 3,
+              "text": "v. Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the Students and Enrollments databases."
+            }
+          ]
+        }
+      ],
+      "pattern_label": "SQL_DDL_DML",
+      "main_topic": "SQL_DDL_DML",
+      "intent": "SQL_DDL_DML",
+      "template_id": "699b25ce67b88dcefbceb90b",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": false,
+      "topic_label": "SQL_DDL_DML"
+    },
+    {
+      "question_no": "Q4",
+      "marks": 40,
+      "text": "Consider the following schema of a database designed for a Hospital: Patient (patientId: int, name: varchar(100), phoneNumber: varchar(15), dateOfBirth: date) Doctor (doctorId: int, name: varchar(100), specialty: varchar(50), phoneNumber: varchar(15)) Appointment (appointmentId: int, patientId: int, doctorId: int, appointmentDate: date, status: varchar(20)) Fee (feeId: int, appointmentId: int, amount: real, paidStatus: varchar(20)). The 'Patient' table stores information about patients, including unique patient IDs, their names and phone numbers, as well as their dates of birth. The 'Doctor' table holds details about doctors, including their specialties. The 'Appointment' table keeps track of the appointments between patients and doctors, while the 'Fee' table records the fees associated with each appointment, including payment statuses. The 'Appointment' table manages appointment records, tracking scheduled appointments between patients and doctors with dates and times. The 'Fee' table contains relevant information for the database system.",
+      "subquestions": [
+        {
+          "label": "a",
+          "text": "Write SQL Queries to perform the following: i. Find the name and phone number of the patient who has an appointment on '2023-12-01'.",
+          "marks": null,
+          "subquestions": [
+            {
+              "label": "i",
+              "marks": 4,
+              "text": "Find the name and phone number of the patient who has an appointment on '2023-12-01'."
+            },
+            {
+              "label": "ii",
+              "marks": 6,
+              "text": "Find the patient who has the highest total amount compared to all other patients. Find the patientId and name."
+            },
+            {
+              "label": "iii",
+              "marks": 7,
+              "text": "Find the name and name from Doctor, Patient, and Appointment where Appointment.appointmentDate is not null."
+            }
+          ]
+        },
+        {
+          "label": "b",
+          "marks": 11,
+          "text": "b) Create a function to calculate the total fee amount for a given patient. This function should account for fee with a late penalty of 10% applied to those marked as 'overdue' payment status."
+        },
+        {
+          "label": "c",
+          "marks": 12,
+          "text": "c) Create a trigger that automatically updates the 'amount' column in the 'Fee' table whenever a new fee record is added, or an existing fee record is updated. The 'amount' column should contain the total fee amount for each patient. Ensure the trigger adjusts the 'amount' column accurately to reflect any partial payments made by patient. The patient pays only 50% of the total fee amount as an initial payment when the payment status is marked as 'Partial'."
+        }
+      ],
+      "pattern_label": "SQL_DDL_DML",
+      "main_topic": "SQL_DDL_DML",
+      "intent": "SQL_DDL_DML",
+      "template_id": "699b25ce67b88dcefbceb90c",
+      "diagram_image_path": null,
+      "diagram_generated": false,
+      "diagram_type": null,
+      "needs_diagram": false,
+      "topic_label": "SQL_DDL_DML"
+    }
+  ]
+}

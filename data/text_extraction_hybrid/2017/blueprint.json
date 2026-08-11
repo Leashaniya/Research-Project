@@ -1,0 +1,32 @@
+[
+  {
+    "question_id": 1,
+    "marks": 20,
+    "text": "Consider the database of a bank that includes the following tables: BRANCH (branchNo: int, address: varchar (50), phone : char (10), manager: varchar(30)) ACCOUNT (aceNo: char (15), type : varchar (10), balance : real, branchNo: int) CUSTOMER (custNo: char (10), name: varchar(25); phone: char (10), address : varchar (50)) OWNS (accNo: char (15), custNo: char (10)) TRANSACTION (accNo: char (15), datetime: datetime, type: varchar (15), amount: real) The table BRANCH contains the branch number (branchNo), address of the branch, phone number (phone), and name of the manager (manager) of all branches of the bank. The ACCOUNT table contains account number (accNo), type of the account ( Savings or Current ), current balance of the account and the branch number of the branch the account is created in (branchNo) for all accounts in the bank. CUSTOMER table contains customer number (custNo), name of the customer, phone number of the customer and the address of each customer of the bank. For each customer owning an account the OWNS table stores the account number (accNo) and the customer number of the customer owning the account (custNo). TRANSACTION table stores the account number (accNo), date and time of the transaction (datetime), type of the transaction ( Credit or Debit ) and the amount of the credit or debit associated with the transaction. The primary keys of the relations are underlined.",
+    "pdf_stem": "2017"
+  },
+  {
+    "question_id": 2,
+    "marks": 20,
+    "text": "Briefly explain a software solution and a hardware solution to improve the performance of a database.\n[DIAGRAM: page_003_diagram_1.png]\n[DIAGRAM: page_003_diagram_2.png]",
+    "pdf_stem": "2017"
+  },
+  {
+    "question_id": 3,
+    "marks": 20,
+    "text": "a) Briefly explain the sequential file organization with respect to the application of insert, update, delete and search (equality/range) operations performed on it.\n[DIAGRAM: page_004_diagram_1.png]\n[DIAGRAM: page_005_diagram_1.png]",
+    "pdf_stem": "2017"
+  },
+  {
+    "question_id": 4,
+    "marks": 15,
+    "text": "a) Briefly explain the parsing and translation phase in query processing.",
+    "pdf_stem": "2017"
+  },
+  {
+    "question_id": 5,
+    "marks": 25,
+    "text": "a) Explain the atomicity property of database transactions.\n[DIAGRAM: page_007_diagram_1.png]\n[DIAGRAM: page_007_diagram_2.png]",
+    "pdf_stem": "2017"
+  }
+]

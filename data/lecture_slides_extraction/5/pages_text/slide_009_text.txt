@@ -1,0 +1,26 @@
+UPDATING VIEWS (CONTD.)
+Views containing a join can be ambiguous
+A
+B
+C
+B
+C
+A
+B
+1
+d
+b
+1
+b
+1
+d
+1
+e
+b
+1
+e
+UPDATE V1
+SET A = a
+WHERE C = e
+Thus, in many DBMSs, views are updateable only if they are defined on a single base 
+table.

@@ -1,0 +1,9 @@
+ER MODEL - ENTITIES & ATTRIBUTES
+You already know these !
+Check the handout for the definitions and examples for entities, different types of 
+attributes and keys.
+Select an important entity in a context you are familiar.  Add simple attributes, 
+a multivalued attribute, a composite attribute and a key to the entity you 
+identified.
+Try not to use the attributes shown in the handouts.
+Exchange what you have drawn with your peer. What have they written?

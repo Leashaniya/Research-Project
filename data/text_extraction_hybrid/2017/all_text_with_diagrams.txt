@@ -1,0 +1,256 @@
+
+
+--- PAGE 2 ---
+Question 1 
+(20 Marks)
+Consider the database of a bank that includes the following tables:
+BRANCH (branchNo: int, address: varchar (50), phone 
+: char (10), manager: varchar(30))
+ACCOUNT (aceNo: char (15), type 
+: varchar (10), balance 
+: real, branchNo: int)
+CUSTOMER (custNo: char (10), name: varchar(25); phone: char (10), address 
+: varchar (50))
+OWNS (accNo: char (15), custNo: char (10))
+TRANSACTION (accNo: char (15), datetime: datetime, type: varchar (15), amount: real)
+The table BRANCH contains the branch number (branchNo), address of the branch, phone 
+number (phone), and name of the manager (manager) of all branches of the bank. The 
+ACCOUNT table contains account number (accNo), 
+type 
+of the account (‘Savings’ 
+or
+Current’), current balance of the account and the branch number of the branch the account is
+created in (branchNo) for all accounts in the bank. CUSTOMER table contains customer 
+number (custNo), name of the customer, phone number of the customer and the address of 
+each customer of the bank. For each customer owning an account the OWNS table stores the 
+account number (accNo) and the customer number of the customer owning the account
+(custNo). 
+TRANSACTION table stores the account number (accNo), date and time of the 
+transaction (datetime), type of the transaction (‘Credit’ or ‘Debit’) and the amount of the credit
+or debit associated with the transaction. The primary keys of the relations are underlined.
+a) 
+Use the bank database schema and write answers to the following questions.
+i. 
+Find the names of customers who lives in Malabe who owns a current account.
+(2 marks)
+ii. 
+Find the account numbers of accounts which has not been credited with money in year 
+2016. (Note 
+: DATEPART(yyyy, column) function could be used to extract the year 
+from a given column) 
+(3 marks)
+iii. Find the branch number and the name of the manager of the branch with an income
+over 10 Million in 2016. (Hint: The branch with the highest total of deposits (credit) 
+has the highest income). 
+(4 marks)
+b) 
+Write a procedure to transfer funds between two accounts given the account from which 
+money is transferred, account to which money is transferred and amount of money to 
+transfer. The procedure should update the balances of the accounts between which the 
+money is transferred and also add entries to the transaction table (Note: A fund transfer 
+include debiting money from one account and crediting to another account) 
+(5 marks)
+¢) 
+Assuming that the maximum amount of money to be debiting from an account is Rs.50000
+per day, write a trigger to ensure that transactions performed in the bank does not allow 
+customers to debit more than the said amount within single day (Note 
+: CONVERT(date, 
+calumn) function converts the column in datetime type to short date format) 
+(6 marks)
+Page2of 7
+
+--- PAGE 3 ---
+Question 2 
+(20 marks)
+Briefly explain a software solution and a hardware solution to improve the performance of a 
+database. 
+(3 marks)
+a)
+b)
+Consider a disk with a block size of 512 bytes, 200 tracks per surface, 40 sectors per track and
+4 double-sided platters. Seek time is 30 msec. Suppose that the sector size of 256 bytes is 
+chosen.
+i. 
+ What is the capacity of a track in blocks? 
+(1 mark)
+ii. 
+What'is the capacity of a cylinder in blocks? 
+(1 mark)
+iii. 
+What is the capacity of the disk in blocks 
+(2 marks)
+iv. 
+If disk platter rotates at 2400 rpm (revolutions per minute), what is the average rotational 
+delay? 
+(2 marks)
+v. 
+What is the access time to read two consecutive disk blocks? 
+(4 marks)
+)
+Explain the role of the Buffer Manager in a database management system. 
+(1 mark)
+d
+Consider the following data (8 bits) which needs to be stored on 
+a RAID disk of level 4 
+(Block Interleaved Parity).
+Data string: 
+10001110
+The RAID configuration consists of 5 disks (which includes the parity disk) as shown below. 
+Assume that the block size is 2 bits and parity bit is set (=1) for an even number of 1’s.
+[DIAGRAM: page_003_diagram_1.png]
+Show how the data string above is distributed among the 5 disks 
+(2 marks)
+e) 
+Consider the following buffer pool with 5 frames. Each frame haé a frame number (Frame No), 
+page id (PageID) of page, pin count (PinCount) and a dirty bit (Dirty)
+[DIAGRAM: page_003_diagram_2.png]
+Page 3 of 7
+
+--- PAGE 4 ---
+Assume that the following times states the last time the particular frame was accessed (on the 
+same day):
+Frame number 0 at 2:15 am 
+Frame number 1 at 1:17 am 
+Frame number 2 at 1:25 am 
+Frame number 3 at 2:17 am 
+Frame number 4 at 1:05 am
+Describe the steps followed by the buffer manager when a request for the page with PageID
+32 occurs'if LRU (Least-recently-used) replacement policy is used. 
+(4 marks)
+Question 3 
+(20 marks)
+a) 
+Briefly explain the sequential file organization with respect to the application of insert, update, 
+delete and search (equality/range) operations performed on it. 
+(4 marks)
+b) 
+“Deleting a row in the Heap file organization is always easy”. Accept or refute the above 
+statement providing reasons. 
+(3 marks)
+c) 
+Explain general characteristics of B+ tree index with reference to 
+its structure, nodes and 
+entries in nodes. 
+(3 marks)
+d) 
+Consider the following B+ tree of order 2.
+[DIAGRAM: page_004_diagram_1.png]
+i. 
+ Illustrate B+ tree after inserting 8 to the above tree. 
+> 
+(3 marks)
+ii. 
+ Illustrate the B+ tree after deleting 4 from the original tree. 
+(3 marks)
+Page 4 of 7
+
+--- PAGE 5 ---
+e) 
+Consider the following extendible hashing index. The hashing function considers the last 2 
+digits of the binary representation.
+[DIAGRAM: page_005_diagram_1.png]
+Show the extendible hashed file after inserting 16 and 35. 
+(4 marks)
+Question 4 
+(15 marks)
+a) 
+Briefly explain the parsing and translation phase in query processing. 
+(3 marks)
+b) 
+Briefly explain the two techniques the Query optimizer uses to select the most efficient query 
+plan during query optimization. 
+(2 marks)
+¢) 
+What is meant by reduction factor in cost estimation? 
+(2 marks)
+d) 
+Consider the following relation:
+Physician (pid 
+: char(5), pname 
+: varchar(50), address 
+: varchar(100), specialty 
+: varchar(50))
+The relation has 20000 pages with 100 tuples per page. Assume that 20 buffer fames available
+in buffer pool.
+Page 5of 7
+
+--- PAGE 6 ---
+Consider the following query:
+Query I: 
+ SELECT * FROM Physician WHERE pid = ‘P0001”
+Estimate the cost (in Disk 1/Os) of executing Query 1 with the follow!ng indexes.
+The data entries in the indexes have <k, rid> format. Hash indexes require 1.2 Disk 1/Os on
+average to retrieve a data entry.
+i. Unclustered hash index on Physician<pid> 
+(2 marks)
+ii. Clustered hash index on Physician < pid > 
+(2 marks)
+e) 
+Consider the following relational schema. 
+Emp (eid, ename, age, salary) 
+Works (eid, 
+did, pct-time) 
+Dept (did, budget, managerid)
+Assume that the Emp relation consist of 300 pages with 100 tuples per page. Works relation 
+contains 600 pages with 100 tuples per page. Dept relation consist of 300 pages with 100 tuples 
+per page.
+Consider the following query.
+Select COUNT (e.eid) 
+From Emp e, Works w 
+* 
+Wherer e.eid = w.eid
+There exists a B+ tree on Works<eid> with height 3 using Alternative 
+1 (record and index key 
+together). Join tables using index nested loop join algorithm.
+i. 
+ Draw query tree for the above query. 
+(2 marks)
+ii. 
+ Estimate the cost for the above query. 
+(2 marks)
+Question 5 
+(25 marks)
+a) 
+Explain the atomicity property of database transactions. 
+(4 marks)
+b) 
+Briefly explain the difference between the Cascading Abort and the Unrecoverable Schedule?
+(3 marks)
+c) 
+Locking based concurrency control protocols are used in many database systems. Give two 
+overheads of using them. 
+(4 marks)
+d) 
+Briefly explain the rules in Strict 2 Phase Locking Protocol. 
+(3 marks)
+Page 6of 7
+
+--- PAGE 7 ---
+e) 
+Consider the transaction schedule below.
+[DIAGRAM: page_007_diagram_1.png]
+Assume that Transaction T is higher priority than transaction Tisi(i.e. transaction T has 
+higher priority than T2; and T has higher priority than Ts).
+i. 
+ Draw a Wait-For-Graph for the schedule given above. 
+(2 marks)
+ii. 
+Draw the above schedule considering deadlock prevention algorithm: Wound-wait 
+approach. 
+(3 marks)
+f) 
+Consider the tree shown below. Describe the steps involved in executing each of the following 
+operations according to the Simple Tree Locking Algorithm, in term of the order in which 
+nodes are locked, unlocked, read and write.
+i. 
+ Search 15 
+(2 marks)
+ii. 
+Insert 18 
+(2 marks)
+iii. 
+Delete 27 
+(2 marks)
+[DIAGRAM: page_007_diagram_2.png]
+-- End of the Question Paper --
+Page 70f 7

@@ -1,0 +1,7 @@
+3RD NORMAL FORM
+A relation R is in 3rd normal form (3NF) if every
+R is in 2NF, and no nonprime attribute is transitively dependent on any key
+Third normal form is based on the concept of transitive dependency.
+A functional dependency X →Y in a relational schema R is a transitive dependency if there is a set 
+of non-prime attributes Z where both X →Z and Z →Y hold.
+[FIGURE: slide_023_fig_1.png]

@@ -1,0 +1,10 @@
+FUNCTIONAL DEPENDENCY IN GENERAL TERMS
+Functional dependency is a relationship that exists when one attribute 
+uniquely determine another attribute.
+For example: Suppose we have a student table with attributes: id name, 
+age.
+Here id attribute uniquely identifies the name attribute of student table because if 
+we know the student id we can tell the student name associated with it.
+This is known as functional dependency and can be written as id->name or in 
+words we can say name is functionally dependent on id.
+Redundancies in relations are based on functional dependencies

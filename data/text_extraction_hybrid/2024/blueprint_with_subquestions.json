@@ -1,0 +1,110 @@
+[
+  {
+    "question_id": 1,
+    "marks": 20,
+    "text": "Consider the following EER Model.\n[DIAGRAM: page_002_diagram_1.png]",
+    "subquestions": [
+      {
+        "text": "a) Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulting relations clearly.",
+        "marks": 17
+      },
+      {
+        "text": "b) What is the best option for mapping the ISA hierarchies in the diagram? Justify your answer.",
+        "marks": 3
+      }
+    ],
+    "pdf_stem": "2024"
+  },
+  {
+    "question_id": 2,
+    "marks": 15,
+    "text": "Consider a relation R (ProjectNo, ProjectName, EmpNo, EmpName, DeptNo, DeptName, HrsWork) with the following set of functional dependencies F over R: F={ ProjecNo->ProjectName DeptNo->DeptName EmpNo->EmpName, DeptNo, DeptName, HrsWork}",
+    "subquestions": [
+      {
+        "text": "a) Find all the keys in relation R using the attribute closure method.",
+        "marks": 4
+      },
+      {
+        "text": "b) Is R in 3NF? Give reasons for your conclusion.",
+        "marks": 3
+      },
+      {
+        "text": ") Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+        "marks": 8
+      }
+    ],
+    "pdf_stem": "2024"
+  },
+  {
+    "question_id": 3,
+    "marks": 25,
+    "text": "[DIAGRAM: page_003_diagram_1.png]",
+    "subquestions": [
+      {
+        "text": "a) In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
+        "marks": 2
+      },
+      {
+        "text": "b) There are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used.",
+        "marks": 2
+      },
+      {
+        "text": ") Briefly explain the options available for transferring data between two sources such as between tables and servers.",
+        "marks": 2
+      },
+      {
+        "text": "d) Briefly explain how authentication and authorization are achieved in SQL Server.",
+        "marks": 3
+      },
+      {
+        "text": "e) A financial institution is developing a robust database system to manage its clients' sensitive financial data. Different roles are assigned to various team members for database administration and management. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance. Tom and Emily are junior database administrators under Sarah's supervision. Tom manages the client accounts database, while Emily handles the transactions database. Nathan is a database developer reporting to Tom and Emily. His responsibilities include designing and implementing database schemas for client accounts and transactions. Grace and Michael are data entry operators responsible for inputting client information and transaction records into the system. Write a T-SQL statement to create a login to Sarah with windows authentication.",
+        "marks": 2
+      },
+      {
+        "text": "Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role.",
+        "marks": 3
+      },
+      {
+        "text": "Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the transactions database using a user-defined server role.",
+        "marks": 5
+      },
+      {
+        "text": "Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases.",
+        "marks": 3
+      },
+      {
+        "text": "Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the client accounts and transactions databases.",
+        "marks": 3
+      }
+    ],
+    "pdf_stem": "2024"
+  },
+  {
+    "question_id": 4,
+    "marks": 40,
+    "text": "Consider the following schema of a database designed for a Library: Book (bookId: int, title: varchar(100), author: varchar(100), isbn: varchar(20), publicationYear: int, genre: varchar(50), availableCopies: int) Member (memberId: int, firstName: varchar(50), lastName: varchar(50), email: varchar(50), phone: int, address: varchar(100)) Loan (loanId: int, bookId: int, memberId: int, loanDate: date, dueDate: date, returnDate: date) Fine (fineId: int, memberId: int, amount: real, paymentStatus: varchar(50)) Librarian (librarianId: int, name: varchar(50), email: varchar(50), phone: int, address: varchar(100)) The 'Book' table stores information about books available in the library, including unique book ID, title, author, ISBN, publication year, genre, and the number of available copies. The 'Member' table holds details about library members, such as their unique member ID, first name, last name, email, phone number, and address. The 'Loan' table manages book loans, with each loan having a unique ID and being associated with a specific book and member. It records the loan date, due date, and return date. The 'Fine' table stores information about fines incurred by members for late returns or other penalties. It includes a fine ID, member ID, fine amount, and payment status. The 'Librarian' table contains details about library staff, with each librarian having a unique ID, name, email, phone number, and address.",
+    "subquestions": [
+      {
+        "text": "a) Write SQL Queries to perform the following: i. Find the member's name and phone number who borrowed a book with the title 'The Great'.",
+        "marks": null
+      },
+      {
+        "text": "ii. Find the member who has the highest total amount of fines than all the other total fine amounts. Find the member's id and address.",
+        "marks": 6
+      },
+      {
+        "text": "iii. Find the book titles, authors, and member names of books currently on loan.",
+        "marks": 7
+      },
+      {
+        "text": "b) Create a function to calculate the total fine amount for a given member. This function should account for fines with a late penalty of 10% applied to those marked as 'overdue' payment status.",
+        "marks": 11
+      },
+      {
+        "text": ") Create a trigger that automatically updates the 'TotalFineAmount' column in the 'Members' table whenever a new fine is added, or an existing fine is updated. The 'TotalFineAmount' column should contain the total fine amount for each member. Ensure the trigger adjusts the 'TotalFineAmount' column accurately to reflect any partial payments made by members. The member pays only 50% of the total fine amount as an initial payment when the payment status is marked as 'Partial'.",
+        "marks": 12
+      }
+    ],
+    "pdf_stem": "2024"
+  }
+]

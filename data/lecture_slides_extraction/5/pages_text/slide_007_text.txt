@@ -1,0 +1,6 @@
+QUERYING AND DELETING A VIEW
+Querying a view can be done similar to a table.
+Ex :      SELECT * FROM dept_info
+Ex :      SELECT dname FROM dep_infoWHERE budget> 500,000
+Dropping a view
+Ex :  DROP VIEW dept_info

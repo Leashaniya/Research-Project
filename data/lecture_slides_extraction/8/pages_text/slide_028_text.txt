@@ -1,0 +1,18 @@
+PERMISSIONS
+Every SQL Server securable has associated permissions that can be granted to user.
+At the database level they are assigned to database users and database roles.
+Some permissions are as follows :
+Role
+Description
+ALTER
+Grants or denies the ability to alter the existing database.
+CREATE TABLE
+Grants or denies the ability to create a table.
+INSERT
+Grants or denies the ability to issue the INSERT command against all applicable objects within 
+the database.
+EXECUTE
+Grants or denies the ability to issue the EXECUTE command against all applicable objects 
+within the database.
+REFERENCES
+The REFERENCES permission on a table is needed to create a FOREIGN KEY constraint

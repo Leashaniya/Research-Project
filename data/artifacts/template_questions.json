@@ -1,0 +1,795 @@
+[
+  {
+    "pdf_stem": "2024",
+    "question_id": "2",
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "relation",
+      "set",
+      "functional",
+      "dependencies",
+      "over",
+      "deptno",
+      "deptname",
+      "projectname"
+    ],
+    "marks": 15,
+    "full_text": "Consider a relation R (ProjectNo, ProjectName, EmpNo, EmpName, DeptNo, DeptName, HrsWork) with the following set of functional dependencies F over R: F={ ProjecNo->ProjectName DeptNo->DeptName EmpNo->EmpName, DeptNo, DeptName, HrsWork}",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "a) Find all the keys in relation R using the attribute closure method.",
+        "marks": 4
+      },
+      {
+        "text": "b) Is R in 3NF? Give reasons for your conclusion.",
+        "marks": 3
+      },
+      {
+        "text": ") Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+        "marks": 8
+      }
+    ],
+    "pattern_label": "NORMALIZATION_FD_KEYS"
+  },
+  {
+    "pdf_stem": "2023 II",
+    "question_id": "2",
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "relation",
+      "set",
+      "functional",
+      "dependencies",
+      "over",
+      "deptno",
+      "deptname",
+      "projectname"
+    ],
+    "marks": 15,
+    "full_text": "Consider a relation R (A, B, C, D, E, F, G) with the following set of functional dependencies over R: F = {A->BC, B->D, C->EF, AC->G}",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "Find all the keys in relation R using attribute closure method.",
+        "marks": 4
+      },
+      {
+        "text": "Is R in 3NF? Give reasons for your conclusion.",
+        "marks": 3
+      },
+      {
+        "text": "Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+        "marks": 8
+      }
+    ],
+    "pattern_label": "NORMALIZATION_FD_KEYS"
+  },
+  {
+    "pdf_stem": "2019 II",
+    "question_id": "2",
+    "cluster": 2,
+    "cluster_label_keywords": [
+      "relation",
+      "set",
+      "functional",
+      "dependencies",
+      "over",
+      "deptno",
+      "deptname",
+      "projectname"
+    ],
+    "marks": 15,
+    "full_text": "Consider a relation R (A, B, C, D, E, F) with the following set of functional dependencies over R: F={A > BEF,B> E,C > D,AC > B}\n[DIAGRAM: page_003_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 2.1,
+        "marks": 6,
+        "text": "a) Find all the keys that follow from the given FDs using attribute closure, showing how you obtained them.",
+        "subquestions": []
+      },
+      {
+        "question_id": 2.2,
+        "marks": 3,
+        "text": "b) Is R in 3NF? Give reasons for your conclusion.",
+        "subquestions": []
+      },
+      {
+        "question_id": 2.3,
+        "marks": 6,
+        "text": "c) Is R in BCNF? Give reasons for your conclusion. If R is not in BCNF, convert it to a set of BCNF relations.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "NORMALIZATION_FD_KEYS"
+  },
+  {
+    "pdf_stem": "2023",
+    "question_id": "4",
+    "cluster": 5,
+    "cluster_label_keywords": [
+      "varchar",
+      "int",
+      "book",
+      "table",
+      "date",
+      "name",
+      "number",
+      "member"
+    ],
+    "marks": 40,
+    "full_text": "Consider the following schema of a database designed for a hotel: Guest (guestId: int, fname: varchar(50), lastName: varchar(50), phone: int, email: varchar(50), address: varchar(100)) Room (roomNum: int, roomType: varchar(20), bedType: varchar(50), price: real, isOccupied: boolean) Booking (bookingId: int, guestId: int, roomNum: int, checkInDate: date, checkOutDate: date, totalAmount: real) Bill (billNum: int, bookingId: int, totalAmount: real, paymentMethod: varchar(50), paymentStatus: varchar(50)) Receptionist (repId: int, name: varchar(20), phone: int, address: varchar(30)) The 'Guest' table is designed to store information about the hotel's guests, including their unique guest ID, first name, last name, phone number, email address, and physical address. The 'Room' table tracks details about the hotel's rooms. It includes information such as the room number, room type, bed type, price per night, and a flag (boolean) indicating whether the room is currently occupied. The 'Booking' table manages guest reservations. Each booking is assigned a unique ID and is associated with a specific guest (via guestId) and a room (via roomNum). It also records the check-in and check-out dates, as well as the total booking amount. The 'Bill' table handles billing information for guest stays. It connects to a particular booking (via bookingId) and stores the bill number, the total amount to be paid, the payment method, and the payment status. The 'Receptionist' table contains details about hotel receptionist, with each staff member having a unique ID, name, phone number, and address. This allows the system to keep track of receptionists or other staff members involved in hotel operations.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "Write SQL Queries to perform the following:",
+        "marks": null,
+        "subquestions": [
+          {
+            "text": "Find the guest's name and phone number who booked a Deluxe room for 2 days.",
+            "marks": 4
+          },
+          {
+            "text": "Find the total amount spent by guest with last name Smith on Bookings.",
+            "marks": 6
+          },
+          {
+            "text": "Find the room numbers, room types, and guest names of currently occupied rooms.",
+            "marks": 7
+          }
+        ]
+      },
+      {
+        "text": "Create a function to calculate the total bill amount for a given guest's booking.",
+        "marks": 11
+      },
+      {
+        "text": "Assume that the guests table consists of a column named TotalBillAmount. The 'TotalBillAmount' column contains the total bill amount for each guest. Create a trigger that automatically updates the 'TotalBillAmount' column whenever a new bill is added, or an existing bill is updated.",
+        "marks": 12
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2024",
+    "question_id": "4",
+    "cluster": 5,
+    "cluster_label_keywords": [
+      "varchar",
+      "int",
+      "book",
+      "table",
+      "date",
+      "name",
+      "number",
+      "member"
+    ],
+    "marks": 40,
+    "full_text": "Consider the following schema of a database designed for a Library: Book (bookId: int, title: varchar(100), author: varchar(100), isbn: varchar(20), publicationYear: int, genre: varchar(50), availableCopies: int) Member (memberId: int, firstName: varchar(50), lastName: varchar(50), email: varchar(50), phone: int, address: varchar(100)) Loan (loanId: int, bookId: int, memberId: int, loanDate: date, dueDate: date, returnDate: date) Fine (fineId: int, memberId: int, amount: real, paymentStatus: varchar(50)) Librarian (librarianId: int, name: varchar(50), email: varchar(50), phone: int, address: varchar(100)) The 'Book' table stores information about books available in the library, including unique book ID, title, author, ISBN, publication year, genre, and the number of available copies. The 'Member' table holds details about library members, such as their unique member ID, first name, last name, email, phone number, and address. The 'Loan' table manages book loans, with each loan having a unique ID and being associated with a specific book and member. It records the loan date, due date, and return date. The 'Fine' table stores information about fines incurred by members for late returns or other penalties. It includes a fine ID, member ID, fine amount, and payment status. The 'Librarian' table contains details about library staff, with each librarian having a unique ID, name, email, phone number, and address.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "a) Write SQL Queries to perform the following: i. Find the member's name and phone number who borrowed a book with the title 'The Great'.",
+        "marks": null
+      },
+      {
+        "text": "ii. Find the member who has the highest total amount of fines than all the other total fine amounts. Find the member's id and address.",
+        "marks": 6
+      },
+      {
+        "text": "iii. Find the book titles, authors, and member names of books currently on loan.",
+        "marks": 7
+      },
+      {
+        "text": "b) Create a function to calculate the total fine amount for a given member. This function should account for fines with a late penalty of 10% applied to those marked as 'overdue' payment status.",
+        "marks": 11
+      },
+      {
+        "text": ") Create a trigger that automatically updates the 'TotalFineAmount' column in the 'Members' table whenever a new fine is added, or an existing fine is updated. The 'TotalFineAmount' column should contain the total fine amount for each member. Ensure the trigger adjusts the 'TotalFineAmount' column accurately to reflect any partial payments made by members. The member pays only 50% of the total fine amount as an initial payment when the payment status is marked as 'Partial'.",
+        "marks": 12
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2018 II",
+    "question_id": "3",
+    "cluster": 5,
+    "cluster_label_keywords": [
+      "varchar",
+      "int",
+      "book",
+      "table",
+      "date",
+      "name",
+      "number",
+      "member"
+    ],
+    "marks": 25,
+    "full_text": "Consider the database of a library which rents books and CDs with the following schema: Books (accessNo: int, title: varchar(40), author: varchar(20), publisher: varchar(30)) CDs (accessNo: int, title: varchar(40), publisher: varchar(30)) Member (memNo: int, name: varchar(40), phone: char(10)) Rental (accessNo: int, memNo: int, dateRented: date, dueDate: date, dateReturned: date) Books table stores access number(accessNo), title, author and the publisher of the each Book. CDs table stores the access number (accessNo), title and the publisher of each CD. Member table stores member number (memNo), name and phone number (phone) of each member of the library. Rental table stores the rental details including access number of book/CD (accessNo), member number of the member who had borrowed the book/CD (memNo), the date he/she has rented the book/CD (dateRented), the date on which the book/CD should be returned (dueDate) and the date on which the book is actually returned (dateReturned). Write relational algebra statements, to answer the following queries.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 3.1,
+        "marks": 2,
+        "text": "a) Find the title and author of all books published by McGraw-Hill.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.2,
+        "marks": 4,
+        "text": "b) Find title of books and the name of the member who had borrowed the book for books returned late than they are to be returned.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.3,
+        "marks": 5,
+        "text": "c) Find the names of members who had rented both books and CDs.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.4,
+        "marks": 6,
+        "text": "d) Find the names and the phone numbers of members who have more than 5 CDs which are returned late.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.5,
+        "marks": 8,
+        "text": "e) Find the title and publisher of the CD which is rented the most.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "RELATIONAL_ALGEBRA"
+  },
+  {
+    "pdf_stem": "2019 II",
+    "question_id": "4",
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "int",
+      "relation",
+      "varchar",
+      "char",
+      "name",
+      "module",
+      "stores",
+      "has"
+    ],
+    "marks": 40,
+    "full_text": "Consider the following relations in a database created for a university. Module (mCode: char(6), mName: varchar (50), credits: int, specialization: char(4), year: int, semester: int) Student (sld: char(10), sName: varchar(50), age: int, gpa: int, address: varchar(50)) Follow (sld: char(10), mCode: char(6), semester: int, academicYear: int, grade: char(1)) Class (cld: int, mCode: char(6), sld: Char(10), type: varchar(10), day: char(3), time:time, len: int, hld: char(4)) Hall (hld: char(4), building: varchar(15), floorNo: int, capacity: int) Module relation stores the code (mCode), name (mName), number of credits (credits) and the specialization the module belongs to (such as IT, SE, CSN), year and the semester the module is offered for each module offered. Student relation stores the ID (s/d), name(sName), age, cumulative gpa (gpa) and address of all students. For each student following a module in the university the Follow relation stores the ID of the student (sId), code of the module (mCode), the semester the module is offered (such as 1 and 2), the academic year the student has followed the module (such as 2018 and 2019) and the grade he received for the module. The Class relation stores the id(c/d), code(mCode), type of the class (such as lecture and tutorial), day the class is conducted such as (Mon, Tue, Wed), start time of the class (time), length of the class in hours (/en) and the id of the hall the class is conducted (h/d) for each Class. Hall relation stores the ID (h/d), name of the building the hall is in, floor number the hall is in (floorNo) and capacity of each Hall.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 4.1,
+        "marks": 5,
+        "text": "a) Use SQL queries to answer following questions.",
+        "subquestions": [
+          {
+            "question_id": 4.1,
+            "marks": 5,
+            "text": "i. Display the module codes and name of all modules followed by students in year 3 of SE specialization in academic year 2018.",
+            "subquestions": []
+          },
+          {
+            "question_id": 4.2,
+            "marks": 6,
+            "text": "ii. Display the hall id and the floor number of halls which are vacant on Monday in Engineering Building.",
+            "subquestions": []
+          }
+        ]
+      },
+      {
+        "question_id": 4.2,
+        "marks": 8,
+        "text": "b) Create a view named ClassDetails that contains class id, module name, year the module is offered, specialization, type of class and the size of the class for each class. (size of the class is the number of students following the class).",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.3,
+        "marks": 9,
+        "text": "c) Create a function which named-getAvialability which takes class id and module code as inputs and returns the number of more students that could be added to the class based on class size and the capacity of the hall.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.4,
+        "marks": 12,
+        "text": "d) Create a trigger to ensure that for a class, students are not allocated than the capacity of the hall allocated for the class. (Hint: Use the function created in c)).",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2019",
+    "question_id": "4",
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "int",
+      "relation",
+      "varchar",
+      "char",
+      "name",
+      "module",
+      "stores",
+      "has"
+    ],
+    "marks": 40,
+    "full_text": "Consider the following relations in a Movie Database. Movie (mID: int, title: varchar(30), year: date, rank: real) Actor (aID: int, fname: varchar(30), lname: varchar(30), gender: char(10)) Director (dID: int, fname: varchar(30), lname: varchar(30), gender: char(10)) Casts (actorID: int, movieID: int, role: varchar(10)) Genre (genID: int, type: varchar(10)) DirectsMovie (directorID: int, movieID: int) MovieGenre (movieID: int, genID: int) Reviewer (reviewID: int, reviewName: varchar(20)) Rating (movieID: int, reviewID: int, reviewStars: int) The attributes of the Movie relation are id (mID), title, year it was made and the rank of the movies. The Actor relation has attributes to record the id (aID), first name (fname), last name (lname) and gender (M or F) of actors. The Director relation has attributes to store the id (dID), first name (fname), last name (lname) and gender (M or F) of directors. The Casts relation associates the movie with actors who had acted in them and contains the role (lead, support, or other) they played. The Genre relation stores information of movies types (such as Romantic, Horror, Action, Fiction, Documentary, Thriller, and Drama). The DirectsMovie relation stores information on movies and their directors. The MovieGenre relation stores information related to movies respective genre. A Rating system is carried out based on the Reviewers number of stars. The Reviewer relation has attributes to record the reviewer id, name. The Rating relation has attributes to store the movie id, reviewer id and reviewer’s number of stars. Primary keys are underlined.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 4.1,
+        "marks": 5,
+        "text": "Display names of all the Actors in the movie The Princess Bride.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.2,
+        "marks": 6,
+        "text": "Display all directors who directed 500 movies or more, in descending order of the number of movies they directed. List the directors' names and the number of movies each of them directed.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.3,
+        "marks": 8,
+        "text": "Create a view named movieDirection that contains movie title, movie genre type, year, director’s first name, last name and actors for those movies.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.4,
+        "marks": 9,
+        "text": "Create a function named as getActorCount, which takes movie title as the input and returns the number of actors that acted in that particular movie.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.5,
+        "marks": 12,
+        "text": "Assume that rank of the Movie are based on the number of stars the reviewers have rewarded. Write a trigger to update the rank when the reviewer places stars in a new movie.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2019",
+    "question_id": "3",
+    "cluster": 1,
+    "cluster_label_keywords": [
+      "int",
+      "relation",
+      "varchar",
+      "char",
+      "name",
+      "module",
+      "stores",
+      "has"
+    ],
+    "marks": 25,
+    "full_text": "Consider the following relations relate to patient management system database.  The Doctor relation has attributes Social Security Number (SSN), first and last names, specialty, the number of experience years, and the phone number. The Patient relation has attributes SSN, first and last names, address, date of birth (DOB), and the SSN of the patient's primary doctor (pDocSSN). Prescription relation has attributes id, the date in which the prescription is written, the SSN of the doctor who wrote the prescription, and the SSN of the patient to whom the prescription is written. The Medicine relation has attributes trade name, unit price, and whether or not the medicine is generic (True or False). The Prescription_Medicine relation stores the medicines written in each prescription along with their quantities (NumOfUnits). Write the following queries in Relational Algebra.\n[DIAGRAM: page_003_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 3.1,
+        "marks": 2,
+        "text": "List the trade names of generic medicine with unit price less than Rs.1000.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.2,
+        "marks": 4,
+        "text": "List the first and last name of patients whose primary doctor is 'John Smith'.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.3,
+        "marks": 5,
+        "text": "List the first and last name of doctors who are not primary doctors to any patient.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.4,
+        "marks": 5,
+        "text": "List the prescription IDs which contain both Vitamin C and Aspirin as trade name.",
+        "subquestions": []
+      },
+      {
+        "question_id": 3.5,
+        "marks": 9,
+        "text": "List the trade name of medicines that appears in the most of the prescriptions.",
+        "subquestions": []
+      }
+    ],
+    "pattern_label": "RELATIONAL_ALGEBRA"
+  },
+  {
+    "pdf_stem": "2024",
+    "question_id": "1",
+    "cluster": 0,
+    "cluster_label_keywords": [
+      "eer",
+      "model"
+    ],
+    "marks": 20,
+    "full_text": "Consider the following EER Model.\n[DIAGRAM: page_002_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "a) Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulting relations clearly.",
+        "marks": 17
+      },
+      {
+        "text": "b) What is the best option for mapping the ISA hierarchies in the diagram? Justify your answer.",
+        "marks": 3
+      }
+    ],
+    "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2023 II",
+    "question_id": "1",
+    "cluster": 0,
+    "cluster_label_keywords": [
+      "eer",
+      "model"
+    ],
+    "marks": 20,
+    "full_text": "Consider the following EER Model.\n[DIAGRAM: page_002_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
+        "marks": 16
+      },
+      {
+        "text": "What is the best option for mapping the ISA hierarchy in the diagram? Justify your answer.",
+        "marks": 4
+      }
+    ],
+    "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2023",
+    "question_id": "1",
+    "cluster": 0,
+    "cluster_label_keywords": [
+      "eer",
+      "model"
+    ],
+    "marks": 20,
+    "full_text": "Consider the following EER Model.\n[DIAGRAM: page_002_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "Convert the following EER model into the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.",
+        "marks": 17
+      },
+      {
+        "text": "What is the best option for mapping the ISA hierarchy in the diagram? Justify your answer.",
+        "marks": 3
+      },
+      {
+        "text": ""
+      }
+    ],
+    "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2023",
+    "question_id": "3",
+    "cluster": 6,
+    "cluster_label_keywords": [
+      "database",
+      "statements",
+      "sql",
+      "write",
+      "data",
+      "server",
+      "name",
+      "briefly"
+    ],
+    "marks": 25,
+    "full_text": "[DIAGRAM: page_003_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "In Native API Driver, vendor-specific driver must be installed on each client machine. Accept or refute the above statement justifying your answer.",
+        "marks": 2
+      },
+      {
+        "text": "There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used.",
+        "marks": 2
+      },
+      {
+        "text": ""
+      },
+      {
+        "text": "Briefly explain what is meant by a BCP Command?",
+        "marks": 2
+      },
+      {
+        "text": "Briefly explain how SQL server security framework manages access to securable entities.",
+        "marks": 3
+      },
+      {
+        "text": "A software company has been tasked with developing a comprehensive healthcare information technology (IT) system for a large medical facility. The project manager is responsible for overseeing the project's development, and the following roles and responsibilities are assigned: Linda is the senior database administrator who is tasked with creating and managing the databases required for the healthcare IT system. This includes patient records, appointment scheduling, and medical inventory databases. Raj and Eva are junior database administrators who work under Linda's supervision. They are responsible for managing and maintaining specific databases within the healthcare IT system. Raj takes care of the patient records database, while Eva is responsible for the appointment scheduling database. Carla is a database developer who reports to Raj and Eva. Her role involves designing and building the database schemas, including creating tables, views, and stored procedures for the patient records and appointment scheduling databases. Sophie and John are data entry operators responsible for entering patient information, medical records, and appointment data into the system. They work closely with the junior database administrators to ensure accurate and timely data entry.",
+        "marks": null,
+        "subquestions": [
+          {
+            "text": "Write a T-SQL statement to create a login to Linda.",
+            "marks": 2
+          },
+          {
+            "text": "Provide permission using fixed server role to handle all the administrative tasks in the server to Linda.",
+            "marks": 3
+          },
+          {
+            "text": "Assuming that Eva has the user name eva.e, write a T-SQL statements required to assign her with the responsibility of handling the appointmentDB using user defined server role.",
+            "marks": 5
+          },
+          {
+            "text": "Assuming that Carla has a login name by the name carla.a, write T-SQL statements required to allow her to create tables, views and stored procedures.",
+            "marks": 3
+          },
+          {
+            "text": "Assuming that John has a login name john.k write T-SQL statements required to perform the tasks he is responsible for.",
+            "marks": 3
+          }
+        ]
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2023 II",
+    "question_id": "3",
+    "cluster": 6,
+    "cluster_label_keywords": [
+      "database",
+      "statements",
+      "sql",
+      "write",
+      "data",
+      "server",
+      "name",
+      "briefly"
+    ],
+    "marks": 25,
+    "full_text": "[DIAGRAM: page_003_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "Native API Driver is faster than Java Thin Driver. Accept or refute the above statement justifying your answer.",
+        "marks": 2
+      },
+      {
+        "text": "There are several different statements in the JDBC API to retrieve the result set based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statements will be used.",
+        "marks": 2,
+        "diagram": "[DIAGRAM: page_003_diagram_1.png]"
+      },
+      {
+        "text": "Briefly explain what is meant by a Full Backup?",
+        "marks": 2
+      },
+      {
+        "text": "Briefly explain the three main aspects to focus on when a database is secured?",
+        "marks": 3
+      },
+      {
+        "text": "A software company has been assigned the responsibility of automating the tasks of a digital marketing company. This includes designing and developing a database for the company to maintain the records of various functions. It also maintains records of digital channels to market products and services in order to reach consumers. Menaka, a senior DBA is assigned to the project to handle all the administrative tasks related to the databases by the database architect. Menaka creates the required database and assign Nipun the responsibility of managing the CompanyDB. Since there will be lot of users for the project, Amali is assigned with the responsibility of handling logins to the system. Nipun assigns Kasuni with the responsibility of creating tables. In addition, Kasuni should be able to create views, stored procedures and triggers required. Dinethi, who is data entry operator is given the responsibility of inserting the data to the table. Amal is assigned with the responsibility of generating reports from the table in the data. For the above purpose, Amal could directly query the data or call functions and procedures.",
+        "subquestions": [
+          {
+            "text": "Write a T-SQL statement to create a login to Menaka.",
+            "marks": 2
+          },
+          {
+            "text": "Provide permission using fixed server role to handle all the administrative tasks in the server to Menaka.",
+            "marks": 3
+          },
+          {
+            "text": "Assuming that Nipun has the user name nipun.b, write a T-SQL statements required to assign him with the responsibility of handling the companyDB using user defined server role.",
+            "marks": 5
+          },
+          {
+            "text": "Assuming that Kasuni has a login name by the name kasuni.a write T-SQL statements required to allow her to create tables, functions, procedures and triggers.",
+            "marks": 3
+          },
+          {
+            "text": "Assuming that Amal has a login name amal k. write T-SQL statements required to perform the tasks she is responsible for.",
+            "marks": 3
+          }
+        ]
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2024",
+    "question_id": "3",
+    "cluster": 6,
+    "cluster_label_keywords": [
+      "database",
+      "statements",
+      "sql",
+      "write",
+      "data",
+      "server",
+      "name",
+      "briefly"
+    ],
+    "marks": 25,
+    "full_text": "[DIAGRAM: page_003_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "text": "a) In Type 2 Driver, JDBC API calls are converted to native Java API calls. Accept or refute the above statement justifying your answer.",
+        "marks": 2
+      },
+      {
+        "text": "b) There are several different statements in the JDBC API to retrieve result sets based on different requirements. Which type of statements is used in the code segment given below? Briefly explain when this type of statement will be used.",
+        "marks": 2
+      },
+      {
+        "text": ") Briefly explain the options available for transferring data between two sources such as between tables and servers.",
+        "marks": 2
+      },
+      {
+        "text": "d) Briefly explain how authentication and authorization are achieved in SQL Server.",
+        "marks": 3
+      },
+      {
+        "text": "e) A financial institution is developing a robust database system to manage its clients' sensitive financial data. Different roles are assigned to various team members for database administration and management. Sarah is the senior database administrator tasked with overseeing the entire database system's creation and maintenance. Tom and Emily are junior database administrators under Sarah's supervision. Tom manages the client accounts database, while Emily handles the transactions database. Nathan is a database developer reporting to Tom and Emily. His responsibilities include designing and implementing database schemas for client accounts and transactions. Grace and Michael are data entry operators responsible for inputting client information and transaction records into the system. Write a T-SQL statement to create a login to Sarah with windows authentication.",
+        "marks": 2
+      },
+      {
+        "text": "Provide Sarah with the necessary permissions to handle all administrative tasks within the server using a fixed server role.",
+        "marks": 3
+      },
+      {
+        "text": "Assuming Emily's username is 'emily.e', write T-SQL statements to assign her the responsibility of managing the transactions database using a user-defined server role.",
+        "marks": 5
+      },
+      {
+        "text": "Assuming Nathan's login name is 'nathan.n', write T-SQL statements to grant him permission to create tables and databases.",
+        "marks": 3
+      },
+      {
+        "text": "Assuming Michael's login name is 'michael.m', write T-SQL statements to allow him to perform data entry tasks on the client accounts and transactions databases.",
+        "marks": 3
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  },
+  {
+    "pdf_stem": "2019",
+    "question_id": "1",
+    "cluster": 3,
+    "cluster_label_keywords": [
+      "model",
+      "keys",
+      "convert",
+      "eer",
+      "relational",
+      "indicate",
+      "primary",
+      "foreign"
+    ],
+    "marks": 20,
+    "full_text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly. ISA Constraints: Permanent and Visiting covers Doctor\n[DIAGRAM: page_002_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [],
+    "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2019 II",
+    "question_id": "1",
+    "cluster": 3,
+    "cluster_label_keywords": [
+      "model",
+      "keys",
+      "convert",
+      "eer",
+      "relational",
+      "indicate",
+      "primary",
+      "foreign"
+    ],
+    "marks": 20,
+    "full_text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.\n[DIAGRAM: page_002_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [],
+    "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2018 II",
+    "question_id": "1",
+    "cluster": 3,
+    "cluster_label_keywords": [
+      "model",
+      "keys",
+      "convert",
+      "eer",
+      "relational",
+      "indicate",
+      "primary",
+      "foreign"
+    ],
+    "marks": 20,
+    "full_text": "Convert the following EER model in to the relational model. Indicate the primary keys and the foreign keys of the resulted relations clearly.\n[DIAGRAM: page_002_diagram_1.png]",
+    "diagram_refs": [],
+    "subquestions": [],
+    "pattern_label": "ER_EER_MODELING"
+  },
+  {
+    "pdf_stem": "2018 II",
+    "question_id": "4",
+    "cluster": 4,
+    "cluster_label_keywords": [
+      "int",
+      "sid",
+      "table",
+      "made",
+      "suppliers",
+      "supplies",
+      "date",
+      "stores"
+    ],
+    "marks": 40,
+    "full_text": "Consider the following relations in a database created for an online store: Products (pid: int, productName: varchar (15), UnitPrice: real, unitsInStock: int, type: varchar (30)) Suppliers (sid:int, supplierName:varchar(15), phone:char(10),address:varchar(50)) Supplies (sid:int, pid:int, suppliedDate:date,amount:int,purchasePrice:real) SupplierPayments (sid:int, dateToPay:date ,amount:real) The Products table contains id (pid), name (productName) unit price (UnitPrice), units in stock (unitsInStock) and type of product such as dairy and poultry for each product in the store. Suppliers table stores a unique id (sid), name (supplierName), phone and address of each supplier supplying products to the store. Supplies table stores information on supplies made by suppliers. For each supply, the table stores id of the supplier (sid), id of the product supplied (pid), supplied date (suppliedDate), amount of product supplied and the price at which the supplied item is purchased by the store (purchasePrice). SupplierPayment table stores information on payments made to suppliers. For supplies made by the suppliers per day, the SupplierPayment table stores the id of the supplier (sid), date on which the supply is made (suppliedDate) and amount of payment to be made for supplies made within that date. Primary keys of the tables are underlined.",
+    "diagram_refs": [],
+    "subquestions": [
+      {
+        "question_id": 4.1,
+        "marks": 4,
+        "text": "a) Use SQL queries to answer following questions.",
+        "subquestions": [
+          {
+            "question_id": 4.11,
+            "marks": 4,
+            "text": "i. Find the names and phone numbers of the suppliers living in Malabe who supplies at least one product which are sold at the store with a price more than Rs. 100.",
+            "subquestions": []
+          },
+          {
+            "question_id": 4.1,
+            "marks": 5,
+            "text": "ii. Assuming that the Unit Price of products are fixed, find the names of products which are always sold with a profit margin. Note that the items sold with a profit margin have a unit price for a product greater than the price it is purchased at.",
+            "subquestions": []
+          },
+          {
+            "question_id": 4.1,
+            "marks": 7,
+            "text": "iii. Find the names and phone numbers of customers who supply dairy products but do not supply Poultry products.",
+            "subquestions": []
+          }
+        ]
+      },
+      {
+        "question_id": 4.2,
+        "marks": 9,
+        "text": "b) Create a function named CalcPayment which calculates and returns the total payment to be made to a supplier for supplies made in a particular date, given the id of the supplier and the date the supplies are made.",
+        "subquestions": []
+      },
+      {
+        "question_id": 4.3,
+        "marks": 15,
+        "text": "c) Create a trigger named updateSupplyInfo to do the following when a supply is made.",
+        "subquestions": [
+          {
+            "question_id": 4.3,
+            "marks": null,
+            "text": "i. Update the units in stock for the relevant product in the product table.",
+            "subquestions": []
+          },
+          {
+            "question_id": 4.3,
+            "marks": null,
+            "text": "ii. If there is no row already in the supplierPayment table related to the supplier id and the date the supply is made, insert a row with supplier id, supplied date and amount to be paid to the SupplierPayment Table. If a row is already exist with the relevant supplier id and the day the payment should be paid, update only the amount of payment to be made. (Hint: Use the function you have created in b) in order to calculate the payment).",
+            "subquestions": []
+          }
+        ]
+      }
+    ],
+    "pattern_label": "GENERAL_THEORY"
+  }
+]

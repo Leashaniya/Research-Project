@@ -1,0 +1,8 @@
+VIEWS (CONTD.)
+emp (eid, ename, age, salary) ,dept (did, dname, budget,mangerId), works (eid, did, pct_time)
+Create a view named dept_info that contains name of the department, budget and 
+manager’s name
+CREATE VIEW dept_info(dname,budget,manager)
+AS
+SELECT d.dname, d.budget, e.ename FROM emp e, dept d
+WHERE e.eid=d.managerId

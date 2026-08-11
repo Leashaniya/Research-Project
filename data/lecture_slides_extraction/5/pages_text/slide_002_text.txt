@@ -1,0 +1,5 @@
+LECTURE CONTENT
+Views
+SQL extensions (specifically T-SQL)
+Functions & Procedures
+Triggers

@@ -1,0 +1,6 @@
+BOYCE-CODD NORMAL FORM
+A relation schema is in Boyce-Codd Normal Form
+If every nontrivial functional dependency X→A hold in R, then X is a superkey of R
+Decomposition into BCNF:
+Consider relation R with FDs F.  If X → Y violates BCNF, decompose R
+[FIGURE: slide_025_fig_1.png]

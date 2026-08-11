@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/duckdb.ts"],
+  "sourcesContent": ["export * from \"@hpcc-js/wasm-duckdb\";"],
+  "mappings": "iaAAA,IAAAA,EAAA,kBAAAC,EAAAD,GAAAE,EAAAF,EAAc,gCAAd",
+  "names": ["duckdb_exports", "__toCommonJS", "__reExport"]
+}

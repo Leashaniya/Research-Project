@@ -1,0 +1,52 @@
+00340
+Question 4 
+(13 marks)
+a) 
+Briefly explain the process of query processing. 
+(3 marks)
+b) 
+What is heuristic optimization in query processing? 
+(2 marks)
+c) 
+Consider the following relation:
+Student(sid:char(10), sname:varchar(100), address:varchar(200), gpa:float) 
+Grades (sid: char(10), cid 
+: char(5), grade: char(2))
+The Student relation has 100 pages with 100 tuples per page. The Grades relation has 
+1000 pages with 200 tuples per page. Assume that 20 buffer fames are available in the 
+buffer pool.
+i. Consider the following query 
+:
+SELECT sname FROM Student WHERE gpa >3.7
+Estimate the cost for the above query assuming there are 
+no indexes on the 
+Student table. (Reduction factor for gpa > 3.7 is 0.1) 
+(1 mark)
+ii. Consider the following query:
+SELECT g.grade 
+FROM Student s, Grades g 
+WHERE s.sid=g.sid and s.gpa >3.7
+a. Estimate the cost for finding the students with gpa > 3.7 from the 
+Student table assuming there is a B+ tree index of height 3 on the gpa 
+column 
+in the Student table with Alt. 
+2 which has 20 leaf pages. 
+(Reduction factor for gpa > 3.7 is 0.1) 
+(2 marks)
+b. Do we have to store the resulted Student pages in the disk before they
+are joined with the Grades table? 
+(1 mark)
+c. 
+Estimate the cost for finding the grades of the students with gpa > 3.7 
+assuming that the Grades table contains a Hash index of Alt. 
+1 on the
+sid column. Assume that the Index nested loop join 
+is used to join the 
+Student table and the Grades table. 
+(2 marks)
+d. 
+What is the total cost for executing the query? 
+_ 
+(2 mark)
+Page 5 of 7
+29/03/2016

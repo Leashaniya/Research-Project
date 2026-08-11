@@ -1,0 +1,8 @@
+REVISIT TO SCENARIO
+The junior DBAs are expected to manage the databases.
+Therefore they could be assigned with the db_owner role by the senior DBA as 
+follows :
+use inventoryDB
+alter role db_owner add member namali
+alter role db_securityadmin add member namali
+alter role db_accessadmin add member namali

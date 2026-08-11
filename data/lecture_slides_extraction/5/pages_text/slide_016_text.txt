@@ -1,0 +1,7 @@
+T-SQL: WHILE STATEMENT
+Sets a condition for the repeated execution of an SQL statement or 
+statement block.
+The statements are executed repeatedly as long as the specified 
+condition is true.
+The execution of statements in the WHILE loop can be controlled from 
+inside the loop with the BREAK and CONTINUE keywords.

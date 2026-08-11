@@ -1,0 +1,9 @@
+REVISIT TO SOME DEFINITIONS
+Superkey: Set of attributes S in relation R such that no two distinct tuples t1 and t2 will 
+have t1[S] = t2[S]
+Key: A key is a superkey with the additional property that removal of any attributes from 
+the key will not satisfy the key condition
+Candidate Key: Each key of a relation is called a candidate key
+Primary Key: A candidate key is chosen to be the primary key
+Prime Attribute: an attribute which is a member of a candidate key
+Nonprime Attribute: An attribute which is not prime
